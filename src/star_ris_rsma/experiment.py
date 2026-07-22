@@ -223,11 +223,16 @@ def train_ppo(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             global_step += 1
         returns = np.zeros(len(rw), dtype=np.float32)
         advantages = np.zeros(len(rw), dtype=np.float32)
-        running = 0.0
+        # Generalized Advantage Estimation with a bootstrap value for the tail state.
+        _, _, last_value = agent.act(obs, deterministic=True)
+        gae = 0.0
         for t in reversed(range(len(rw))):
-            running = rw[t] + cfg.gamma * running * (1.0 - float(dn[t]))
-            returns[t] = running
-            advantages[t] = returns[t] - vl[t]
+            nonterminal = 1.0 - float(dn[t])
+            next_value = last_value if t == len(rw) - 1 else vl[t + 1]
+            delta = rw[t] + cfg.gamma * next_value * nonterminal - vl[t]
+            gae = delta + cfg.gamma * cfg.gae_lambda * nonterminal * gae
+            advantages[t] = gae
+            returns[t] = advantages[t] + vl[t]
         losses = agent.update(np.asarray(ob), np.asarray(ac), np.asarray(lp), returns, advantages)
         logs.append({"step": global_step, "mean_reward": float(np.mean(rw)), **losses})
         if global_step % cfg.validation_interval < rollout or global_step == cfg.train_steps:
@@ -274,7 +279,11 @@ def evaluate_solver(
     bank: ScenarioBank | None = None,
 ) -> None:
     if bank is None:
-        bank = _bank_from_path_or_generate(cfg.test_bank_path, cfg, cfg.eval_scenarios, seed, "test")
+        # Fallback for non-locked (smoke) runs only. Use a fixed test seed distinct
+        # from the train/validation fallbacks (11001/22001) so the generated test
+        # scenarios stay disjoint from training and are identical across methods and
+        # solver seeds. Locked experiments must pass cfg.test_bank_path instead.
+        bank = _bank_from_path_or_generate(cfg.test_bank_path, cfg, cfg.eval_scenarios, 33001, "test")
     end = min(start + count, len(bank))
     rows: list[dict[str, object]] = []
     for scenario in range(start, end):

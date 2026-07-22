@@ -58,6 +58,7 @@ def paired_comparisons(df: pd.DataFrame, metric: str = "sum_rate") -> pd.DataFra
     methods = sorted(collapsed["method"].unique())
     rows: list[dict[str, object]] = []
     p_values: list[float] = []
+    w_p_values: list[float] = []
     for left, right in combinations(methods, 2):
         a = collapsed[collapsed.method == left][["scenario", metric]].rename(columns={metric: "left"})
         b = collapsed[collapsed.method == right][["scenario", metric]].rename(columns={metric: "right"})
@@ -90,10 +91,11 @@ def paired_comparisons(df: pd.DataFrame, metric: str = "sum_rate") -> pd.DataFra
         }
         rows.append(row)
         p_values.append(float(t_p))
+        w_p_values.append(float(w_p))
     if rows:
-        adjusted = holm_adjust(p_values)
-        for row, value in zip(rows, adjusted):
-            row["paired_t_p_holm"] = value
+        for row, t_holm, w_holm in zip(rows, holm_adjust(p_values), holm_adjust(w_p_values)):
+            row["paired_t_p_holm"] = t_holm
+            row["wilcoxon_p_holm"] = w_holm
     return pd.DataFrame(rows)
 
 

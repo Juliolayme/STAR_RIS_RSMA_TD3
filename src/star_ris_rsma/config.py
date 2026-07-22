@@ -29,6 +29,7 @@ class ExperimentConfig:
     validation_scenarios: int = 128
     exploration_noise: float = 0.15
     ppo_horizon: int = 2_048
+    gae_lambda: float = 0.95
     train_bank_path: str | None = None
     validation_bank_path: str | None = None
     test_bank_path: str | None = None
