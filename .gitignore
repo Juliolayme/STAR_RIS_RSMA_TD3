@@ -2,8 +2,11 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .venv/
+*.egg-info/
+artifacts/
 results/
 checkpoints/
 *.pt
 *.npz
+.smoke_id
 kaggle_jobs.json

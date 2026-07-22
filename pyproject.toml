@@ -9,7 +9,7 @@ description = "Single-agent DRL and conventional optimization baselines for SISO
 requires-python = ">=3.10"
 dependencies = [
   "numpy>=1.26",
-  "torch>=2.2",
+  "torch>=2.2,<2.13",
   "pandas>=2.1",
   "pyyaml>=6.0",
   "scipy>=1.11",

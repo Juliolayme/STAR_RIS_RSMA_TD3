@@ -12,6 +12,8 @@ p.add_argument("--seeds", nargs="+", type=int, default=list(range(8)))
 p.add_argument("--test-bank")
 p.add_argument("--scenario-count", type=int, default=1000)
 p.add_argument("--scenario-shard-size", type=int, default=100)
+p.add_argument("--latency-warmup", type=int, default=20)
+p.add_argument("--latency-count", type=int, default=500)
 p.add_argument("--output", default="kaggle_jobs.json")
 a = p.parse_args()
 cfg = ExperimentConfig.from_yaml(a.config)
@@ -43,6 +45,31 @@ for method in ["td3", "ddpg", "ppo"]:
                 f"--output results/test/{method}/N{cfg.n_ris}/seed_{seed}.csv"
             ),
         })
+for seed in a.seeds:
+    train_dir = f"results/train/td3/N{cfg.n_ris}/seed_{seed}"
+    jobs.append({
+        "kind": "ablation",
+        "method": "td3",
+        "seed": seed,
+        "depends_on": train_dir,
+        "command": (
+            f"python scripts/run_ablation.py --method td3 --config {a.config} "
+            f"--checkpoint {train_dir}/best.pt --bank {test_bank} --seed {seed} "
+            f"--output results/ablations/N{cfg.n_ris}/seed_{seed}.csv"
+        ),
+    })
+    jobs.append({
+        "kind": "latency",
+        "method": "td3",
+        "seed": seed,
+        "depends_on": train_dir,
+        "command": (
+            f"python scripts/benchmark_latency.py --method td3 --config {a.config} "
+            f"--checkpoint {train_dir}/best.pt --bank {test_bank} "
+            f"--warmup {a.latency_warmup} --count {a.latency_count} "
+            f"--output results/latency/td3_N{cfg.n_ris}_seed{seed}.csv"
+        ),
+    })
 for method in ["ao_sca", "ao_grid", "analytical_ris"]:
     for start in range(0, a.scenario_count, a.scenario_shard_size):
         count = min(a.scenario_shard_size, a.scenario_count - start)
@@ -57,5 +84,30 @@ for method in ["ao_sca", "ao_grid", "analytical_ris"]:
                 f"--output results/solvers/N{cfg.n_ris}/{method}_{start}_{start+count}.csv"
             ),
         })
+jobs.extend([
+    {
+        "kind": "merge",
+        "command": (
+            f"python scripts/merge_results.py --inputs results/test/**/*.csv results/solvers/**/*.csv "
+            f"--output results/merged/N{cfg.n_ris}_all.csv"
+        ),
+    },
+    {
+        "kind": "statistics",
+        "depends_on": f"results/merged/N{cfg.n_ris}_all.csv",
+        "command": (
+            f"python scripts/analyze_results.py --inputs results/merged/N{cfg.n_ris}_all.csv "
+            f"--output-dir results/statistics/N{cfg.n_ris}"
+        ),
+    },
+    {
+        "kind": "plot",
+        "depends_on": f"results/merged/N{cfg.n_ris}_all.csv",
+        "command": (
+            f"python scripts/plot_results.py --inputs results/merged/N{cfg.n_ris}_all.csv "
+            f"--output results/figures/N{cfg.n_ris}_sum_rate.png"
+        ),
+    },
+])
 Path(a.output).write_text(json.dumps(jobs, indent=2))
 print(f"Wrote {len(jobs)} jobs to {a.output}")
