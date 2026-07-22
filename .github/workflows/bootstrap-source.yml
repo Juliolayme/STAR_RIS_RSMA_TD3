@@ -17,11 +17,24 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Repair and validate archive chunks
+      - name: Repair verified connector transmission differences
+        run: sed -i 's/D8oreiYYY/D8ereiYYY/' bootstrap/part_01a
+      - name: Validate source part 07a
+        run: echo "4477c20a0680d06f26cd6696d53d91629fda058df78cd689c69a40269e819a00  bootstrap/part_07a" | sha256sum -c -
+      - name: Validate source part 07b
+        run: echo "f640c3de529d2ae0cf33968f1d9db19ca7e0dd2a6442452f0eaebaffac6904ac  bootstrap/part_07b" | sha256sum -c -
+      - name: Validate source part 07c
+        run: echo "8679c6d41fc70ea7bc5545c29512c1e12d6d7e86e14c1c8c3b8bac8655f2183c  bootstrap/part_07c" | sha256sum -c -
+      - name: Validate source part 07d
+        run: echo "efcb228b1a14e831798d1820bef8e5c7ded3378d6c735bd455b838f894a2727a  bootstrap/part_07d" | sha256sum -c -
+      - name: Validate source part 07e
+        run: echo "5d67f2112abaebfbb2ba9626cb2137242a0998c5199e33053d5261556a073ce3  bootstrap/part_07e" | sha256sum -c -
+      - name: Validate source part 08
+        run: echo "0602b16de762da7f1a117291c06e8694809c0b1a225595a5a54e11b1cc6095c5  bootstrap/part_08" | sha256sum -c -
+      - name: Validate all prior source parts
         shell: bash
         run: |
           set -euo pipefail
-          sed -i 's/D8oreiYYY/D8ereiYYY/' bootstrap/part_01a
           cat <<'EOF' | sha256sum -c -
           b69527687d8f202945e4979e56bb862ebfb272fc9c74648dc1d3af77ddefc2fe  bootstrap/part_00
           5144351794c2712ea21439aa0c0e430471eca7b61652b46a5b78df804507c487  bootstrap/part_01a
@@ -39,12 +52,6 @@ jobs:
           b7ebd4bc785fed4b4bea93732f96c8f83c4ba0fd5c11888158a44b3a421054f5  bootstrap/part_06c
           969dd83c8b3e364885c7d91d74df4e51ae7daad45b0a07743cc391f6034b9d0e  bootstrap/part_06d
           809b97ee147f29ddcdd5bbbb2ad3925d3f3dac6eafea5de5d492af480ff6c937  bootstrap/part_06e
-          4477c20a0680d06f26cd6696d53d91629fda058df78cd689c69a40269e819a00  bootstrap/part_07a
-          f640c3de529d2ae0cf33968f1d9db19ca7e0dd2a6442452f0eaebaffac6904ac  bootstrap/part_07b
-          8679c6d41fc70ea7bc5545c29512c1e12d6d7e86e14c1c8c3b8bac8655f2183c  bootstrap/part_07c
-          efcb228b1a14e831798d1820bef8e5c7ded3378d6c735bd455b838f894a2727a  bootstrap/part_07d
-          5d67f2112abaebfbb2ba9626cb2137242a0998c5199e33053d5261556a073ce3  bootstrap/part_07e
-          0602b16de762da7f1a117291c06e8694809c0b1a225595a5a54e11b1cc6095c5  bootstrap/part_08
           EOF
       - name: Reassemble and verify source archive
         shell: bash
