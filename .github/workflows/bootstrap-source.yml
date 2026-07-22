@@ -20,8 +20,10 @@ jobs:
           fetch-depth: 0
       - name: Validate source part 00
         run: echo "b69527687d8f202945e4979e56bb862ebfb272fc9c74648dc1d3af77ddefc2fe  bootstrap/part_00" | sha256sum -c -
-      - name: Validate source part 01
-        run: echo "e6945749157ce529d91f86163cd995ad1c0d7c223bb05ad324dfa4ef610d7140  bootstrap/part_01" | sha256sum -c -
+      - name: Validate source part 01a
+        run: echo "5144351794c2712ea21439aa0c0e430471eca7b61652b46a5b78df804507c487  bootstrap/part_01a" | sha256sum -c -
+      - name: Validate source part 01b
+        run: echo "97ad65ea923f9eced9cd6e6a3aefb075c9885d9aa950c7a26276f19a877cbc5e  bootstrap/part_01b" | sha256sum -c -
       - name: Validate source part 02
         run: echo "9144f48be33e9579255d6e456ad3bb37033cf09f19ba4ca9ffb4a4d19dd17009  bootstrap/part_02" | sha256sum -c -
       - name: Validate source part 03
@@ -40,7 +42,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat bootstrap/part_* > /tmp/source.tar.gz.b64
+          cat bootstrap/part_00 bootstrap/part_01a bootstrap/part_01b bootstrap/part_02 bootstrap/part_03 bootstrap/part_04 bootstrap/part_05 bootstrap/part_06 bootstrap/part_07 bootstrap/part_08 > /tmp/source.tar.gz.b64
           base64 --decode /tmp/source.tar.gz.b64 > /tmp/source.tar.gz
           echo "4096c2fe8a4aa5b0c364082d5ca066ae5125dd49af7c98560033bf50ed714d78  /tmp/source.tar.gz" | sha256sum -c -
       - name: Import repository tree
