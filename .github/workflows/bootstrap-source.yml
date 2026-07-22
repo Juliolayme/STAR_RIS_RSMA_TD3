@@ -18,21 +18,28 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      - name: Validate source part 00
+        run: echo "b69527687d8f202945e4979e56bb862ebfb272fc9c74648dc1d3af77ddefc2fe  bootstrap/part_00" | sha256sum -c -
+      - name: Validate source part 01
+        run: echo "e6945749157ce529d91f86163cd995ad1c0d7c223bb05ad324dfa4ef610d7140  bootstrap/part_01" | sha256sum -c -
+      - name: Validate source part 02
+        run: echo "9144f48be33e9579255d6e456ad3bb37033cf09f19ba4ca9ffb4a4d19dd17009  bootstrap/part_02" | sha256sum -c -
+      - name: Validate source part 03
+        run: echo "2cc12548e4469a845b9b37ca629ebc7b16f6fa4466390cad1d31900b89998f1d  bootstrap/part_03" | sha256sum -c -
+      - name: Validate source part 04
+        run: echo "dea75ea37925df36675eb185838378d5799f0d51b5c1cdb56d4c6c0d8ddbd82b  bootstrap/part_04" | sha256sum -c -
+      - name: Validate source part 05
+        run: echo "8b7675ae66363924d8996ee9d4306cf5c00d931ac346dbf5d5474d2bbb7ff5d5  bootstrap/part_05" | sha256sum -c -
+      - name: Validate source part 06
+        run: echo "0eb0c4b09ffe44e3b4f4845999002d3b17872d931165ebbed5a0d81a074f5cbe  bootstrap/part_06" | sha256sum -c -
+      - name: Validate source part 07
+        run: echo "c244f3fff60c904ab8135ee1d536d21596486b57b3083ade089edc05cc44603a  bootstrap/part_07" | sha256sum -c -
+      - name: Validate source part 08
+        run: echo "0602b16de762da7f1a117291c06e8694809c0b1a225595a5a54e11b1cc6095c5  bootstrap/part_08" | sha256sum -c -
       - name: Reassemble and verify source archive
         shell: bash
         run: |
           set -euo pipefail
-          cat <<'EOF' | sha256sum -c -
-          b69527687d8f202945e4979e56bb862ebfb272fc9c74648dc1d3af77ddefc2fe  bootstrap/part_00
-          e6945749157ce529d91f86163cd995ad1c0d7c223bb05ad324dfa4ef610d7140  bootstrap/part_01
-          9144f48be33e9579255d6e456ad3bb37033cf09f19ba4ca9ffb4a4d19dd17009  bootstrap/part_02
-          2cc12548e4469a845b9b37ca629ebc7b16f6fa4466390cad1d31900b89998f1d  bootstrap/part_03
-          dea75ea37925df36675eb185838378d5799f0d51b5c1cdb56d4c6c0d8ddbd82b  bootstrap/part_04
-          8b7675ae66363924d8996ee9d4306cf5c00d931ac346dbf5d5474d2bbb7ff5d5  bootstrap/part_05
-          0eb0c4b09ffe44e3b4f4845999002d3b17872d931165ebbed5a0d81a074f5cbe  bootstrap/part_06
-          c244f3fff60c904ab8135ee1d536d21596486b57b3083ade089edc05cc44603a  bootstrap/part_07
-          0602b16de762da7f1a117291c06e8694809c0b1a225595a5a54e11b1cc6095c5  bootstrap/part_08
-          EOF
           cat bootstrap/part_* > /tmp/source.tar.gz.b64
           base64 --decode /tmp/source.tar.gz.b64 > /tmp/source.tar.gz
           echo "4096c2fe8a4aa5b0c364082d5ca066ae5125dd49af7c98560033bf50ed714d78  /tmp/source.tar.gz" | sha256sum -c -
