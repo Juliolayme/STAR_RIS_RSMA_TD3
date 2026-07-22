@@ -45,8 +45,16 @@ jobs:
         run: echo "dea75ea37925df36675eb185838378d5799f0d51b5c1cdb56d4c6c0d8ddbd82b  bootstrap/part_04" | sha256sum -c -
       - name: Validate source part 05
         run: echo "8b7675ae66363924d8996ee9d4306cf5c00d931ac346dbf5d5474d2bbb7ff5d5  bootstrap/part_05" | sha256sum -c -
-      - name: Validate source part 06
-        run: echo "0eb0c4b09ffe44e3b4f4845999002d3b17872d931165ebbed5a0d81a074f5cbe  bootstrap/part_06" | sha256sum -c -
+      - name: Validate source part 06a
+        run: echo "08dce54e987bfec9ca1226d982adcae86e18341ab0da79902d5cecdebd6ea4cd  bootstrap/part_06a" | sha256sum -c -
+      - name: Validate source part 06b
+        run: echo "0a5f954e7a99cbef8f447a875f014cf6e54b95c9632d00b64c6f8c3a009aec26  bootstrap/part_06b" | sha256sum -c -
+      - name: Validate source part 06c
+        run: echo "b7ebd4bc785fed4b4bea93732f96c8f83c4ba0fd5c11888158a44b3a421054f5  bootstrap/part_06c" | sha256sum -c -
+      - name: Validate source part 06d
+        run: echo "969dd83c8b3e364885c7d91d74df4e51ae7daad45b0a07743cc391f6034b9d0e  bootstrap/part_06d" | sha256sum -c -
+      - name: Validate source part 06e
+        run: echo "809b97ee147f29ddcdd5bbbb2ad3925d3f3dac6eafea5de5d492af480ff6c937  bootstrap/part_06e" | sha256sum -c -
       - name: Validate source part 07
         run: echo "c244f3fff60c904ab8135ee1d536d21596486b57b3083ade089edc05cc44603a  bootstrap/part_07" | sha256sum -c -
       - name: Validate source part 08
@@ -55,7 +63,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat bootstrap/part_00 bootstrap/part_01a bootstrap/part_01b bootstrap/part_02 bootstrap/part_03a bootstrap/part_03b bootstrap/part_03c bootstrap/part_03d bootstrap/part_03e bootstrap/part_04 bootstrap/part_05 bootstrap/part_06 bootstrap/part_07 bootstrap/part_08 > /tmp/source.tar.gz.b64
+          cat bootstrap/part_00 bootstrap/part_01a bootstrap/part_01b bootstrap/part_02 bootstrap/part_03a bootstrap/part_03b bootstrap/part_03c bootstrap/part_03d bootstrap/part_03e bootstrap/part_04 bootstrap/part_05 bootstrap/part_06a bootstrap/part_06b bootstrap/part_06c bootstrap/part_06d bootstrap/part_06e bootstrap/part_07 bootstrap/part_08 > /tmp/source.tar.gz.b64
           base64 --decode /tmp/source.tar.gz.b64 > /tmp/source.tar.gz
           echo "4096c2fe8a4aa5b0c364082d5ca066ae5125dd49af7c98560033bf50ed714d78  /tmp/source.tar.gz" | sha256sum -c -
       - name: Import repository tree
