@@ -1,4 +1,4 @@
-n_ris: 32
+n_ris: 96
 n_users: 4
 p_max: 1.0
 noise_power: 0.001
@@ -16,6 +16,6 @@ validation_interval: 5000
 validation_scenarios: 1000
 exploration_noise: 0.15
 ppo_horizon: 2048
-train_bank_path: artifacts/scenario_banks/N32_train.npz
-validation_bank_path: artifacts/scenario_banks/N32_validation.npz
-test_bank_path: artifacts/scenario_banks/N32_test.npz
+train_bank_path: artifacts/scenario_banks/N96_train.npz
+validation_bank_path: artifacts/scenario_banks/N96_validation.npz
+test_bank_path: artifacts/scenario_banks/N96_test.npz

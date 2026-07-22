@@ -2,13 +2,11 @@
 
 ## 1. Frozen research scope
 
-Read this file before changing code or merging results into the thesis.
-
 The thesis remains:
 
 > TỐI ƯU PHÂN BỔ TÀI NGUYÊN SỬ DỤNG HỌC TĂNG CƯỜNG SÂU TRONG MẠNG STAR-RIS HỖ TRỢ RSMA
 
-The comparison design is frozen as follows:
+Frozen comparison design:
 
 - TD3: primary DRL method.
 - DDPG and PPO: DRL baselines.
@@ -17,9 +15,18 @@ The comparison design is frozen as follows:
 - NoRIS, FixedRIS, RandomRIS and Equal-Power: ablations only.
 - Do not reintroduce MADDPG, CTDE, TD3-Matched or old multi-agent claims.
 
-## 2. Physical invariants
+## 2. Six research blockers completed
 
-All six methods must use `src/star_ris_rsma/env.py` and `src/star_ris_rsma/physics.py`.
+1. **AO-SCA corrected**: proximal first-order block surrogate is constructed and solved in feasible physical variables with monotone backtracking.
+2. **AO-Grid corrected**: deterministic coordinate codebooks replace random perturbations.
+3. **ScenarioBank locked**: train/validation/test NPZ banks have metadata, checksums, shape validation and disjointness checks.
+4. **Checkpoint and raw CSV completed**: best checkpoint uses validation only; deterministic test evaluation writes one row per scenario.
+5. **Latency/statistics/plots completed**: CPU one-thread benchmark, 95% CI, paired t-test, Wilcoxon, Holm correction, effect size and result plots are implemented.
+6. **Ablation and multi-N completed**: NoRIS, FixedRIS, RandomRIS, Equal-Power and configs for N=16/32/64/96/128 are implemented.
+
+## 3. Physical invariants
+
+All methods must use `src/star_ris_rsma/env.py` and `src/star_ris_rsma/physics.py`.
 
 - SISO BS and users.
 - STAR-RIS energy-splitting mode.
@@ -30,99 +37,56 @@ All six methods must use `src/star_ris_rsma/env.py` and `src/star_ris_rsma/physi
 - Total power and common-rate shares are simplex-normalized.
 - Report sum-rate, per-user QoS fraction, all-users QoS probability and QoS violation.
 - Learned evaluation must be deterministic and exploration-free.
+- Do not alter channel/rate equations to improve one algorithm.
 
-Do not alter the channel/rate equations only to improve one algorithm.
-
-## 3. Mandatory validation before Kaggle
+## 4. Mandatory validation before Kaggle
 
 ```bash
 python -m pip install -e .[dev]
 pytest -q
-python scripts/run_train.py --method td3 --config configs/smoke.yaml --seed 0 --output results/smoke/td3
-python scripts/run_train.py --method ddpg --config configs/smoke.yaml --seed 0 --output results/smoke/ddpg
-python scripts/run_train.py --method ppo --config configs/smoke.yaml --seed 0 --output results/smoke/ppo
-python scripts/run_solver.py --method ao_sca --config configs/smoke.yaml --start 0 --count 4 --output results/smoke/ao_sca.csv
-python scripts/run_solver.py --method ao_grid --config configs/smoke.yaml --start 0 --count 4 --output results/smoke/ao_grid.csv
-python scripts/run_solver.py --method analytical_ris --config configs/smoke.yaml --start 0 --count 4 --output results/smoke/analytical_ris.csv
 ```
 
-Acceptance conditions:
+Create small smoke banks and run all commands in README before full experiments. Acceptance conditions:
 
 - all tests pass;
 - all outputs are finite;
-- power/common shares sum correctly;
-- STAR energy splitting is feasible;
-- AO-SCA objective history is non-decreasing within tolerance;
-- AO-SCA and AO-Grid remain separate implementations;
-- deterministic evaluation returns identical actions for identical observations.
+- train, validation and test banks are disjoint;
+- checkpoint selection reads validation only;
+- test evaluation is deterministic;
+- AO-SCA exact objective history is non-decreasing within tolerance;
+- AO-SCA reports surrogate/backtracking metadata;
+- AO-Grid reports declared finite codebooks and contains no random perturbation;
+- merge aborts on duplicate `(method, seed, scenario)` keys;
+- every final row includes method, seed, scenario, config hash and provenance where applicable.
 
-## 4. Kaggle execution
+## 5. Kaggle execution order
 
-### Setup
+For each N in `16 32 64 96 128`:
 
-```bash
-cd /kaggle/working
-git clone https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git
-cd STAR_RIS_RSMA_TD3
-pip install -q -e .
-python - <<'PY'
-import torch
-print(torch.__version__)
-print(torch.cuda.is_available())
-print(torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')
-PY
-```
+1. Create locked ScenarioBanks once.
+2. Generate Kaggle jobs.
+3. Run TD3/DDPG/PPO for seeds 0-7, one learned seed per GPU session.
+4. Evaluate every `best.pt` on the same locked test bank.
+5. Run AO-SCA/AO-Grid/AnalyticalRIS on non-overlapping scenario shards.
+6. Run TD3 ablations for all seeds.
+7. Run CPU one-thread latency benchmarks.
+8. Merge raw CSV and reject duplicates.
+9. Generate statistics and plots only from merged raw CSV.
+10. Archive configs, bank manifests, checkpoints, raw CSV, analysis CSV, figures and Git commit SHA.
 
-### Generate shard commands
+## 6. Scientific reporting contract
 
-```bash
-python scripts/make_kaggle_jobs.py \
-  --config configs/siso_n32.yaml \
-  --seeds 0 1 2 3 4 5 6 7 \
-  --scenario-count 1000 \
-  --scenario-shard-size 100 \
-  --output kaggle_jobs.json
-```
+- AO-SCA is a local proximal first-order alternating solver, not a global optimum or upper bound.
+- AO-Grid is a coarse coordinate codebook search.
+- AnalyticalRIS is phase alignment with equal power and equal common-rate allocation.
+- Do not tune any method on the test bank.
+- Do not remove a strong baseline because it outperforms TD3.
+- Do not reuse old MADDPG values, figures, p-values or scalability claims.
 
-This produces 24 learned shards and 10 scenario shards for each traditional solver.
-Run one learned seed per Kaggle GPU session. Traditional methods may run on CPU.
-Every shard must preserve its command, config, seed/range and output files.
+## 7. Thesis merge contract
 
-### Merge solver shards
-
-```bash
-python scripts/merge_results.py \
-  --inputs results/solvers/*.csv \
-  --output results/merged/traditional.csv
-```
-
-The merger must abort on duplicate `(method, seed, scenario)` keys.
-
-## 5. Required next code work for Codex
-
-Complete these before full thesis results are accepted:
-
-1. Add a locked ScenarioBank (`train/validation/test`) saved as NPZ.
-2. Add checkpoint loading and deterministic evaluation for TD3/DDPG/PPO.
-3. Select best checkpoints using validation only.
-4. Add raw per-scenario CSV for learned methods.
-5. Add CPU single-thread latency benchmark with warm-up.
-6. Add paired statistical tests, 95% confidence intervals and Holm correction.
-7. Add NoRIS, FixedRIS, RandomRIS and Equal-Power under a separate ablation module.
-8. Add configuration files for N = 16, 32, 64, 96 and 128.
-9. Add plots generated only from merged raw CSV files.
-10. Record Git commit SHA and configuration hash in every result manifest.
-
-Do not claim the current AO-SCA implementation is a global optimum or upper bound. It is a local first-order alternating solver with finite-difference gradients and monotone backtracking.
-
-## 6. Thesis merge contract
-
-Only update the thesis after the full locked experiment is complete.
-
-Replace the old method story with:
+Only update the thesis after the locked full experiment is complete. Use this method statement:
 
 > TD3 is the primary DRL method; DDPG and PPO are DRL baselines; AO-SCA is the primary conventional optimization baseline; AO-Grid and AnalyticalRIS are supplementary references.
 
-The thesis must report sum-rate, user QoS fraction, all-users QoS probability, constraint violation, mean and 95% CI, inference/solve latency, and AO iteration/evaluation counts.
-
-Do not reuse old MADDPG numerical values, figures, significance statements or scalability conclusions. Generate new tables and figures from this repository's locked result files.
+Report sum-rate, user QoS fraction, all-users QoS probability, constraint violation, mean and 95% CI, inference/solve latency, AO iterations/evaluations and paired tests with Holm correction.

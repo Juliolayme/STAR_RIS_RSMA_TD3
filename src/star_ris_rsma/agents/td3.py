@@ -49,6 +49,30 @@ class TD3Agent:
             self._soft_update()
         return {"critic_loss": float(q_loss.item()), "actor_loss": actor_loss_value}
 
+    def checkpoint_state(self) -> dict[str, object]:
+        return {
+            "actor": self.actor.state_dict(),
+            "actor_target": self.actor_target.state_dict(),
+            "q1": self.q1.state_dict(),
+            "q2": self.q2.state_dict(),
+            "q1_target": self.q1_target.state_dict(),
+            "q2_target": self.q2_target.state_dict(),
+            "actor_opt": self.actor_opt.state_dict(),
+            "q_opt": self.q_opt.state_dict(),
+            "update_count": self.update_count,
+        }
+
+    def load_checkpoint_state(self, state: dict[str, object], inference_only: bool = False) -> None:
+        self.actor.load_state_dict(state["actor"])
+        if inference_only:
+            self.actor_target.load_state_dict(state["actor"])
+            return
+        self.actor_target.load_state_dict(state["actor_target"])
+        self.q1.load_state_dict(state["q1"]); self.q2.load_state_dict(state["q2"])
+        self.q1_target.load_state_dict(state["q1_target"]); self.q2_target.load_state_dict(state["q2_target"])
+        self.actor_opt.load_state_dict(state["actor_opt"]); self.q_opt.load_state_dict(state["q_opt"])
+        self.update_count = int(state.get("update_count", 0))
+
     @torch.no_grad()
     def _soft_update(self) -> None:
         for source, target in [(self.actor, self.actor_target), (self.q1, self.q1_target), (self.q2, self.q2_target)]:

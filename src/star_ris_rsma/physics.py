@@ -41,20 +41,46 @@ def effective_channels(channel: ChannelSample, beta_t: np.ndarray, theta_t: np.n
     return h_eff
 
 
-def rsma_rates(h_eff: np.ndarray, powers: np.ndarray, common_fractions: np.ndarray, noise_power: float) -> dict[str, np.ndarray | float]:
+def rsma_rates(
+    h_eff: np.ndarray,
+    powers: np.ndarray,
+    common_fractions: np.ndarray,
+    noise_power: float,
+) -> dict[str, np.ndarray | float]:
+    """Compute SISO RSMA rates with one common and K private streams.
+
+    powers[0] is common-stream power, powers[1:] private powers.
+    All users decode the common stream while treating private streams as noise.
+    Each user then decodes its own private stream after SIC of the common stream.
+    """
     gains = np.abs(h_eff) ** 2
     p_common = float(powers[0])
     p_private = np.asarray(powers[1:], dtype=float)
     total_private = float(np.sum(p_private))
+
     sinr_common = gains * p_common / (gains * total_private + noise_power)
     common_decodable = np.log2(1.0 + sinr_common)
     common_rate = float(np.min(common_decodable))
+
     interference = np.maximum(total_private - p_private, 0.0)
     sinr_private = gains * p_private / (gains * interference + noise_power)
     private_rates = np.log2(1.0 + sinr_private)
+
     common_fractions = np.maximum(common_fractions, 0.0)
     denom = float(common_fractions.sum())
-    common_fractions = np.full_like(common_fractions, 1.0 / len(common_fractions)) if denom <= 1e-12 else common_fractions / denom
+    if denom <= 1e-12:
+        common_fractions = np.full_like(common_fractions, 1.0 / len(common_fractions))
+    else:
+        common_fractions = common_fractions / denom
     common_alloc = common_rate * common_fractions
     user_rates = private_rates + common_alloc
-    return {"sum_rate": float(np.sum(user_rates)), "user_rates": user_rates, "private_rates": private_rates, "common_rate": common_rate, "common_alloc": common_alloc, "sinr_common": sinr_common, "sinr_private": sinr_private}
+
+    return {
+        "sum_rate": float(np.sum(user_rates)),
+        "user_rates": user_rates,
+        "private_rates": private_rates,
+        "common_rate": common_rate,
+        "common_alloc": common_alloc,
+        "sinr_common": sinr_common,
+        "sinr_private": sinr_private,
+    }

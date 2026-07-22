@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -23,6 +25,13 @@ class ExperimentConfig:
     warmup_steps: int = 2_000
     train_steps: int = 100_000
     eval_scenarios: int = 1_000
+    validation_interval: int = 5_000
+    validation_scenarios: int = 128
+    exploration_noise: float = 0.15
+    ppo_horizon: int = 2_048
+    train_bank_path: str | None = None
+    validation_bank_path: str | None = None
+    test_bank_path: str | None = None
 
     @classmethod
     def from_yaml(cls, path: str | Path) -> "ExperimentConfig":
@@ -31,3 +40,7 @@ class ExperimentConfig:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def config_hash(self) -> str:
+        payload = json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
+        return hashlib.sha256(payload.encode()).hexdigest()
