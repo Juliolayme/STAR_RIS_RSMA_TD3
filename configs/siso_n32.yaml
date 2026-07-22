@@ -1,0 +1,14 @@
+n_ris: 32
+n_users: 4
+p_max: 1.0
+noise_power: 0.001
+qos_min: 0.5
+episode_length: 32
+gamma: 0.99
+tau: 0.005
+hidden_dim: 256
+batch_size: 256
+replay_size: 200000
+warmup_steps: 2000
+train_steps: 100000
+eval_scenarios: 1000
