@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "star-ris-rsma-td3"
-version = "0.1.0"
+version = "0.2.0"
 description = "Single-agent DRL and conventional optimization baselines for SISO STAR-RIS-assisted RSMA"
 requires-python = ">=3.10"
 dependencies = [

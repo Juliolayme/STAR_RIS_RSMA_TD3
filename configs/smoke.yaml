@@ -4,9 +4,15 @@ p_max: 1.0
 noise_power: 0.001
 qos_min: 0.2
 episode_length: 4
+gamma: 0.99
+tau: 0.005
 hidden_dim: 32
 batch_size: 8
 replay_size: 200
 warmup_steps: 8
 train_steps: 24
-eval_scenarios: 4
+eval_scenarios: 8
+validation_interval: 12
+validation_scenarios: 4
+exploration_noise: 0.15
+ppo_horizon: 16

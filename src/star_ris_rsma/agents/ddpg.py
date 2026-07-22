@@ -39,6 +39,25 @@ class DDPGAgent:
         self._soft_update()
         return {"critic_loss": float(q_loss.item()), "actor_loss": float(actor_loss.item())}
 
+    def checkpoint_state(self) -> dict[str, object]:
+        return {
+            "actor": self.actor.state_dict(),
+            "actor_target": self.actor_target.state_dict(),
+            "q": self.q.state_dict(),
+            "q_target": self.q_target.state_dict(),
+            "actor_opt": self.actor_opt.state_dict(),
+            "q_opt": self.q_opt.state_dict(),
+        }
+
+    def load_checkpoint_state(self, state: dict[str, object], inference_only: bool = False) -> None:
+        self.actor.load_state_dict(state["actor"])
+        if inference_only:
+            self.actor_target.load_state_dict(state["actor"])
+            return
+        self.actor_target.load_state_dict(state["actor_target"])
+        self.q.load_state_dict(state["q"]); self.q_target.load_state_dict(state["q_target"])
+        self.actor_opt.load_state_dict(state["actor_opt"]); self.q_opt.load_state_dict(state["q_opt"])
+
     @torch.no_grad()
     def _soft_update(self) -> None:
         for source, target in [(self.actor, self.actor_target), (self.q, self.q_target)]:

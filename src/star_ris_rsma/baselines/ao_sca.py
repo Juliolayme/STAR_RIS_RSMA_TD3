@@ -2,57 +2,130 @@ from __future__ import annotations
 
 import numpy as np
 
+from ..action import encode_action
 from ..env import StarRisRsmaEnv
-from .analytical_ris import solve as analytical_solve
+from .analytical_ris import analytical_action
+from .common import merit, physical_slices, project_physical, state_from_action, state_from_vector
 
 
-def _finite_difference_gradient(env: StarRisRsmaEnv, x: np.ndarray, indices: np.ndarray, eps: float) -> np.ndarray:
-    grad = np.zeros_like(x)
+def _block_gradient(
+    env: StarRisRsmaEnv,
+    x: np.ndarray,
+    indices: np.ndarray,
+    eps: float,
+) -> tuple[np.ndarray, int]:
+    """Central finite-difference gradient of the exact merit in physical variables."""
+    gradient = np.zeros_like(x)
+    evaluations = 0
     for j in indices:
         xp = x.copy(); xm = x.copy()
         xp[j] += eps; xm[j] -= eps
-        grad[j] = (float(env.evaluate_raw_action(xp)["reward"]) - float(env.evaluate_raw_action(xm)["reward"])) / (2.0 * eps)
-    return grad
+        xp = project_physical(xp, env.config.n_users, env.config.n_ris, env.config.p_max)
+        xm = project_physical(xm, env.config.n_users, env.config.n_ris, env.config.p_max)
+        fp = merit(state_from_vector(env, xp).metrics)
+        fm = merit(state_from_vector(env, xm).metrics)
+        evaluations += 2
+        direction = xp - xm
+        norm_sq = float(np.dot(direction, direction))
+        if norm_sq >= 1e-16:
+            gradient += ((fp - fm) / norm_sq) * direction
+    return gradient, evaluations
 
 
-def solve(env: StarRisRsmaEnv, max_iter: int = 20, tol: float = 1e-4, seed: int = 0):
-    """Two-block AO with first-order SCA surrogate and monotone backtracking.
+def _proximal_surrogate_maximizer(
+    x: np.ndarray,
+    gradient: np.ndarray,
+    indices: np.ndarray,
+    rho: float,
+    env: StarRisRsmaEnv,
+) -> np.ndarray:
+    """Solve max g^T(z-x) - rho/2 ||z-x||^2 over the feasible block."""
+    proposal = x.copy()
+    proposal[indices] = x[indices] + gradient[indices] / rho
+    return project_physical(proposal, env.config.n_users, env.config.n_ris, env.config.p_max)
 
-    Block 1 updates RSMA power/common logits. Block 2 updates STAR-RIS ES/phases.
-    The surrogate is a linearization plus a proximal quadratic term; backtracking
-    accepts only non-decreasing true objectives. This is intentionally distinct
-    from AO-Grid, though it remains a local numerical baseline rather than a
-    globally optimal solver.
+
+def solve(
+    env: StarRisRsmaEnv,
+    max_iter: int = 20,
+    tol: float = 1e-4,
+    gradient_eps: float = 1e-3,
+    initial_rho: float = 1.0,
+    rho_growth: float = 2.0,
+    max_backtracks: int = 16,
+    seed: int = 0,
+) -> tuple[np.ndarray, dict[str, object]]:
+    """Two-block proximal AO-SCA on feasible physical variables.
+
+    At each block, a concave first-order proximal surrogate is constructed:
+      g(x_t)^T (z - x_t) - rho/2 ||z - x_t||^2.
+    Its constrained maximizer is obtained by projection onto the power/common
+    simplices, beta box and periodic phase domain. Increasing rho implements
+    monotone backtracking on the exact merit. This is a local stationary-point
+    method and never an upper bound or global optimum.
     """
-    rng = np.random.default_rng(seed)
-    x, metrics = analytical_solve(env)
-    best = float(metrics["reward"])
-    split = (env.config.n_users + 1) + env.config.n_users
-    blocks = [np.arange(0, split), np.arange(split, x.size)]
-    history = [best]
-    for _ in range(max_iter):
-        previous = best
-        for indices in blocks:
-            if indices.size > 48:
-                indices = np.sort(rng.choice(indices, size=48, replace=False))
-            grad = _finite_difference_gradient(env, x, indices, eps=2e-3)
-            norm = float(np.linalg.norm(grad[indices]))
-            if norm < 1e-10:
+    del seed  # deterministic by design
+    initial = state_from_action(env, analytical_action(env))
+    current = initial
+    slices = physical_slices(env.config.n_users, env.config.n_ris)
+    rsma_indices = np.arange(slices["powers"].start, slices["common"].stop)
+    ris_indices = np.arange(slices["beta"].start, slices["theta_r"].stop)
+    blocks = [("rsma", rsma_indices), ("star_ris", ris_indices)]
+    history = [current.score]
+    evaluations = 1
+    accepted_steps = 0
+    surrogate_records: list[dict[str, float | str]] = []
+
+    for outer in range(max_iter):
+        previous = current.score
+        for block_name, indices in blocks:
+            gradient, grad_evals = _block_gradient(env, current.vector, indices, gradient_eps)
+            evaluations += grad_evals
+            grad_norm = float(np.linalg.norm(gradient[indices]))
+            if grad_norm < 1e-12:
+                surrogate_records.append({"block": block_name, "rho": initial_rho, "gain": 0.0})
                 continue
-            direction = grad / norm
-            step = 1.0
-            while step >= 1e-4:
-                trial = np.clip(x + step * direction, -6.0, 6.0)
-                m = env.evaluate_raw_action(trial)
-                score = float(m["reward"])
-                if score >= best - 1e-10:
-                    x, metrics, best = trial, m, score
+
+            rho = initial_rho
+            accepted = False
+            for _ in range(max_backtracks):
+                proposal_vector = _proximal_surrogate_maximizer(
+                    current.vector, gradient, indices, rho, env
+                )
+                proposal = state_from_vector(env, proposal_vector)
+                evaluations += 1
+                true_gain = proposal.score - current.score
+                displacement = proposal.vector - current.vector
+                surrogate_gain = float(
+                    gradient @ displacement - 0.5 * rho * np.dot(displacement, displacement)
+                )
+                if true_gain >= -1e-10 and surrogate_gain >= -1e-10:
+                    current = proposal
+                    accepted_steps += int(np.linalg.norm(displacement) > 1e-12)
+                    surrogate_records.append({
+                        "block": block_name,
+                        "rho": float(rho),
+                        "gain": float(true_gain),
+                    })
+                    accepted = True
                     break
-                step *= 0.5
-        history.append(best)
-        if abs(best - previous) / max(1.0, abs(previous)) < tol:
+                rho *= rho_growth
+            if not accepted:
+                surrogate_records.append({"block": block_name, "rho": float(rho), "gain": 0.0})
+
+        history.append(current.score)
+        relative_gain = abs(current.score - previous) / max(1.0, abs(previous))
+        if relative_gain < tol:
             break
-    metrics = dict(metrics)
-    metrics["objective_history"] = history
-    metrics["iterations"] = len(history) - 1
-    return x, metrics
+
+    metrics = dict(current.metrics)
+    metrics.update({
+        "solver": "ao_sca_proximal_physical",
+        "objective_history": history,
+        "iterations": len(history) - 1,
+        "evaluations": evaluations,
+        "accepted_steps": accepted_steps,
+        "surrogate_records": surrogate_records,
+        "initialization": "analytical_ris_equal_allocation",
+    })
+    return encode_action(current.action, env.config.p_max), metrics

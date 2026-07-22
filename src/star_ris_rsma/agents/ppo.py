@@ -30,6 +30,14 @@ class PPOAgent(nn.Module):
         value = self.critic(x).squeeze(-1)
         return action.cpu().numpy()[0].astype(np.float32), float(log_prob.item()), float(value.item())
 
+    def checkpoint_state(self) -> dict[str, object]:
+        return {"model": self.state_dict(), "optimizer": self.optimizer.state_dict()}
+
+    def load_checkpoint_state(self, state: dict[str, object], inference_only: bool = False) -> None:
+        self.load_state_dict(state["model"])
+        if not inference_only and "optimizer" in state:
+            self.optimizer.load_state_dict(state["optimizer"])
+
     def update(self, obs, actions, old_logp, returns, advantages, epochs: int = 10, clip_ratio: float = 0.2) -> dict[str, float]:
         obs_t = torch.as_tensor(obs, dtype=torch.float32, device=self.device)
         act_t = torch.as_tensor(actions, dtype=torch.float32, device=self.device).clamp(-0.999, 0.999)
