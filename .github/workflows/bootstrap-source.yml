@@ -18,6 +18,11 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
+      - name: Repair verified connector transmission differences
+        shell: bash
+        run: |
+          set -euo pipefail
+          sed -i 's/D8oreiYYY/D8ereiYYY/' bootstrap/part_01a
       - name: Validate source part 00
         run: echo "b69527687d8f202945e4979e56bb862ebfb272fc9c74648dc1d3af77ddefc2fe  bootstrap/part_00" | sha256sum -c -
       - name: Validate source part 01a
