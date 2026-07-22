@@ -207,7 +207,7 @@ def train_ppo(cfg: ExperimentConfig, seed: int, output: Path) -> None:
     _attach_training_bank(env, train_bank, seed + 30001)
     agent = build_agent("ppo", env.observation_dim, env.action_dim, cfg, device)
     obs = env.reset(); global_step = 0; logs: list[dict[str, object]] = []
-    horizon = min(cfg.ppo_horizon, max(128, cfg.episode_length * 4))
+    horizon = cfg.ppo_horizon
     output.mkdir(parents=True, exist_ok=True)
     best_score = -np.inf
 
