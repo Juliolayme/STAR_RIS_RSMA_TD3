@@ -1,10 +1,11 @@
 name: Bootstrap validated source
 
 on:
-  push:
+  pull_request:
     branches: [main]
     paths:
-      - bootstrap/READY
+      - bootstrap/TRIGGER_PR
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: write
@@ -15,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
       - name: Reassemble and verify source archive
         shell: bash
