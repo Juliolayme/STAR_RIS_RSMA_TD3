@@ -150,7 +150,7 @@ jobs:
               json.dumps(archive_summaries, indent=2), encoding="utf-8"
           )
 
-          lines = [
+          summary_lines = [
               "# Kaggle compact ZIP audit",
               "",
               f"Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
@@ -159,17 +159,21 @@ jobs:
               "|---|---:|---:|---:|",
           ]
           for item in archive_summaries:
-              lines.append(
+              summary_lines.append(
                   f"| `{item['archive']}` | {item['archive_size_bytes']} | "
                   f"{item['member_count']} | {item['uncompressed_bytes']} |"
               )
+
+          full_lines = list(summary_lines)
+          for item in archive_summaries:
+              full_lines.extend(["", f"## `{item['archive']}` members", ""])
               for member in item.get("members", []):
-                  lines.append(f"  - `{member}`")
+                  full_lines.append(f"- `{member}`")
 
           if previews:
-              lines.extend(["", "## Extracted text previews", ""])
+              full_lines.extend(["", "## Extracted text previews", ""])
               for name, text in previews:
-                  lines.extend([
+                  full_lines.extend([
                       f"### `{name}`",
                       "```text",
                       text[:12000],
@@ -177,14 +181,17 @@ jobs:
                       "",
                   ])
 
-          report = root / "ZIP_AUDIT.md"
-          report.write_text("\n".join(lines) + "\n", encoding="utf-8")
+          full_report = root / "ZIP_AUDIT.md"
+          full_report.write_text("\n".join(full_lines) + "\n", encoding="utf-8")
+
+          issue_report = root / "ZIP_AUDIT_ISSUE.md"
+          issue_report.write_text("\n".join(summary_lines) + "\n", encoding="utf-8")
 
           step_summary = os.environ.get("GITHUB_STEP_SUMMARY")
           if step_summary:
               with open(step_summary, "a", encoding="utf-8") as handle:
-                  handle.write(report.read_text(encoding="utf-8"))
-          print(report.read_text(encoding="utf-8"))
+                  handle.write(issue_report.read_text(encoding="utf-8"))
+          print(issue_report.read_text(encoding="utf-8"))
           PY
 
       - name: Upload ZIP audit artifact
@@ -195,15 +202,23 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Publish audit issue
+      - name: Publish concise audit issue
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          {
-            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-            echo
-            cat kaggle_zip_outputs/ZIP_AUDIT.md
-          } > /tmp/kaggle_zip_issue.md
+          python - <<'PY'
+          from pathlib import Path
+
+          source = Path("kaggle_zip_outputs/ZIP_AUDIT_ISSUE.md")
+          body = source.read_text(encoding="utf-8")
+          run_line = (
+              f"Run: https://github.com/${{ github.repository }}"
+              f"/actions/runs/${{ github.run_id }}\n\n"
+          )
+          body = (run_line + body)[:60000]
+          Path("/tmp/kaggle_zip_issue.md").write_text(body, encoding="utf-8")
+          PY
           gh issue create \
             --repo "$GITHUB_REPOSITORY" \
             --title "Kaggle ZIP audit run ${GITHUB_RUN_ID}" \
