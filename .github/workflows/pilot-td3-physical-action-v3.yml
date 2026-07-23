@@ -1,11 +1,7 @@
 name: TD3 Physical Action v3 Pilot
 
+# Expensive pilot: manual dispatch only. The completed pilot is run 30031762393.
 on:
-  push:
-    branches:
-      - agent/td3-qos-scalability-v2
-    paths:
-      - ".github/workflows/pilot-td3-physical-action-v3.yml"
   workflow_dispatch:
 
 permissions:
