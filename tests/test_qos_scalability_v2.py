@@ -4,7 +4,10 @@ import pandas as pd
 from star_ris_rsma.agents.td3 import TD3Agent
 from star_ris_rsma.config import ExperimentConfig
 from star_ris_rsma.env import StarRisRsmaEnv
-from star_ris_rsma.experiment_v2 import constrained_validation_summary
+from star_ris_rsma.experiment_v2 import (
+    QosDualController,
+    constrained_validation_summary,
+)
 
 
 def test_blockwise_observation_scale_does_not_vanish_with_n():
@@ -65,6 +68,72 @@ def test_qos_first_checkpoint_selection_beats_higher_reward_infeasible_policy():
     assert good["feasible"] is True
     assert bad["feasible"] is False
     assert tuple(good["selection_key"]) > tuple(bad["selection_key"])
+
+
+def test_infeasible_checkpoint_uses_normalized_total_constraint_gap():
+    cfg = ExperimentConfig(
+        validation_qos_fraction_target=0.99,
+        validation_all_qos_target=0.95,
+        validation_violation_tolerance=0.001,
+    )
+    small_gap = pd.DataFrame({
+        "reward": [8.0, 8.0],
+        "sum_rate": [10.0, 10.0],
+        "qos_fraction": [0.99, 0.99],
+        "all_qos": [0.94, 0.94],
+        "violation": [0.0005, 0.0005],
+    })
+    large_gap = pd.DataFrame({
+        "reward": [12.0, 12.0],
+        "sum_rate": [14.0, 14.0],
+        "qos_fraction": [0.99, 0.99],
+        "all_qos": [0.96, 0.96],
+        "violation": [0.002, 0.002],
+    })
+    preferred = constrained_validation_summary(small_gap, cfg, 10)
+    rejected = constrained_validation_summary(large_gap, cfg, 20)
+    assert preferred["feasible"] is False
+    assert rejected["feasible"] is False
+    assert preferred["constraint_gap"] < rejected["constraint_gap"]
+    assert tuple(preferred["selection_key"]) > tuple(rejected["selection_key"])
+
+
+def test_adaptive_qos_dual_increases_and_projects_at_maximum():
+    cfg = ExperimentConfig(
+        qos_dual_enabled=True,
+        qos_dual_initial=8.0,
+        qos_dual_learning_rate=20.0,
+        qos_dual_target_violation=0.001,
+        qos_dual_update_interval=10,
+        qos_dual_ema_beta=0.0,
+        qos_dual_min=4.0,
+        qos_dual_max=9.0,
+    )
+    dual = QosDualController.from_config(cfg)
+    dual.observe(0.101)
+    assert dual.maybe_update(step=10, warmup_steps=0) is True
+    assert dual.value == 9.0
+    assert dual.updates == 1
+
+
+def test_adaptive_qos_dual_is_disabled_for_legacy_configs():
+    cfg = ExperimentConfig(qos_penalty_linear=2.0)
+    dual = QosDualController.from_config(cfg)
+    dual.observe(1.0)
+    assert dual.maybe_update(step=1000, warmup_steps=0) is False
+    assert dual.value == 2.0
+
+
+def test_new_dual_fields_do_not_change_legacy_v2_hash():
+    base = ExperimentConfig(action_parameterization="physical_v3")
+    constrained = ExperimentConfig(
+        action_parameterization="physical_v3",
+        qos_dual_enabled=True,
+        qos_dual_initial=16.0,
+        qos_dual_learning_rate=40.0,
+        qos_dual_target_violation=0.0005,
+    )
+    assert base.legacy_config_hash_v2() == constrained.legacy_config_hash_v2()
 
 
 def test_td3_noise_is_dimension_normalized():
