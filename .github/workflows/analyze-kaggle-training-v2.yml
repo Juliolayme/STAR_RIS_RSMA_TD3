@@ -1,0 +1,116 @@
+name: Analyze Kaggle Training Results v2
+
+on:
+  push:
+    paths:
+      - ".github/workflows/analyze-kaggle-training-v2.yml"
+      - "scripts/audit_kaggle_training_archives_v2.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  analyze-v2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade kaggle pandas numpy
+
+      - name: Create isolated Kaggle credentials
+        env:
+          KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+          KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+          KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          specs = {
+              "td3": ("thanhnguyen1423", os.environ.get("KAGGLE_TD3_KEY")),
+              "ddpg": ("ronganminh", os.environ.get("KAGGLE_DDPG_KEY")),
+              "ppo": ("duythanhb1909984", os.environ.get("KAGGLE_PPO_KEY")),
+          }
+          missing = [name for name, (_, key) in specs.items() if not key]
+          if missing:
+              raise SystemExit("Missing Kaggle secrets: " + ", ".join(missing))
+
+          base = Path(os.environ["RUNNER_TEMP"]) / "kaggle"
+          for name, (username, key) in specs.items():
+              target_dir = base / name
+              target_dir.mkdir(parents=True, exist_ok=True)
+              target = target_dir / "kaggle.json"
+              target.write_text(json.dumps({"username": username, "key": key}))
+              target.chmod(0o600)
+          PY
+
+      - name: Download six Kaggle ZIP outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="kaggle_archives"
+          mkdir -p "$ROOT"
+
+          download_zip() {
+            local method="$1"
+            local ref="$2"
+            local credential="$3"
+            local slug="${ref#*/}"
+            local destination="$ROOT/$method/$slug"
+            mkdir -p "$destination"
+            export KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle/$credential"
+            kaggle kernels output "$ref" --path "$destination" --force \
+              --file-pattern '(?i).*\.zip$'
+          }
+
+          download_zip td3  thanhnguyen1423/td3-a-n128-n32-n16 td3
+          download_zip td3  thanhnguyen1423/td3-b-n96-n64 td3
+          download_zip ddpg ronganminh/ddpg-a-n128-n32-n16 ddpg
+          download_zip ddpg ronganminh/ddpg-b-n96-n64 ddpg
+          download_zip ppo  duythanhb1909984/ppo-a-n128-n32-n16 ppo
+          download_zip ppo  duythanhb1909984/ppo-b-n96-n64 ppo
+
+      - name: Analyze training outputs with corrected parser
+        run: |
+          python scripts/audit_kaggle_training_archives_v2.py \
+            --archives-root kaggle_archives \
+            --output-dir kaggle_training_audit_v2
+
+      - name: Add report to workflow summary
+        run: cat kaggle_training_audit_v2/AUDIT_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload compact audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: star-ris-kaggle-training-audit-v2
+          path: kaggle_training_audit_v2/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish concise audit issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            head -c 60000 kaggle_training_audit_v2/AUDIT_REPORT.md
+          } > /tmp/kaggle_training_audit_v2_issue.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Kaggle training audit v2 run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/kaggle_training_audit_v2_issue.md
