@@ -9,6 +9,32 @@ from typing import Any
 import yaml
 
 
+_LEGACY_V1_FIELDS = (
+    "n_ris",
+    "n_users",
+    "p_max",
+    "noise_power",
+    "qos_min",
+    "episode_length",
+    "gamma",
+    "tau",
+    "hidden_dim",
+    "batch_size",
+    "replay_size",
+    "warmup_steps",
+    "train_steps",
+    "eval_scenarios",
+    "validation_interval",
+    "validation_scenarios",
+    "exploration_noise",
+    "ppo_horizon",
+    "gae_lambda",
+    "train_bank_path",
+    "validation_bank_path",
+    "test_bank_path",
+)
+
+
 @dataclass(slots=True)
 class ExperimentConfig:
     n_ris: int = 32
@@ -84,6 +110,15 @@ class ExperimentConfig:
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
 
-    def config_hash(self) -> str:
-        payload = json.dumps(self.to_dict(), sort_keys=True, separators=(",", ":"))
+    @staticmethod
+    def _hash_payload(payload_dict: dict[str, Any]) -> str:
+        payload = json.dumps(payload_dict, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(payload.encode()).hexdigest()
+
+    def config_hash(self) -> str:
+        return self._hash_payload(self.to_dict())
+
+    def legacy_config_hash_v1(self) -> str:
+        data = self.to_dict()
+        legacy = {field: data[field] for field in _LEGACY_V1_FIELDS}
+        return self._hash_payload(legacy)
