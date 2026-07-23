@@ -123,6 +123,11 @@ class ExperimentConfig:
     def config_hash(self) -> str:
         return self._hash_payload(self.to_dict())
 
+    def legacy_config_hash_v2(self) -> str:
+        data = self.to_dict()
+        data.pop("action_parameterization", None)
+        return self._hash_payload(data)
+
     def legacy_config_hash_v1(self) -> str:
         data = self.to_dict()
         legacy = {field: data[field] for field in _LEGACY_V1_FIELDS}
