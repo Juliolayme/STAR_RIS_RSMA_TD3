@@ -63,6 +63,7 @@ class ExperimentConfig:
     # Backward-compatible environment controls. Existing YAML files reproduce
     # the original experiment because these defaults match the old behaviour.
     observation_normalization: str = "global_l2"
+    action_parameterization: str = "legacy_v1"
     qos_penalty_linear: float = 2.0
     qos_penalty_quadratic: float = 0.0
 
@@ -90,6 +91,10 @@ class ExperimentConfig:
         if self.observation_normalization not in {"global_l2", "blockwise_v2"}:
             raise ValueError(
                 "observation_normalization must be 'global_l2' or 'blockwise_v2'"
+            )
+        if self.action_parameterization not in {"legacy_v1", "physical_v3"}:
+            raise ValueError(
+                "action_parameterization must be 'legacy_v1' or 'physical_v3'"
             )
         if self.td3_critic_loss not in {"mse", "huber"}:
             raise ValueError("td3_critic_loss must be 'mse' or 'huber'")
