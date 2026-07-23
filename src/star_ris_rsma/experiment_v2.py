@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import json
 from pathlib import Path
 from typing import Any
@@ -21,6 +22,90 @@ from .experiment import (
 from .replay import ReplayBuffer
 
 
+@dataclass
+class QosDualController:
+    """Projected dual-ascent controller for the mean QoS violation constraint.
+
+    The TD3 critic receives a shaped reward using the current dual multiplier.
+    The multiplier increases only when the exponentially smoothed violation is
+    above the predeclared target and is projected onto a bounded interval. This
+    avoids choosing one excessively large fixed penalty for every RIS size.
+    """
+
+    enabled: bool
+    value: float
+    learning_rate: float
+    target_violation: float
+    update_interval: int
+    ema_beta: float
+    minimum: float
+    maximum: float
+    violation_ema: float | None = None
+    updates: int = 0
+
+    @classmethod
+    def from_config(cls, cfg: ExperimentConfig) -> "QosDualController":
+        return cls(
+            enabled=bool(cfg.qos_dual_enabled),
+            value=float(cfg.qos_dual_initial if cfg.qos_dual_enabled else cfg.qos_penalty_linear),
+            learning_rate=float(cfg.qos_dual_learning_rate),
+            target_violation=float(cfg.qos_dual_target_violation),
+            update_interval=int(cfg.qos_dual_update_interval),
+            ema_beta=float(cfg.qos_dual_ema_beta),
+            minimum=float(cfg.qos_dual_min),
+            maximum=float(cfg.qos_dual_max),
+        )
+
+    def shaped_reward(self, info: dict[str, object], quadratic_penalty: float) -> float:
+        sum_rate = float(info["sum_rate"])
+        violation = float(info["violation"])
+        violation_squared = float(info.get("violation_squared", violation * violation))
+        return float(
+            sum_rate
+            - self.value * violation
+            - float(quadratic_penalty) * violation_squared
+        )
+
+    def observe(self, violation: float) -> None:
+        value = float(violation)
+        if self.violation_ema is None:
+            self.violation_ema = value
+        else:
+            self.violation_ema = (
+                self.ema_beta * self.violation_ema
+                + (1.0 - self.ema_beta) * value
+            )
+
+    def maybe_update(self, step: int, warmup_steps: int) -> bool:
+        if (
+            not self.enabled
+            or self.violation_ema is None
+            or step <= warmup_steps
+            or step % self.update_interval != 0
+        ):
+            return False
+        proposed = self.value + self.learning_rate * (
+            self.violation_ema - self.target_violation
+        )
+        self.value = float(np.clip(proposed, self.minimum, self.maximum))
+        self.updates += 1
+        return True
+
+    def state_dict(self) -> dict[str, object]:
+        return {
+            "enabled": self.enabled,
+            "value": self.value,
+            "learning_rate": self.learning_rate,
+            "target_violation": self.target_violation,
+            "update_interval": self.update_interval,
+            "ema_beta": self.ema_beta,
+            "minimum": self.minimum,
+            "maximum": self.maximum,
+            "violation_ema": self.violation_ema,
+            "updates": self.updates,
+        }
+
+
 def exploration_noise_at_step(cfg: ExperimentConfig, step: int) -> float:
     progress = min(max(step, 0) / cfg.exploration_decay_steps, 1.0)
     return float(
@@ -39,20 +124,25 @@ def constrained_validation_summary(
     mean_qos_fraction = float(raw["qos_fraction"].mean())
     mean_all_qos = float(raw["all_qos"].astype(float).mean())
     mean_violation = float(raw["violation"].mean())
-    feasible = bool(
-        mean_qos_fraction >= cfg.validation_qos_fraction_target
-        and mean_all_qos >= cfg.validation_all_qos_target
-        and mean_violation <= cfg.validation_violation_tolerance
-    )
 
-    # Lexicographic QoS-first selection. Once feasible, maximize sum-rate.
-    # Before feasibility, reduce violation first and then prefer broader QoS.
+    qos_gap = max(cfg.validation_qos_fraction_target - mean_qos_fraction, 0.0)
+    all_qos_gap = max(cfg.validation_all_qos_target - mean_all_qos, 0.0)
+    violation_gap = max(
+        mean_violation - cfg.validation_violation_tolerance,
+        0.0,
+    ) / max(cfg.validation_violation_tolerance, 1e-12)
+    constraint_gap = float(qos_gap + all_qos_gap + violation_gap)
+    feasible = bool(constraint_gap <= 1e-12)
+
+    # A checkpoint must first satisfy all predeclared QoS constraints. Among
+    # feasible checkpoints maximize sum-rate; before feasibility minimize the
+    # normalized aggregate constraint gap and then the raw violation.
     selection_key = (
         int(feasible),
-        mean_sum_rate if feasible else -mean_violation,
+        mean_sum_rate if feasible else -constraint_gap,
+        -mean_violation,
         mean_all_qos,
         mean_qos_fraction,
-        -mean_violation,
         mean_reward,
     )
     return {
@@ -62,6 +152,10 @@ def constrained_validation_summary(
         "mean_qos_fraction": mean_qos_fraction,
         "mean_all_qos": mean_all_qos,
         "mean_violation": mean_violation,
+        "qos_fraction_gap": qos_gap,
+        "all_qos_gap": all_qos_gap,
+        "normalized_violation_gap": violation_gap,
+        "constraint_gap": constraint_gap,
         "feasible": feasible,
         "selection_key": list(selection_key),
     }
@@ -128,7 +222,7 @@ def _validation_step_v2(
 
 
 def train_td3_v2(cfg: ExperimentConfig, seed: int, output: Path) -> None:
-    """TD3 v2 pilot with N-stable inputs and QoS-first checkpoint selection."""
+    """TD3 with N-stable inputs and constrained QoS checkpoint selection."""
     _seed_everything(seed)
     device = _device()
     train_bank = _bank_from_path_or_generate(
@@ -150,6 +244,7 @@ def train_td3_v2(cfg: ExperimentConfig, seed: int, output: Path) -> None:
     _attach_training_bank(env, train_bank, seed + 30001)
     agent = build_agent("td3", env.observation_dim, env.action_dim, cfg, device)
     replay = ReplayBuffer(env.observation_dim, env.action_dim, cfg.replay_size, seed)
+    dual = QosDualController.from_config(cfg)
     obs = env.reset()
     output.mkdir(parents=True, exist_ok=True)
 
@@ -163,8 +258,11 @@ def train_td3_v2(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             exploration_noise = exploration_noise_at_step(cfg, step)
             action = agent.act(obs, noise_std=exploration_noise)
 
-        next_obs, reward, done, info = env.step(action)
-        replay.add(obs, action, reward, next_obs, done)
+        next_obs, environment_reward, done, info = env.step(action)
+        training_reward = dual.shaped_reward(info, cfg.qos_penalty_quadratic)
+        replay.add(obs, action, training_reward, next_obs, done)
+        dual.observe(float(info["violation"]))
+        dual_updated = dual.maybe_update(step, cfg.warmup_steps)
         obs = env.reset() if done else next_obs
         losses = (
             agent.update(replay.sample(cfg.batch_size))
@@ -175,11 +273,15 @@ def train_td3_v2(cfg: ExperimentConfig, seed: int, output: Path) -> None:
         if step == 1 or step % 1000 == 0:
             rows.append({
                 "step": step,
-                "reward": reward,
+                "reward": training_reward,
+                "environment_reward": environment_reward,
                 "sum_rate": info["sum_rate"],
                 "qos_fraction": info["qos_fraction"],
                 "all_qos": info["all_qos"],
                 "violation": info["violation"],
+                "qos_dual": dual.value,
+                "qos_violation_ema": dual.violation_ema,
+                "qos_dual_updated": dual_updated,
                 "exploration_noise": exploration_noise,
                 **losses,
             })
@@ -214,9 +316,10 @@ def train_td3_v2(cfg: ExperimentConfig, seed: int, output: Path) -> None:
         device,
         {"train": train_bank, "validation": validation_bank},
         {
-            "training_protocol": "td3_qos_scalability_v2",
+            "training_protocol": "td3_qos_scalability_v3_constrained",
             "best_validation": best,
-            "checkpoint_selection": "qos_first_lexicographic",
+            "checkpoint_selection": "feasibility_first_normalized_gap_then_sum_rate",
+            "qos_dual": dual.state_dict(),
             "exploration_schedule": {
                 "start": cfg.exploration_noise,
                 "final": cfg.exploration_noise_final,
