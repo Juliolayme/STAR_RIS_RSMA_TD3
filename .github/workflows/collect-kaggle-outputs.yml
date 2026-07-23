@@ -82,8 +82,7 @@ jobs:
             kaggle kernels output "$ref" \
               --path "$destination" \
               --force \
-              --page-size 200 \
-              --file-pattern '.*\.(csv|json|txt|log|yaml|yml|png|pdf|md)$'
+              --file-pattern '(?i).*\.(csv|json|txt|log|yaml|yml|png|pdf|md)$'
           }
 
           download_notebook td3  thanhnguyen1423/td3-a-n128-n32-n16 td3
@@ -93,13 +92,13 @@ jobs:
           download_notebook ppo  duythanhb1909984/ppo-a-n128-n32-n16 ppo
           download_notebook ppo  duythanhb1909984/ppo-b-n96-n64      ppo
 
-      - name: Build inventory and ZIP artifact
+      - name: Build inventory and coverage audit
         run: |
           python - <<'PY'
           import csv
           import hashlib
           import json
-          import zipfile
+          import os
           from pathlib import Path
 
           root = Path("collected_kaggle_outputs")
@@ -126,46 +125,175 @@ jobs:
               writer.writeheader()
               writer.writerows(rows)
 
-          summary = {
-              "notebooks": {
-                  "td3": [
-                      "thanhnguyen1423/td3-a-n128-n32-n16",
-                      "thanhnguyen1423/td3-b-n96-n64",
-                  ],
-                  "ddpg": [
-                      "ronganminh/ddpg-a-n128-n32-n16",
-                      "ronganminh/ddpg-b-n96-n64",
-                  ],
-                  "ppo": [
-                      "duythanhb1909984/ppo-a-n128-n32-n16",
-                      "duythanhb1909984/ppo-b-n96-n64",
-                  ],
+          expected_sessions = {
+              "td3": {
+                  "td3-a-n128-n32-n16": [128, 32, 16],
+                  "td3-b-n96-n64": [96, 64],
               },
+              "ddpg": {
+                  "ddpg-a-n128-n32-n16": [128, 32, 16],
+                  "ddpg-b-n96-n64": [96, 64],
+              },
+              "ppo": {
+                  "ppo-a-n128-n32-n16": [128, 32, 16],
+                  "ppo-b-n96-n64": [96, 64],
+              },
+          }
+
+          local_paths = [
+              path.relative_to(root).as_posix().lower()
+              for path in root.rglob("*")
+              if path.is_file()
+          ]
+
+          def has_suffix(*suffixes: str) -> bool:
+              normalized = [suffix.lower().lstrip("/") for suffix in suffixes]
+              return any(
+                  any(path.endswith(suffix) for suffix in normalized)
+                  for path in local_paths
+              )
+
+          coverage = []
+          required_missing = []
+          for method, sessions in expected_sessions.items():
+              for session, n_values in sessions.items():
+                  session_prefix = f"{method}/{session}/"
+                  session_files = [p for p in local_paths if p.startswith(session_prefix)]
+                  for n_ris in n_values:
+                      for seed in range(8):
+                          train_base = f"results/train/{method}/n{n_ris}/seed_{seed}"
+                          train_base_alt = f"train/{method}/n{n_ris}/seed_{seed}"
+                          test_path = f"results/test/{method}/n{n_ris}/seed_{seed}.csv"
+                          test_path_alt = f"test/{method}/n{n_ris}/seed_{seed}.csv"
+
+                          training = has_suffix(
+                              f"{train_base}/training.csv",
+                              f"{train_base_alt}/training.csv",
+                          )
+                          validation = has_suffix(
+                              f"{train_base}/validation_raw.csv",
+                              f"{train_base_alt}/validation_raw.csv",
+                          )
+                          manifest = has_suffix(
+                              f"{train_base}/manifest.json",
+                              f"{train_base_alt}/manifest.json",
+                          )
+                          test_csv = has_suffix(test_path, test_path_alt)
+                          complete = training and validation and manifest and test_csv
+                          record = {
+                              "method": method,
+                              "session": session,
+                              "n_ris": n_ris,
+                              "seed": seed,
+                              "training_csv": training,
+                              "validation_raw_csv": validation,
+                              "manifest_json": manifest,
+                              "test_csv": test_csv,
+                              "complete": complete,
+                          }
+                          coverage.append(record)
+                          if not complete:
+                              required_missing.append(record)
+
+          coverage_csv = root / "COVERAGE_REPORT.csv"
+          with coverage_csv.open("w", newline="", encoding="utf-8") as handle:
+              writer = csv.DictWriter(handle, fieldnames=list(coverage[0]))
+              writer.writeheader()
+              writer.writerows(coverage)
+
+          complete_count = sum(int(row["complete"]) for row in coverage)
+          total_count = len(coverage)
+          extension_counts = {}
+          for path in local_paths:
+              suffix = Path(path).suffix.lower() or "<no_extension>"
+              extension_counts[suffix] = extension_counts.get(suffix, 0) + 1
+
+          md = [
+              "# Kaggle output coverage audit",
+              "",
+              f"- Complete method/N/seed units: **{complete_count}/{total_count}**",
+              f"- Missing or incomplete units: **{total_count - complete_count}**",
+              f"- Downloaded files: **{len(local_paths)}**",
+              "",
+              "## Downloaded file types",
+              "",
+              "| Extension | Count |",
+              "|---|---:|",
+          ]
+          for suffix, count in sorted(extension_counts.items()):
+              md.append(f"| `{suffix}` | {count} |")
+
+          md.extend([
+              "",
+              "## Coverage by method and N",
+              "",
+              "| Method | N | Complete seeds |",
+              "|---|---:|---:|",
+          ])
+          for method in ["td3", "ddpg", "ppo"]:
+              for n_ris in [16, 32, 64, 96, 128]:
+                  subset = [r for r in coverage if r["method"] == method and r["n_ris"] == n_ris]
+                  md.append(
+                      f"| {method.upper()} | {n_ris} | "
+                      f"{sum(int(r['complete']) for r in subset)}/8 |"
+                  )
+
+          md.extend([
+              "",
+              "## Missing details",
+              "",
+          ])
+          if required_missing:
+              md.append("| Method | N | Seed | Missing |")
+              md.append("|---|---:|---:|---|")
+              for row in required_missing:
+                  missing = [
+                      name
+                      for name, key in [
+                          ("training.csv", "training_csv"),
+                          ("validation_raw.csv", "validation_raw_csv"),
+                          ("manifest.json", "manifest_json"),
+                          ("test CSV", "test_csv"),
+                      ]
+                      if not row[key]
+                  ]
+                  md.append(
+                      f"| {row['method'].upper()} | {row['n_ris']} | "
+                      f"{row['seed']} | {', '.join(missing)} |"
+                  )
+          else:
+              md.append("All expected lightweight result files are present.")
+
+          report = root / "COVERAGE_REPORT.md"
+          report.write_text("\n".join(md) + "\n", encoding="utf-8")
+
+          summary = {
+              "notebooks": expected_sessions,
               "included_extensions": [
                   "csv", "json", "txt", "log", "yaml", "yml",
                   "png", "pdf", "md"
               ],
-              "file_count": len(rows),
+              "downloaded_file_count": len(local_paths),
+              "complete_units": complete_count,
+              "expected_units": total_count,
+              "missing_units": total_count - complete_count,
           }
           (root / "COLLECTION_SUMMARY.json").write_text(
               json.dumps(summary, indent=2), encoding="utf-8"
           )
 
-          output = Path("star-ris-kaggle-light-results.zip")
-          with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as archive:
-              for path in sorted(root.rglob("*")):
-                  if path.is_file():
-                      archive.write(path, path.relative_to(root).as_posix())
-          print(f"Created {output} ({output.stat().st_size:,} bytes)")
+          step_summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if step_summary:
+              with open(step_summary, "a", encoding="utf-8") as handle:
+                  handle.write(report.read_text(encoding="utf-8"))
+
+          print(report.read_text(encoding="utf-8"))
           PY
 
-      - name: Upload collected results
+      - name: Upload collected files and audit reports
         uses: actions/upload-artifact@v4
         with:
           name: star-ris-kaggle-light-results
-          path: |
-            star-ris-kaggle-light-results.zip
-            collected_kaggle_outputs/LOCAL_INVENTORY.csv
-            collected_kaggle_outputs/COLLECTION_SUMMARY.json
+          path: collected_kaggle_outputs/
           if-no-files-found: error
           retention-days: 30
