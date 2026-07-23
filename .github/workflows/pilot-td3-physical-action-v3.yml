@@ -31,7 +31,11 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: python -m pip install --no-build-isolation -e ".[dev]"
-      - run: pytest -q tests/test_action_parameterization_v3.py tests/test_qos_scalability_v2.py
+      - run: >-
+          pytest -q
+          tests/test_action_parameterization_v3.py
+          tests/test_qos_scalability_v2.py
+          tests/test_pilot_metric_audit.py
 
   train:
     name: td3-v3-physical-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
@@ -112,24 +116,9 @@ jobs:
           N="${{ matrix.n_ris }}"
           SEED="${{ matrix.seed }}"
           ROOT="pilot_v3/N${N}/seed_${SEED}"
-          python - <<PY
-          import json
-          from pathlib import Path
-          import numpy as np
-          import pandas as pd
-
-          root = Path("$ROOT")
-          manifest = json.loads((root / "train" / "manifest.json").read_text())
-          if manifest["config"].get("action_parameterization") != "physical_v3":
-              raise SystemExit("Pilot did not use physical_v3")
-          test = pd.read_csv(root / "test.csv")
-          if len(test) != 1000 or test.scenario.nunique() != 1000:
-              raise SystemExit("Incomplete pilot test coverage")
-          columns = ["sum_rate", "qos_fraction", "all_qos", "violation"]
-          if not np.isfinite(test[columns].apply(pd.to_numeric, errors="coerce").to_numpy()).all():
-              raise SystemExit("Non-finite pilot metric")
-          print(test[columns].mean())
-          PY
+          python scripts/audit_pilot_output.py \
+            --root "$ROOT" \
+            --seed "$SEED"
 
       - name: Remove heavy checkpoints
         if: always()
