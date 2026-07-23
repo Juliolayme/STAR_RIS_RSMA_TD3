@@ -1,0 +1,267 @@
+name: Final TD3 v2 Fixed 8 Seeds
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/final-td3-v2-fixed-8seeds.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+
+jobs:
+  train:
+    name: td3-v2-fixed-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        n_ris: [16, 32, 64, 96, 128]
+        seed: [0, 1, 2, 3, 4, 5, 6, 7]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Train one seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+          ROOT="final_td3_v2/N${N}/seed_${SEED}"
+          mkdir -p "$ROOT"
+          python scripts/run_train_v2.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --seed "$SEED" \
+            --output "$ROOT/train" \
+            2>&1 | tee "$ROOT/train.log"
+
+      - name: Evaluate locked test bank
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+          ROOT="final_td3_v2/N${N}/seed_${SEED}"
+          python scripts/run_evaluate.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --checkpoint "$ROOT/train/best.pt" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed "$SEED" \
+            --output "$ROOT/test.csv" \
+            2>&1 | tee "$ROOT/evaluate.log"
+
+      - name: Audit seed output
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          ROOT="final_td3_v2/N${N}/seed_${SEED}"
+          python - <<PY
+          import json
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+
+          root = Path("$ROOT")
+          required = [
+              root / "train" / "training.csv",
+              root / "train" / "validation_raw.csv",
+              root / "train" / "manifest.json",
+              root / "test.csv",
+          ]
+          missing = [str(path) for path in required if not path.exists()]
+          if missing:
+              raise SystemExit(f"Missing files: {missing}")
+
+          test = pd.read_csv(root / "test.csv")
+          if len(test) != 1000 or test["scenario"].nunique() != 1000:
+              raise SystemExit(f"Invalid test coverage: rows={len(test)}, scenarios={test['scenario'].nunique()}")
+          metrics = ["sum_rate", "reward", "qos_fraction", "all_qos", "violation"]
+          numeric = test[metrics].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
+          if not np.isfinite(numeric).all():
+              raise SystemExit("Non-finite test metric detected")
+          if test["seed"].nunique() != 1 or int(test["seed"].iloc[0]) != int("$SEED"):
+              raise SystemExit("Seed mismatch in test CSV")
+          manifest = json.loads((root / "train" / "manifest.json").read_text())
+          if int(manifest["seed"]) != int("$SEED"):
+              raise SystemExit("Seed mismatch in manifest")
+          print({
+              "n_ris": int("$N"),
+              "seed": int("$SEED"),
+              "test_rows": len(test),
+              "mean_sum_rate": float(test["sum_rate"].mean()),
+              "mean_qos_fraction": float(test["qos_fraction"].mean()),
+              "mean_all_qos": float(pd.to_numeric(test["all_qos"]).mean()),
+              "mean_violation": float(test["violation"].mean()),
+          })
+          PY
+
+      - name: Remove heavy checkpoints
+        if: always()
+        shell: bash
+        run: |
+          ROOT="final_td3_v2/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}"
+          find "$ROOT" -type f \( -name "*.pt" -o -name "*.pth" \) -delete || true
+          du -ah "$ROOT" | sort -h | tail -30 || true
+
+      - name: Upload compact seed artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v2-fixed-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+          path: final_td3_v2/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+  statistics:
+    name: Final CI paired Wilcoxon Holm statistics
+    if: always()
+    needs: train
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project and Kaggle CLI
+        run: |
+          python -m pip install --no-build-isolation -e .
+          python -m pip install kaggle
+
+      - name: Download all proposed-method artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: td3-v2-fixed-*
+          path: proposed_artifacts
+          merge-multiple: false
+
+      - name: Configure Kaggle accounts
+        shell: bash
+        env:
+          KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+          KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+          KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+        run: |
+          set -euo pipefail
+          for secret in KAGGLE_TD3_KEY KAGGLE_DDPG_KEY KAGGLE_PPO_KEY; do
+            if [ -z "${!secret:-}" ]; then
+              echo "Missing GitHub secret: $secret" >&2
+              exit 1
+            fi
+          done
+          mkdir -p "$RUNNER_TEMP/kaggle_td3" "$RUNNER_TEMP/kaggle_ddpg" "$RUNNER_TEMP/kaggle_ppo"
+          printf '{"username":"thanhnguyen1423","key":"%s"}\n' "$KAGGLE_TD3_KEY" > "$RUNNER_TEMP/kaggle_td3/kaggle.json"
+          printf '{"username":"ronganminh","key":"%s"}\n' "$KAGGLE_DDPG_KEY" > "$RUNNER_TEMP/kaggle_ddpg/kaggle.json"
+          printf '{"username":"duythanhb1909984","key":"%s"}\n' "$KAGGLE_PPO_KEY" > "$RUNNER_TEMP/kaggle_ppo/kaggle.json"
+          chmod 600 "$RUNNER_TEMP"/kaggle_*/kaggle.json
+
+      - name: Download locked baseline outputs from Kaggle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p kaggle_downloads/{td3_a,td3_b,ddpg_a,ddpg_b,ppo_a,ppo_b}
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_td3" kaggle kernels output \
+            thanhnguyen1423/td3-a-n128-n32-n16 -p kaggle_downloads/td3_a --force
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_td3" kaggle kernels output \
+            thanhnguyen1423/td3-b-n96-n64 -p kaggle_downloads/td3_b --force
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_ddpg" kaggle kernels output \
+            ronganminh/ddpg-a-n128-n32-n16 -p kaggle_downloads/ddpg_a --force
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_ddpg" kaggle kernels output \
+            ronganminh/ddpg-b-n96-n64 -p kaggle_downloads/ddpg_b --force
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_ppo" kaggle kernels output \
+            duythanhb1909984/ppo-a-n128-n32-n16 -p kaggle_downloads/ppo_a --force
+          KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle_ppo" kaggle kernels output \
+            duythanhb1909984/ppo-b-n96-n64 -p kaggle_downloads/ppo_b --force
+          find kaggle_downloads -maxdepth 3 -type f -printf '%p\t%s bytes\n' | sort
+
+      - name: Extract only compact baseline files
+        run: |
+          python scripts/extract_kaggle_text_archives.py \
+            --input kaggle_downloads \
+            --output baseline_compact
+          du -sh baseline_compact
+
+      - name: Compute final statistics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/final_td3_statistics.py \
+            --proposed-root proposed_artifacts \
+            --baseline-root baseline_compact \
+            --output-dir final_statistics
+          cat final_statistics/FINAL_NUMBERS.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final thesis statistics
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v2-fixed-final-8seed-statistics
+          path: final_statistics/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
+
+      - name: Publish concise final statistics issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat final_statistics/FINAL_NUMBERS.md
+          } > /tmp/final_stats_issue.md
+          head -c 60000 /tmp/final_stats_issue.md > /tmp/final_stats_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "TD3 v2 fixed final 8-seed statistics run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/final_stats_issue_short.md
