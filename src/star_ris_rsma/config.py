@@ -34,6 +34,48 @@ class ExperimentConfig:
     validation_bank_path: str | None = None
     test_bank_path: str | None = None
 
+    # Backward-compatible environment controls. Existing YAML files reproduce
+    # the original experiment because these defaults match the old behaviour.
+    observation_normalization: str = "global_l2"
+    qos_penalty_linear: float = 2.0
+    qos_penalty_quadratic: float = 0.0
+
+    # QoS-first validation checkpoint selection used by experiment_v2.
+    validation_qos_fraction_target: float = 0.95
+    validation_all_qos_target: float = 0.80
+    validation_violation_tolerance: float = 0.01
+
+    # Dimension-aware exploration schedule used by experiment_v2.
+    exploration_noise_final: float = 0.15
+    exploration_decay_steps: int = 100_000
+
+    # TD3 stability controls. Defaults reproduce the original TD3 settings.
+    td3_actor_lr: float = 3e-4
+    td3_critic_lr: float = 3e-4
+    td3_policy_delay: int = 2
+    td3_target_noise: float = 0.2
+    td3_noise_clip: float = 0.5
+    td3_gradient_clip_norm: float = 0.0
+    td3_noise_reference_dim: int = 0
+    td3_critic_loss: str = "mse"
+    td3_layer_norm: bool = False
+
+    def __post_init__(self) -> None:
+        if self.observation_normalization not in {"global_l2", "blockwise_v2"}:
+            raise ValueError(
+                "observation_normalization must be 'global_l2' or 'blockwise_v2'"
+            )
+        if self.td3_critic_loss not in {"mse", "huber"}:
+            raise ValueError("td3_critic_loss must be 'mse' or 'huber'")
+        if self.qos_penalty_linear < 0 or self.qos_penalty_quadratic < 0:
+            raise ValueError("QoS penalties must be non-negative")
+        if not 0 <= self.validation_qos_fraction_target <= 1:
+            raise ValueError("validation_qos_fraction_target must be in [0, 1]")
+        if not 0 <= self.validation_all_qos_target <= 1:
+            raise ValueError("validation_all_qos_target must be in [0, 1]")
+        if self.exploration_decay_steps <= 0:
+            raise ValueError("exploration_decay_steps must be positive")
+
     @classmethod
     def from_yaml(cls, path: str | Path) -> "ExperimentConfig":
         data: dict[str, Any] = yaml.safe_load(Path(path).read_text()) or {}
