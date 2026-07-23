@@ -51,7 +51,11 @@ def load_checkpoint(path: str | Path, method: str, obs_dim: int, action_dim: int
     payload = torch.load(Path(path), map_location=device, weights_only=False)
     if payload.get("method") != method:
         raise ValueError(f"Checkpoint method {payload.get('method')} does not match {method}")
-    accepted_hashes = {cfg.config_hash(), cfg.legacy_config_hash_v1()}
+    accepted_hashes = {
+        cfg.config_hash(),
+        cfg.legacy_config_hash_v2(),
+        cfg.legacy_config_hash_v1(),
+    }
     if payload.get("config_hash") not in accepted_hashes:
         raise ValueError("Checkpoint configuration hash does not match evaluation config")
     agent = build_agent(method, obs_dim, action_dim, cfg, device)
