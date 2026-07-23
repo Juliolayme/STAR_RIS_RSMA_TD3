@@ -33,6 +33,20 @@ class StarRisRsmaEnv:
 
     def _observation(self) -> np.ndarray:
         assert self.channel is not None
+        if self.config.observation_normalization == "blockwise_v2":
+            # Match the scales used by physics.generate_channel. Unlike one global
+            # L2 norm, this keeps each channel coefficient O(1) as N grows.
+            parts = [
+                self.channel.h_direct.real / 0.35,
+                self.channel.h_direct.imag / 0.35,
+                self.channel.g_br.real / 1.0,
+                self.channel.g_br.imag / 1.0,
+                self.channel.h_ru.real.reshape(-1) / 0.75,
+                self.channel.h_ru.imag.reshape(-1) / 0.75,
+                2.0 * self.channel.user_side.astype(float) - 1.0,
+            ]
+            return np.clip(np.concatenate(parts), -8.0, 8.0).astype(np.float32)
+
         parts = [
             self.channel.h_direct.real,
             self.channel.h_direct.imag,
@@ -56,13 +70,20 @@ class StarRisRsmaEnv:
         user_rates = np.asarray(metrics["user_rates"])
         qos_fraction = float(np.mean(user_rates >= self.config.qos_min))
         all_qos = bool(np.all(user_rates >= self.config.qos_min))
-        violation = float(np.maximum(self.config.qos_min - user_rates, 0.0).sum())
-        reward = float(metrics["sum_rate"]) - 2.0 * violation
+        deficits = np.maximum(self.config.qos_min - user_rates, 0.0)
+        violation = float(deficits.sum())
+        violation_squared = float(np.square(deficits).sum())
+        reward = (
+            float(metrics["sum_rate"])
+            - self.config.qos_penalty_linear * violation
+            - self.config.qos_penalty_quadratic * violation_squared
+        )
         return {
             **metrics,
             "qos_fraction": qos_fraction,
             "all_qos": all_qos,
             "violation": violation,
+            "violation_squared": violation_squared,
             "reward": reward,
         }
 
