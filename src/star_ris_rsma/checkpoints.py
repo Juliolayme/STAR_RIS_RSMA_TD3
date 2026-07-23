@@ -10,7 +10,23 @@ from .config import ExperimentConfig
 
 def build_agent(method: str, obs_dim: int, action_dim: int, cfg: ExperimentConfig, device: str):
     if method == "td3":
-        return TD3Agent(obs_dim, action_dim, cfg.hidden_dim, cfg.gamma, cfg.tau, device)
+        return TD3Agent(
+            obs_dim,
+            action_dim,
+            cfg.hidden_dim,
+            cfg.gamma,
+            cfg.tau,
+            device,
+            actor_lr=cfg.td3_actor_lr,
+            critic_lr=cfg.td3_critic_lr,
+            policy_delay=cfg.td3_policy_delay,
+            target_noise=cfg.td3_target_noise,
+            noise_clip=cfg.td3_noise_clip,
+            gradient_clip_norm=cfg.td3_gradient_clip_norm,
+            noise_reference_dim=cfg.td3_noise_reference_dim,
+            critic_loss=cfg.td3_critic_loss,
+            layer_norm=cfg.td3_layer_norm,
+        )
     if method == "ddpg":
         return DDPGAgent(obs_dim, action_dim, cfg.hidden_dim, cfg.gamma, cfg.tau, device)
     if method == "ppo":
