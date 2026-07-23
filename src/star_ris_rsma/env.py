@@ -94,7 +94,13 @@ class StarRisRsmaEnv:
         return self.metrics_from_effective_channel(h_eff, action)
 
     def evaluate_raw_action(self, raw_action: np.ndarray) -> dict[str, object]:
-        action = decode_action(raw_action, self.config.n_users, self.config.n_ris, self.config.p_max)
+        action = decode_action(
+            raw_action,
+            self.config.n_users,
+            self.config.n_ris,
+            self.config.p_max,
+            self.config.action_parameterization,
+        )
         return self.evaluate_decoded_action(action)
 
     def step(self, raw_action: np.ndarray) -> tuple[np.ndarray, float, bool, dict[str, object]]:
