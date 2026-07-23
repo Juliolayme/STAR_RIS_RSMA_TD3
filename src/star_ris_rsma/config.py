@@ -34,6 +34,21 @@ _LEGACY_V1_FIELDS = (
     "test_bank_path",
 )
 
+# Fields introduced after the frozen v2 checkpoint format. They must be removed
+# when reconstructing the historical v2 hash so retained checkpoints remain
+# evaluable after adding the constrained physical-action protocol.
+_POST_V2_FIELDS = (
+    "action_parameterization",
+    "qos_dual_enabled",
+    "qos_dual_initial",
+    "qos_dual_learning_rate",
+    "qos_dual_target_violation",
+    "qos_dual_update_interval",
+    "qos_dual_ema_beta",
+    "qos_dual_min",
+    "qos_dual_max",
+)
+
 
 @dataclass(slots=True)
 class ExperimentConfig:
@@ -66,6 +81,17 @@ class ExperimentConfig:
     action_parameterization: str = "legacy_v1"
     qos_penalty_linear: float = 2.0
     qos_penalty_quadratic: float = 0.0
+
+    # Optional projected dual-ascent controller for constrained TD3 training.
+    # Disabled by default so all historical v1/v2 configs remain unchanged.
+    qos_dual_enabled: bool = False
+    qos_dual_initial: float = 8.0
+    qos_dual_learning_rate: float = 20.0
+    qos_dual_target_violation: float = 1e-3
+    qos_dual_update_interval: int = 1_000
+    qos_dual_ema_beta: float = 0.95
+    qos_dual_min: float = 4.0
+    qos_dual_max: float = 64.0
 
     # QoS-first validation checkpoint selection used by experiment_v2.
     validation_qos_fraction_target: float = 0.95
@@ -100,10 +126,26 @@ class ExperimentConfig:
             raise ValueError("td3_critic_loss must be 'mse' or 'huber'")
         if self.qos_penalty_linear < 0 or self.qos_penalty_quadratic < 0:
             raise ValueError("QoS penalties must be non-negative")
+        if self.qos_dual_initial < 0 or self.qos_dual_min < 0:
+            raise ValueError("QoS dual penalties must be non-negative")
+        if self.qos_dual_max < self.qos_dual_min:
+            raise ValueError("qos_dual_max must be >= qos_dual_min")
+        if not self.qos_dual_min <= self.qos_dual_initial <= self.qos_dual_max:
+            raise ValueError("qos_dual_initial must lie within [qos_dual_min, qos_dual_max]")
+        if self.qos_dual_learning_rate < 0:
+            raise ValueError("qos_dual_learning_rate must be non-negative")
+        if self.qos_dual_target_violation < 0:
+            raise ValueError("qos_dual_target_violation must be non-negative")
+        if self.qos_dual_update_interval <= 0:
+            raise ValueError("qos_dual_update_interval must be positive")
+        if not 0 <= self.qos_dual_ema_beta < 1:
+            raise ValueError("qos_dual_ema_beta must be in [0, 1)")
         if not 0 <= self.validation_qos_fraction_target <= 1:
             raise ValueError("validation_qos_fraction_target must be in [0, 1]")
         if not 0 <= self.validation_all_qos_target <= 1:
             raise ValueError("validation_all_qos_target must be in [0, 1]")
+        if self.validation_violation_tolerance < 0:
+            raise ValueError("validation_violation_tolerance must be non-negative")
         if self.exploration_decay_steps <= 0:
             raise ValueError("exploration_decay_steps must be positive")
 
@@ -125,7 +167,8 @@ class ExperimentConfig:
 
     def legacy_config_hash_v2(self) -> str:
         data = self.to_dict()
-        data.pop("action_parameterization", None)
+        for field in _POST_V2_FIELDS:
+            data.pop(field, None)
         return self._hash_payload(data)
 
     def legacy_config_hash_v1(self) -> str:
