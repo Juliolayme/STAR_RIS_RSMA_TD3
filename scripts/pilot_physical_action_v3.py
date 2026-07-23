@@ -9,11 +9,12 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+from star_ris_rsma.result_validation import CORE_METRICS, replace_core_metrics
+
 
 N_VALUES = (16, 128)
 SEEDS = (0, 1, 2)
-METRICS = ("sum_rate", "qos_fraction", "all_qos", "violation")
-_BOOL_MAP = {"true": 1.0, "false": 0.0, "1": 1.0, "0": 0.0}
+METRICS = CORE_METRICS
 
 
 def infer_n(path: Path) -> int:
@@ -23,75 +24,54 @@ def infer_n(path: Path) -> int:
     return int(match.group(1))
 
 
-def coerce_metrics(frame: pd.DataFrame, context: str) -> pd.DataFrame:
-    missing = [column for column in METRICS if column not in frame.columns]
-    if missing:
-        raise RuntimeError(f"{context}: missing metric columns {missing}")
-
-    result = frame.copy()
-    for column in ("sum_rate", "qos_fraction", "violation"):
-        result[column] = pd.to_numeric(result[column], errors="coerce")
-
-    all_qos = pd.to_numeric(result["all_qos"], errors="coerce")
-    unresolved = all_qos.isna()
-    if unresolved.any():
-        mapped = (
-            result.loc[unresolved, "all_qos"]
-            .astype(str)
-            .str.strip()
-            .str.lower()
-            .map(_BOOL_MAP)
-        )
-        all_qos.loc[unresolved] = mapped
-    result["all_qos"] = all_qos
-
-    numeric = result.loc[:, list(METRICS)].astype("float64")
-    values = numeric.to_numpy(dtype=np.float64, copy=False)
-    if not np.isfinite(values).all():
-        bad_rows, bad_columns = np.where(~np.isfinite(values))
-        examples = [
-            {
-                "row": int(row),
-                "column": METRICS[int(column)],
-                "raw_value": repr(frame.iloc[int(row)][METRICS[int(column)]]),
-            }
-            for row, column in zip(bad_rows[:10], bad_columns[:10])
-        ]
-        raise RuntimeError(f"{context}: non-finite or non-numeric metrics {examples}")
-    result.loc[:, list(METRICS)] = numeric
-    return result
-
-
 def load_v3(root: Path) -> pd.DataFrame:
     frames: list[pd.DataFrame] = []
     manifests = list(root.rglob("manifest.json"))
-    if len(manifests) != len(N_VALUES) * len(SEEDS):
-        raise RuntimeError(f"Expected 6 v3 manifests, found {len(manifests)}")
+    expected_runs = len(N_VALUES) * len(SEEDS)
+    if len(manifests) != expected_runs:
+        raise RuntimeError(
+            f"Expected {expected_runs} v3 manifests, found {len(manifests)}"
+        )
     for path in manifests:
         payload = json.loads(path.read_text(encoding="utf-8"))
         config = payload.get("config", {})
         if config.get("action_parameterization") != "physical_v3":
             raise RuntimeError(f"Non-v3 manifest found: {path}")
 
-    for path in sorted(root.rglob("test.csv")):
+    test_paths = sorted(root.rglob("test.csv"))
+    if len(test_paths) != expected_runs:
+        raise RuntimeError(
+            f"Expected {expected_runs} v3 test CSVs, found {len(test_paths)}"
+        )
+    for path in test_paths:
         frame = pd.read_csv(path)
-        n_ris = infer_n(path)
-        frame["n_ris"] = n_ris
+        frame["n_ris"] = infer_n(path)
         frame["method"] = "td3_v3_physical"
         frame["source_path"] = path.as_posix()
         frame["seed"] = pd.to_numeric(frame["seed"], errors="raise").astype(int)
-        frame["scenario"] = pd.to_numeric(frame["scenario"], errors="raise").astype(int)
+        frame["scenario"] = pd.to_numeric(
+            frame["scenario"], errors="raise"
+        ).astype(int)
         frames.append(frame)
-    if not frames:
-        raise RuntimeError("No v3 test CSV files found")
-    result = coerce_metrics(pd.concat(frames, ignore_index=True), "v3")
+
+    result = replace_core_metrics(
+        pd.concat(frames, ignore_index=True),
+        context="v3 pilot",
+        require_finite=True,
+    )
     for n_ris in N_VALUES:
         for seed in SEEDS:
             group = result[(result.n_ris == n_ris) & (result.seed == seed)]
-            if len(group) != 1000 or group.scenario.nunique() != 1000:
+            scenarios = sorted(group.scenario.unique())
+            if (
+                len(group) != 1000
+                or len(scenarios) != 1000
+                or scenarios[0] != 0
+                or scenarios[-1] != 999
+            ):
                 raise RuntimeError(
                     f"Incomplete v3 coverage N={n_ris}, seed={seed}: "
-                    f"rows={len(group)}, scenarios={group.scenario.nunique()}"
+                    f"rows={len(group)}, scenarios={len(scenarios)}"
                 )
     return result
 
@@ -101,14 +81,22 @@ def load_legacy(root: Path) -> pd.DataFrame:
     if path is None:
         raise RuntimeError("MERGED_RAW_TEST.csv not found")
     frame = pd.read_csv(path)
-    frame = frame[(frame.method == "td3_v2_fixed") & (frame.n_ris.isin(N_VALUES))].copy()
+    frame = frame[
+        (frame.method == "td3_v2_fixed") & (frame.n_ris.isin(N_VALUES))
+    ].copy()
     expected = len(N_VALUES) * 8 * 1000
     if len(frame) != expected:
         raise RuntimeError(f"Legacy TD3 coverage mismatch: {len(frame)} != {expected}")
     frame["method"] = "td3_v2_legacy_action"
     frame["seed"] = pd.to_numeric(frame["seed"], errors="raise").astype(int)
-    frame["scenario"] = pd.to_numeric(frame["scenario"], errors="raise").astype(int)
-    return coerce_metrics(frame, "legacy TD3")
+    frame["scenario"] = pd.to_numeric(
+        frame["scenario"], errors="raise"
+    ).astype(int)
+    return replace_core_metrics(
+        frame,
+        context="legacy TD3",
+        require_finite=True,
+    )
 
 
 def load_traditional(root: Path) -> pd.DataFrame:
@@ -119,35 +107,49 @@ def load_traditional(root: Path) -> pd.DataFrame:
     frame = frame[frame.n_ris.isin(N_VALUES)].copy()
     expected = 3 * len(N_VALUES) * 1000
     if len(frame) != expected:
-        raise RuntimeError(f"Traditional coverage mismatch: {len(frame)} != {expected}")
-    frame["scenario"] = pd.to_numeric(frame["scenario"], errors="raise").astype(int)
-    return coerce_metrics(frame, "traditional solvers")
+        raise RuntimeError(
+            f"Traditional coverage mismatch: {len(frame)} != {expected}"
+        )
+    frame["scenario"] = pd.to_numeric(
+        frame["scenario"], errors="raise"
+    ).astype(int)
+    return replace_core_metrics(
+        frame,
+        context="traditional solvers",
+        require_finite=True,
+    )
 
 
 def collapse(frame: pd.DataFrame) -> pd.DataFrame:
-    return frame.groupby(["method", "n_ris", "scenario"], as_index=False)[list(METRICS)].mean()
+    return frame.groupby(
+        ["method", "n_ris", "scenario"], as_index=False
+    )[list(METRICS)].mean()
 
 
 def paired(v3: pd.DataFrame, other: pd.DataFrame) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for n_ris in N_VALUES:
-        a = v3[v3.n_ris == n_ris].set_index("scenario")
+        proposed = v3[v3.n_ris == n_ris].set_index("scenario")
         for method in sorted(other.method.unique()):
-            b = other[(other.method == method) & (other.n_ris == n_ris)].set_index("scenario")
-            common = a.index.intersection(b.index)
+            baseline = other[
+                (other.method == method) & (other.n_ris == n_ris)
+            ].set_index("scenario")
+            common = proposed.index.intersection(baseline.index)
             if len(common) != 1000:
-                raise RuntimeError(f"Paired coverage mismatch for {method}, N={n_ris}")
+                raise RuntimeError(
+                    f"Paired coverage mismatch for {method}, N={n_ris}"
+                )
             for metric in METRICS:
                 delta = (
-                    a.loc[common, metric].to_numpy(dtype=np.float64)
-                    - b.loc[common, metric].to_numpy(dtype=np.float64)
+                    proposed.loc[common, metric].to_numpy(dtype=np.float64)
+                    - baseline.loc[common, metric].to_numpy(dtype=np.float64)
                 )
-                sem = stats.sem(delta)
+                sem = float(stats.sem(delta))
                 ci = stats.t.interval(
                     0.95,
                     len(delta) - 1,
                     loc=float(delta.mean()),
-                    scale=float(sem),
+                    scale=sem,
                 )
                 t_result = stats.ttest_1samp(delta, 0.0)
                 if np.allclose(delta, 0.0, atol=1e-15, rtol=0.0):
@@ -155,17 +157,23 @@ def paired(v3: pd.DataFrame, other: pd.DataFrame) -> list[dict[str, object]]:
                 else:
                     wilcoxon_p = float(stats.wilcoxon(delta).pvalue)
                 delta_std = float(delta.std(ddof=1))
-                rows.append({
-                    "baseline": method,
-                    "n_ris": n_ris,
-                    "metric": metric,
-                    "mean_delta_v3_minus_baseline": float(delta.mean()),
-                    "ci95_low": float(ci[0]),
-                    "ci95_high": float(ci[1]),
-                    "paired_t_p": float(t_result.pvalue),
-                    "wilcoxon_p": wilcoxon_p,
-                    "cohen_dz": float(delta.mean() / delta_std) if delta_std > 0 else 0.0,
-                })
+                rows.append(
+                    {
+                        "baseline": method,
+                        "n_ris": n_ris,
+                        "metric": metric,
+                        "mean_delta_v3_minus_baseline": float(delta.mean()),
+                        "ci95_low": float(ci[0]),
+                        "ci95_high": float(ci[1]),
+                        "paired_t_p": float(t_result.pvalue),
+                        "wilcoxon_p": wilcoxon_p,
+                        "cohen_dz": (
+                            float(delta.mean() / delta_std)
+                            if delta_std > 0
+                            else 0.0
+                        ),
+                    }
+                )
     return rows
 
 
@@ -181,11 +189,15 @@ def main() -> None:
     legacy_raw = load_legacy(args.legacy_root)
     traditional_raw = load_traditional(args.traditional_root)
     v3 = collapse(v3_raw)
-    comparison = collapse(pd.concat([legacy_raw, traditional_raw], ignore_index=True))
+    comparison = collapse(
+        pd.concat([legacy_raw, traditional_raw], ignore_index=True)
+    )
     all_collapsed = pd.concat([v3, comparison], ignore_index=True)
 
     summary = (
-        all_collapsed.groupby(["method", "n_ris"], as_index=False)[list(METRICS)]
+        all_collapsed.groupby(["method", "n_ris"], as_index=False)[
+            list(METRICS)
+        ]
         .mean()
         .sort_values(["n_ris", "method"])
     )
@@ -231,15 +243,18 @@ def main() -> None:
     for row in summary.itertuples(index=False):
         lines.append(
             f"| {row.method} | {int(row.n_ris)} | {row.sum_rate:.5f} | "
-            f"{row.qos_fraction:.5f} | {row.all_qos:.5f} | {row.violation:.5f} |"
+            f"{row.qos_fraction:.5f} | {row.all_qos:.5f} | "
+            f"{row.violation:.5f} |"
         )
-    lines.extend([
-        "",
-        "## Key paired deltas: v3 minus baseline",
-        "",
-        "| Baseline | N | Metric | Mean delta | 95% CI |",
-        "|---|---:|---|---:|---|",
-    ])
+    lines.extend(
+        [
+            "",
+            "## Key paired deltas: v3 minus baseline",
+            "",
+            "| Baseline | N | Metric | Mean delta | 95% CI |",
+            "|---|---:|---|---:|---|",
+        ]
+    )
     for row in effects.itertuples(index=False):
         lines.append(
             f"| {row.baseline} | {int(row.n_ris)} | {row.metric} | "
