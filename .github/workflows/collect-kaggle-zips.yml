@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   collect-zips:
@@ -96,6 +97,7 @@ jobs:
           root = Path("kaggle_zip_outputs")
           records = []
           archive_summaries = []
+          previews = []
 
           for archive in sorted(root.rglob("*.zip")):
               extract_dir = archive.parent / "extracted"
@@ -132,6 +134,12 @@ jobs:
                   "size_bytes": path.stat().st_size,
                   "sha256": digest.hexdigest(),
               })
+              if "/extracted/" in path.relative_to(root).as_posix() and path.stat().st_size <= 20000:
+                  try:
+                      text = path.read_text(encoding="utf-8")
+                      previews.append((path.relative_to(root).as_posix(), text))
+                  except UnicodeDecodeError:
+                      pass
 
           with (root / "ZIP_INVENTORY.csv").open("w", newline="", encoding="utf-8") as handle:
               writer = csv.DictWriter(handle, fieldnames=["relative_path", "size_bytes", "sha256"])
@@ -145,6 +153,8 @@ jobs:
           lines = [
               "# Kaggle compact ZIP audit",
               "",
+              f"Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "",
               "| Archive | ZIP bytes | Members | Uncompressed bytes |",
               "|---|---:|---:|---:|",
           ]
@@ -155,6 +165,18 @@ jobs:
               )
               for member in item.get("members", []):
                   lines.append(f"  - `{member}`")
+
+          if previews:
+              lines.extend(["", "## Extracted text previews", ""])
+              for name, text in previews:
+                  lines.extend([
+                      f"### `{name}`",
+                      "```text",
+                      text[:12000],
+                      "```",
+                      "",
+                  ])
+
           report = root / "ZIP_AUDIT.md"
           report.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -172,3 +194,17 @@ jobs:
           path: kaggle_zip_outputs/
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish audit issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat kaggle_zip_outputs/ZIP_AUDIT.md
+          } > /tmp/kaggle_zip_issue.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Kaggle ZIP audit run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/kaggle_zip_issue.md
