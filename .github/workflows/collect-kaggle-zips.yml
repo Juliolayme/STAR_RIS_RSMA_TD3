@@ -1,0 +1,174 @@
+name: Collect Kaggle ZIP Outputs
+
+on:
+  push:
+    paths:
+      - ".github/workflows/collect-kaggle-zips.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect-zips:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade kaggle
+
+      - name: Create isolated Kaggle credentials
+        env:
+          KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+          KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+          KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          specs = {
+              "td3": ("thanhnguyen1423", os.environ.get("KAGGLE_TD3_KEY")),
+              "ddpg": ("ronganminh", os.environ.get("KAGGLE_DDPG_KEY")),
+              "ppo": ("duythanhb1909984", os.environ.get("KAGGLE_PPO_KEY")),
+          }
+          missing = [name for name, (_, key) in specs.items() if not key]
+          if missing:
+              raise SystemExit("Missing Kaggle secrets: " + ", ".join(missing))
+
+          base = Path(os.environ["RUNNER_TEMP"]) / "kaggle"
+          for name, (username, key) in specs.items():
+              target_dir = base / name
+              target_dir.mkdir(parents=True, exist_ok=True)
+              target = target_dir / "kaggle.json"
+              target.write_text(json.dumps({"username": username, "key": key}))
+              target.chmod(0o600)
+          PY
+
+      - name: Download six compact ZIP outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="kaggle_zip_outputs"
+          mkdir -p "$ROOT"
+
+          download_zip() {
+            local method="$1"
+            local ref="$2"
+            local credential="$3"
+            local slug="${ref#*/}"
+            local destination="$ROOT/$method/$slug"
+            mkdir -p "$destination"
+            export KAGGLE_CONFIG_DIR="$RUNNER_TEMP/kaggle/$credential"
+            echo "Downloading ZIP from $ref"
+            kaggle kernels files "$ref" -v --page-size 200 > "$destination/_remote_files.csv"
+            kaggle kernels output "$ref" --path "$destination" --force \
+              --file-pattern '(?i).*\.zip$'
+          }
+
+          download_zip td3  thanhnguyen1423/td3-a-n128-n32-n16 td3
+          download_zip td3  thanhnguyen1423/td3-b-n96-n64 td3
+          download_zip ddpg ronganminh/ddpg-a-n128-n32-n16 ddpg
+          download_zip ddpg ronganminh/ddpg-b-n96-n64 ddpg
+          download_zip ppo  duythanhb1909984/ppo-a-n128-n32-n16 ppo
+          download_zip ppo  duythanhb1909984/ppo-b-n96-n64 ppo
+
+      - name: Extract and audit ZIP contents
+        run: |
+          python - <<'PY'
+          import csv
+          import hashlib
+          import json
+          import os
+          import zipfile
+          from pathlib import Path
+
+          root = Path("kaggle_zip_outputs")
+          records = []
+          archive_summaries = []
+
+          for archive in sorted(root.rglob("*.zip")):
+              extract_dir = archive.parent / "extracted"
+              extract_dir.mkdir(parents=True, exist_ok=True)
+              summary = {
+                  "archive": archive.relative_to(root).as_posix(),
+                  "archive_size_bytes": archive.stat().st_size,
+                  "valid_zip": False,
+                  "member_count": 0,
+                  "uncompressed_bytes": 0,
+                  "members": [],
+              }
+              try:
+                  with zipfile.ZipFile(archive) as zf:
+                      infos = zf.infolist()
+                      summary["valid_zip"] = True
+                      summary["member_count"] = len(infos)
+                      summary["uncompressed_bytes"] = sum(i.file_size for i in infos)
+                      summary["members"] = [i.filename for i in infos]
+                      zf.extractall(extract_dir)
+              except Exception as exc:
+                  summary["error"] = repr(exc)
+              archive_summaries.append(summary)
+
+          for path in sorted(root.rglob("*")):
+              if not path.is_file():
+                  continue
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for block in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(block)
+              records.append({
+                  "relative_path": path.relative_to(root).as_posix(),
+                  "size_bytes": path.stat().st_size,
+                  "sha256": digest.hexdigest(),
+              })
+
+          with (root / "ZIP_INVENTORY.csv").open("w", newline="", encoding="utf-8") as handle:
+              writer = csv.DictWriter(handle, fieldnames=["relative_path", "size_bytes", "sha256"])
+              writer.writeheader()
+              writer.writerows(records)
+
+          (root / "ZIP_AUDIT.json").write_text(
+              json.dumps(archive_summaries, indent=2), encoding="utf-8"
+          )
+
+          lines = [
+              "# Kaggle compact ZIP audit",
+              "",
+              "| Archive | ZIP bytes | Members | Uncompressed bytes |",
+              "|---|---:|---:|---:|",
+          ]
+          for item in archive_summaries:
+              lines.append(
+                  f"| `{item['archive']}` | {item['archive_size_bytes']} | "
+                  f"{item['member_count']} | {item['uncompressed_bytes']} |"
+              )
+              for member in item.get("members", []):
+                  lines.append(f"  - `{member}`")
+          report = root / "ZIP_AUDIT.md"
+          report.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+          step_summary = os.environ.get("GITHUB_STEP_SUMMARY")
+          if step_summary:
+              with open(step_summary, "a", encoding="utf-8") as handle:
+                  handle.write(report.read_text(encoding="utf-8"))
+          print(report.read_text(encoding="utf-8"))
+          PY
+
+      - name: Upload ZIP audit artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: star-ris-kaggle-zip-results
+          path: kaggle_zip_outputs/
+          if-no-files-found: error
+          retention-days: 30
