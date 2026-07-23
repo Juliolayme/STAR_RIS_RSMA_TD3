@@ -1,0 +1,240 @@
+name: Final DRL vs Traditional Baselines
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/final-drl-vs-traditional.yml"
+  workflow_dispatch:
+    inputs:
+      drl_run_id:
+        description: "Completed final TD3 eight-seed statistics run"
+        required: true
+        default: "30016120754"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+  DRL_RUN_ID: ${{ github.event.inputs.drl_run_id || '30016120754' }}
+
+jobs:
+  solver:
+    name: ${{ matrix.method }}-N${{ matrix.n_ris }}-${{ matrix.start }}-${{ matrix.count }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        include:
+          - {method: ao_sca, n_ris: 16, start: 0, count: 1000}
+          - {method: ao_sca, n_ris: 32, start: 0, count: 1000}
+          - {method: ao_sca, n_ris: 64, start: 0, count: 500}
+          - {method: ao_sca, n_ris: 64, start: 500, count: 500}
+          - {method: ao_sca, n_ris: 96, start: 0, count: 250}
+          - {method: ao_sca, n_ris: 96, start: 250, count: 250}
+          - {method: ao_sca, n_ris: 96, start: 500, count: 250}
+          - {method: ao_sca, n_ris: 96, start: 750, count: 250}
+          - {method: ao_sca, n_ris: 128, start: 0, count: 250}
+          - {method: ao_sca, n_ris: 128, start: 250, count: 250}
+          - {method: ao_sca, n_ris: 128, start: 500, count: 250}
+          - {method: ao_sca, n_ris: 128, start: 750, count: 250}
+          - {method: ao_grid, n_ris: 16, start: 0, count: 1000}
+          - {method: ao_grid, n_ris: 32, start: 0, count: 1000}
+          - {method: ao_grid, n_ris: 64, start: 0, count: 500}
+          - {method: ao_grid, n_ris: 64, start: 500, count: 500}
+          - {method: ao_grid, n_ris: 96, start: 0, count: 500}
+          - {method: ao_grid, n_ris: 96, start: 500, count: 500}
+          - {method: ao_grid, n_ris: 128, start: 0, count: 500}
+          - {method: ao_grid, n_ris: 128, start: 500, count: 500}
+          - {method: analytical_ris, n_ris: 16, start: 0, count: 1000}
+          - {method: analytical_ris, n_ris: 32, start: 0, count: 1000}
+          - {method: analytical_ris, n_ris: 64, start: 0, count: 1000}
+          - {method: analytical_ris, n_ris: 96, start: 0, count: 1000}
+          - {method: analytical_ris, n_ris: 128, start: 0, count: 1000}
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Evaluate solver chunk
+        shell: bash
+        run: |
+          set -euo pipefail
+          METHOD="${{ matrix.method }}"
+          N="${{ matrix.n_ris }}"
+          START="${{ matrix.start }}"
+          COUNT="${{ matrix.count }}"
+          CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+          ROOT="traditional_outputs/${METHOD}/N${N}"
+          mkdir -p "$ROOT"
+          python scripts/run_solver.py \
+            --method "$METHOD" \
+            --config "$CONFIG" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed 10000 \
+            --start "$START" \
+            --count "$COUNT" \
+            --output "$ROOT/part_${START}_${COUNT}.csv" \
+            2>&1 | tee "$ROOT/part_${START}_${COUNT}.log"
+
+      - name: Audit solver chunk
+        shell: bash
+        run: |
+          set -euo pipefail
+          METHOD="${{ matrix.method }}"
+          N="${{ matrix.n_ris }}"
+          START="${{ matrix.start }}"
+          COUNT="${{ matrix.count }}"
+          FILE="traditional_outputs/${METHOD}/N${N}/part_${START}_${COUNT}.csv"
+          python - <<PY
+          from pathlib import Path
+          import numpy as np
+          import pandas as pd
+
+          path = Path("$FILE")
+          if not path.exists():
+              raise SystemExit(f"Missing solver output: {path}")
+          frame = pd.read_csv(path)
+          expected = list(range(int("$START"), int("$START") + int("$COUNT")))
+          scenarios = sorted(pd.to_numeric(frame["scenario"], errors="raise").astype(int).unique())
+          if len(frame) != int("$COUNT") or scenarios != expected:
+              raise SystemExit(f"Invalid chunk coverage rows={len(frame)}, scenarios={len(scenarios)}")
+          methods = set(frame["method"].astype(str).str.lower().unique())
+          if methods != {"$METHOD"}:
+              raise SystemExit(f"Method mismatch: {methods}")
+          metrics = ["sum_rate", "qos_fraction", "all_qos", "violation", "solve_ms"]
+          numeric = frame[metrics].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)
+          if not np.isfinite(numeric).all():
+              raise SystemExit("Non-finite solver metric detected")
+          if frame["bank_checksum"].dropna().astype(str).nunique() != 1:
+              raise SystemExit("Expected one bank checksum in chunk")
+          print({
+              "method": "$METHOD",
+              "n_ris": int("$N"),
+              "start": int("$START"),
+              "count": int("$COUNT"),
+              "mean_sum_rate": float(pd.to_numeric(frame["sum_rate"]).mean()),
+              "mean_solve_ms": float(pd.to_numeric(frame["solve_ms"]).mean()),
+          })
+          PY
+
+      - name: Upload compact solver chunk
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: traditional-${{ matrix.method }}-N${{ matrix.n_ris }}-${{ matrix.start }}-${{ matrix.count }}
+          path: traditional_outputs/${{ matrix.method }}/N${{ matrix.n_ris }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 90
+
+  statistics:
+    name: Merge DRL and traditional statistics
+    if: always()
+    needs: solver
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Download all solver chunks
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: traditional-*
+          path: solver_artifacts
+          merge-multiple: false
+
+      - name: Download completed final DRL artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p drl_final
+          gh run download "$DRL_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name td3-v2-fixed-final-8seed-statistics \
+            --dir drl_final
+          find drl_final -maxdepth 3 -type f -printf '%p\t%s bytes\n' | sort
+
+      - name: Compute DRL versus traditional statistics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/compare_drl_traditional.py \
+            --drl-root drl_final \
+            --solver-root solver_artifacts \
+            --output-dir drl_vs_traditional
+          cat drl_vs_traditional/DRL_VS_TRADITIONAL.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final comparison artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: drl-vs-traditional-final-statistics
+          path: drl_vs_traditional/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
+
+      - name: Publish concise comparison issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "DRL source run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${DRL_RUN_ID}"
+            echo
+            cat drl_vs_traditional/DRL_VS_TRADITIONAL.md
+          } > /tmp/drl_traditional_issue.md
+          head -c 60000 /tmp/drl_traditional_issue.md > /tmp/drl_traditional_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Final DRL versus traditional statistics run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/drl_traditional_issue_short.md
