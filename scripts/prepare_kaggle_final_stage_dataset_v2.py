@@ -2,10 +2,10 @@ from __future__ import annotations
 
 """Robust V2 publisher for the cross-account STAR-RIS stage bundle.
 
-The original packager is reused for downloading and auditing stages 01-05.  This
-wrapper switches to a fresh dataset slug and makes dataset creation diagnostics
-explicit, including the case where Kaggle accepts an asynchronous creation but
-the CLI still exits non-zero.
+Kaggle accepts private dataset creation asynchronously, but the
+``datasets status`` endpoint can return HTTP 403 even for the dataset owner.
+This wrapper therefore uses ``datasets files`` as the readiness probe and
+requires all five audited stage archives before notebook 06 is submitted.
 """
 
 import json
@@ -16,6 +16,13 @@ import prepare_kaggle_final_stage_dataset as base
 
 DATASET_REF = "duythanhb1909984/star-ris-stage-outputs-final-v2"
 DATASET_TITLE = "STAR RIS Stage Outputs Final V2"
+EXPECTED_ARCHIVES = {
+    "td3_low_n.zip",
+    "td3_high_n.zip",
+    "ao_grid.zip",
+    "ao_sca.zip",
+    "analytical_ris.zip",
+}
 
 base.DATASET_REF = DATASET_REF
 base.DATASET_TITLE = DATASET_TITLE
@@ -29,12 +36,41 @@ def _combined(result) -> str:
     )
 
 
-def _status(env):
+def _files_probe(env):
     return base.run(
-        ["kaggle", "datasets", "status", DATASET_REF],
+        ["kaggle", "datasets", "files", DATASET_REF],
         env=env,
         check=False,
         capture=True,
+    )
+
+
+def _probe_has_all_archives(result) -> bool:
+    if result.returncode != 0:
+        return False
+    text = _combined(result)
+    return all(name in text for name in EXPECTED_ARCHIVES)
+
+
+def _wait_until_files_ready(env, attempts: int = 90) -> None:
+    for attempt in range(attempts):
+        probe = _files_probe(env)
+        text = _combined(probe)
+        if _probe_has_all_archives(probe):
+            print(f"Dataset files ready: {DATASET_REF}")
+            return
+
+        # HTTP 403/404 is observed while a newly-created private dataset is still
+        # being finalized.  It is not treated as a terminal failure here.
+        compact = " ".join(text.split())
+        print(
+            f"Dataset files not ready (attempt {attempt + 1}/{attempts}): "
+            f"{compact or 'no response text'}"
+        )
+        time.sleep(10)
+
+    raise TimeoutError(
+        f"Dataset files did not become available with all archives: {DATASET_REF}"
     )
 
 
@@ -51,46 +87,39 @@ def publish_dataset(dataset_root: Path) -> None:
         if path.is_file():
             print(f"  {path.name}: {path.stat().st_size / (1024 ** 2):.2f} MiB")
 
-    existing = _status(env)
-    if existing.returncode == 0:
-        command = [
-            "kaggle",
-            "datasets",
-            "version",
-            "-p",
-            str(dataset_root),
-            "-m",
-            "Refresh successful STAR-RIS stages 01-05 for report 06",
-        ]
+    # A prior workflow may already have successfully submitted the asynchronous
+    # creation before failing on the forbidden status endpoint.  Reuse it when
+    # all expected files are visible instead of creating a duplicate version.
+    existing = _files_probe(env)
+    if _probe_has_all_archives(existing):
+        print(f"Dataset already ready; reusing {DATASET_REF}")
+        return
+
+    result = base.run(
+        ["kaggle", "datasets", "create", "-p", str(dataset_root)],
+        env=env,
+        check=False,
+        capture=True,
+    )
+    detail = _combined(result)
+    accepted_text = detail.lower()
+    accepted = result.returncode == 0 or "dataset is being created" in accepted_text
+    already_exists = any(
+        marker in accepted_text
+        for marker in ("already exists", "409", "conflict")
+    )
+    if not accepted and not already_exists:
+        raise RuntimeError(
+            f"Dataset publish command failed (exit {result.returncode}):\n"
+            f"{detail or 'no response text'}"
+        )
+
+    if already_exists:
+        print("Dataset already exists or creation is in progress; waiting for files.")
     else:
-        command = ["kaggle", "datasets", "create", "-p", str(dataset_root)]
+        print("Dataset creation accepted; waiting for all five archives.")
 
-    result = base.run(command, env=env, check=False, capture=True)
-    if result.returncode != 0:
-        # Kaggle dataset creation is asynchronous.  Some CLI/server combinations
-        # can return a non-zero code after the server has already accepted it.
-        accepted = _status(env)
-        if accepted.returncode != 0:
-            detail = _combined(result) or f"exit code {result.returncode}"
-            status_detail = _combined(accepted) or f"exit code {accepted.returncode}"
-            raise RuntimeError(
-                f"Dataset publish command failed:\n{detail}\n"
-                f"Post-failure status check also failed:\n{status_detail}"
-            )
-        print("Dataset exists after non-zero publish return; continuing to poll.")
-
-    for attempt in range(90):
-        status = _status(env)
-        text = _combined(status).lower()
-        if status.returncode == 0 and "ready" in text:
-            print(f"Dataset ready: {DATASET_REF}")
-            return
-        if "error" in text or "failed" in text:
-            raise RuntimeError(f"Dataset creation failed: {text}")
-        print(f"Dataset not ready yet (attempt {attempt + 1}/90): {text or 'no status text'}")
-        time.sleep(10)
-
-    raise TimeoutError(f"Dataset did not become ready: {DATASET_REF}")
+    _wait_until_files_ready(env)
 
 
 base.publish_dataset = publish_dataset
