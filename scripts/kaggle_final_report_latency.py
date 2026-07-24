@@ -100,6 +100,17 @@ def run_fair_cpu_latency(
             raise RuntimeError(f"Latency checkpoint seed mismatch for N={n_ris}")
         if raw["bank_checksum"].astype(str).nunique() != 1:
             raise RuntimeError(f"Multiple latency bank checksums for N={n_ris}")
+        stage_id = "td3_low_n" if n_ris in (16, 32, 64) else "td3_high_n"
+        test_candidates = list(stage_roots[stage_id].rglob(f"N{n_ris}/seed_0/test.csv"))
+        if len(test_candidates) != 1:
+            raise RuntimeError(f"Expected one seed-0 TD3 test CSV for N={n_ris}")
+        expected_checksum = str(pd.read_csv(test_candidates[0], nrows=1)["bank_checksum"].iloc[0])
+        actual_checksum = str(raw["bank_checksum"].iloc[0])
+        if actual_checksum != expected_checksum:
+            raise RuntimeError(
+                f"Latency/quality bank checksum mismatch N={n_ris}: "
+                f"{actual_checksum} != {expected_checksum}"
+            )
 
         latency_columns = [
             "td3_end_to_end_ms",
@@ -114,6 +125,9 @@ def run_fair_cpu_latency(
         metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
         if int(metadata.get("torch_num_threads", -1)) != 1:
             raise RuntimeError(f"PyTorch was not single-threaded for N={n_ris}")
+        affinity = metadata.get("affinity", [])
+        if affinity and len(affinity) != 1:
+            raise RuntimeError(f"Latency process was not pinned to one CPU for N={n_ris}: {affinity}")
         if metadata.get("timing_boundary") != "ready locked channel -> returned decision/result":
             raise RuntimeError(f"Unexpected timing boundary for N={n_ris}")
         metadata_rows.append(metadata)
