@@ -1,5 +1,5 @@
 name: Fair TD3 v3 vs Traditional CPU Latency
-# protocol-version: 2
+# protocol-version: 3
 
 on:
   push:
@@ -40,12 +40,14 @@ jobs:
         run: >-
           pytest -q
           tests/test_latency_benchmark.py
+          tests/test_latency_aggregation_multi_n.py
           tests/test_action_parameterization_v3.py
           tests/test_v3_constrained_configs.py
       - name: Compile latency scripts
         run: >-
           python -m py_compile
           scripts/run_latency_benchmark.py
+          scripts/run_latency_aggregation_fixed.py
           scripts/summarize_latency_benchmark.py
           src/star_ris_rsma/latency.py
 
@@ -224,7 +226,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python scripts/summarize_latency_benchmark.py \
+          python scripts/run_latency_aggregation_fixed.py \
             --latency-root latency_artifacts \
             --final-statistics-root final_v3_statistics \
             --output-dir fair_latency_report
