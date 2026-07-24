@@ -1,0 +1,257 @@
+name: Fair TD3 v3 vs Traditional CPU Latency
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/fair-td3-vs-traditional-cpu-latency.yml"
+  workflow_dispatch:
+    inputs:
+      final_v3_run_id:
+        description: "Retained final TD3 v3 eight-seed statistics run"
+        required: true
+        default: "30036678318"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  FINAL_V3_RUN_ID: ${{ github.event.inputs.final_v3_run_id || '30036678318' }}
+
+jobs:
+  verify:
+    name: Verify fair latency protocol
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --no-build-isolation -e ".[dev]"
+      - name: Run latency regression tests
+        run: >-
+          pytest -q
+          tests/test_latency_benchmark.py
+          tests/test_action_parameterization_v3.py
+          tests/test_v3_constrained_configs.py
+      - name: Compile latency scripts
+        run: >-
+          python -m py_compile
+          scripts/run_latency_benchmark.py
+          scripts/summarize_latency_benchmark.py
+          src/star_ris_rsma/latency.py
+
+  benchmark:
+    name: latency-N${{ matrix.n_ris }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        n_ris: [16, 32, 64, 96, 128]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        env:
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+          OPENBLAS_NUM_THREADS: "2"
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Recreate one fixed seed-0 checkpoint for timing
+        shell: bash
+        env:
+          OMP_NUM_THREADS: "2"
+          MKL_NUM_THREADS: "2"
+          OPENBLAS_NUM_THREADS: "2"
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          ROOT="latency_benchmark/N${N}"
+          mkdir -p "$ROOT"
+          python scripts/run_train_v2.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --seed 0 \
+            --output "$ROOT/train" \
+            2>&1 | tee "$ROOT/train.log"
+          test -f "$ROOT/train/best.pt"
+          test -f "$ROOT/train/manifest.json"
+
+      - name: Benchmark TD3, AO-SCA, AO-Grid, and AnalyticalRIS on one CPU
+        shell: bash
+        env:
+          OMP_NUM_THREADS: "1"
+          MKL_NUM_THREADS: "1"
+          OPENBLAS_NUM_THREADS: "1"
+          NUMEXPR_NUM_THREADS: "1"
+          VECLIB_MAXIMUM_THREADS: "1"
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          ROOT="latency_benchmark/N${N}"
+          python scripts/run_latency_benchmark.py \
+            --config "$CONFIG" \
+            --checkpoint "$ROOT/train/best.pt" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed 0 \
+            --scenarios 1000 \
+            --actor-repeats 100 \
+            --decode-repeats 100 \
+            --end-to-end-repeats 20 \
+            --actor-warmup 500 \
+            --solver-warmup-scenarios 2 \
+            --output-dir "$ROOT/results" \
+            2>&1 | tee "$ROOT/latency.log"
+          cp "$ROOT/train/manifest.json" "$ROOT/results/manifest.json"
+
+      - name: Audit benchmark output
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          ROOT="latency_benchmark/N${N}/results"
+          python - <<PY
+          import json
+          from pathlib import Path
+          import pandas as pd
+          from star_ris_rsma.latency import validate_latency_frame
+
+          root = Path("$ROOT")
+          raw = pd.read_csv(root / "LATENCY_RAW.csv")
+          validate_latency_frame(raw, expected_n=int("$N"), expected_seed=0, expected_rows=1000)
+          meta = json.loads((root / "LATENCY_METADATA.json").read_text(encoding="utf-8"))
+          manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
+          config = manifest.get("config", {})
+          if meta.get("timing_boundary") != "ready locked channel -> returned decision/result":
+              raise SystemExit("Unexpected timing boundary")
+          if int(meta.get("torch_num_threads", -1)) != 1:
+              raise SystemExit("Benchmark was not single-threaded")
+          if config.get("action_parameterization") != "physical_v3":
+              raise SystemExit("Timing checkpoint was not physical_v3")
+          if config.get("qos_dual_enabled") is not True:
+              raise SystemExit("Timing checkpoint did not enable adaptive dual")
+          print(pd.read_csv(root / "LATENCY_SUMMARY.csv").to_string(index=False))
+          PY
+
+      - name: Remove heavy checkpoint
+        if: always()
+        shell: bash
+        run: |
+          find "latency_benchmark/N${{ matrix.n_ris }}" -type f \
+            \( -name "*.pt" -o -name "*.pth" \) -delete || true
+          du -ah "latency_benchmark/N${{ matrix.n_ris }}" | sort -h | tail -30 || true
+
+      - name: Upload compact latency artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fair-latency-N${{ matrix.n_ris }}
+          path: latency_benchmark/N${{ matrix.n_ris }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 90
+
+  aggregate:
+    name: Aggregate fair latency and quality trade-off
+    if: always()
+    needs: benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --no-build-isolation -e .
+
+      - name: Download all latency artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: fair-latency-N*
+          path: latency_artifacts
+          merge-multiple: false
+
+      - name: Download retained final eight-seed quality artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p final_v3_statistics
+          gh run download "$FINAL_V3_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name td3-v3-constrained-final-8seed-ao-statistics \
+            --dir final_v3_statistics
+
+      - name: Build fair latency report
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/summarize_latency_benchmark.py \
+            --latency-root latency_artifacts \
+            --final-statistics-root final_v3_statistics \
+            --output-dir fair_latency_report
+          cat fair_latency_report/LATENCY_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final latency benchmark
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v3-fair-cpu-latency-benchmark
+          path: fair_latency_report/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
+
+      - name: Publish latency issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Final quality source run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${FINAL_V3_RUN_ID}"
+            echo
+            cat fair_latency_report/LATENCY_REPORT.md
+          } > /tmp/latency_issue.md
+          head -c 60000 /tmp/latency_issue.md > /tmp/latency_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Fair TD3 v3 versus traditional CPU latency run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/latency_issue_short.md
