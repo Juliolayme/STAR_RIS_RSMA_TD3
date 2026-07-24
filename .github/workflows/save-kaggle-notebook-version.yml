@@ -84,28 +84,28 @@ jobs:
 
             case "$stem" in
               01_td3_low_n_training)
-                slug="star-ris-rsma-td3-01-td3-low-n"
-                title="STAR-RIS RSMA TD3 01 - Low N Training"
+                slug="star-ris-td3-low-n-final"
+                title="STAR-RIS TD3 low-N final"
                 ;;
               02_td3_high_n_training)
-                slug="star-ris-rsma-td3-02-td3-high-n"
-                title="STAR-RIS RSMA TD3 02 - High N Training"
+                slug="star-ris-td3-high-n-final"
+                title="STAR-RIS TD3 high-N final"
                 ;;
               03_ao_grid_evaluation)
-                slug="star-ris-rsma-td3-03-ao-grid"
-                title="STAR-RIS RSMA TD3 03 - AO Grid Evaluation"
+                slug="star-ris-ao-grid-final"
+                title="STAR-RIS AO-Grid final"
                 ;;
               04_ao_sca_evaluation)
-                slug="star-ris-rsma-td3-04-ao-sca"
-                title="STAR-RIS RSMA TD3 04 - AO SCA Evaluation"
+                slug="star-ris-ao-sca-final"
+                title="STAR-RIS AO-SCA final"
                 ;;
               05_analytical_ris_evaluation)
-                slug="star-ris-rsma-td3-05-analytical-ris"
-                title="STAR-RIS RSMA TD3 05 - Analytical RIS Evaluation"
+                slug="star-ris-analytical-ris-final"
+                title="STAR-RIS AnalyticalRIS final"
                 ;;
               06_final_academic_report_and_benchmark)
-                slug="star-ris-rsma-td3-06-final-report"
-                title="STAR-RIS RSMA TD3 06 - Final Academic Report"
+                slug="star-ris-final-academic-bundle"
+                title="STAR-RIS final academic bundle"
                 ;;
               *)
                 echo "Unsupported notebook: $stem" >&2
@@ -137,11 +137,11 @@ jobs:
           kernel_sources = []
           if stem == "06_final_academic_report_and_benchmark":
               kernel_sources = [
-                  f"{username}/star-ris-rsma-td3-01-td3-low-n",
-                  f"{username}/star-ris-rsma-td3-02-td3-high-n",
-                  f"{username}/star-ris-rsma-td3-03-ao-grid",
-                  f"{username}/star-ris-rsma-td3-04-ao-sca",
-                  f"{username}/star-ris-rsma-td3-05-analytical-ris",
+                  f"{username}/star-ris-td3-low-n-final",
+                  f"{username}/star-ris-td3-high-n-final",
+                  f"{username}/star-ris-ao-grid-final",
+                  f"{username}/star-ris-ao-sca-final",
+                  f"{username}/star-ris-analytical-ris-final",
               ]
 
           metadata = {
@@ -171,8 +171,7 @@ jobs:
               --accelerator "$KAGGLE_ACCELERATOR" \
               --timeout "$KAGGLE_TIMEOUT_SECONDS"
 
-            # This command only reports the state immediately after submission.
-            # GitHub-hosted runners must not remain alive for a 12-hour Kaggle run.
+            # Report only the immediate state. Kaggle continues independently.
             kaggle kernels status "${KAGGLE_USERNAME}/${slug}" || true
             echo "Kaggle URL: https://www.kaggle.com/code/${KAGGLE_USERNAME}/${slug}"
           }
