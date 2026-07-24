@@ -6,7 +6,7 @@ import os
 import platform
 import time
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -55,7 +55,6 @@ def configure_single_thread_cpu(*, pin_affinity: bool = True) -> None:
             if available:
                 os.sched_setaffinity(0, {available[0]})
         except OSError:
-            # Some hosted runners expose affinity but do not allow changing it.
             pass
 
 
@@ -327,10 +326,14 @@ def summarize_latency(frame: pd.DataFrame) -> pd.DataFrame:
             row[f"{baseline}_over_td3_speedup_p95"] = float(np.quantile(speedup, 0.95))
 
         for method in _METHODS:
+            renamed = group.rename(columns={f"{method}_{metric}": metric for metric in CORE_METRICS})
+            numeric = coerce_core_metrics(
+                renamed,
+                context=f"{method} latency summary",
+                require_finite=True,
+            )
             for metric in CORE_METRICS:
-                row[f"{method}_{metric}_mean"] = float(
-                    pd.to_numeric(group[f"{method}_{metric}"], errors="raise").mean()
-                )
+                row[f"{method}_{metric}_mean"] = float(numeric[metric].mean())
         rows.append(row)
     return pd.DataFrame(rows)
 
