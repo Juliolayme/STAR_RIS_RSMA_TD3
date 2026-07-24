@@ -1,6 +1,6 @@
 import pandas as pd
 
-from scripts.run_latency_aggregation_fixed import summarize_latency_by_n
+from star_ris_rsma.latency_aggregation import summarize_latency_by_n
 from star_ris_rsma.result_validation import CORE_METRICS
 
 
