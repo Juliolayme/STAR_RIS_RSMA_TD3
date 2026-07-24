@@ -1,4 +1,5 @@
 name: Fair TD3 v3 vs Traditional CPU Latency
+# protocol-version: 2
 
 on:
   push:
