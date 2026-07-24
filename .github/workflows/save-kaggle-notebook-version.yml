@@ -1,6 +1,12 @@
 name: Save Kaggle notebook version on T4
 
 on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/save-kaggle-notebook-version.yml"
+      - "kaggle_notebooks/KAGGLE_RUN_REQUEST.txt"
   workflow_dispatch:
     inputs:
       notebook:
@@ -26,7 +32,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: kaggle-save-version-${{ inputs.notebook }}
+  group: kaggle-save-version-${{ github.event.inputs.notebook || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -40,7 +46,7 @@ jobs:
       KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
       KAGGLE_ACCELERATOR: NvidiaTeslaT4
       KAGGLE_TIMEOUT_SECONDS: "43200"
-      KAGGLE_IS_PRIVATE: ${{ inputs.is_private }}
+      KAGGLE_IS_PRIVATE: ${{ github.event.inputs.is_private }}
 
     steps:
       - name: Checkout experiment branch
@@ -70,10 +76,32 @@ jobs:
           kaggle --version
           kaggle kernels list --user "$KAGGLE_USERNAME" --page-size 1 >/dev/null
 
+      - name: Resolve requested notebook
+        id: request
+        shell: bash
+        env:
+          DISPATCH_NOTEBOOK: ${{ github.event.inputs.notebook }}
+        run: |
+          set -euo pipefail
+          selected="${DISPATCH_NOTEBOOK:-}"
+          if [[ -z "$selected" ]]; then
+            selected="$(tr -d '[:space:]' < kaggle_notebooks/KAGGLE_RUN_REQUEST.txt)"
+          fi
+          case "$selected" in
+            01_td3_low_n_training|02_td3_high_n_training|03_ao_grid_evaluation|04_ao_sca_evaluation|05_analytical_ris_evaluation|06_final_academic_report_and_benchmark|stages_01_05)
+              ;;
+            *)
+              echo "Invalid Kaggle run request: $selected" >&2
+              exit 1
+              ;;
+          esac
+          echo "notebook=$selected" >> "$GITHUB_OUTPUT"
+          echo "Selected Kaggle notebook: $selected"
+
       - name: Prepare and save Kaggle version on Tesla T4
         shell: bash
         env:
-          SELECTED_NOTEBOOK: ${{ inputs.notebook }}
+          SELECTED_NOTEBOOK: ${{ steps.request.outputs.notebook }}
         run: |
           set -euo pipefail
 
@@ -132,7 +160,8 @@ jobs:
           stem = os.environ["NOTEBOOK_STEM"]
           slug = os.environ["KERNEL_SLUG"]
           stage = Path(os.environ["STAGE_DIR"])
-          is_private = os.environ.get("KAGGLE_IS_PRIVATE", "true").lower() == "true"
+          private_value = os.environ.get("KAGGLE_IS_PRIVATE", "").strip().lower()
+          is_private = private_value != "false"
 
           kernel_sources = []
           if stem == "06_final_academic_report_and_benchmark":
@@ -197,7 +226,7 @@ jobs:
           {
             echo "## Kaggle save-version submission"
             echo
-            echo "- Selection: \`${{ inputs.notebook }}\`"
+            echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
             echo "- Kaggle run timeout: \`43200 seconds\`"
             echo "- The workflow submits a saved version and exits; Kaggle continues the run independently."
