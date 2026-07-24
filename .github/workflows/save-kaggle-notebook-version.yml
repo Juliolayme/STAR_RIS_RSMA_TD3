@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       notebook:
-        description: "Notebook version to submit to Kaggle"
+        description: "Notebook version or independent group to submit"
         required: true
         default: "01_td3_low_n_training"
         type: choice
@@ -21,6 +21,8 @@ on:
           - 04_ao_sca_evaluation
           - 05_analytical_ris_evaluation
           - 06_final_academic_report_and_benchmark
+          - baselines_03_04
+          - independent_03_05
           - stages_01_05
       is_private:
         description: "Keep the Kaggle notebooks private"
@@ -31,23 +33,16 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: kaggle-save-version-${{ github.event.inputs.notebook || github.ref_name }}
-  cancel-in-progress: false
-
 jobs:
   save-version:
     name: Push and run Kaggle notebook version
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
-      # Keep each Kaggle API key paired with its owning account.
-      # TD3  -> thanhnguyen1423 / KAGGLE_TD3_KEY
-      # DDPG -> ronganminh      / KAGGLE_DDPG_KEY
-      # PPO  -> duythanhb1909984 / KAGGLE_PPO_KEY
-      # This repository is the TD3 study, so only the TD3 pair is permitted.
-      KAGGLE_USERNAME: "thanhnguyen1423"
-      KAGGLE_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      # Keep each API key paired with its owning Kaggle account.
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
       KAGGLE_ACCELERATOR: NvidiaTeslaT4
       KAGGLE_TIMEOUT_SECONDS: "43200"
       KAGGLE_IS_PRIVATE: ${{ github.event.inputs.is_private }}
@@ -65,22 +60,6 @@ jobs:
       - name: Install Kaggle CLI with accelerator support
         run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
 
-      - name: Validate TD3 Kaggle credentials
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ -z "${KAGGLE_KEY:-}" ]]; then
-            echo "Missing GitHub Actions secret KAGGLE_TD3_KEY" >&2
-            exit 1
-          fi
-          if [[ "${KAGGLE_USERNAME}" != "thanhnguyen1423" ]]; then
-            echo "Unexpected TD3 Kaggle username: ${KAGGLE_USERNAME}" >&2
-            exit 1
-          fi
-          kaggle --version
-          kaggle kernels list --user "$KAGGLE_USERNAME" --page-size 1 >/dev/null
-          echo "Authenticated for the TD3 Kaggle account: ${KAGGLE_USERNAME}"
-
       - name: Resolve requested notebook
         id: request
         shell: bash
@@ -93,7 +72,7 @@ jobs:
             selected="$(tr -d '[:space:]' < kaggle_notebooks/KAGGLE_RUN_REQUEST.txt)"
           fi
           case "$selected" in
-            01_td3_low_n_training|02_td3_high_n_training|03_ao_grid_evaluation|04_ao_sca_evaluation|05_analytical_ris_evaluation|06_final_academic_report_and_benchmark|stages_01_05)
+            01_td3_low_n_training|02_td3_high_n_training|03_ao_grid_evaluation|04_ao_sca_evaluation|05_analytical_ris_evaluation|06_final_academic_report_and_benchmark|baselines_03_04|independent_03_05|stages_01_05)
               ;;
             *)
               echo "Invalid Kaggle run request: $selected" >&2
@@ -101,9 +80,9 @@ jobs:
               ;;
           esac
           echo "notebook=$selected" >> "$GITHUB_OUTPUT"
-          echo "Selected Kaggle notebook: $selected"
+          echo "Selected Kaggle request: $selected"
 
-      - name: Prepare and save Kaggle version on Tesla T4
+      - name: Prepare and save Kaggle versions on Tesla T4
         shell: bash
         env:
           SELECTED_NOTEBOOK: ${{ steps.request.outputs.notebook }}
@@ -113,30 +92,48 @@ jobs:
           push_notebook() {
             local stem="$1"
             local file="kaggle_notebooks/${stem}.ipynb"
-            local slug title
+            local slug title username key secret_name
 
             case "$stem" in
               01_td3_low_n_training)
+                username="thanhnguyen1423"
+                key="${KAGGLE_TD3_KEY:-}"
+                secret_name="KAGGLE_TD3_KEY"
                 slug="star-ris-td3-low-n-final"
                 title="STAR-RIS TD3 low-N final"
                 ;;
               02_td3_high_n_training)
+                username="thanhnguyen1423"
+                key="${KAGGLE_TD3_KEY:-}"
+                secret_name="KAGGLE_TD3_KEY"
                 slug="star-ris-td3-high-n-final"
                 title="STAR-RIS TD3 high-N final"
                 ;;
               03_ao_grid_evaluation)
+                username="ronganminh"
+                key="${KAGGLE_DDPG_KEY:-}"
+                secret_name="KAGGLE_DDPG_KEY"
                 slug="star-ris-ao-grid-final"
                 title="STAR-RIS AO-Grid final"
                 ;;
               04_ao_sca_evaluation)
+                username="ronganminh"
+                key="${KAGGLE_DDPG_KEY:-}"
+                secret_name="KAGGLE_DDPG_KEY"
                 slug="star-ris-ao-sca-final"
                 title="STAR-RIS AO-SCA final"
                 ;;
               05_analytical_ris_evaluation)
+                username="duythanhb1909984"
+                key="${KAGGLE_PPO_KEY:-}"
+                secret_name="KAGGLE_PPO_KEY"
                 slug="star-ris-analytical-ris-final"
                 title="STAR-RIS AnalyticalRIS final"
                 ;;
               06_final_academic_report_and_benchmark)
+                username="duythanhb1909984"
+                key="${KAGGLE_PPO_KEY:-}"
+                secret_name="KAGGLE_PPO_KEY"
                 slug="star-ris-final-academic-bundle"
                 title="STAR-RIS final academic bundle"
                 ;;
@@ -146,12 +143,22 @@ jobs:
                 ;;
             esac
 
+            if [[ -z "$key" ]]; then
+              echo "Missing GitHub Actions secret ${secret_name} for ${username}" >&2
+              exit 1
+            fi
             test -f "$file"
-            local stage=".kaggle_push/${slug}"
+
+            echo "Authenticating ${username} for ${stem} using ${secret_name}"
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels list --user "$username" --page-size 1 >/dev/null
+
+            local stage=".kaggle_push/${username}/${slug}"
             rm -rf "$stage"
             mkdir -p "$stage"
             cp "$file" "$stage/${stem}.ipynb"
 
+            KAGGLE_USERNAME="$username" \
             NOTEBOOK_STEM="$stem" \
             KERNEL_SLUG="$slug" \
             KERNEL_TITLE="$title" \
@@ -168,14 +175,16 @@ jobs:
           private_value = os.environ.get("KAGGLE_IS_PRIVATE", "").strip().lower()
           is_private = private_value != "false"
 
+          # Notebook 06 is intentionally not submitted until stages 01-05 finish.
+          # These owners reflect the fixed two-jobs-per-account distribution.
           kernel_sources = []
           if stem == "06_final_academic_report_and_benchmark":
               kernel_sources = [
-                  f"{username}/star-ris-td3-low-n-final",
-                  f"{username}/star-ris-td3-high-n-final",
-                  f"{username}/star-ris-ao-grid-final",
-                  f"{username}/star-ris-ao-sca-final",
-                  f"{username}/star-ris-analytical-ris-final",
+                  "thanhnguyen1423/star-ris-td3-low-n-final",
+                  "thanhnguyen1423/star-ris-td3-high-n-final",
+                  "ronganminh/star-ris-ao-grid-final",
+                  "ronganminh/star-ris-ao-sca-final",
+                  "duythanhb1909984/star-ris-analytical-ris-final",
               ]
 
           metadata = {
@@ -199,30 +208,39 @@ jobs:
           print(json.dumps(metadata, indent=2))
           PY
 
-            echo "Submitting ${KAGGLE_USERNAME}/${slug} on ${KAGGLE_ACCELERATOR}"
-            kaggle kernels push \
-              --path "$stage" \
-              --accelerator "$KAGGLE_ACCELERATOR" \
-              --timeout "$KAGGLE_TIMEOUT_SECONDS"
+            echo "Submitting ${username}/${slug} on ${KAGGLE_ACCELERATOR}"
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels push \
+                --path "$stage" \
+                --accelerator "$KAGGLE_ACCELERATOR" \
+                --timeout "$KAGGLE_TIMEOUT_SECONDS"
 
-            # Report only the immediate state. Kaggle continues independently.
-            kaggle kernels status "${KAGGLE_USERNAME}/${slug}" || true
-            echo "Kaggle URL: https://www.kaggle.com/code/${KAGGLE_USERNAME}/${slug}"
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels status "${username}/${slug}" || true
+            echo "Kaggle URL: https://www.kaggle.com/code/${username}/${slug}"
           }
 
-          if [[ "$SELECTED_NOTEBOOK" == "stages_01_05" ]]; then
-            for notebook in \
-              01_td3_low_n_training \
-              02_td3_high_n_training \
-              03_ao_grid_evaluation \
-              04_ao_sca_evaluation \
-              05_analytical_ris_evaluation
-            do
-              push_notebook "$notebook"
-            done
-          else
-            push_notebook "$SELECTED_NOTEBOOK"
-          fi
+          case "$SELECTED_NOTEBOOK" in
+            baselines_03_04)
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              ;;
+            independent_03_05)
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              push_notebook 05_analytical_ris_evaluation
+              ;;
+            stages_01_05)
+              push_notebook 01_td3_low_n_training
+              push_notebook 02_td3_high_n_training
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              push_notebook 05_analytical_ris_evaluation
+              ;;
+            *)
+              push_notebook "$SELECTED_NOTEBOOK"
+              ;;
+          esac
 
       - name: Write submission summary
         if: always()
@@ -231,10 +249,10 @@ jobs:
           {
             echo "## Kaggle save-version submission"
             echo
-            echo "- Kaggle account: \`thanhnguyen1423\`"
-            echo "- Secret: \`KAGGLE_TD3_KEY\`"
             echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
+            echo "- TD3 account: \`thanhnguyen1423\` (notebooks 01-02)"
+            echo "- DDPG account: \`ronganminh\` (notebooks 03-04)"
+            echo "- PPO account: \`duythanhb1909984\` (notebooks 05-06)"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
             echo "- Kaggle run timeout: \`43200 seconds\`"
-            echo "- The workflow submits a saved version and exits; Kaggle continues the run independently."
           } >> "$GITHUB_STEP_SUMMARY"
