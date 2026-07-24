@@ -39,7 +39,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      # Keep each API key paired with its owning Kaggle account.
       KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
       KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
       KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
@@ -114,21 +113,20 @@ jobs:
                 key="${KAGGLE_DDPG_KEY:-}"
                 secret_name="KAGGLE_DDPG_KEY"
                 slug="star-ris-ao-grid-final"
-                title="STAR-RIS AO-Grid final"
+                title="STAR-RIS AO Grid final"
                 ;;
               04_ao_sca_evaluation)
                 username="ronganminh"
                 key="${KAGGLE_DDPG_KEY:-}"
                 secret_name="KAGGLE_DDPG_KEY"
                 slug="star-ris-ao-sca-final"
-                title="STAR-RIS AO-SCA final"
+                title="STAR-RIS AO SCA final"
                 ;;
               05_analytical_ris_evaluation)
                 username="duythanhb1909984"
                 key="${KAGGLE_PPO_KEY:-}"
                 secret_name="KAGGLE_PPO_KEY"
                 slug="star-ris-analytical-ris-final"
-                # Keep the words separated so Kaggle derives the same slug as id.
                 title="STAR-RIS Analytical RIS final"
                 ;;
               06_final_academic_report_and_benchmark)
@@ -159,6 +157,56 @@ jobs:
             mkdir -p "$stage"
             cp "$file" "$stage/${stem}.ipynb"
 
+            NOTEBOOK_STEM="$stem" STAGE_DIR="$stage" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          stem = os.environ["NOTEBOOK_STEM"]
+          stage = Path(os.environ["STAGE_DIR"])
+          notebook_path = stage / f"{stem}.ipynb"
+
+          if stem in {
+              "03_ao_grid_evaluation",
+              "04_ao_sca_evaluation",
+              "05_analytical_ris_evaluation",
+          }:
+              notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+              old = (
+                  "    frames = [pd.read_csv(path) for path in sorted(outputs)]\n"
+                  "    raw = pd.concat(frames, ignore_index=True)\n"
+                  "    raw[\"n_ris\"] = pd.to_numeric(raw[\"n_ris\"], errors=\"raise\").astype(int)\n"
+              )
+              new = (
+                  "    frames = []\n"
+                  "    for path in sorted(outputs):\n"
+                  "        frame = pd.read_csv(path)\n"
+                  "        folder = path.parent.name\n"
+                  "        if not folder.startswith(\"N\") or not folder[1:].isdigit():\n"
+                  "            raise RuntimeError(f\"Cannot infer n_ris from output path: {path}\")\n"
+                  "        frame[\"n_ris\"] = int(folder[1:])\n"
+                  "        frames.append(frame)\n"
+                  "    raw = pd.concat(frames, ignore_index=True)\n"
+                  "    raw[\"n_ris\"] = pd.to_numeric(raw[\"n_ris\"], errors=\"raise\").astype(int)\n"
+              )
+              replacements = 0
+              for cell in notebook.get("cells", []):
+                  source = "".join(cell.get("source", []))
+                  if old in source:
+                      source = source.replace(old, new)
+                      cell["source"] = source.splitlines(keepends=True)
+                      replacements += 1
+              if replacements != 1:
+                  raise RuntimeError(
+                      f"Expected exactly one n_ris merge patch in {stem}, found {replacements}"
+                  )
+              notebook_path.write_text(
+                  json.dumps(notebook, ensure_ascii=False, separators=(",", ":")),
+                  encoding="utf-8",
+              )
+              print(f"Patched missing n_ris merge logic in {stem}")
+          PY
+
             KAGGLE_USERNAME="$username" \
             NOTEBOOK_STEM="$stem" \
             KERNEL_SLUG="$slug" \
@@ -176,8 +224,6 @@ jobs:
           private_value = os.environ.get("KAGGLE_IS_PRIVATE", "").strip().lower()
           is_private = private_value != "false"
 
-          # Notebook 06 is intentionally not submitted until stages 01-05 finish.
-          # These owners reflect the fixed two-jobs-per-account distribution.
           kernel_sources = []
           if stem == "06_final_academic_report_and_benchmark":
               kernel_sources = [
@@ -218,7 +264,6 @@ jobs:
 
             KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
               kaggle kernels status "${username}/${slug}" || true
-            echo "Kaggle URL: https://www.kaggle.com/code/${username}/${slug}"
           }
 
           case "$SELECTED_NOTEBOOK" in
@@ -251,9 +296,6 @@ jobs:
             echo "## Kaggle save-version submission"
             echo
             echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
-            echo "- TD3 account: \`thanhnguyen1423\` (notebooks 01-02)"
-            echo "- DDPG account: \`ronganminh\` (notebooks 03-04)"
-            echo "- PPO account: \`duythanhb1909984\` (notebooks 05-06)"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
-            echo "- Kaggle run timeout: \`43200 seconds\`"
+            echo "- Baseline n_ris merge hotfix: enabled for notebooks 03-05"
           } >> "$GITHUB_STEP_SUMMARY"
