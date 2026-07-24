@@ -26,13 +26,15 @@ def read_single(root: Path, name: str) -> Path:
 def load_latency(root: Path) -> tuple[pd.DataFrame, list[dict[str, object]], list[dict[str, object]]]:
     raw_paths = sorted(root.rglob("LATENCY_RAW.csv"))
     metadata_paths = sorted(root.rglob("LATENCY_METADATA.json"))
-    manifest_paths = sorted(root.rglob("manifest.json"))
+    manifest_paths = sorted(
+        path for path in root.rglob("manifest.json") if path.parent.name == "results"
+    )
     if len(raw_paths) != len(N_VALUES):
         raise RuntimeError(f"Expected {len(N_VALUES)} latency CSV files, found {len(raw_paths)}")
     if len(metadata_paths) != len(N_VALUES):
         raise RuntimeError(f"Expected {len(N_VALUES)} latency metadata files, found {len(metadata_paths)}")
     if len(manifest_paths) != len(N_VALUES):
-        raise RuntimeError(f"Expected {len(N_VALUES)} training manifests, found {len(manifest_paths)}")
+        raise RuntimeError(f"Expected {len(N_VALUES)} result manifests, found {len(manifest_paths)}")
 
     frames = []
     for path in raw_paths:
