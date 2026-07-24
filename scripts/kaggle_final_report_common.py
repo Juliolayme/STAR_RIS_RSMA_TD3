@@ -152,13 +152,33 @@ def discover_stage_roots() -> dict[str, Path]:
 
 
 def validate_stage_manifests(stage_roots: dict[str, Path]) -> dict[str, dict[str, object]]:
-    """Verify all stages used the same declared algorithm commit and N coverage."""
+    """Verify commit, N coverage, seeds, and method identity for all five stages."""
+    expected_n = {
+        "td3_low_n": [16, 32, 64],
+        "td3_high_n": [96, 128],
+        "ao_grid": list(N_VALUES),
+        "ao_sca": list(N_VALUES),
+        "analytical_ris": list(N_VALUES),
+    }
     manifests: dict[str, dict[str, object]] = {}
     for stage_id, root in stage_roots.items():
         payload = json.loads((root / "STAGE_MANIFEST.json").read_text(encoding="utf-8"))
         if payload.get("repository_commit") != ALGORITHM_COMMIT:
             raise RuntimeError(
                 f"Stage code drift for {stage_id}: {payload.get('repository_commit')}"
+            )
+        actual_n = [int(value) for value in payload.get("n_values", [])]
+        if actual_n != expected_n[stage_id]:
+            raise RuntimeError(
+                f"Unexpected N coverage for {stage_id}: {actual_n}"
+            )
+        if stage_id.startswith("td3_"):
+            seeds = [int(value) for value in payload.get("seeds", [])]
+            if seeds != list(SEEDS):
+                raise RuntimeError(f"Unexpected TD3 seed coverage for {stage_id}: {seeds}")
+        elif payload.get("method") != stage_id:
+            raise RuntimeError(
+                f"Baseline method mismatch for {stage_id}: {payload.get('method')}"
             )
         manifests[stage_id] = payload
     return manifests
