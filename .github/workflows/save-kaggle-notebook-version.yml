@@ -1,0 +1,205 @@
+name: Save Kaggle notebook version on T4
+
+on:
+  workflow_dispatch:
+    inputs:
+      notebook:
+        description: "Notebook version to submit to Kaggle"
+        required: true
+        default: "01_td3_low_n_training"
+        type: choice
+        options:
+          - 01_td3_low_n_training
+          - 02_td3_high_n_training
+          - 03_ao_grid_evaluation
+          - 04_ao_sca_evaluation
+          - 05_analytical_ris_evaluation
+          - 06_final_academic_report_and_benchmark
+          - stages_01_05
+      is_private:
+        description: "Keep the Kaggle notebooks private"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kaggle-save-version-${{ inputs.notebook }}
+  cancel-in-progress: false
+
+jobs:
+  save-version:
+    name: Push and run Kaggle notebook version
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      KAGGLE_ACCELERATOR: NvidiaTeslaT4
+      KAGGLE_TIMEOUT_SECONDS: "43200"
+      KAGGLE_IS_PRIVATE: ${{ inputs.is_private }}
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Kaggle CLI with accelerator support
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Validate Kaggle credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${KAGGLE_USERNAME:-}" ]]; then
+            echo "Missing GitHub Actions secret KAGGLE_USERNAME" >&2
+            exit 1
+          fi
+          if [[ -z "${KAGGLE_KEY:-}" && -z "${KAGGLE_API_TOKEN:-}" ]]; then
+            echo "Set either KAGGLE_KEY or KAGGLE_API_TOKEN in GitHub Actions secrets" >&2
+            exit 1
+          fi
+          kaggle --version
+          kaggle kernels list --user "$KAGGLE_USERNAME" --page-size 1 >/dev/null
+
+      - name: Prepare and save Kaggle version on Tesla T4
+        shell: bash
+        env:
+          SELECTED_NOTEBOOK: ${{ inputs.notebook }}
+        run: |
+          set -euo pipefail
+
+          push_notebook() {
+            local stem="$1"
+            local file="kaggle_notebooks/${stem}.ipynb"
+            local slug title
+
+            case "$stem" in
+              01_td3_low_n_training)
+                slug="star-ris-rsma-td3-01-td3-low-n"
+                title="STAR-RIS RSMA TD3 01 - Low N Training"
+                ;;
+              02_td3_high_n_training)
+                slug="star-ris-rsma-td3-02-td3-high-n"
+                title="STAR-RIS RSMA TD3 02 - High N Training"
+                ;;
+              03_ao_grid_evaluation)
+                slug="star-ris-rsma-td3-03-ao-grid"
+                title="STAR-RIS RSMA TD3 03 - AO Grid Evaluation"
+                ;;
+              04_ao_sca_evaluation)
+                slug="star-ris-rsma-td3-04-ao-sca"
+                title="STAR-RIS RSMA TD3 04 - AO SCA Evaluation"
+                ;;
+              05_analytical_ris_evaluation)
+                slug="star-ris-rsma-td3-05-analytical-ris"
+                title="STAR-RIS RSMA TD3 05 - Analytical RIS Evaluation"
+                ;;
+              06_final_academic_report_and_benchmark)
+                slug="star-ris-rsma-td3-06-final-report"
+                title="STAR-RIS RSMA TD3 06 - Final Academic Report"
+                ;;
+              *)
+                echo "Unsupported notebook: $stem" >&2
+                exit 1
+                ;;
+            esac
+
+            test -f "$file"
+            local stage=".kaggle_push/${slug}"
+            rm -rf "$stage"
+            mkdir -p "$stage"
+            cp "$file" "$stage/${stem}.ipynb"
+
+            NOTEBOOK_STEM="$stem" \
+            KERNEL_SLUG="$slug" \
+            KERNEL_TITLE="$title" \
+            STAGE_DIR="$stage" \
+            python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          username = os.environ["KAGGLE_USERNAME"]
+          stem = os.environ["NOTEBOOK_STEM"]
+          slug = os.environ["KERNEL_SLUG"]
+          stage = Path(os.environ["STAGE_DIR"])
+          is_private = os.environ.get("KAGGLE_IS_PRIVATE", "true").lower() == "true"
+
+          kernel_sources = []
+          if stem == "06_final_academic_report_and_benchmark":
+              kernel_sources = [
+                  f"{username}/star-ris-rsma-td3-01-td3-low-n",
+                  f"{username}/star-ris-rsma-td3-02-td3-high-n",
+                  f"{username}/star-ris-rsma-td3-03-ao-grid",
+                  f"{username}/star-ris-rsma-td3-04-ao-sca",
+                  f"{username}/star-ris-rsma-td3-05-analytical-ris",
+              ]
+
+          metadata = {
+              "id": f"{username}/{slug}",
+              "title": os.environ["KERNEL_TITLE"],
+              "code_file": f"{stem}.ipynb",
+              "language": "python",
+              "kernel_type": "notebook",
+              "is_private": is_private,
+              "enable_gpu": True,
+              "enable_tpu": False,
+              "enable_internet": True,
+              "dataset_sources": [],
+              "competition_sources": [],
+              "kernel_sources": kernel_sources,
+              "model_sources": [],
+          }
+          (stage / "kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+            echo "Submitting ${KAGGLE_USERNAME}/${slug} on ${KAGGLE_ACCELERATOR}"
+            kaggle kernels push \
+              --path "$stage" \
+              --accelerator "$KAGGLE_ACCELERATOR" \
+              --timeout "$KAGGLE_TIMEOUT_SECONDS"
+
+            # This command only reports the state immediately after submission.
+            # GitHub-hosted runners must not remain alive for a 12-hour Kaggle run.
+            kaggle kernels status "${KAGGLE_USERNAME}/${slug}" || true
+            echo "Kaggle URL: https://www.kaggle.com/code/${KAGGLE_USERNAME}/${slug}"
+          }
+
+          if [[ "$SELECTED_NOTEBOOK" == "stages_01_05" ]]; then
+            for notebook in \
+              01_td3_low_n_training \
+              02_td3_high_n_training \
+              03_ao_grid_evaluation \
+              04_ao_sca_evaluation \
+              05_analytical_ris_evaluation
+            do
+              push_notebook "$notebook"
+            done
+          else
+            push_notebook "$SELECTED_NOTEBOOK"
+          fi
+
+      - name: Write submission summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Kaggle save-version submission"
+            echo
+            echo "- Selection: \`${{ inputs.notebook }}\`"
+            echo "- Requested accelerator: \`NvidiaTeslaT4\`"
+            echo "- Kaggle run timeout: \`43200 seconds\`"
+            echo "- The workflow submits a saved version and exits; Kaggle continues the run independently."
+          } >> "$GITHUB_STEP_SUMMARY"
