@@ -1,0 +1,163 @@
+name: Diagnose Kaggle stage dataset contents
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/diagnose-kaggle-stage-dataset.yml"
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/diagnose-kaggle-stage-dataset.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-dataset:
+    name: Download, extract, and print dataset tree
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      DATASET_REF: duythanhb1909984/star-ris-stage-outputs-final-v2
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Download dataset without assumptions
+        shell: bash
+        run: |
+          set -euo pipefail
+          export KAGGLE_USERNAME="duythanhb1909984"
+          export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
+          rm -rf .dataset_diagnostic
+          mkdir -p .dataset_diagnostic/download
+          kaggle datasets download \
+            -d "$DATASET_REF" \
+            -p .dataset_diagnostic/download \
+            --unzip \
+            --force
+
+      - name: Print and extract every discovered file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import shutil
+          import zipfile
+          from pathlib import Path
+
+          root = Path('.dataset_diagnostic/download').resolve()
+          extracted_root = Path('.dataset_diagnostic/extracted').resolve()
+          extracted_root.mkdir(parents=True, exist_ok=True)
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open('rb') as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          print('=== DOWNLOADED DATASET TREE ===')
+          downloaded_files = sorted(path for path in root.rglob('*') if path.is_file())
+          print(f'Download root: {root}')
+          print(f'Discovered files: {len(downloaded_files)}')
+          for path in downloaded_files:
+              relative = path.relative_to(root)
+              print(
+                  f'FILE\t{relative.as_posix()}\t'
+                  f'{path.stat().st_size} bytes\tsha256={sha256(path)}'
+              )
+
+          archives = [path for path in downloaded_files if zipfile.is_zipfile(path)]
+          print(f'ZIP archives discovered: {len(archives)}')
+          archive_report: list[dict[str, object]] = []
+
+          for index, archive_path in enumerate(archives, start=1):
+              safe_name = f'{index:02d}_{archive_path.stem}'
+              destination = extracted_root / safe_name
+              if destination.exists():
+                  shutil.rmtree(destination)
+              destination.mkdir(parents=True)
+
+              print(f'=== ZIP {index}: {archive_path.relative_to(root).as_posix()} ===')
+              with zipfile.ZipFile(archive_path) as archive:
+                  members = [item for item in archive.infolist() if not item.is_dir()]
+                  print(f'Members: {len(members)}')
+                  for item in members:
+                      print(
+                          f'ZIP_MEMBER\t{item.filename}\t'
+                          f'uncompressed={item.file_size}\tcompressed={item.compress_size}'
+                      )
+                  archive.extractall(destination)
+
+              extracted_files = sorted(
+                  path for path in destination.rglob('*') if path.is_file()
+              )
+              manifests = [
+                  path for path in extracted_files if path.name == 'STAGE_MANIFEST.json'
+              ]
+              print(f'Extracted files: {len(extracted_files)}')
+              print(f'STAGE_MANIFEST.json files: {len(manifests)}')
+              for path in extracted_files:
+                  print(
+                      f'EXTRACTED\t{safe_name}/{path.relative_to(destination).as_posix()}\t'
+                      f'{path.stat().st_size} bytes'
+                  )
+              for manifest in manifests:
+                  print(f'=== MANIFEST: {safe_name}/{manifest.relative_to(destination)} ===')
+                  try:
+                      payload = json.loads(manifest.read_text(encoding='utf-8'))
+                      print(json.dumps(payload, indent=2, sort_keys=True))
+                  except Exception as exc:
+                      print(f'MANIFEST_READ_ERROR: {exc!r}')
+
+              archive_report.append(
+                  {
+                      'archive': archive_path.relative_to(root).as_posix(),
+                      'members': len(members),
+                      'extracted_files': len(extracted_files),
+                      'manifest_count': len(manifests),
+                      'manifest_paths': [
+                          str(path.relative_to(destination)) for path in manifests
+                      ],
+                  }
+              )
+
+          report = {
+              'dataset_ref': 'duythanhb1909984/star-ris-stage-outputs-final-v2',
+              'downloaded_file_count': len(downloaded_files),
+              'downloaded_files': [path.relative_to(root).as_posix() for path in downloaded_files],
+              'zip_archive_count': len(archives),
+              'archives': archive_report,
+          }
+          report_path = Path('.dataset_diagnostic/dataset_diagnostic_report.json')
+          report_path.write_text(json.dumps(report, indent=2), encoding='utf-8')
+          print('=== MACHINE-READABLE SUMMARY ===')
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Upload complete diagnostic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaggle-stage-dataset-diagnostic
+          path: .dataset_diagnostic
+          if-no-files-found: error
+          retention-days: 7
