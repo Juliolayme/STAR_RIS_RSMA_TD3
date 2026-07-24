@@ -1,0 +1,204 @@
+name: TD3 Physical Action v3 Pilot
+
+# Expensive pilot: manual dispatch only. The completed pilot is run 30031762393.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+
+jobs:
+  verify:
+    name: Verify physical action parameterization
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --no-build-isolation -e ".[dev]"
+      - run: >-
+          pytest -q
+          tests/test_action_parameterization_v3.py
+          tests/test_qos_scalability_v2.py
+          tests/test_pilot_metric_audit.py
+
+  train:
+    name: td3-v3-physical-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        n_ris: [16, 128]
+        seed: [0, 1, 2]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v3/physical_action_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Train one seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v3/physical_action_n${N}.yaml"
+          ROOT="pilot_v3/N${N}/seed_${SEED}"
+          mkdir -p "$ROOT"
+          python scripts/run_train_v2.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --seed "$SEED" \
+            --output "$ROOT/train" \
+            2>&1 | tee "$ROOT/train.log"
+
+      - name: Evaluate locked test bank
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v3/physical_action_n${N}.yaml"
+          ROOT="pilot_v3/N${N}/seed_${SEED}"
+          python scripts/run_evaluate.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --checkpoint "$ROOT/train/best.pt" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed "$SEED" \
+            --output "$ROOT/test.csv" \
+            2>&1 | tee "$ROOT/evaluate.log"
+
+      - name: Audit pilot output
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          ROOT="pilot_v3/N${N}/seed_${SEED}"
+          python scripts/audit_pilot_output.py \
+            --root "$ROOT" \
+            --seed "$SEED"
+
+      - name: Remove heavy checkpoints
+        if: always()
+        run: |
+          find "pilot_v3/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}" \
+            -type f \( -name "*.pt" -o -name "*.pth" \) -delete || true
+
+      - name: Upload compact pilot seed
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v3-physical-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+          path: pilot_v3/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+  aggregate:
+    name: Audit v3 against legacy TD3 and traditional solvers
+    if: always()
+    needs: train
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --no-build-isolation -e .
+
+      - name: Download six v3 seed artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: td3-v3-physical-*
+          path: v3_artifacts
+          merge-multiple: false
+
+      - name: Download retained legacy and traditional final artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p legacy_final traditional_final
+          gh run download 30016120754 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name td3-v2-fixed-final-8seed-statistics \
+            --dir legacy_final
+          gh run download 30029960013 \
+            --repo "$GITHUB_REPOSITORY" \
+            --name drl-vs-traditional-final-statistics \
+            --dir traditional_final
+
+      - name: Build pilot comparison
+        run: |
+          python scripts/pilot_physical_action_v3.py \
+            --v3-root v3_artifacts \
+            --legacy-root legacy_final \
+            --traditional-root traditional_final \
+            --output-dir pilot_v3_audit
+          cat pilot_v3_audit/V3_PILOT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload pilot audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-physical-action-v3-pilot-audit
+          path: pilot_v3_audit/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
+
+      - name: Publish pilot issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat pilot_v3_audit/V3_PILOT.md
+          } > /tmp/v3_pilot_issue.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "TD3 physical-action v3 pilot run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/v3_pilot_issue.md

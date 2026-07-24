@@ -53,6 +53,7 @@ def solve(
         previous = current.score
 
         for local_index, absolute_index in enumerate(range(s["powers"].start, s["powers"].stop)):
+            del absolute_index
             for value in power_grid:
                 trial = current.vector.copy()
                 trial[s["powers"]] = _redistribute_simplex(
@@ -100,4 +101,8 @@ def solve(
         },
         "initialization": "analytical_ris_equal_allocation",
     })
-    return encode_action(current.action, c.p_max), metrics
+    return encode_action(
+        current.action,
+        c.p_max,
+        c.action_parameterization,
+    ), metrics

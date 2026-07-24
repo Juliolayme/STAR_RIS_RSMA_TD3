@@ -1,0 +1,265 @@
+name: TD3 High-N Rescue 6 Jobs
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/rescue-v2-full-high-n.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+
+jobs:
+  rescue:
+    name: v2_full-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        n_ris: [96, 128]
+        seed: [0, 1, 2]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v2/siso_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Train one seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v2/siso_n${N}.yaml"
+          ROOT="results_ablation/v2_full/N${N}"
+          mkdir -p "$ROOT/train" "$ROOT/test" "$ROOT/logs"
+
+          python scripts/run_train_v2.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --seed "$SEED" \
+            --output "$ROOT/train/seed_${SEED}" \
+            2>&1 | tee "$ROOT/logs/seed_${SEED}_train.log"
+
+      - name: Evaluate best checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v2/siso_n${N}.yaml"
+          ROOT="results_ablation/v2_full/N${N}"
+
+          python scripts/run_evaluate.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --checkpoint "$ROOT/train/seed_${SEED}/best.pt" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed "$SEED" \
+            --output "$ROOT/test/seed_${SEED}.csv" \
+            2>&1 | tee "$ROOT/logs/seed_${SEED}_evaluate.log"
+
+      - name: Audit seed output
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          ROOT="results_ablation/v2_full/N${N}"
+          python scripts/summarize_ablation_job.py \
+            --root "$ROOT" \
+            --arm v2_full \
+            --n-ris "$N" \
+            --seeds "$SEED" \
+            --output "$ROOT/JOB_SUMMARY.csv"
+
+      - name: Remove heavy checkpoints
+        if: always()
+        shell: bash
+        run: |
+          ROOT="results_ablation/v2_full/N${{ matrix.n_ris }}"
+          find "$ROOT" -type f \( -name "*.pt" -o -name "*.pth" \) -delete || true
+          du -ah "$ROOT" | sort -h | tail -30 || true
+
+      - name: Upload compact rescue artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-rescue-v2_full-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+          path: results_ablation/v2_full/N${{ matrix.n_ris }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+  aggregate:
+    name: Merge old completed jobs with six rescue jobs
+    if: always()
+    needs: rescue
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Download six rescue artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: td3-rescue-*
+          path: rescue_artifacts
+          merge-multiple: false
+
+      - name: Find original 20-job run and download completed artifacts
+        id: original
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_RUN="$(gh run list \
+            --repo "$GITHUB_REPOSITORY" \
+            --workflow "TD3 Ablation 20 Jobs" \
+            --branch "$GITHUB_REF_NAME" \
+            --limit 10 \
+            --json databaseId,createdAt \
+            --jq '.[0].databaseId')"
+          if [ -z "$SOURCE_RUN" ] || [ "$SOURCE_RUN" = "null" ]; then
+            echo "No original 20-job run found" >&2
+            exit 1
+          fi
+          echo "source_run=$SOURCE_RUN" >> "$GITHUB_OUTPUT"
+          mkdir -p original_artifacts
+          gh run download "$SOURCE_RUN" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern 'td3-ablation-*' \
+            --dir original_artifacts || true
+          echo "Original source run: $SOURCE_RUN"
+          find original_artifacts -maxdepth 3 -type f | head -100 || true
+
+      - name: Deduplicate summaries with rescue precedence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import pandas as pd
+
+          rows = []
+          for priority, root in [(0, Path('original_artifacts')), (1, Path('rescue_artifacts'))]:
+              if not root.exists():
+                  continue
+              for path in sorted(root.rglob('JOB_SUMMARY.csv')):
+                  frame = pd.read_csv(path)
+                  frame['_priority'] = priority
+                  frame['_source'] = path.as_posix()
+                  rows.append(frame)
+
+          if not rows:
+              raise SystemExit('No JOB_SUMMARY.csv found in original or rescue artifacts')
+
+          merged = pd.concat(rows, ignore_index=True)
+          required = {'arm', 'n_ris', 'seed'}
+          missing = required - set(merged.columns)
+          if missing:
+              raise SystemExit(f'Missing summary keys: {sorted(missing)}')
+
+          merged = merged.sort_values(['arm', 'n_ris', 'seed', '_priority'])
+          merged = merged.drop_duplicates(['arm', 'n_ris', 'seed'], keep='last')
+          source_map = merged[['arm', 'n_ris', 'seed', '_priority', '_source']].copy()
+          clean = merged.drop(columns=['_priority', '_source'])
+
+          out = Path('deduplicated_jobs')
+          out.mkdir(parents=True, exist_ok=True)
+          clean.to_csv(out / 'JOB_SUMMARY.csv', index=False)
+          source_map.to_csv(out / 'SOURCE_MAP.csv', index=False)
+          print(clean.groupby(['arm', 'n_ris']).size())
+          PY
+
+      - name: Build combined causal audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/aggregate_ablation_pilot.py \
+            --root deduplicated_jobs \
+            --seeds 0 1 2 \
+            --output-dir rescue_aggregate_audit
+          cp deduplicated_jobs/SOURCE_MAP.csv rescue_aggregate_audit/SOURCE_MAP.csv
+          {
+            echo
+            echo "- Original 20-job source run: **${{ steps.original.outputs.source_run || 'not found' }}**"
+            echo "- Rescue run: **${GITHUB_RUN_ID}**"
+            echo "- Duplicate policy: rescue seed artifact overrides the same original arm/N/seed row."
+          } >> rescue_aggregate_audit/AUDIT_REPORT.md
+          cat rescue_aggregate_audit/AUDIT_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload combined compact audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-ablation-rescue-aggregate-audit
+          path: rescue_aggregate_audit/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 30
+
+      - name: Publish rescue audit issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Original run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${{ steps.original.outputs.source_run }}"
+            echo
+            cat rescue_aggregate_audit/AUDIT_REPORT.md
+          } > /tmp/rescue_issue.md
+          head -c 60000 /tmp/rescue_issue.md > /tmp/rescue_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "TD3 high-N rescue audit run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/rescue_issue_short.md
