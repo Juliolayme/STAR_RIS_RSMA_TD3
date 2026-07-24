@@ -41,9 +41,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
-      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
-      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+      # Keep each Kaggle API key paired with its owning account.
+      # TD3  -> thanhnguyen1423 / KAGGLE_TD3_KEY
+      # DDPG -> ronganminh      / KAGGLE_DDPG_KEY
+      # PPO  -> duythanhb1909984 / KAGGLE_PPO_KEY
+      # This repository is the TD3 study, so only the TD3 pair is permitted.
+      KAGGLE_USERNAME: "thanhnguyen1423"
+      KAGGLE_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
       KAGGLE_ACCELERATOR: NvidiaTeslaT4
       KAGGLE_TIMEOUT_SECONDS: "43200"
       KAGGLE_IS_PRIVATE: ${{ github.event.inputs.is_private }}
@@ -61,20 +65,21 @@ jobs:
       - name: Install Kaggle CLI with accelerator support
         run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
 
-      - name: Validate Kaggle credentials
+      - name: Validate TD3 Kaggle credentials
         shell: bash
         run: |
           set -euo pipefail
-          if [[ -z "${KAGGLE_USERNAME:-}" ]]; then
-            echo "Missing GitHub Actions secret KAGGLE_USERNAME" >&2
+          if [[ -z "${KAGGLE_KEY:-}" ]]; then
+            echo "Missing GitHub Actions secret KAGGLE_TD3_KEY" >&2
             exit 1
           fi
-          if [[ -z "${KAGGLE_KEY:-}" && -z "${KAGGLE_API_TOKEN:-}" ]]; then
-            echo "Set either KAGGLE_KEY or KAGGLE_API_TOKEN in GitHub Actions secrets" >&2
+          if [[ "${KAGGLE_USERNAME}" != "thanhnguyen1423" ]]; then
+            echo "Unexpected TD3 Kaggle username: ${KAGGLE_USERNAME}" >&2
             exit 1
           fi
           kaggle --version
           kaggle kernels list --user "$KAGGLE_USERNAME" --page-size 1 >/dev/null
+          echo "Authenticated for the TD3 Kaggle account: ${KAGGLE_USERNAME}"
 
       - name: Resolve requested notebook
         id: request
@@ -226,6 +231,8 @@ jobs:
           {
             echo "## Kaggle save-version submission"
             echo
+            echo "- Kaggle account: \`thanhnguyen1423\`"
+            echo "- Secret: \`KAGGLE_TD3_KEY\`"
             echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
             echo "- Kaggle run timeout: \`43200 seconds\`"
