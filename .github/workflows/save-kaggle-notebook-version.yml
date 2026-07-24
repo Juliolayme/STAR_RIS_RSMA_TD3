@@ -128,7 +128,8 @@ jobs:
                 key="${KAGGLE_PPO_KEY:-}"
                 secret_name="KAGGLE_PPO_KEY"
                 slug="star-ris-analytical-ris-final"
-                title="STAR-RIS AnalyticalRIS final"
+                # Keep the words separated so Kaggle derives the same slug as id.
+                title="STAR-RIS Analytical RIS final"
                 ;;
               06_final_academic_report_and_benchmark)
                 username="duythanhb1909984"
