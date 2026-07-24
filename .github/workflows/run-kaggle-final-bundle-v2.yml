@@ -79,13 +79,27 @@ jobs:
           print(json.dumps(metadata, indent=2))
           PY
 
-      - name: Push and run notebook 06
+      - name: Verify V2 dataset and run notebook 06
         shell: bash
         run: |
           set -euo pipefail
           export KAGGLE_USERNAME="duythanhb1909984"
           export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
-          kaggle datasets status "$FINAL_DATASET_REF"
+
+          files="$(kaggle datasets files "$FINAL_DATASET_REF")"
+          printf '%s\n' "$files"
+          for required in \
+            td3_low_n.zip \
+            td3_high_n.zip \
+            ao_grid.zip \
+            ao_sca.zip \
+            analytical_ris.zip; do
+            if ! grep -Fq "$required" <<<"$files"; then
+              echo "Missing required dataset archive: $required" >&2
+              exit 1
+            fi
+          done
+
           kaggle kernels push \
             --path ".kaggle_push/duythanhb1909984/star-ris-final-academic-bundle" \
             --accelerator "$KAGGLE_ACCELERATOR" \
@@ -103,6 +117,7 @@ jobs:
             echo "- Dataset: \`duythanhb1909984/star-ris-stage-outputs-final-v2\`"
             echo "- Notebook: \`duythanhb1909984/star-ris-final-academic-bundle\`"
             echo "- Inputs: audited outputs from stages 01-05"
+            echo "- Dataset readiness probe: \`kaggle datasets files\`"
             echo "- Cross-account kernel sources: disabled"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
           } >> "$GITHUB_STEP_SUMMARY"
