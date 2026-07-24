@@ -9,8 +9,11 @@ produce a submission-ready evidence bundle for the thesis and paper.
 1. Do not change the channel model, RSMA rate equations, reward, TD3
    hyperparameters, baseline algorithms, scenario counts, seeds, or timing
    boundaries.
-2. Every notebook clones the repository and checks out the pinned commit
-   `89c39da461523a7f5911a302cb9415aeaa5824ce`.
+2. Notebooks 01-05 clone the repository and check out the pinned scientific
+   algorithm commit `89c39da461523a7f5911a302cb9415aeaa5824ce`.
+   Notebook 06 checks out the pinned report-code commit
+   `bc7f88955060cfd156322a2a9cba0716dc5be52e`, which adds only the Kaggle
+   orchestration/report modules on top of that scientific commit.
 3. TD3 uses five values of `N = 16, 32, 64, 96, 128`, eight training seeds
    `0..7`, and 1,000 locked test scenarios per seed.
 4. AO-Grid, AO-SCA, and AnalyticalRIS each use the same 1,000 locked test
@@ -261,8 +264,10 @@ Codex must reject the final result if any check below fails:
 - seed coverage `{0,1,2,3,4,5,6,7}`
 - no NaN or Inf in quality or latency metrics
 - one bank checksum per N, matching TD3 and all baselines
-- all five stage manifests use repository commit
+- all five stage manifests use the scientific algorithm commit
   `89c39da461523a7f5911a302cb9415aeaa5824ce`
+- notebook 06 checks out report-code commit
+  `bc7f88955060cfd156322a2a9cba0716dc5be52e`
 - all four methods exist in the final quality and latency tables
 - latency raw output contains 5,000 rows
 - latency summary contains mean, median, std, p95 and p99
