@@ -172,39 +172,83 @@ jobs:
               "05_analytical_ris_evaluation",
           }:
               notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
-              old = (
-                  "    frames = [pd.read_csv(path) for path in sorted(outputs)]\n"
-                  "    raw = pd.concat(frames, ignore_index=True)\n"
-                  "    raw[\"n_ris\"] = pd.to_numeric(raw[\"n_ris\"], errors=\"raise\").astype(int)\n"
-              )
-              new = (
-                  "    frames = []\n"
-                  "    for path in sorted(outputs):\n"
-                  "        frame = pd.read_csv(path)\n"
-                  "        folder = path.parent.name\n"
-                  "        if not folder.startswith(\"N\") or not folder[1:].isdigit():\n"
-                  "            raise RuntimeError(f\"Cannot infer n_ris from output path: {path}\")\n"
-                  "        frame[\"n_ris\"] = int(folder[1:])\n"
-                  "        frames.append(frame)\n"
-                  "    raw = pd.concat(frames, ignore_index=True)\n"
-                  "    raw[\"n_ris\"] = pd.to_numeric(raw[\"n_ris\"], errors=\"raise\").astype(int)\n"
-              )
-              replacements = 0
+              candidate_cells = 0
+              patched_cells = 0
+              already_patched_cells = 0
+
               for cell in notebook.get("cells", []):
                   source = "".join(cell.get("source", []))
-                  if old in source:
-                      source = source.replace(old, new)
-                      cell["source"] = source.splitlines(keepends=True)
-                      replacements += 1
-              if replacements != 1:
-                  raise RuntimeError(
-                      f"Expected exactly one n_ris merge patch in {stem}, found {replacements}"
+                  if 'raw["n_ris"]' not in source or "pd.to_numeric" not in source:
+                      continue
+
+                  candidate_cells += 1
+                  if 'frame["n_ris"] = int(folder[1:])' in source:
+                      already_patched_cells += 1
+                      continue
+
+                  lines = source.splitlines(keepends=True)
+                  frames_idx = next(
+                      (
+                          i
+                          for i, line in enumerate(lines)
+                          if "frames" in line
+                          and "pd.read_csv(path)" in line
+                          and "sorted(outputs)" in line
+                      ),
+                      None,
                   )
+                  if frames_idx is None:
+                      raise RuntimeError(
+                          f"Found n_ris consumer but no frames reader in {stem}"
+                      )
+
+                  concat_idx = next(
+                      (
+                          i
+                          for i in range(frames_idx + 1, len(lines))
+                          if "raw = pd.concat(frames" in lines[i]
+                      ),
+                      None,
+                  )
+                  if concat_idx is None:
+                      raise RuntimeError(
+                          f"Found frames reader but no concat line in {stem}"
+                      )
+
+                  indent = lines[frames_idx][: len(lines[frames_idx]) - len(lines[frames_idx].lstrip())]
+                  replacement = [
+                      f"{indent}frames = []\n",
+                      f"{indent}for path in sorted(outputs):\n",
+                      f"{indent}    frame = pd.read_csv(path)\n",
+                      f"{indent}    folder = path.parent.name\n",
+                      f"{indent}    if not folder.startswith('N') or not folder[1:].isdigit():\n",
+                      f"{indent}        raise RuntimeError(f'Cannot infer n_ris from output path: {{path}}')\n",
+                      f"{indent}    frame['n_ris'] = int(folder[1:])\n",
+                      f"{indent}    frames.append(frame)\n",
+                      f"{indent}raw = pd.concat(frames, ignore_index=True)\n",
+                  ]
+                  lines[frames_idx : concat_idx + 1] = replacement
+                  cell["source"] = lines
+                  patched_cells += 1
+
+              if candidate_cells != 1:
+                  raise RuntimeError(
+                      f"Expected one n_ris consumer cell in {stem}, found {candidate_cells}"
+                  )
+              if patched_cells + already_patched_cells != 1:
+                  raise RuntimeError(
+                      f"n_ris patch state invalid in {stem}: patched={patched_cells}, "
+                      f"already_patched={already_patched_cells}"
+                  )
+
               notebook_path.write_text(
                   json.dumps(notebook, ensure_ascii=False, separators=(",", ":")),
                   encoding="utf-8",
               )
-              print(f"Patched missing n_ris merge logic in {stem}")
+              print(
+                  f"n_ris merge logic ready in {stem}: "
+                  f"patched={patched_cells}, already_patched={already_patched_cells}"
+              )
           PY
 
             KAGGLE_USERNAME="$username" \
@@ -297,5 +341,5 @@ jobs:
             echo
             echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
             echo "- Requested accelerator: \`NvidiaTeslaT4\`"
-            echo "- Baseline n_ris merge hotfix: enabled for notebooks 03-05"
+            echo "- Baseline n_ris merge hotfix: format-robust for notebooks 03-05"
           } >> "$GITHUB_STEP_SUMMARY"
