@@ -23,6 +23,7 @@ from kaggle_final_report_common import (
 )
 from kaggle_final_report_latency import plot_latency, run_fair_cpu_latency
 from kaggle_final_report_quality import (
+    build_baseline_timing_table,
     build_performance_tables,
     load_baseline_outputs,
     load_td3_outputs,
@@ -51,6 +52,7 @@ def write_results_readme(report_commit: str) -> None:
         "- `tables/TABLE_TD3_8SEED_CI95.*`",
         "- `tables/TABLE_PAIRED_WILCOXON_HOLM.*`",
         "- `tables/TABLE_CPU_LATENCY.*`",
+        "- `tables/TABLE_BASELINE_SOLVER_TIME_DESCRIPTIVE.*`",
         "",
         "## Paper-ready figures",
         "",
@@ -89,10 +91,12 @@ def main() -> None:
     baseline_raw.to_csv(RAW_DIR / "BASELINES_RAW_ALL.csv", index=False)
 
     td3_summary, final_table = build_performance_tables(td3_test, baseline_raw)
+    baseline_timing = build_baseline_timing_table(baseline_raw)
     statistical_tests = paired_seed_level_tests(td3_test, baseline_raw)
     write_table_formats(td3_summary, "TABLE_TD3_8SEED_CI95")
     write_table_formats(final_table, "TABLE_FINAL_PERFORMANCE")
     write_table_formats(statistical_tests, "TABLE_PAIRED_WILCOXON_HOLM")
+    write_table_formats(baseline_timing, "TABLE_BASELINE_SOLVER_TIME_DESCRIPTIVE")
     plot_training_curves(td3_training, td3_validation)
     plot_final_quality(final_table)
 
