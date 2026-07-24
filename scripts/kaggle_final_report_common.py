@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 from typing import Iterable, Sequence
 
@@ -15,8 +16,15 @@ import pandas as pd
 
 REPO_URL = "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git"
 ALGORITHM_COMMIT = "89c39da461523a7f5911a302cb9415aeaa5824ce"
+BASELINE_EXPORT_COMMIT = "fdb6344ec976bfde222b45f84c5b07c7eb6d6e0a"
 REPO_DIR = Path(__file__).resolve().parents[1]
 INPUT_ROOT = Path(os.environ.get("KAGGLE_INPUT_ROOT", "/kaggle/input"))
+MATERIALIZED_STAGE_ROOT = Path(
+    os.environ.get(
+        "KAGGLE_MATERIALIZED_STAGE_ROOT",
+        "/kaggle/working/STAR_RIS_STAGE_INPUTS",
+    )
+)
 FINAL_ROOT = Path(
     os.environ.get(
         "FINAL_REPORT_OUTPUT",
@@ -30,6 +38,13 @@ LATENCY_DIR = FINAL_ROOT / "latency"
 N_VALUES = (16, 32, 64, 96, 128)
 SEEDS = tuple(range(8))
 METHODS = ("td3", "ao_sca", "ao_grid", "analytical_ris")
+REQUIRED_STAGE_IDS = {
+    "td3_low_n",
+    "td3_high_n",
+    "ao_grid",
+    "ao_sca",
+    "analytical_ris",
+}
 
 
 def prepare_output_directories() -> None:
@@ -123,15 +138,9 @@ def create_locked_banks(n_values: Iterable[int]) -> None:
         )
 
 
-def discover_stage_roots() -> dict[str, Path]:
-    """Discover outputs of notebooks 01-05 from their stage manifests.
-
-    Kaggle kernel-source mount names depend on the account and kernel slug.
-    Manifest discovery keeps notebook 06 independent of those names while still
-    requiring exactly one copy of each scientific stage.
-    """
-    roots: dict[str, Path] = {}
-    for manifest_path in INPUT_ROOT.rglob("STAGE_MANIFEST.json"):
+def _register_manifests(root: Path, roots: dict[str, Path]) -> None:
+    """Register every stage manifest below one root and reject duplicates."""
+    for manifest_path in root.rglob("STAGE_MANIFEST.json"):
         payload = json.loads(manifest_path.read_text(encoding="utf-8"))
         stage_id = str(payload["stage_id"])
         if stage_id in roots:
@@ -141,11 +150,52 @@ def discover_stage_roots() -> dict[str, Path]:
             )
         roots[stage_id] = manifest_path.parent
 
-    required = {"td3_low_n", "td3_high_n", "ao_grid", "ao_sca", "analytical_ris"}
-    missing = sorted(required.difference(roots))
+
+def _materialize_missing_stage_archives(
+    missing: set[str], roots: dict[str, Path]
+) -> None:
+    """Extract stage ZIP files from the cross-account private bundle dataset."""
+    MATERIALIZED_STAGE_ROOT.mkdir(parents=True, exist_ok=True)
+    for stage_id in sorted(missing):
+        archives = list(INPUT_ROOT.rglob(f"{stage_id}.zip"))
+        if len(archives) != 1:
+            raise RuntimeError(
+                f"Expected one bundled archive for missing stage '{stage_id}', "
+                f"found {archives}"
+            )
+        destination = MATERIALIZED_STAGE_ROOT / stage_id
+        if destination.exists():
+            for child in sorted(destination.rglob("*"), reverse=True):
+                if child.is_file() or child.is_symlink():
+                    child.unlink()
+                elif child.is_dir():
+                    child.rmdir()
+        destination.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(archives[0]) as archive:
+            archive.extractall(destination)
+        _register_manifests(destination, roots)
+
+
+def discover_stage_roots() -> dict[str, Path]:
+    """Discover outputs of notebooks 01-05 from manifests or bundle archives.
+
+    Private kernels owned by different Kaggle accounts cannot be relied upon as
+    direct kernel sources. The final workflow therefore publishes five audited
+    stage archives in one private PPO-owned dataset. Direct manifests remain
+    supported for local/smoke use, while missing stages are materialized from
+    those archives.
+    """
+    roots: dict[str, Path] = {}
+    _register_manifests(INPUT_ROOT, roots)
+
+    missing = REQUIRED_STAGE_IDS.difference(roots)
+    if missing:
+        _materialize_missing_stage_archives(missing, roots)
+
+    missing = sorted(REQUIRED_STAGE_IDS.difference(roots))
     if missing:
         raise RuntimeError(
-            "Attach successful outputs from notebooks 01-05 before notebook 06. "
+            "Attach the private stage-output bundle generated from notebooks 01-05. "
             f"Missing stages: {missing}"
         )
     return roots
@@ -160,12 +210,21 @@ def validate_stage_manifests(stage_roots: dict[str, Path]) -> dict[str, dict[str
         "ao_sca": list(N_VALUES),
         "analytical_ris": list(N_VALUES),
     }
+    allowed_commits = {
+        "td3_low_n": {ALGORITHM_COMMIT},
+        "td3_high_n": {ALGORITHM_COMMIT},
+        "ao_grid": {ALGORITHM_COMMIT, BASELINE_EXPORT_COMMIT},
+        "ao_sca": {ALGORITHM_COMMIT, BASELINE_EXPORT_COMMIT},
+        "analytical_ris": {ALGORITHM_COMMIT, BASELINE_EXPORT_COMMIT},
+    }
     manifests: dict[str, dict[str, object]] = {}
     for stage_id, root in stage_roots.items():
         payload = json.loads((root / "STAGE_MANIFEST.json").read_text(encoding="utf-8"))
-        if payload.get("repository_commit") != ALGORITHM_COMMIT:
+        repository_commit = str(payload.get("repository_commit", ""))
+        if repository_commit not in allowed_commits[stage_id]:
             raise RuntimeError(
-                f"Stage code drift for {stage_id}: {payload.get('repository_commit')}"
+                f"Stage code drift for {stage_id}: {repository_commit}; "
+                f"allowed={sorted(allowed_commits[stage_id])}"
             )
         actual_n = [int(value) for value in payload.get("n_values", [])]
         if actual_n != expected_n[stage_id]:
