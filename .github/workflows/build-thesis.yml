@@ -1,0 +1,69 @@
+name: Build thesis PDF
+
+on:
+  push:
+    branches:
+      - thesis/latex-full-v1
+    paths:
+      - "thesis/**/*.tex"
+      - "thesis/**/*.sty"
+      - "thesis/**/*.bib"
+      - "thesis/**/*.md"
+      - "thesis/figures/**/*.pdf"
+      - "thesis/latexmkrc"
+      - "references/references.bib"
+      - ".github/workflows/build-thesis.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install XeLaTeX toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            latexmk biber \
+            texlive-xetex texlive-latex-extra texlive-fonts-recommended \
+            texlive-lang-other texlive-science texlive-bibtex-extra \
+            fonts-texgyre poppler-utils
+
+      - name: Build thesis
+        working-directory: thesis
+        run: |
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex
+          mkdir -p build
+          cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+
+      - name: Upload PDF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis
+          path: thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Commit built PDF to branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          if git diff --cached --quiet; then
+            echo "PDF unchanged"
+            exit 0
+          fi
+          git commit -m "Build thesis PDF [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
