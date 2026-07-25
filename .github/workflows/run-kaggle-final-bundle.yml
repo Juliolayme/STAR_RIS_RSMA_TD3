@@ -1,0 +1,108 @@
+name: Bundle Kaggle stages and run final report
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/run-kaggle-final-bundle.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  bundle-and-run:
+    name: Build private stage dataset and run notebook 06
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      KAGGLE_ACCELERATOR: NvidiaTeslaT4
+      KAGGLE_TIMEOUT_SECONDS: "43200"
+      FINAL_DATASET_REF: duythanhb1909984/star-ris-stage-outputs-final
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Download, audit, and publish stages 01-05
+        run: python scripts/prepare_kaggle_final_stage_dataset.py
+
+      - name: Prepare notebook 06 metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=".kaggle_push/duythanhb1909984/star-ris-final-academic-bundle"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          cp kaggle_notebooks/06_final_academic_report_and_benchmark.ipynb \
+            "$stage/06_final_academic_report_and_benchmark.ipynb"
+
+          STAGE_DIR="$stage" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          stage = Path(os.environ["STAGE_DIR"])
+          metadata = {
+              "id": "duythanhb1909984/star-ris-final-academic-bundle",
+              "title": "STAR RIS Final Academic Bundle",
+              "code_file": "06_final_academic_report_and_benchmark.ipynb",
+              "language": "python",
+              "kernel_type": "notebook",
+              "is_private": True,
+              "enable_gpu": True,
+              "enable_tpu": False,
+              "enable_internet": True,
+              "dataset_sources": [
+                  "duythanhb1909984/star-ris-stage-outputs-final"
+              ],
+              "competition_sources": [],
+              "kernel_sources": [],
+              "model_sources": [],
+          }
+          (stage / "kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+      - name: Push and run notebook 06
+        shell: bash
+        run: |
+          set -euo pipefail
+          export KAGGLE_USERNAME="duythanhb1909984"
+          export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
+          kaggle datasets status "$FINAL_DATASET_REF"
+          kaggle kernels push \
+            --path ".kaggle_push/duythanhb1909984/star-ris-final-academic-bundle" \
+            --accelerator "$KAGGLE_ACCELERATOR" \
+            --timeout "$KAGGLE_TIMEOUT_SECONDS"
+          kaggle kernels status \
+            "duythanhb1909984/star-ris-final-academic-bundle" || true
+
+      - name: Write final submission summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## STAR-RIS final Kaggle bundle"
+            echo
+            echo "- Dataset: \`duythanhb1909984/star-ris-stage-outputs-final\`"
+            echo "- Notebook: \`duythanhb1909984/star-ris-final-academic-bundle\`"
+            echo "- Inputs: audited outputs from stages 01-05"
+            echo "- Cross-account kernel sources: disabled"
+            echo "- Requested accelerator: \`NvidiaTeslaT4\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -58,7 +58,7 @@ def solve(
     """Two-block proximal AO-SCA on feasible physical variables.
 
     At each block, a concave first-order proximal surrogate is constructed:
-      g(x_t)^T (z - x_t) - rho/2 ||z - x_t||^2.
+      g(x_t)^T (z - x_t) - rho/2 ||z-x||^2.
     Its constrained maximizer is obtained by projection onto the power/common
     simplices, beta box and periodic phase domain. Increasing rho implements
     monotone backtracking on the exact merit. This is a local stationary-point
@@ -128,4 +128,8 @@ def solve(
         "surrogate_records": surrogate_records,
         "initialization": "analytical_ris_equal_allocation",
     })
-    return encode_action(current.action, env.config.p_max), metrics
+    return encode_action(
+        current.action,
+        env.config.p_max,
+        env.config.action_parameterization,
+    ), metrics

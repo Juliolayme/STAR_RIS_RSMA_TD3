@@ -1,0 +1,200 @@
+name: Diagnose Kaggle stage dataset contents
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/diagnose-kaggle-stage-dataset.yml"
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/diagnose-kaggle-stage-dataset.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  inspect-dataset:
+    name: Download, extract, and print dataset tree
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      DATASET_REF: duythanhb1909984/star-ris-stage-outputs-final-v2
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Download dataset without assumptions
+        shell: bash
+        run: |
+          set -euo pipefail
+          export KAGGLE_USERNAME="duythanhb1909984"
+          export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
+          rm -rf dataset_diagnostic
+          mkdir -p dataset_diagnostic/download
+          kaggle datasets download \
+            -d "$DATASET_REF" \
+            -p dataset_diagnostic/download \
+            --unzip \
+            --force
+
+      - name: Print and extract every discovered file
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import hashlib
+          import json
+          import shutil
+          import zipfile
+          from pathlib import Path
+
+          diagnostic_root = Path('dataset_diagnostic').resolve()
+          root = diagnostic_root / 'download'
+          extracted_root = diagnostic_root / 'extracted'
+          extracted_root.mkdir(parents=True, exist_ok=True)
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open('rb') as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b''):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          downloaded_files = sorted(path for path in root.rglob('*') if path.is_file())
+          archives = [path for path in downloaded_files if zipfile.is_zipfile(path)]
+          report: dict[str, object] = {
+              'dataset_ref': 'duythanhb1909984/star-ris-stage-outputs-final-v2',
+              'downloaded_file_count': len(downloaded_files),
+              'downloaded_files': [],
+              'zip_archive_count': len(archives),
+              'archives': [],
+          }
+
+          print('=== DOWNLOADED DATASET TREE ===')
+          print(f'Download root: {root}')
+          print(f'Discovered files: {len(downloaded_files)}')
+          for path in downloaded_files:
+              relative = path.relative_to(root).as_posix()
+              size = path.stat().st_size
+              digest = sha256(path)
+              report['downloaded_files'].append(
+                  {'path': relative, 'size_bytes': size, 'sha256': digest}
+              )
+              print(f'FILE\t{relative}\t{size} bytes\tsha256={digest}')
+
+          print(f'ZIP archives discovered: {len(archives)}')
+          for index, archive_path in enumerate(archives, start=1):
+              safe_name = f'{index:02d}_{archive_path.stem}'
+              destination = extracted_root / safe_name
+              if destination.exists():
+                  shutil.rmtree(destination)
+              destination.mkdir(parents=True)
+
+              archive_relative = archive_path.relative_to(root).as_posix()
+              print(f'=== ZIP {index}: {archive_relative} ===')
+              with zipfile.ZipFile(archive_path) as archive:
+                  members = [item for item in archive.infolist() if not item.is_dir()]
+                  print(f'Members: {len(members)}')
+                  for item in members:
+                      print(
+                          f'ZIP_MEMBER\t{item.filename}\t'
+                          f'uncompressed={item.file_size}\tcompressed={item.compress_size}'
+                      )
+                  archive.extractall(destination)
+
+              extracted_files = sorted(
+                  path for path in destination.rglob('*') if path.is_file()
+              )
+              manifests = [
+                  path for path in extracted_files if path.name == 'STAGE_MANIFEST.json'
+              ]
+              print(f'Extracted files: {len(extracted_files)}')
+              print(f'STAGE_MANIFEST.json files: {len(manifests)}')
+              for path in extracted_files:
+                  relative = path.relative_to(destination).as_posix()
+                  print(f'EXTRACTED\t{safe_name}/{relative}\t{path.stat().st_size} bytes')
+
+              manifest_payloads = []
+              for manifest in manifests:
+                  print(f'=== MANIFEST: {safe_name}/{manifest.relative_to(destination)} ===')
+                  try:
+                      payload = json.loads(manifest.read_text(encoding='utf-8'))
+                      manifest_payloads.append(payload)
+                      print(json.dumps(payload, indent=2, sort_keys=True))
+                  except Exception as exc:
+                      manifest_payloads.append({'read_error': repr(exc)})
+                      print(f'MANIFEST_READ_ERROR: {exc!r}')
+
+              report['archives'].append(
+                  {
+                      'archive': archive_relative,
+                      'members': len(members),
+                      'member_paths': [item.filename for item in members],
+                      'extracted_files': len(extracted_files),
+                      'extracted_paths': [
+                          path.relative_to(destination).as_posix()
+                          for path in extracted_files
+                      ],
+                      'manifest_count': len(manifests),
+                      'manifest_paths': [
+                          path.relative_to(destination).as_posix()
+                          for path in manifests
+                      ],
+                      'manifest_payloads': manifest_payloads,
+                  }
+              )
+
+          report_path = diagnostic_root / 'dataset_diagnostic_report.json'
+          report_path.write_text(json.dumps(report, indent=2), encoding='utf-8')
+
+          compact_lines = [
+              f"dataset_ref={report['dataset_ref']}",
+              f"downloaded_file_count={report['downloaded_file_count']}",
+              f"zip_archive_count={report['zip_archive_count']}",
+          ]
+          for archive in report['archives']:
+              stage_ids = [
+                  payload.get('stage_id')
+                  for payload in archive['manifest_payloads']
+                  if isinstance(payload, dict) and payload.get('stage_id')
+              ]
+              compact_lines.append(
+                  'archive='
+                  + str(archive['archive'])
+                  + f" members={archive['members']}"
+                  + f" extracted_files={archive['extracted_files']}"
+                  + f" manifests={archive['manifest_count']}"
+                  + f" stage_ids={stage_ids}"
+              )
+          compact_path = diagnostic_root / 'compact_summary.txt'
+          compact_path.write_text('\n'.join(compact_lines) + '\n', encoding='utf-8')
+
+          print('=== COMPACT SUMMARY ===')
+          print(compact_path.read_text(encoding='utf-8'))
+          print('=== MACHINE-READABLE SUMMARY ===')
+          print(json.dumps(report, indent=2))
+          PY
+
+      - name: Upload complete diagnostic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaggle-stage-dataset-diagnostic
+          path: dataset_diagnostic
+          if-no-files-found: error
+          retention-days: 7

@@ -1,0 +1,231 @@
+name: TD3 Ablation 20 Jobs
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/train-td3-ablation-20jobs.yml"
+  workflow_dispatch:
+    inputs:
+      seeds:
+        description: "Space-separated seeds; pilot default is 0 1 2"
+        required: true
+        default: "0 1 2"
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  PILOT_SEEDS: ${{ github.event.inputs.seeds || '0 1 2' }}
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+
+jobs:
+  train:
+    name: ${{ matrix.arm }}-N${{ matrix.n_ris }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        arm: [v1, norm_only, v2_fixed_budget, v2_full]
+        n_ris: [16, 32, 64, 96, 128]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Resolve arm configuration
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARM="${{ matrix.arm }}"
+          N="${{ matrix.n_ris }}"
+          case "$ARM" in
+            v1)
+              CONFIG="configs/siso_n${N}.yaml"
+              TRAINER="scripts/run_train.py"
+              ;;
+            norm_only)
+              CONFIG="configs/ablations/norm_only_n${N}.yaml"
+              TRAINER="scripts/run_train.py"
+              ;;
+            v2_fixed_budget)
+              CONFIG="configs/ablations/v2_fixed_budget_n${N}.yaml"
+              TRAINER="scripts/run_train_v2.py"
+              ;;
+            v2_full)
+              CONFIG="configs/v2/siso_n${N}.yaml"
+              TRAINER="scripts/run_train_v2.py"
+              ;;
+            *)
+              echo "Unknown arm: $ARM" >&2
+              exit 2
+              ;;
+          esac
+          test -f "$CONFIG"
+          test -f "$TRAINER"
+          echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
+          echo "trainer=$TRAINER" >> "$GITHUB_OUTPUT"
+          echo "Resolved $ARM N=$N: $TRAINER --config $CONFIG"
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/create_scenario_banks.py \
+            --config "${{ steps.resolve.outputs.config }}" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Train and evaluate seeds
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARM="${{ matrix.arm }}"
+          N="${{ matrix.n_ris }}"
+          CONFIG="${{ steps.resolve.outputs.config }}"
+          TRAINER="${{ steps.resolve.outputs.trainer }}"
+          ROOT="results_ablation/${ARM}/N${N}"
+          mkdir -p "$ROOT/train" "$ROOT/test" "$ROOT/logs"
+
+          read -r -a SEEDS <<< "$PILOT_SEEDS"
+          if [ "${#SEEDS[@]}" -eq 0 ]; then
+            echo "No seeds supplied" >&2
+            exit 2
+          fi
+
+          for SEED in "${SEEDS[@]}"; do
+            echo "=== ARM=$ARM N=$N SEED=$SEED TRAIN ==="
+            python "$TRAINER" \
+              --method td3 \
+              --config "$CONFIG" \
+              --seed "$SEED" \
+              --output "$ROOT/train/seed_${SEED}" \
+              2>&1 | tee "$ROOT/logs/seed_${SEED}_train.log"
+
+            echo "=== ARM=$ARM N=$N SEED=$SEED EVALUATE ==="
+            python scripts/run_evaluate.py \
+              --method td3 \
+              --config "$CONFIG" \
+              --checkpoint "$ROOT/train/seed_${SEED}/best.pt" \
+              --bank "artifacts/scenario_banks/N${N}_test.npz" \
+              --seed "$SEED" \
+              --output "$ROOT/test/seed_${SEED}.csv" \
+              2>&1 | tee "$ROOT/logs/seed_${SEED}_evaluate.log"
+          done
+
+      - name: Audit job outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          read -r -a SEEDS <<< "$PILOT_SEEDS"
+          ROOT="results_ablation/${{ matrix.arm }}/N${{ matrix.n_ris }}"
+          python scripts/summarize_ablation_job.py \
+            --root "$ROOT" \
+            --arm "${{ matrix.arm }}" \
+            --n-ris "${{ matrix.n_ris }}" \
+            --seeds "${SEEDS[@]}" \
+            --output "$ROOT/JOB_SUMMARY.csv"
+
+      - name: Remove heavy checkpoints
+        if: always()
+        shell: bash
+        run: |
+          find "results_ablation/${{ matrix.arm }}/N${{ matrix.n_ris }}" \
+            -type f \( -name "*.pt" -o -name "*.pth" \) -delete || true
+          du -ah "results_ablation/${{ matrix.arm }}/N${{ matrix.n_ris }}" | sort -h | tail -30 || true
+
+      - name: Upload compact arm-N artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-ablation-${{ matrix.arm }}-N${{ matrix.n_ris }}
+          path: results_ablation/${{ matrix.arm }}/N${{ matrix.n_ris }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 30
+
+  aggregate:
+    name: Aggregate 20-job audit
+    if: always()
+    needs: train
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install analysis dependencies
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Download all compact job artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: td3-ablation-*
+          path: downloaded_jobs
+          merge-multiple: false
+
+      - name: Aggregate causal ablation report
+        shell: bash
+        run: |
+          set -euo pipefail
+          read -r -a SEEDS <<< "$PILOT_SEEDS"
+          python scripts/aggregate_ablation_pilot.py \
+            --root downloaded_jobs \
+            --seeds "${SEEDS[@]}" \
+            --output-dir aggregate_audit
+          cat aggregate_audit/AUDIT_REPORT.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload compact aggregate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-ablation-aggregate-audit
+          path: aggregate_audit/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 30
+
+      - name: Publish concise audit issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            cat aggregate_audit/AUDIT_REPORT.md
+          } > /tmp/td3_ablation_issue.md
+          head -c 60000 /tmp/td3_ablation_issue.md > /tmp/td3_ablation_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "TD3 20-job ablation audit run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/td3_ablation_issue_short.md

@@ -1,0 +1,517 @@
+[{"stream_name":"stderr","time":6.288068197,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.288108801,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.288112774,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.288115551,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":6.850423722,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":6.8504528350000005,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":6.850457486,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":6.850462814,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":7.876670463,"data":"Cloning into '/kaggle/working/STAR_RIS_RSMA_TD3'...\n"}
+,{"stream_name":"stdout","time":8.057757808,"data":"$ git clone --filter=blob:none --branch agent/td3-qos-scalability-v2 https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git /kaggle/working/STAR_RIS_RSMA_TD3\n"}
+,{"stream_name":"stderr","time":8.078995672,"data":"Cloning into '/kaggle/working/STAR_RIS_RSMA_TD3'...\n"}
+,{"stream_name":"stderr","time":8.079019195,"data":"\n"}
+,{"stream_name":"stderr","time":8.079023203,"data":"Cloning into '/kaggle/working/STAR_RIS_RSMA_TD3'...\n"}
+,{"stream_name":"stdout","time":9.009215585,"data":"$ git checkout --detach b67adee55def9dbc32c8acded09dad68c51ee49a\n"}
+,{"stream_name":"stderr","time":9.080524811,"data":"HEAD is now at b67adee Load bundled Kaggle stages and validate export commits\n"}
+,{"stream_name":"stderr","time":9.283300953,"data":"HEAD is now at b67adee Load bundled Kaggle stages and validate export commits\n"}
+,{"stream_name":"stderr","time":9.283329536,"data":"\n"}
+,{"stream_name":"stderr","time":9.283333542,"data":"HEAD is now at b67adee Load bundled Kaggle stages and validate export commits\n"}
+,{"stream_name":"stdout","time":9.284099124,"data":"$ /usr/bin/python3 -m pip install -q --no-build-isolation -e /kaggle/working/STAR_RIS_RSMA_TD3 tabulate\n"}
+,{"stream_name":"stdout","time":16.46227803,"data":"$ /usr/bin/python3 -m py_compile scripts/kaggle_final_report_common.py scripts/kaggle_final_report_quality.py scripts/kaggle_final_report_latency.py scripts/kaggle_final_report_main.py\n"}
+,{"stream_name":"stdout","time":16.462313792,"data":"Pinned report commit: b67adee55def9dbc32c8acded09dad68c51ee49a\n"}
+,{"stream_name":"stdout","time":16.568610885,"data":"$ /usr/bin/python3 scripts/kaggle_final_report_main.py\n"}
+,{"stream_name":"stdout","time":699.07075794,"data":"Attached stages:\n"}
+,{"stream_name":"stdout","time":699.070818412,"data":"  analytical_ris: /kaggle/input/star-ris-stage-outputs-final-v2/analytical_ris\n"}
+,{"stream_name":"stdout","time":699.070826447,"data":"  ao_grid: /kaggle/input/star-ris-stage-outputs-final-v2/ao_grid\n"}
+,{"stream_name":"stdout","time":699.070831403,"data":"  ao_sca: /kaggle/input/star-ris-stage-outputs-final-v2/ao_sca\n"}
+,{"stream_name":"stdout","time":699.070836028,"data":"  td3_high_n: /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n\n"}
+,{"stream_name":"stdout","time":699.07084069,"data":"  td3_low_n: /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n\n"}
+,{"stream_name":"stdout","time":699.07084672,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.070869835,"data":"{\n"}
+,{"stream_name":"stdout","time":699.070874518,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.070878687,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.070883239,"data":"    \"checksum\": \"b51439f19a262ead64d5beab9d5c0b59986d905a5dbf8cfec27b0e2a89d28934\",\n"}
+,{"stream_name":"stdout","time":699.070887685,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.070891885,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.070895821,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.070899802,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.070903991,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.070907807,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.071062541,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071091274,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071096504,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.07109981,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.071103529,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.07110755,"data":"    \"checksum\": \"ff3bb90b6af684e3b9176db101992400a2cbae2c9bc3359761ba4889db40a1d9\",\n"}
+,{"stream_name":"stdout","time":699.071111452,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071115285,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.071118877,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.071122252,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071125645,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071129134,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.071132746,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071136585,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071140292,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.07114364,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.071146924,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.071150695,"data":"    \"checksum\": \"ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7\",\n"}
+,{"stream_name":"stdout","time":699.071154249,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.07115749,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.071160885,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.071164642,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071167785,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071171754,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.071175174,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071179174,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071182501,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.071185895,"data":"}\n"}
+,{"stream_name":"stdout","time":699.07118964,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.071204564,"data":"{\n"}
+,{"stream_name":"stdout","time":699.071208024,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.071211409,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.071214803,"data":"    \"checksum\": \"644567748ca3bf6d519ae7b74b7812aa5a57f33b77786c27972ac7f78ac30ea5\",\n"}
+,{"stream_name":"stdout","time":699.0712182,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071221624,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.071225155,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.071228855,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.071232219,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071235533,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.071238844,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071242462,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071245765,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071249051,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.071252473,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.071256196,"data":"    \"checksum\": \"5f273747e249ffb92ad14c707fb44da44b02d2e59d07ebc5e051d1d2bba58733\",\n"}
+,{"stream_name":"stdout","time":699.071260022,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071263399,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.071367424,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.071380212,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071384391,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071388349,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.071392724,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071396904,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071401273,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071404756,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.071408509,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.071420074,"data":"    \"checksum\": \"6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef\",\n"}
+,{"stream_name":"stdout","time":699.071452282,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071459505,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.071463968,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.071467883,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071471579,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071475112,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.071478859,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071482588,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071485905,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.071499386,"data":"}\n"}
+,{"stream_name":"stdout","time":699.071504276,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.071508667,"data":"{\n"}
+,{"stream_name":"stdout","time":699.071512048,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.071515574,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.071519843,"data":"    \"checksum\": \"f1bd39b659fe342179a1822520d8548fc7ad31818fdf6454e9dd6f6c55ea035d\",\n"}
+,{"stream_name":"stdout","time":699.071523748,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071527462,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.071530986,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.071534256,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.071537801,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071541824,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.071545785,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071550059,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071553273,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071556715,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.071560096,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.071563888,"data":"    \"checksum\": \"c2d7d0f7f13235ab59dc57de1d740fafa6478103732d384f976eb691a92ba1ac\",\n"}
+,{"stream_name":"stdout","time":699.071567565,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071571006,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.071574277,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.071577817,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071583,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071586533,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.071589895,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071593552,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071596907,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071600267,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.071604015,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.07160773,"data":"    \"checksum\": \"ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae\",\n"}
+,{"stream_name":"stdout","time":699.071611458,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071614894,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.071618782,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.071622914,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071627853,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071631938,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.071635283,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071643261,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071646771,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.071650085,"data":"}\n"}
+,{"stream_name":"stdout","time":699.071653278,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.071657586,"data":"{\n"}
+,{"stream_name":"stdout","time":699.07166081,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.071664331,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.071668832,"data":"    \"checksum\": \"d0a6419f23ec4f4c92bf50bf7dd471cb839863e872a511af0d83cb03ee236d11\",\n"}
+,{"stream_name":"stdout","time":699.071672693,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071676218,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.071679801,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.071683076,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.071686626,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071689981,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.071693568,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071697014,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071700809,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071704783,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.071708753,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.071713335,"data":"    \"checksum\": \"135afb5ca4361e7b979798a7e97e11119084197941cac615d311d3305de3049e\",\n"}
+,{"stream_name":"stdout","time":699.071716615,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071720044,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.071723623,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.071727148,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071730472,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071734208,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.071737688,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071741458,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071744695,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071748091,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.071751488,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.071755441,"data":"    \"checksum\": \"4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63\",\n"}
+,{"stream_name":"stdout","time":699.071759245,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071762742,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.07176623,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.071769864,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071773311,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071776493,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.071783295,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071787893,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071791766,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.071795298,"data":"}\n"}
+,{"stream_name":"stdout","time":699.07180006,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.071804608,"data":"{\n"}
+,{"stream_name":"stdout","time":699.071807931,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.071811441,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.071815201,"data":"    \"checksum\": \"a0f0b0d1a0239987f88e5e37ca6f40a7ac1d9c87f90e44e07baf54f7d7ac7212\",\n"}
+,{"stream_name":"stdout","time":699.071818998,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071822389,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.071826045,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.071829531,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.071832946,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071836133,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.071839509,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071842625,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071846051,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071849301,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.071852855,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.07185665,"data":"    \"checksum\": \"3310a8420a7846e9bd1aa2685ca55ffac88587e2fcd458f6258d997d9498e319\",\n"}
+,{"stream_name":"stdout","time":699.071860426,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071864001,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.071868195,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.071872176,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071876163,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071879625,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.071883123,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071886825,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071889989,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.071894156,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.071897713,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.071901505,"data":"    \"checksum\": \"f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e\",\n"}
+,{"stream_name":"stdout","time":699.071905373,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.071909091,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.071912934,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.071916458,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.071923113,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.071926662,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.071929618,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.071933337,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.071936765,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.071940296,"data":"}\n"}
+,{"stream_name":"stdout","time":699.071945743,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N16/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N16\n"}
+,{"stream_name":"stdout","time":699.07195556,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":699.275662271,"data":"Attached stages:\n"}
+,{"stream_name":"stdout","time":699.275705654,"data":"  analytical_ris: /kaggle/input/star-ris-stage-outputs-final-v2/analytical_ris\n"}
+,{"stream_name":"stdout","time":699.275739069,"data":"  ao_grid: /kaggle/input/star-ris-stage-outputs-final-v2/ao_grid\n"}
+,{"stream_name":"stdout","time":699.275744238,"data":"  ao_sca: /kaggle/input/star-ris-stage-outputs-final-v2/ao_sca\n"}
+,{"stream_name":"stdout","time":699.275749425,"data":"  td3_high_n: /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n\n"}
+,{"stream_name":"stdout","time":699.275754393,"data":"  td3_low_n: /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n\n"}
+,{"stream_name":"stdout","time":699.275758976,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.275764656,"data":"{\n"}
+,{"stream_name":"stdout","time":699.275769326,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.275773724,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.275786436,"data":"    \"checksum\": \"b51439f19a262ead64d5beab9d5c0b59986d905a5dbf8cfec27b0e2a89d28934\",\n"}
+,{"stream_name":"stdout","time":699.275790253,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.275793624,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.275797104,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.275802087,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.275824039,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.275828133,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.275831877,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.275836159,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.275839687,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.275842613,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.275846118,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.275850507,"data":"    \"checksum\": \"ff3bb90b6af684e3b9176db101992400a2cbae2c9bc3359761ba4889db40a1d9\",\n"}
+,{"stream_name":"stdout","time":699.275854813,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.275858721,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.275862775,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.27586605,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.275869414,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.275872828,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.275876298,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.275880341,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.275884296,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.275888081,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.275891735,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.275900834,"data":"    \"checksum\": \"ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7\",\n"}
+,{"stream_name":"stdout","time":699.275904526,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.275907855,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.275911222,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.275914437,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.275917744,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.275921043,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":699.275924328,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.275928718,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.275932404,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.275936331,"data":"}\n"}
+,{"stream_name":"stdout","time":699.27594314,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.275947746,"data":"{\n"}
+,{"stream_name":"stdout","time":699.275951433,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.275959099,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.275962631,"data":"    \"checksum\": \"644567748ca3bf6d519ae7b74b7812aa5a57f33b77786c27972ac7f78ac30ea5\",\n"}
+,{"stream_name":"stdout","time":699.275966198,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.275969148,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.275972444,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.275976261,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.275979244,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.275982334,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.275986424,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.275990221,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.275993657,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.275997079,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.276000573,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.276004528,"data":"    \"checksum\": \"5f273747e249ffb92ad14c707fb44da44b02d2e59d07ebc5e051d1d2bba58733\",\n"}
+,{"stream_name":"stdout","time":699.276008089,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276012069,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.276016147,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.276019571,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.27602296,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276026456,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.276030149,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276034232,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276038013,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276053991,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.27606099,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.276065521,"data":"    \"checksum\": \"6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef\",\n"}
+,{"stream_name":"stdout","time":699.276069501,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276073803,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.276077594,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.276081505,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276085398,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276089066,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":699.276092333,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276103895,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276107727,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.276111839,"data":"}\n"}
+,{"stream_name":"stdout","time":699.276116151,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.276125543,"data":"{\n"}
+,{"stream_name":"stdout","time":699.276129436,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.276133164,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.276137648,"data":"    \"checksum\": \"f1bd39b659fe342179a1822520d8548fc7ad31818fdf6454e9dd6f6c55ea035d\",\n"}
+,{"stream_name":"stdout","time":699.276142128,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276145338,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.276149085,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.276152886,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.276156865,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276160511,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.276164349,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276168051,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276171293,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276174831,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.276178809,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.276183103,"data":"    \"checksum\": \"c2d7d0f7f13235ab59dc57de1d740fafa6478103732d384f976eb691a92ba1ac\",\n"}
+,{"stream_name":"stdout","time":699.27618723,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276191381,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.27619542,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.276199504,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276203368,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276206713,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.276210755,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276214867,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276218754,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276222502,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.276227223,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.276231473,"data":"    \"checksum\": \"ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae\",\n"}
+,{"stream_name":"stdout","time":699.276235393,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276242561,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.276247768,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.276251113,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276254731,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276258355,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":699.276262209,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276266088,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276269508,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.276273077,"data":"}\n"}
+,{"stream_name":"stdout","time":699.276276817,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.276286851,"data":"{\n"}
+,{"stream_name":"stdout","time":699.276290881,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.276294793,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.276298748,"data":"    \"checksum\": \"d0a6419f23ec4f4c92bf50bf7dd471cb839863e872a511af0d83cb03ee236d11\",\n"}
+,{"stream_name":"stdout","time":699.276302667,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276306587,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.276310673,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.276314393,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.27631818,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.27632192,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.276325311,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276328923,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276332859,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276336371,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.276340123,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.276344648,"data":"    \"checksum\": \"135afb5ca4361e7b979798a7e97e11119084197941cac615d311d3305de3049e\",\n"}
+,{"stream_name":"stdout","time":699.276348189,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276351658,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.276355443,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.276359075,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276362849,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276366256,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.276370449,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276374318,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276377827,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276381523,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.276385544,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.276389611,"data":"    \"checksum\": \"4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63\",\n"}
+,{"stream_name":"stdout","time":699.276393527,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276397369,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.276401161,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.276405411,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.27640879,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276412685,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":699.276416514,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276420196,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276423555,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.276427546,"data":"}\n"}
+,{"stream_name":"stdout","time":699.276432431,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":699.276441135,"data":"{\n"}
+,{"stream_name":"stdout","time":699.276444857,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":699.276448455,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_train.npz\",\n"}
+,{"stream_name":"stdout","time":699.276452909,"data":"    \"checksum\": \"a0f0b0d1a0239987f88e5e37ca6f40a7ac1d9c87f90e44e07baf54f7d7ac7212\",\n"}
+,{"stream_name":"stdout","time":699.276456871,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.27646072,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":699.276464572,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":699.276468315,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":699.276471957,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276475827,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.276479729,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276483587,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.27648698,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276490474,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":699.276494262,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_validation.npz\",\n"}
+,{"stream_name":"stdout","time":699.276498374,"data":"    \"checksum\": \"3310a8420a7846e9bd1aa2685ca55ffac88587e2fcd458f6258d997d9498e319\",\n"}
+,{"stream_name":"stdout","time":699.276502738,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.27650605,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":699.2765094,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":699.276513278,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276517146,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276520746,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.276524205,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276528177,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276531842,"data":"  },\n"}
+,{"stream_name":"stdout","time":699.276535515,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":699.276539335,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz\",\n"}
+,{"stream_name":"stdout","time":699.27654358,"data":"    \"checksum\": \"f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e\",\n"}
+,{"stream_name":"stdout","time":699.276547143,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":699.276550664,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":699.276554558,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":699.276558503,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":699.276562444,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":699.276565791,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":699.276569409,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":699.276573457,"data":"    }\n"}
+,{"stream_name":"stdout","time":699.276577165,"data":"  }\n"}
+,{"stream_name":"stdout","time":699.276584729,"data":"}\n"}
+,{"stream_name":"stdout","time":699.276592577,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N16/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N16\n"}
+,{"stream_name":"stdout","time":699.276603239,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6371.847232003,"data":"16,0,1000,ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7,0.17987579309,0.17762693499999999,0.197773876,0.22372983800000001,0.07050158863,0.06940059500000001,0.078000286,0.09332515909999997,0.25037738172,0.24778175,0.27437892150000004,0.30900673720000005,0.5084030308999999,0.5011399,0.55801198,0.642812647,449.4910025,461.856303,656.52365045,688.55479014,152.09018043400002,150.6500785,164.5694577,177.37676640999996,0.245229113,0.2404685,0.29286355,0.33976027,884.123372955289,911.3544757016064,338.64989137819305,1319.4427577713122,299.1527807471221,300.45111668275956,269.81687365373904,334.1455009825879,0.482351791974732,0.47403408177118034,0.4112329372854247,0.5885212798655121,9.798434667237807,0.98625,0.966,0.012782053320740516,15.213727359291637,0.995,0.983,1.3047044744000647e-05,3.9813814750837957,1.0,1.0,0.0,1.9811703451949012,0.0,0.0,0.01882965480509873\n"}
+,{"stream_name":"stdout","time":6371.847315243,"data":"\n"}
+,{"stream_name":"stdout","time":6371.847324428,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N32/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N32\n"}
+,{"stream_name":"stdout","time":6371.847335441,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6371.8473535,"data":"32,0,1000,6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef,0.18714623556,0.184427665,0.20614105549999998,0.2304010807,0.06875829861999999,0.067271285,0.07636663249999999,0.09485706409999994,0.25590453418000003,0.25209815,0.2797587035,0.3216825399,0.52946751375,0.522895425,0.58621115,0.6494037064999999,753.6423655399999,776.190573,1123.00022365,1164.21687467,270.81972554600003,268.3438195,291.49659125,316.12270612,0.248157954,0.243486,0.2996902,0.3532622299999999,1423.3968014435143,1464.6225745213828,407.0373232357944,2171.6173954692385,511.4945081859614,515.1609785678949,459.18912425083823,564.9715697505626,0.4686934468224491,0.46143141827354495,0.3983470102493194,0.5743192696866678,10.21630956511252,0.99675,0.996,0.0037296718931335046,16.452378356819192,0.99975,0.999,1.27474452394305e-07,3.9819040838951616,1.0,1.0,0.0,1.9819768496904375,0.0,0.0,0.018023150309562454\n"}
+,{"stream_name":"stdout","time":6371.847358554,"data":"\n"}
+,{"stream_name":"stdout","time":6371.847362393,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N64/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N64\n"}
+,{"stream_name":"stdout","time":6371.847668732,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6371.847728994,"data":"64,0,1000,ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae,0.21806281527000002,0.21604465,0.240677126,0.2592028276,0.07041390033,0.069462185,0.07913166549999999,0.0897926086,0.28847671560000004,0.285626665,0.31762911749999995,0.3446188669,0.5677642925999999,0.563452125,0.63275919,0.686974558,1255.103558593,1227.8146004999999,2122.9831292,2216.8630848999996,536.178579013,531.6896305,577.56144665,602.2229819400001,0.26113199400000003,0.2557485,0.3122662,0.41114216999999986,2210.6067164692986,2192.000561957592,554.9778277784428,3779.334731889432,944.3682633820499,948.1516308018175,853.6734030265038,1041.0029404177333,0.4599302869227322,0.44946272728309344,0.39236830949364676,0.5596751063701157,11.326487987520842,1.0,1.0,0.0,17.805896951929185,1.0,1.0,0.0,3.98203419475619,1.0,1.0,0.0,1.9820590914625895,0.0,0.0,0.017940908537410302\n"}
+,{"stream_name":"stdout","time":6371.847737698,"data":"\n"}
+,{"stream_name":"stdout","time":6371.84774223,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n/final_td3_v3/N96/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N96\n"}
+,{"stream_name":"stdout","time":6371.84774756,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6372.052797061,"data":"16,0,1000,ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7,0.17987579309,0.17762693499999999,0.197773876,0.22372983800000001,0.07050158863,0.06940059500000001,0.078000286,0.09332515909999997,0.25037738172,0.24778175,0.27437892150000004,0.30900673720000005,0.5084030308999999,0.5011399,0.55801198,0.642812647,449.4910025,461.856303,656.52365045,688.55479014,152.09018043400002,150.6500785,164.5694577,177.37676640999996,0.245229113,0.2404685,0.29286355,0.33976027,884.123372955289,911.3544757016064,338.64989137819305,1319.4427577713122,299.1527807471221,300.45111668275956,269.81687365373904,334.1455009825879,0.482351791974732,0.47403408177118034,0.4112329372854247,0.5885212798655121,9.798434667237807,0.98625,0.966,0.012782053320740516,15.213727359291637,0.995,0.983,1.3047044744000647e-05,3.9813814750837957,1.0,1.0,0.0,1.9811703451949012,0.0,0.0,0.01882965480509873\n"}
+,{"stream_name":"stdout","time":6372.052841575,"data":"\n"}
+,{"stream_name":"stdout","time":6372.052845218,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N32/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N32\n"}
+,{"stream_name":"stdout","time":6372.052849841,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6372.052854738,"data":"32,0,1000,6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef,0.18714623556,0.184427665,0.20614105549999998,0.2304010807,0.06875829861999999,0.067271285,0.07636663249999999,0.09485706409999994,0.25590453418000003,0.25209815,0.2797587035,0.3216825399,0.52946751375,0.522895425,0.58621115,0.6494037064999999,753.6423655399999,776.190573,1123.00022365,1164.21687467,270.81972554600003,268.3438195,291.49659125,316.12270612,0.248157954,0.243486,0.2996902,0.3532622299999999,1423.3968014435143,1464.6225745213828,407.0373232357944,2171.6173954692385,511.4945081859614,515.1609785678949,459.18912425083823,564.9715697505626,0.4686934468224491,0.46143141827354495,0.3983470102493194,0.5743192696866678,10.21630956511252,0.99675,0.996,0.0037296718931335046,16.452378356819192,0.99975,0.999,1.27474452394305e-07,3.9819040838951616,1.0,1.0,0.0,1.9819768496904375,0.0,0.0,0.018023150309562454\n"}
+,{"stream_name":"stdout","time":6372.052858447,"data":"\n"}
+,{"stream_name":"stdout","time":6372.052861018,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_low_n/final_td3_v3/N64/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N64\n"}
+,{"stream_name":"stdout","time":6372.052867019,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":6372.052871993,"data":"64,0,1000,ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae,0.21806281527000002,0.21604465,0.240677126,0.2592028276,0.07041390033,0.069462185,0.07913166549999999,0.0897926086,0.28847671560000004,0.285626665,0.31762911749999995,0.3446188669,0.5677642925999999,0.563452125,0.63275919,0.686974558,1255.103558593,1227.8146004999999,2122.9831292,2216.8630848999996,536.178579013,531.6896305,577.56144665,602.2229819400001,0.26113199400000003,0.2557485,0.3122662,0.41114216999999986,2210.6067164692986,2192.000561957592,554.9778277784428,3779.334731889432,944.3682633820499,948.1516308018175,853.6734030265038,1041.0029404177333,0.4599302869227322,0.44946272728309344,0.39236830949364676,0.5596751063701157,11.326487987520842,1.0,1.0,0.0,17.805896951929185,1.0,1.0,0.0,3.98203419475619,1.0,1.0,0.0,1.9820590914625895,0.0,0.0,0.017940908537410302\n"}
+,{"stream_name":"stdout","time":6372.052875658,"data":"\n"}
+,{"stream_name":"stdout","time":6372.05287798,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n/final_td3_v3/N96/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N96\n"}
+,{"stream_name":"stdout","time":6372.052881425,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":10071.04418525,"data":"96,0,1000,4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63,0.25346423727,0.24894869,0.290753304,0.3046309665,0.07208860028,0.0708583,0.0849075475,0.0911834721,0.32555283755000003,0.32023345999999997,0.3741326904999999,0.3921473108,0.61360157445,0.6037376249999999,0.7108441924999996,0.7716955615000001,1876.1147819799999,1856.514727,3298.2846901499997,3520.35984358,831.27642619,819.546281,925.0348243,1005.94946863,0.27442695100000003,0.264897,0.3363308,0.4058729899999999,3057.5455802271204,3000.0733380571132,772.3933252448501,5522.098870420164,1354.749500007578,1364.894342770629,1230.7123356517643,1502.3478477836163,0.4472396460944251,0.4390903923709809,0.37627107850474273,0.5586750613031878,11.940570751172956,0.999,0.999,3.230779587226995e-05,18.87996717037517,1.0,1.0,0.0,3.982058619867791,1.0,1.0,0.0,1.982070164092587,0.0,0.0,0.01792983590741298\n"}
+,{"stream_name":"stdout","time":10071.044229641,"data":"\n"}
+,{"stream_name":"stdout","time":10071.044234437,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n/final_td3_v3/N128/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N128\n"}
+,{"stream_name":"stdout","time":10071.044241679,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":10071.044451513,"data":"128,0,1000,f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e,0.28547943428,0.27998354,0.32405079999999997,0.3388140022,0.07651362413999999,0.07470867,0.089201374,0.10348487929999999,0.36199305842,0.35469587999999996,0.41047620250000005,0.44122628189999996,0.66777764175,0.653832025,0.7732401775,0.8395274505,2464.390315812,2298.8251925,4622.7325439999995,5165.468653829999,1167.2340303520002,1137.518028,1332.43776295,1376.09781857,0.28991933700000005,0.281052,0.35398194999999993,0.40772114,3690.435500885801,3453.832651150881,970.8153163803579,7076.982749055281,1747.9381718937286,1760.3387831000477,1554.0266377412406,1919.5541951493242,0.4341555015831736,0.42773649636497424,0.36169786888427663,0.5311844569246512,12.296255724537957,1.0,1.0,0.0,19.636259142409646,1.0,1.0,0.0,3.982067123581324,1.0,1.0,0.0,1.9820737737715548,0.0,0.0,0.017926226228445204\n"}
+,{"stream_name":"stdout","time":10071.044488928,"data":"\n"}
+,{"stream_name":"stdout","time":10071.044494048,"data":"Final directory: /kaggle/working/FINAL_THESIS_PAPER_BUNDLE\n"}
+,{"stream_name":"stdout","time":10071.044497876,"data":"Final archive: /kaggle/working/FINAL_THESIS_PAPER_BUNDLE.zip\n"}
+,{"stream_name":"stdout","time":10071.04450174,"data":"PNG figures: 12\n"}
+,{"stream_name":"stdout","time":10071.249531172,"data":"96,0,1000,4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63,0.25346423727,0.24894869,0.290753304,0.3046309665,0.07208860028,0.0708583,0.0849075475,0.0911834721,0.32555283755000003,0.32023345999999997,0.3741326904999999,0.3921473108,0.61360157445,0.6037376249999999,0.7108441924999996,0.7716955615000001,1876.1147819799999,1856.514727,3298.2846901499997,3520.35984358,831.27642619,819.546281,925.0348243,1005.94946863,0.27442695100000003,0.264897,0.3363308,0.4058729899999999,3057.5455802271204,3000.0733380571132,772.3933252448501,5522.098870420164,1354.749500007578,1364.894342770629,1230.7123356517643,1502.3478477836163,0.4472396460944251,0.4390903923709809,0.37627107850474273,0.5586750613031878,11.940570751172956,0.999,0.999,3.230779587226995e-05,18.87996717037517,1.0,1.0,0.0,3.982058619867791,1.0,1.0,0.0,1.982070164092587,0.0,0.0,0.01792983590741298\n"}
+,{"stream_name":"stdout","time":10071.249598075,"data":"\n"}
+,{"stream_name":"stdout","time":10071.249604097,"data":"$ /usr/bin/python3 scripts/run_latency_benchmark.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --checkpoint /kaggle/input/star-ris-stage-outputs-final-v2/td3_high_n/final_td3_v3/N128/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 0 --scenarios 1000 --actor-repeats 100 --decode-repeats 100 --end-to-end-repeats 20 --actor-warmup 500 --solver-warmup-scenarios 2 --output-dir /kaggle/working/FINAL_THESIS_PAPER_BUNDLE/latency/N128\n"}
+,{"stream_name":"stdout","time":10071.249611609,"data":"n_ris,seed,scenarios,bank_checksum,td3_actor_ms_mean,td3_actor_ms_median,td3_actor_ms_p95,td3_actor_ms_p99,td3_decode_ms_mean,td3_decode_ms_median,td3_decode_ms_p95,td3_decode_ms_p99,td3_decision_ms_mean,td3_decision_ms_median,td3_decision_ms_p95,td3_decision_ms_p99,td3_end_to_end_ms_mean,td3_end_to_end_ms_median,td3_end_to_end_ms_p95,td3_end_to_end_ms_p99,ao_sca_end_to_end_ms_mean,ao_sca_end_to_end_ms_median,ao_sca_end_to_end_ms_p95,ao_sca_end_to_end_ms_p99,ao_grid_end_to_end_ms_mean,ao_grid_end_to_end_ms_median,ao_grid_end_to_end_ms_p95,ao_grid_end_to_end_ms_p99,analytical_ris_end_to_end_ms_mean,analytical_ris_end_to_end_ms_median,analytical_ris_end_to_end_ms_p95,analytical_ris_end_to_end_ms_p99,ao_sca_over_td3_ratio_of_means,ao_sca_over_td3_speedup_median,ao_sca_over_td3_speedup_p05,ao_sca_over_td3_speedup_p95,ao_grid_over_td3_ratio_of_means,ao_grid_over_td3_speedup_median,ao_grid_over_td3_speedup_p05,ao_grid_over_td3_speedup_p95,analytical_ris_over_td3_ratio_of_means,analytical_ris_over_td3_speedup_median,analytical_ris_over_td3_speedup_p05,analytical_ris_over_td3_speedup_p95,td3_sum_rate_mean,td3_qos_fraction_mean,td3_all_qos_mean,td3_violation_mean,ao_sca_sum_rate_mean,ao_sca_qos_fraction_mean,ao_sca_all_qos_mean,ao_sca_violation_mean,ao_grid_sum_rate_mean,ao_grid_qos_fraction_mean,ao_grid_all_qos_mean,ao_grid_violation_mean,analytical_ris_sum_rate_mean,analytical_ris_qos_fraction_mean,analytical_ris_all_qos_mean,analytical_ris_violation_mean\n"}
+,{"stream_name":"stdout","time":10071.249631882,"data":"128,0,1000,f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e,0.28547943428,0.27998354,0.32405079999999997,0.3388140022,0.07651362413999999,0.07470867,0.089201374,0.10348487929999999,0.36199305842,0.35469587999999996,0.41047620250000005,0.44122628189999996,0.66777764175,0.653832025,0.7732401775,0.8395274505,2464.390315812,2298.8251925,4622.7325439999995,5165.468653829999,1167.2340303520002,1137.518028,1332.43776295,1376.09781857,0.28991933700000005,0.281052,0.35398194999999993,0.40772114,3690.435500885801,3453.832651150881,970.8153163803579,7076.982749055281,1747.9381718937286,1760.3387831000477,1554.0266377412406,1919.5541951493242,0.4341555015831736,0.42773649636497424,0.36169786888427663,0.5311844569246512,12.296255724537957,1.0,1.0,0.0,19.636259142409646,1.0,1.0,0.0,3.982067123581324,1.0,1.0,0.0,1.9820737737715548,0.0,0.0,0.017926226228445204\n"}
+,{"stream_name":"stdout","time":10071.249638189,"data":"\n"}
+,{"stream_name":"stdout","time":10071.249641442,"data":"Final directory: /kaggle/working/FINAL_THESIS_PAPER_BUNDLE\n"}
+,{"stream_name":"stdout","time":10071.249647372,"data":"Final archive: /kaggle/working/FINAL_THESIS_PAPER_BUNDLE.zip\n"}
+,{"stream_name":"stdout","time":10071.249656636,"data":"PNG figures: 12\n"}
+,{"stream_name":"stdout","time":10071.694110721,"data":"# Final thesis and paper result bundle\n"}
+,{"stream_name":"stdout","time":10071.69414648,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694152209,"data":"- Scientific algorithm commit: `89c39da461523a7f5911a302cb9415aeaa5824ce`\n"}
+,{"stream_name":"stdout","time":10071.694156184,"data":"- Report-generation commit: `b67adee55def9dbc32c8acded09dad68c51ee49a`\n"}
+,{"stream_name":"stdout","time":10071.694160164,"data":"- TD3: 5 N values × 8 seeds × 1,000 locked test scenarios.\n"}
+,{"stream_name":"stdout","time":10071.694164384,"data":"- AO-SCA, AO-Grid, AnalyticalRIS: 1,000 matched scenarios per N.\n"}
+,{"stream_name":"stdout","time":10071.694167579,"data":"- CPU latency: all methods timed sequentially in the same process per N.\n"}
+,{"stream_name":"stdout","time":10071.69417137,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694174424,"data":"## Main tables\n"}
+,{"stream_name":"stdout","time":10071.694177459,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694180862,"data":"- `tables/TABLE_FINAL_PERFORMANCE.*`\n"}
+,{"stream_name":"stdout","time":10071.694183989,"data":"- `tables/TABLE_TD3_8SEED_CI95.*`\n"}
+,{"stream_name":"stdout","time":10071.694187706,"data":"- `tables/TABLE_PAIRED_WILCOXON_HOLM.*`\n"}
+,{"stream_name":"stdout","time":10071.694191615,"data":"- `tables/TABLE_CPU_LATENCY.*`\n"}
+,{"stream_name":"stdout","time":10071.694195467,"data":"- `tables/TABLE_BASELINE_SOLVER_TIME_DESCRIPTIVE.*`\n"}
+,{"stream_name":"stdout","time":10071.694199033,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694202109,"data":"## Paper-ready figures\n"}
+,{"stream_name":"stdout","time":10071.69420524,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694208399,"data":"- `figures/fig01_training_sum_rate.png`\n"}
+,{"stream_name":"stdout","time":10071.694211535,"data":"- `figures/fig02_training_qos_fraction.png`\n"}
+,{"stream_name":"stdout","time":10071.694214794,"data":"- `figures/fig03_training_violation.png`\n"}
+,{"stream_name":"stdout","time":10071.694217867,"data":"- `figures/fig04_qos_dual.png`\n"}
+,{"stream_name":"stdout","time":10071.694221135,"data":"- `figures/fig05_validation_sum_rate.png`\n"}
+,{"stream_name":"stdout","time":10071.694224659,"data":"- `figures/fig06_final_sum_rate.png`\n"}
+,{"stream_name":"stdout","time":10071.69424022,"data":"- `figures/fig07_final_qos_fraction.png`\n"}
+,{"stream_name":"stdout","time":10071.694243977,"data":"- `figures/fig08_final_all_qos.png`\n"}
+,{"stream_name":"stdout","time":10071.69424725,"data":"- `figures/fig09_final_violation.png`\n"}
+,{"stream_name":"stdout","time":10071.694250762,"data":"- `figures/fig10_cpu_latency.png`\n"}
+,{"stream_name":"stdout","time":10071.694254262,"data":"- `figures/fig11_td3_speedup.png`\n"}
+,{"stream_name":"stdout","time":10071.694257844,"data":"- `figures/fig12_quality_latency_tradeoff.png`\n"}
+,{"stream_name":"stdout","time":10071.694261373,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694264834,"data":"## Interpretation guardrails\n"}
+,{"stream_name":"stdout","time":10071.694268737,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694272392,"data":"- AO-SCA is a local iterative baseline, not a global optimum or upper bound.\n"}
+,{"stream_name":"stdout","time":10071.694275966,"data":"- Do not call TD3 the fastest absolute method when AnalyticalRIS is faster.\n"}
+,{"stream_name":"stdout","time":10071.694279617,"data":"- Interpret latency jointly with sum-rate and QoS quality.\n"}
+,{"stream_name":"stdout","time":10071.694283323,"data":"\n"}
+,{"stream_name":"stdout","time":10071.694286667,"data":"Final archive: /kaggle/working/FINAL_THESIS_PAPER_BUNDLE.zip\n"}
+,{"stream_name":"stderr","time":10073.994214255,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":10073.994249184,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":10074.137837704,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":10074.137886943,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":10074.714615548,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":10075.005547638,"data":"[NbConvertApp] Writing 69489 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":10077.22910843,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":10078.006762569,"data":"[NbConvertApp] Writing 327707 bytes to __results__.html\n"}
+]

@@ -1,0 +1,21 @@
+{
+  "eval_step": 50000,
+  "mean_reward": 10.33154519864951,
+  "mean_sum_rate": 10.342807588838651,
+  "mean_qos_fraction": 0.9995,
+  "mean_all_qos": 0.999,
+  "mean_violation": 0.0009527847467517938,
+  "qos_fraction_gap": 0.0,
+  "all_qos_gap": 0.0,
+  "normalized_violation_gap": 0.0,
+  "constraint_gap": 0.0,
+  "feasible": true,
+  "selection_key": [
+    1,
+    10.342807588838651,
+    -0.0009527847467517938,
+    0.999,
+    0.9995,
+    10.33154519864951
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "method": "td3",
+  "seed": 3,
+  "device": "cuda",
+  "git_commit": "fc61d5cda7da39530055bae9bd0e92865f995cd9",
+  "config": {
+    "n_ris": 32,
+    "n_users": 4,
+    "p_max": 1.0,
+    "noise_power": 0.001,
+    "qos_min": 0.5,
+    "episode_length": 32,
+    "gamma": 0.99,
+    "tau": 0.005,
+    "hidden_dim": 256,
+    "batch_size": 256,
+    "replay_size": 200000,
+    "warmup_steps": 2000,
+    "train_steps": 100000,
+    "eval_scenarios": 1000,
+    "validation_interval": 5000,
+    "validation_scenarios": 1000,
+    "exploration_noise": 0.12,
+    "ppo_horizon": 2048,
+    "gae_lambda": 0.95,
+    "train_bank_path": "artifacts/scenario_banks/N32_train.npz",
+    "validation_bank_path": "artifacts/scenario_banks/N32_validation.npz",
+    "test_bank_path": "artifacts/scenario_banks/N32_test.npz",
+    "observation_normalization": "blockwise_v2",
+    "action_parameterization": "physical_v3",
+    "qos_penalty_linear": 8.0,
+    "qos_penalty_quadratic": 8.0,
+    "qos_dual_enabled": true,
+    "qos_dual_initial": 8.0,
+    "qos_dual_learning_rate": 20.0,
+    "qos_dual_target_violation": 0.001,
+    "qos_dual_update_interval": 1000,
+    "qos_dual_ema_beta": 0.95,
+    "qos_dual_min": 4.0,
+    "qos_dual_max": 64.0,
+    "validation_qos_fraction_target": 0.99,
+    "validation_all_qos_target": 0.95,
+    "validation_violation_tolerance": 0.001,
+    "exploration_noise_final": 0.03,
+    "exploration_decay_steps": 100000,
+    "td3_actor_lr": 0.0001,
+    "td3_critic_lr": 0.0003,
+    "td3_policy_delay": 2,
+    "td3_target_noise": 0.15,
+    "td3_noise_clip": 0.3,
+    "td3_gradient_clip_norm": 10.0,
+    "td3_noise_reference_dim": 64,
+    "td3_critic_loss": "huber",
+    "td3_layer_norm": true
+  },
+  "config_hash": "2a8450eb5d4f6f05c03681c57cc71c0590f449be523644dbfde0384d2f23053d",
+  "scenario_banks": {
+    "train": {
+      "checksum": "644567748ca3bf6d519ae7b74b7812aa5a57f33b77786c27972ac7f78ac30ea5",
+      "metadata": {
+        "count": 10000,
+        "generator": "star_ris_rsma.physics.generate_channel/v1",
+        "n_ris": 32,
+        "n_users": 4,
+        "seed": 11001,
+        "split": "train"
+      }
+    },
+    "validation": {
+      "checksum": "5f273747e249ffb92ad14c707fb44da44b02d2e59d07ebc5e051d1d2bba58733",
+      "metadata": {
+        "count": 1000,
+        "generator": "star_ris_rsma.physics.generate_channel/v1",
+        "n_ris": 32,
+        "n_users": 4,
+        "seed": 22001,
+        "split": "validation"
+      }
+    }
+  },
+  "training_protocol": "td3_qos_scalability_v3_constrained",
+  "best_validation": {
+    "eval_step": 70000,
+    "mean_reward": 10.391078523331355,
+    "mean_sum_rate": 10.397078523331354,
+    "mean_qos_fraction": 0.99975,
+    "mean_all_qos": 0.999,
+    "mean_violation": 0.0005,
+    "qos_fraction_gap": 0.0,
+    "all_qos_gap": 0.0,
+    "normalized_violation_gap": 0.0,
+    "constraint_gap": 0.0,
+    "feasible": true,
+    "selection_key": [
+      1,
+      10.397078523331354,
+      -0.0005,
+      0.999,
+      0.99975,
+      10.391078523331355
+    ]
+  },
+  "checkpoint_selection": "feasibility_first_normalized_gap_then_sum_rate",
+  "qos_dual": {
+    "enabled": true,
+    "value": 15.890515893918177,
+    "learning_rate": 20.0,
+    "target_violation": 0.001,
+    "update_interval": 1000,
+    "ema_beta": 0.95,
+    "minimum": 4.0,
+    "maximum": 64.0,
+    "violation_ema": 0.05680226376137682,
+    "updates": 98
+  },
+  "exploration_schedule": {
+    "start": 0.12,
+    "final": 0.03,
+    "decay_steps": 100000
+  }
+}

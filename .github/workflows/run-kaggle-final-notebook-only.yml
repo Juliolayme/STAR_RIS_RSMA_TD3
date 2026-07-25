@@ -1,0 +1,224 @@
+name: Verify existing stage dataset and run final notebook
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/run-kaggle-final-notebook-only.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-and-run-final:
+    name: Discover V2 stages and run notebook 06
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      FINAL_DATASET_REF: duythanhb1909984/star-ris-stage-outputs-final-v2
+      FINAL_KERNEL_REF: duythanhb1909984/star-ris-final-academic-bundle
+      KAGGLE_ACCELERATOR: NvidiaTeslaT4
+      KAGGLE_TIMEOUT_SECONDS: "43200"
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Kaggle CLI and report dependencies
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3" numpy pandas
+
+      - name: Download and discover existing V2 dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          export KAGGLE_USERNAME="duythanhb1909984"
+          export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
+
+          rm -rf final_dataset_probe
+          mkdir -p final_dataset_probe
+          kaggle datasets download \
+            -d "$FINAL_DATASET_REF" \
+            -p final_dataset_probe \
+            --unzip \
+            --force
+
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import sys
+          from pathlib import Path
+
+          root = Path('final_dataset_probe').resolve()
+          files = sorted(path for path in root.rglob('*') if path.is_file())
+          manifests = sorted(root.rglob('STAGE_MANIFEST.json'))
+          bundle_candidates = sorted(root.rglob('BUNDLE_MANIFEST.json'))
+
+          print('=== DOWNLOADED DATASET CONTENTS ===')
+          print(f'root={root}')
+          print(f'file_count={len(files)}')
+          for path in files:
+              print(f'FILE\t{path.relative_to(root).as_posix()}\t{path.stat().st_size} bytes')
+
+          if len(bundle_candidates) != 1:
+              raise RuntimeError(
+                  f'Expected exactly one BUNDLE_MANIFEST.json, found {bundle_candidates}'
+              )
+          bundle = json.loads(bundle_candidates[0].read_text(encoding='utf-8'))
+          declared_stage_ids = set(map(str, bundle.get('stages', {}).keys()))
+          if not declared_stage_ids:
+              raise RuntimeError('BUNDLE_MANIFEST.json declares no stages')
+
+          discovered: dict[str, Path] = {}
+          print('=== DISCOVERED STAGE MANIFESTS ===')
+          for manifest in manifests:
+              payload = json.loads(manifest.read_text(encoding='utf-8'))
+              stage_id = str(payload.get('stage_id', '')).strip()
+              if not stage_id:
+                  raise RuntimeError(f'Missing stage_id in {manifest}')
+              if stage_id in discovered:
+                  raise RuntimeError(
+                      f'Duplicate stage_id {stage_id}: {discovered[stage_id]} and {manifest}'
+                  )
+              discovered[stage_id] = manifest.parent
+              print(
+                  json.dumps(
+                      {
+                          'stage_id': stage_id,
+                          'root': manifest.parent.relative_to(root).as_posix(),
+                          'repository_commit': payload.get('repository_commit'),
+                          'n_values': payload.get('n_values'),
+                          'seeds': payload.get('seeds'),
+                          'method': payload.get('method'),
+                          'file_count_below_stage': sum(
+                              1 for path in manifest.parent.rglob('*') if path.is_file()
+                          ),
+                      },
+                      sort_keys=True,
+                  )
+              )
+
+          discovered_stage_ids = set(discovered)
+          if discovered_stage_ids != declared_stage_ids:
+              raise RuntimeError(
+                  'Bundle/stage manifest mismatch: '
+                  f'declared={sorted(declared_stage_ids)}, '
+                  f'discovered={sorted(discovered_stage_ids)}'
+              )
+
+          # Use the exact discovery and provenance validator executed by notebook 06.
+          sys.path.insert(0, str(Path('scripts').resolve()))
+          import kaggle_final_report_common as report_common
+
+          report_common.INPUT_ROOT = root
+          report_common.MATERIALIZED_STAGE_ROOT = Path(
+              'final_dataset_probe_materialized'
+          ).resolve()
+          stage_roots = report_common.discover_stage_roots()
+          validated = report_common.validate_stage_manifests(stage_roots)
+
+          print('=== NOTEBOOK 06 DISCOVERY RESULT ===')
+          print(
+              json.dumps(
+                  {
+                      stage_id: {
+                          'root': str(stage_roots[stage_id]),
+                          'repository_commit': validated[stage_id].get(
+                              'repository_commit'
+                          ),
+                      }
+                      for stage_id in sorted(stage_roots)
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+          )
+          print('Dataset is readable and accepted by notebook 06 discovery logic.')
+          PY
+
+      - name: Prepare notebook 06 with V2 dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage=".kaggle_push/duythanhb1909984/star-ris-final-academic-bundle"
+          rm -rf "$stage"
+          mkdir -p "$stage"
+          cp kaggle_notebooks/06_final_academic_report_and_benchmark.ipynb \
+            "$stage/06_final_academic_report_and_benchmark.ipynb"
+
+          STAGE_DIR="$stage" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          stage = Path(os.environ["STAGE_DIR"])
+          notebook_path = stage / "06_final_academic_report_and_benchmark.ipynb"
+          notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+          source = "\n".join(
+              "".join(cell.get("source", [])) for cell in notebook.get("cells", [])
+          )
+          expected_report_commit = "b67adee55def9dbc32c8acded09dad68c51ee49a"
+          if expected_report_commit not in source:
+              raise RuntimeError(
+                  f"Notebook 06 is not pinned to report commit {expected_report_commit}"
+              )
+
+          metadata = {
+              "id": "duythanhb1909984/star-ris-final-academic-bundle",
+              "title": "STAR RIS Final Academic Bundle",
+              "code_file": "06_final_academic_report_and_benchmark.ipynb",
+              "language": "python",
+              "kernel_type": "notebook",
+              "is_private": True,
+              "enable_gpu": True,
+              "enable_tpu": False,
+              "enable_internet": True,
+              "dataset_sources": [
+                  "duythanhb1909984/star-ris-stage-outputs-final-v2"
+              ],
+              "competition_sources": [],
+              "kernel_sources": [],
+              "model_sources": [],
+          }
+          (stage / "kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+      - name: Push and run notebook 06
+        shell: bash
+        run: |
+          set -euo pipefail
+          export KAGGLE_USERNAME="duythanhb1909984"
+          export KAGGLE_KEY="${KAGGLE_PPO_KEY}"
+
+          kaggle kernels push \
+            --path ".kaggle_push/duythanhb1909984/star-ris-final-academic-bundle" \
+            --accelerator "$KAGGLE_ACCELERATOR" \
+            --timeout "$KAGGLE_TIMEOUT_SECONDS"
+
+          kaggle kernels status "$FINAL_KERNEL_REF" || true
+
+      - name: Write submission summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## STAR-RIS final notebook submission"
+            echo
+            echo "- Dataset: \`$FINAL_DATASET_REF\`"
+            echo "- Dataset validation: dynamic manifest discovery"
+            echo "- Notebook: \`$FINAL_KERNEL_REF\`"
+            echo "- Cross-account kernel sources: disabled"
+            echo "- Report commit: \`b67adee55def9dbc32c8acded09dad68c51ee49a\`"
+          } >> "$GITHUB_STEP_SUMMARY"

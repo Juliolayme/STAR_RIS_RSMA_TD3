@@ -1,0 +1,38 @@
+{
+  "actor_repeats": 100,
+  "actor_warmup": 500,
+  "affinity": [
+    0
+  ],
+  "bank_checksum": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+  "checkpoint_step": 95000,
+  "config_hash": "1a480db47c5efa1cc1a63abf6aef552d6bf21ecebd475a7bc99d509c20d9fb0d",
+  "decode_repeats": 100,
+  "end_to_end_repeats": 20,
+  "excluded": [
+    "channel generation",
+    "ScenarioBank loading",
+    "environment reset"
+  ],
+  "methods": [
+    "td3",
+    "ao_sca",
+    "ao_grid",
+    "analytical_ris"
+  ],
+  "n_ris": 64,
+  "numpy": "2.0.2",
+  "platform": "Linux-6.12.90+-x86_64-with-glibc2.35",
+  "processor": "Intel(R) Xeon(R) CPU @ 2.00GHz",
+  "python": "3.12.13",
+  "scenarios": 1000,
+  "seed": 0,
+  "solver_warmup_scenarios": 2,
+  "td3_decision_boundary": "agent.act plus physical decode",
+  "td3_end_to_end_boundary": "agent.act plus decode plus one final metric evaluation",
+  "timing_boundary": "ready locked channel -> returned decision/result",
+  "torch": "2.10.0+cu128",
+  "torch_num_interop_threads": 1,
+  "torch_num_threads": 1,
+  "traditional_boundary": "complete solver call including internal objective evaluations and final metrics"
+}

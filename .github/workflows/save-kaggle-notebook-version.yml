@@ -1,0 +1,293 @@
+name: Save Kaggle notebook version on T4
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/save-kaggle-notebook-version.yml"
+      - "kaggle_notebooks/KAGGLE_RUN_REQUEST.txt"
+  workflow_dispatch:
+    inputs:
+      notebook:
+        description: "Notebook version or independent group to submit"
+        required: true
+        default: "01_td3_low_n_training"
+        type: choice
+        options:
+          - 01_td3_low_n_training
+          - 02_td3_high_n_training
+          - 03_ao_grid_evaluation
+          - 04_ao_sca_evaluation
+          - 05_analytical_ris_evaluation
+          - 06_final_academic_report_and_benchmark
+          - baselines_03_04
+          - independent_03_05
+          - stages_01_05
+      is_private:
+        description: "Keep the Kaggle notebooks private"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  save-version:
+    name: Push and run Kaggle notebook version
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      KAGGLE_ACCELERATOR: NvidiaTeslaT4
+      KAGGLE_TIMEOUT_SECONDS: "43200"
+      KAGGLE_IS_PRIVATE: ${{ github.event.inputs.is_private }}
+      BASELINE_REPO_COMMIT: fdb6344ec976bfde222b45f84c5b07c7eb6d6e0a
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Kaggle CLI with accelerator support
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Resolve requested notebook
+        id: request
+        shell: bash
+        env:
+          DISPATCH_NOTEBOOK: ${{ github.event.inputs.notebook }}
+        run: |
+          set -euo pipefail
+          selected="${DISPATCH_NOTEBOOK:-}"
+          if [[ -z "$selected" ]]; then
+            selected="$(tr -d '[:space:]' < kaggle_notebooks/KAGGLE_RUN_REQUEST.txt)"
+          fi
+          case "$selected" in
+            01_td3_low_n_training|02_td3_high_n_training|03_ao_grid_evaluation|04_ao_sca_evaluation|05_analytical_ris_evaluation|06_final_academic_report_and_benchmark|baselines_03_04|independent_03_05|stages_01_05)
+              ;;
+            *)
+              echo "Invalid Kaggle run request: $selected" >&2
+              exit 1
+              ;;
+          esac
+          echo "notebook=$selected" >> "$GITHUB_OUTPUT"
+          echo "Selected Kaggle request: $selected"
+
+      - name: Prepare and save Kaggle versions on Tesla T4
+        shell: bash
+        env:
+          SELECTED_NOTEBOOK: ${{ steps.request.outputs.notebook }}
+        run: |
+          set -euo pipefail
+
+          push_notebook() {
+            local stem="$1"
+            local file="kaggle_notebooks/${stem}.ipynb"
+            local slug title username key secret_name
+
+            case "$stem" in
+              01_td3_low_n_training)
+                username="thanhnguyen1423"
+                key="${KAGGLE_TD3_KEY:-}"
+                secret_name="KAGGLE_TD3_KEY"
+                slug="star-ris-td3-low-n-final"
+                title="STAR-RIS TD3 low-N final"
+                ;;
+              02_td3_high_n_training)
+                username="thanhnguyen1423"
+                key="${KAGGLE_TD3_KEY:-}"
+                secret_name="KAGGLE_TD3_KEY"
+                slug="star-ris-td3-high-n-final"
+                title="STAR-RIS TD3 high-N final"
+                ;;
+              03_ao_grid_evaluation)
+                username="ronganminh"
+                key="${KAGGLE_DDPG_KEY:-}"
+                secret_name="KAGGLE_DDPG_KEY"
+                slug="star-ris-ao-grid-final"
+                title="STAR-RIS AO Grid final"
+                ;;
+              04_ao_sca_evaluation)
+                username="ronganminh"
+                key="${KAGGLE_DDPG_KEY:-}"
+                secret_name="KAGGLE_DDPG_KEY"
+                slug="star-ris-ao-sca-final"
+                title="STAR-RIS AO SCA final"
+                ;;
+              05_analytical_ris_evaluation)
+                username="duythanhb1909984"
+                key="${KAGGLE_PPO_KEY:-}"
+                secret_name="KAGGLE_PPO_KEY"
+                slug="star-ris-analytical-ris-final"
+                title="STAR-RIS Analytical RIS final"
+                ;;
+              06_final_academic_report_and_benchmark)
+                username="duythanhb1909984"
+                key="${KAGGLE_PPO_KEY:-}"
+                secret_name="KAGGLE_PPO_KEY"
+                slug="star-ris-final-academic-bundle"
+                title="STAR-RIS final academic bundle"
+                ;;
+              *)
+                echo "Unsupported notebook: $stem" >&2
+                exit 1
+                ;;
+            esac
+
+            if [[ -z "$key" ]]; then
+              echo "Missing GitHub Actions secret ${secret_name} for ${username}" >&2
+              exit 1
+            fi
+            test -f "$file"
+
+            echo "Authenticating ${username} for ${stem} using ${secret_name}"
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels list --user "$username" --page-size 1 >/dev/null
+
+            local stage=".kaggle_push/${username}/${slug}"
+            rm -rf "$stage"
+            mkdir -p "$stage"
+            cp "$file" "$stage/${stem}.ipynb"
+
+            # The original baseline notebooks pin the pre-fix scientific commit.
+            # Update only notebooks 03-05 to the audited commit whose solver CSVs
+            # include n_ris. Training notebooks 01-02 keep their original pin.
+            if [[ "$stem" == 03_* || "$stem" == 04_* || "$stem" == 05_* ]]; then
+              NOTEBOOK_STEM="$stem" STAGE_DIR="$stage" python - <<'PY'
+          import json
+          import os
+          import re
+          from pathlib import Path
+
+          stem = os.environ["NOTEBOOK_STEM"]
+          stage = Path(os.environ["STAGE_DIR"])
+          target_commit = os.environ["BASELINE_REPO_COMMIT"]
+          notebook_path = stage / f"{stem}.ipynb"
+          notebook = json.loads(notebook_path.read_text(encoding="utf-8"))
+
+          replacements = 0
+          pin_pattern = re.compile(r'REPO_COMMIT\s*=\s*"[0-9a-f]{40}"')
+          for cell in notebook.get("cells", []):
+              source = "".join(cell.get("source", []))
+              updated, count = pin_pattern.subn(
+                  f'REPO_COMMIT = "{target_commit}"', source
+              )
+              if count:
+                  cell["source"] = updated.splitlines(keepends=True)
+                  replacements += count
+
+          if replacements != 1:
+              raise RuntimeError(
+                  f"Expected one REPO_COMMIT pin in {stem}, found {replacements}"
+              )
+
+          notebook_path.write_text(
+              json.dumps(notebook, ensure_ascii=False, separators=(",", ":")),
+              encoding="utf-8",
+          )
+          print(f"Pinned {stem} to baseline solver fix {target_commit}")
+          PY
+            fi
+
+            KAGGLE_USERNAME="$username" \
+            NOTEBOOK_STEM="$stem" \
+            KERNEL_SLUG="$slug" \
+            KERNEL_TITLE="$title" \
+            STAGE_DIR="$stage" \
+            python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          username = os.environ["KAGGLE_USERNAME"]
+          stem = os.environ["NOTEBOOK_STEM"]
+          slug = os.environ["KERNEL_SLUG"]
+          stage = Path(os.environ["STAGE_DIR"])
+          private_value = os.environ.get("KAGGLE_IS_PRIVATE", "").strip().lower()
+          is_private = private_value != "false"
+
+          kernel_sources = []
+          if stem == "06_final_academic_report_and_benchmark":
+              kernel_sources = [
+                  "thanhnguyen1423/star-ris-td3-low-n-final",
+                  "thanhnguyen1423/star-ris-td3-high-n-final",
+                  "ronganminh/star-ris-ao-grid-final",
+                  "ronganminh/star-ris-ao-sca-final",
+                  "duythanhb1909984/star-ris-analytical-ris-final",
+              ]
+
+          metadata = {
+              "id": f"{username}/{slug}",
+              "title": os.environ["KERNEL_TITLE"],
+              "code_file": f"{stem}.ipynb",
+              "language": "python",
+              "kernel_type": "notebook",
+              "is_private": is_private,
+              "enable_gpu": True,
+              "enable_tpu": False,
+              "enable_internet": True,
+              "dataset_sources": [],
+              "competition_sources": [],
+              "kernel_sources": kernel_sources,
+              "model_sources": [],
+          }
+          (stage / "kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+            echo "Submitting ${username}/${slug} on ${KAGGLE_ACCELERATOR}"
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels push \
+                --path "$stage" \
+                --accelerator "$KAGGLE_ACCELERATOR" \
+                --timeout "$KAGGLE_TIMEOUT_SECONDS"
+
+            KAGGLE_USERNAME="$username" KAGGLE_KEY="$key" \
+              kaggle kernels status "${username}/${slug}" || true
+          }
+
+          case "$SELECTED_NOTEBOOK" in
+            baselines_03_04)
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              ;;
+            independent_03_05)
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              push_notebook 05_analytical_ris_evaluation
+              ;;
+            stages_01_05)
+              push_notebook 01_td3_low_n_training
+              push_notebook 02_td3_high_n_training
+              push_notebook 03_ao_grid_evaluation
+              push_notebook 04_ao_sca_evaluation
+              push_notebook 05_analytical_ris_evaluation
+              ;;
+            *)
+              push_notebook "$SELECTED_NOTEBOOK"
+              ;;
+          esac
+
+      - name: Write submission summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Kaggle save-version submission"
+            echo
+            echo "- Selection: \`${{ steps.request.outputs.notebook }}\`"
+            echo "- Requested accelerator: \`NvidiaTeslaT4\`"
+            echo "- Baseline solver commit: \`${BASELINE_REPO_COMMIT}\`"
+            echo "- Solver CSVs include \`n_ris\`; no notebook merge hotfix is used."
+          } >> "$GITHUB_STEP_SUMMARY"

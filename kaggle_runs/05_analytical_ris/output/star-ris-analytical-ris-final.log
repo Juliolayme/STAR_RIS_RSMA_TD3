@@ -1,0 +1,259 @@
+[{"stream_name":"stderr","time":11.464719259,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":11.464847779,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":11.464859945,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":11.464864941,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":12.255367449,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":12.25540127,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":12.255405739,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":12.255408511,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":15.096196157,"data":"$ git clone --filter=blob:none --branch agent/td3-qos-scalability-v2 https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git /kaggle/working/STAR_RIS_RSMA_TD3\n"}
+,{"stream_name":"stdout","time":15.096256075,"data":"Cloning into '/kaggle/working/STAR_RIS_RSMA_TD3'...\n"}
+,{"stream_name":"stdout","time":16.774701858,"data":"$ git checkout --detach fdb6344ec976bfde222b45f84c5b07c7eb6d6e0a\n"}
+,{"stream_name":"stdout","time":17.17199856,"data":"HEAD is now at fdb6344 Include n_ris in baseline solver CSV outputs\n"}
+,{"stream_name":"stdout","time":17.172047517,"data":"$ /usr/bin/python3 -m pip install -q --no-build-isolation -e /kaggle/working/STAR_RIS_RSMA_TD3 tabulate\n"}
+,{"stream_name":"stdout","time":25.931203474,"data":"Repository commit: fdb6344ec976bfde222b45f84c5b07c7eb6d6e0a\n"}
+,{"stream_name":"stdout","time":25.931242993,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 1 --validation-count 1 --test-count 1000\n"}
+,{"stream_name":"stdout","time":26.283871478000002,"data":"{\n"}
+,{"stream_name":"stdout","time":26.283900824,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":26.283907233,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_train.npz\",\n"}
+,{"stream_name":"stdout","time":26.283912728,"data":"    \"checksum\": \"d6ec783757dfb5a50802fa99583586828e5c84a6375c8c062228f209bf77771b\",\n"}
+,{"stream_name":"stdout","time":26.28391803,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.283922839,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":26.283927935,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":26.283932986,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":26.283937988,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.283942899,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":26.283947838,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.283953145,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.283958537,"data":"  },\n"}
+,{"stream_name":"stdout","time":26.283963738,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":26.283968604000002,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_validation.npz\",\n"}
+,{"stream_name":"stdout","time":26.283974462,"data":"    \"checksum\": \"e9ec2a79555ac59bb623680dc909722d728776407907619642da1636299f90f9\",\n"}
+,{"stream_name":"stdout","time":26.283994999,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.283999239,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":26.28400299,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":26.284006462,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":26.284009951,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.284013584,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":26.284017394,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.284022428,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.284026645,"data":"  },\n"}
+,{"stream_name":"stdout","time":26.284030301,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":26.28403416,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz\",\n"}
+,{"stream_name":"stdout","time":26.284038331,"data":"    \"checksum\": \"ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7\",\n"}
+,{"stream_name":"stdout","time":26.284042505,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.284046201,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":26.284049999,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":26.284053791,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":26.284057575,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.284060997,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":26.284064675,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.284068527,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.284072075,"data":"  }\n"}
+,{"stream_name":"stdout","time":26.284075635,"data":"}\n"}
+,{"stream_name":"stdout","time":26.284079971,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 1 --validation-count 1 --test-count 1000\n"}
+,{"stream_name":"stdout","time":26.726045269,"data":"{\n"}
+,{"stream_name":"stdout","time":26.72608032,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":26.726084697,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_train.npz\",\n"}
+,{"stream_name":"stdout","time":26.726088981,"data":"    \"checksum\": \"e3c9ea812c444dc93c46c4a7624bb719da17d386f38845ffb6ef750c27ebe68f\",\n"}
+,{"stream_name":"stdout","time":26.726092933,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.726096574,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":26.726100483,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":26.726104152,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":26.726107667,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.726111233,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":26.726114768,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.726118555,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.726121925,"data":"  },\n"}
+,{"stream_name":"stdout","time":26.726125313,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":26.726128936,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_validation.npz\",\n"}
+,{"stream_name":"stdout","time":26.726148249,"data":"    \"checksum\": \"4315089416013aaf7e081644aacd457da9c8d68c4fe7bbe146332b4fe18e37da\",\n"}
+,{"stream_name":"stdout","time":26.726152378,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.726155967,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":26.726159585,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":26.726163158,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":26.726166626,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.726170167,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":26.726173762,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.726177548,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.726180907,"data":"  },\n"}
+,{"stream_name":"stdout","time":26.726184313,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":26.726187848,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz\",\n"}
+,{"stream_name":"stdout","time":26.72619171,"data":"    \"checksum\": \"6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef\",\n"}
+,{"stream_name":"stdout","time":26.726195478,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":26.726199088,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":26.726202824,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":26.726206386,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":26.726209862,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":26.726213384,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":26.726216869,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":26.726220583,"data":"    }\n"}
+,{"stream_name":"stdout","time":26.72622391,"data":"  }\n"}
+,{"stream_name":"stdout","time":26.726227237,"data":"}\n"}
+,{"stream_name":"stdout","time":26.726230724,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 1 --validation-count 1 --test-count 1000\n"}
+,{"stream_name":"stdout","time":27.321974827,"data":"{\n"}
+,{"stream_name":"stdout","time":27.322006338,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":27.322011836,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_train.npz\",\n"}
+,{"stream_name":"stdout","time":27.322016668,"data":"    \"checksum\": \"229fe9b5b332be4d7ebc1c82d4cf4cc499b9ba87541a4b07be60649fbf2f0796\",\n"}
+,{"stream_name":"stdout","time":27.322021281,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":27.322025765,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":27.322030403,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":27.32203409,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":27.322037826,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":27.322041475,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":27.322045292,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":27.322049821,"data":"    }\n"}
+,{"stream_name":"stdout","time":27.322054128,"data":"  },\n"}
+,{"stream_name":"stdout","time":27.322058418,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":27.322062234,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_validation.npz\",\n"}
+,{"stream_name":"stdout","time":27.322078881,"data":"    \"checksum\": \"354112827b13bd6a4cc3b96c1c097366df8d79802237d5ec3d86e94a3f998c50\",\n"}
+,{"stream_name":"stdout","time":27.322083105,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":27.322086791,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":27.322090604,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":27.322094295,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":27.322098125,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":27.322102336,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":27.322106503,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":27.322110473,"data":"    }\n"}
+,{"stream_name":"stdout","time":27.322113914,"data":"  },\n"}
+,{"stream_name":"stdout","time":27.322117746,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":27.322122038,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz\",\n"}
+,{"stream_name":"stdout","time":27.322126365,"data":"    \"checksum\": \"ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae\",\n"}
+,{"stream_name":"stdout","time":27.322130806,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":27.32213488,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":27.322138916,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":27.322143141,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":27.322147636,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":27.322152117,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":27.322155674,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":27.322160072,"data":"    }\n"}
+,{"stream_name":"stdout","time":27.322163563,"data":"  }\n"}
+,{"stream_name":"stdout","time":27.322167054,"data":"}\n"}
+,{"stream_name":"stdout","time":27.322171109,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 1 --validation-count 1 --test-count 1000\n"}
+,{"stream_name":"stdout","time":28.050872315,"data":"{\n"}
+,{"stream_name":"stdout","time":28.050908551,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":28.050913793,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_train.npz\",\n"}
+,{"stream_name":"stdout","time":28.050918502,"data":"    \"checksum\": \"f51843248fa9e2e01647535564a9f49db209b7367ee0daf6a83e2d008cdfe164\",\n"}
+,{"stream_name":"stdout","time":28.050922822,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.050926686,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":28.05093098,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":28.050934991,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":28.050938815,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.050942688,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":28.050946569,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.050950672,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.050954335,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.05097293,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":28.050977163,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_validation.npz\",\n"}
+,{"stream_name":"stdout","time":28.050981469,"data":"    \"checksum\": \"5011ac085e0495c23aa7d94a1d92eae3024c9d504ecae4bc68ec1a943908d9a8\",\n"}
+,{"stream_name":"stdout","time":28.050985618,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.050989409,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":28.050993333,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":28.050997207,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":28.051001198,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.051005061,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":28.051008895,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.051012962,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.051017001,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.051020876,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":28.051024717,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz\",\n"}
+,{"stream_name":"stdout","time":28.051029151,"data":"    \"checksum\": \"4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63\",\n"}
+,{"stream_name":"stdout","time":28.051033212,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.051036942,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":28.05104081,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":28.051044738,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":28.051048559,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.051052319,"data":"      \"n_ris\": 96,\n"}
+,{"stream_name":"stdout","time":28.051056117,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.051060331,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.051064002,"data":"  }\n"}
+,{"stream_name":"stdout","time":28.051067712,"data":"}\n"}
+,{"stream_name":"stdout","time":28.051071464,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 1 --validation-count 1 --test-count 1000\n"}
+,{"stream_name":"stdout","time":28.795547742,"data":"{\n"}
+,{"stream_name":"stdout","time":28.795581629,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":28.795587377,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_train.npz\",\n"}
+,{"stream_name":"stdout","time":28.795591976,"data":"    \"checksum\": \"37029da7537afe983139565a6a4fc99537f419704853fd60bb42a7a99111bea1\",\n"}
+,{"stream_name":"stdout","time":28.795596105,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.795600423,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":28.795604886,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":28.795608726,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":28.795612369,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.795615859,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":28.795619695,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.795636175,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.795640868,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.795645051,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":28.795649166,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_validation.npz\",\n"}
+,{"stream_name":"stdout","time":28.79565416,"data":"    \"checksum\": \"fe4f6c0a84c636795828d513ba52a9eb1ad89041e3f69b7c23b01377e8ffd096\",\n"}
+,{"stream_name":"stdout","time":28.795658531,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.795662636,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":28.795666442,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":28.795670128,"data":"      \"count\": 1,\n"}
+,{"stream_name":"stdout","time":28.795673823,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.795677493,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":28.795682755,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.795690857,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.795693864,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.795696168,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":28.795698634,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz\",\n"}
+,{"stream_name":"stdout","time":28.795701237,"data":"    \"checksum\": \"f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e\",\n"}
+,{"stream_name":"stdout","time":28.795703899,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.795706281,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":28.79570874,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":28.795711116,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":28.795713611,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.795715973,"data":"      \"n_ris\": 128,\n"}
+,{"stream_name":"stdout","time":28.795718384,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.795720979,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.795723412,"data":"  }\n"}
+,{"stream_name":"stdout","time":28.795725729,"data":"}\n"}
+,{"stream_name":"stdout","time":28.970907614,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 10000 --start 0 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N16/part_0_250.csv\n"}
+,{"stream_name":"stdout","time":28.970985741,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 10000 --start 250 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N16/part_250_250.csv\n"}
+,{"stream_name":"stdout","time":40.913555239,"data":"Completed analytical_ris N=16, scenarios=250:500$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 10000 --start 500 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N16/part_500_250.csv\n"}
+,{"stream_name":"stdout","time":40.913610565,"data":"\n"}
+,{"stream_name":"stdout","time":40.91362371,"data":"Completed analytical_ris N=16, scenarios=0:250\n"}
+,{"stream_name":"stdout","time":40.91362879,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 10000 --start 750 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N16/part_750_250.csv\n"}
+,{"stream_name":"stdout","time":44.80083702,"data":"Completed analytical_ris N=16, scenarios=500:750$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 10000 --start 0 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N32/part_0_250.csv\n"}
+,{"stream_name":"stdout","time":44.800874455,"data":"\n"}
+,{"stream_name":"stdout","time":44.800879992,"data":"Completed analytical_ris N=16, scenarios=750:1000\n"}
+,{"stream_name":"stdout","time":44.800884161,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 10000 --start 250 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N32/part_250_250.csv\n"}
+,{"stream_name":"stdout","time":49.50893018,"data":"$Completed analytical_ris N=32, scenarios=250:500\n"}
+,{"stream_name":"stdout","time":49.509009993,"data":" /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 10000 --start 500 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N32/part_500_250.csv\n"}
+,{"stream_name":"stdout","time":49.509019824,"data":"Completed analytical_ris N=32, scenarios=0:250\n"}
+,{"stream_name":"stdout","time":49.509025792,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 10000 --start 750 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N32/part_750_250.csv\n"}
+,{"stream_name":"stdout","time":54.232043633,"data":"Completed analytical_ris N=32, scenarios=750:1000\n"}
+,{"stream_name":"stdout","time":54.232079351,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 10000 --start 0 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N64/part_0_250.csv\n"}
+,{"stream_name":"stdout","time":54.451623042,"data":"Completed analytical_ris N=32, scenarios=500:750\n"}
+,{"stream_name":"stdout","time":54.451657477,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 10000 --start 250 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N64/part_250_250.csv\n"}
+,{"stream_name":"stdout","time":60.698936015,"data":"Completed analytical_ris N=64, scenarios=0:250$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 10000 --start 500 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N64/part_500_250.csv\n"}
+,{"stream_name":"stdout","time":60.699186142,"data":"\n"}
+,{"stream_name":"stdout","time":61.002877425,"data":"Completed analytical_ris N=64, scenarios=250:500\n"}
+,{"stream_name":"stdout","time":61.002911046,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 10000 --start 750 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N64/part_750_250.csv\n"}
+,{"stream_name":"stdout","time":67.384602842,"data":"Completed analytical_ris N=64, scenarios=500:750\n"}
+,{"stream_name":"stdout","time":67.384666662,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 10000 --start 0 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N96/part_0_250.csv\n"}
+,{"stream_name":"stdout","time":67.744651531,"data":"Completed analytical_ris N=64, scenarios=750:1000$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 10000 --start 250 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N96/part_250_250.csv\n"}
+,{"stream_name":"stdout","time":67.744688131,"data":"\n"}
+,{"stream_name":"stdout","time":75.706144693,"data":"Completed analytical_ris N=96, scenarios=0:250$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 10000 --start 500 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N96/part_500_250.csv\n"}
+,{"stream_name":"stdout","time":75.706196012,"data":"\n"}
+,{"stream_name":"stdout","time":76.159187355,"data":"$Completed analytical_ris N=96, scenarios=250:500\n"}
+,{"stream_name":"stdout","time":76.159241066,"data":" /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n96.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N96_test.npz --seed 10000 --start 750 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N96/part_750_250.csv\n"}
+,{"stream_name":"stdout","time":84.213603323,"data":"Completed analytical_ris N=96, scenarios=500:750$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 10000 --start 0 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N128/part_0_250.csv\n"}
+,{"stream_name":"stdout","time":84.213654822,"data":"\n"}
+,{"stream_name":"stdout","time":84.714493334,"data":"Completed analytical_ris N=96, scenarios=750:1000\n"}
+,{"stream_name":"stdout","time":84.714528858,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 10000 --start 250 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N128/part_250_250.csv\n"}
+,{"stream_name":"stdout","time":94.766609647,"data":"Completed analytical_ris N=128, scenarios=0:250$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 10000 --start 500 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N128/part_500_250.csv\n"}
+,{"stream_name":"stdout","time":94.766644688,"data":"\n"}
+,{"stream_name":"stdout","time":95.191587235,"data":"Completed analytical_ris N=128, scenarios=250:500\n"}
+,{"stream_name":"stdout","time":95.191649172,"data":"$ /usr/bin/python3 scripts/run_solver.py --method analytical_ris --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n128.yaml --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz --seed 10000 --start 750 --count 250 --output /kaggle/working/thesis_analytical_ris/traditional_outputs/analytical_ris/N128/part_750_250.csv\n"}
+,{"stream_name":"stdout","time":105.009081518,"data":"Completed analytical_ris N=128, scenarios=500:750\n"}
+,{"stream_name":"stdout","time":105.340883519,"data":"Completed analytical_ris N=128, scenarios=750:1000\n"}
+,{"stream_name":"stdout","time":108.074710264,"data":"Stage output: /kaggle/working/thesis_analytical_ris\n"}
+,{"stream_name":"stderr","time":110.97113712,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":110.971172775,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":111.155067351,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":111.155091153,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":111.78921037,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":112.135179807,"data":"[NbConvertApp] Writing 51595 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":114.46240699,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":115.325007411,"data":"[NbConvertApp] Writing 368773 bytes to __results__.html\n"}
+]

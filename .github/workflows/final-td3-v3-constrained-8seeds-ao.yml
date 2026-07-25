@@ -1,0 +1,262 @@
+name: Final TD3 v3 Constrained 8 Seeds and AO
+
+on:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/final-td3-v3-constrained-8seeds-ao.yml"
+  workflow_dispatch:
+    inputs:
+      legacy_run_id:
+        description: "Retained final DRL eight-seed statistics run"
+        required: true
+        default: "30016120754"
+        type: string
+      traditional_run_id:
+        description: "Retained deterministic AO statistics run"
+        required: true
+        default: "30029960013"
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+env:
+  PYTHONUNBUFFERED: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  OPENBLAS_NUM_THREADS: "2"
+  LEGACY_RUN_ID: ${{ github.event.inputs.legacy_run_id || '30016120754' }}
+  TRADITIONAL_RUN_ID: ${{ github.event.inputs.traditional_run_id || '30029960013' }}
+
+jobs:
+  verify:
+    name: Verify constrained physical-action protocol
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: python -m pip install --no-build-isolation -e ".[dev]"
+      - name: Run focused regression suite
+        run: >-
+          pytest -q
+          tests/test_action_parameterization_v3.py
+          tests/test_qos_scalability_v2.py
+          tests/test_pilot_metric_audit.py
+          tests/test_v3_constrained_configs.py
+      - name: Compile final statistics script
+        run: python -m py_compile scripts/final_v3_constrained_statistics.py
+
+  train:
+    name: td3-v3-constrained-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        n_ris: [16, 32, 64, 96, 128]
+        seed: [0, 1, 2, 3, 4, 5, 6, 7]
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Recreate locked ScenarioBanks
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          python scripts/create_scenario_banks.py \
+            --config "$CONFIG" \
+            --output-dir artifacts/scenario_banks \
+            --train-count 10000 \
+            --validation-count 1000 \
+            --test-count 1000 \
+            > scenario_bank_manifest.log
+
+      - name: Train one constrained physical-action seed
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          ROOT="final_td3_v3/N${N}/seed_${SEED}"
+          mkdir -p "$ROOT"
+          python scripts/run_train_v2.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --seed "$SEED" \
+            --output "$ROOT/train" \
+            2>&1 | tee "$ROOT/train.log"
+
+      - name: Evaluate best checkpoint on locked test bank
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          CONFIG="configs/v3/constrained_action_n${N}.yaml"
+          ROOT="final_td3_v3/N${N}/seed_${SEED}"
+          python scripts/run_evaluate.py \
+            --method td3 \
+            --config "$CONFIG" \
+            --checkpoint "$ROOT/train/best.pt" \
+            --bank "artifacts/scenario_banks/N${N}_test.npz" \
+            --seed "$SEED" \
+            --output "$ROOT/test.csv" \
+            2>&1 | tee "$ROOT/evaluate.log"
+
+      - name: Audit seed output and constrained manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          N="${{ matrix.n_ris }}"
+          SEED="${{ matrix.seed }}"
+          ROOT="final_td3_v3/N${N}/seed_${SEED}"
+          python scripts/audit_pilot_output.py --root "$ROOT" --seed "$SEED"
+          python - <<PY
+          import json
+          from pathlib import Path
+
+          path = Path("$ROOT/train/manifest.json")
+          payload = json.loads(path.read_text(encoding="utf-8"))
+          config = payload.get("config", {})
+          if int(config.get("n_ris", -1)) != int("$N"):
+              raise SystemExit("Manifest N mismatch")
+          if config.get("action_parameterization") != "physical_v3":
+              raise SystemExit("Manifest is not physical_v3")
+          if config.get("qos_dual_enabled") is not True:
+              raise SystemExit("Adaptive QoS dual was not enabled")
+          if payload.get("training_protocol") != "td3_qos_scalability_v3_constrained":
+              raise SystemExit("Unexpected training protocol")
+          dual = payload.get("qos_dual", {})
+          value = float(dual.get("value", -1))
+          if not float(config["qos_dual_min"]) <= value <= float(config["qos_dual_max"]):
+              raise SystemExit(f"Final dual out of bounds: {value}")
+          print({
+              "n_ris": int("$N"),
+              "seed": int("$SEED"),
+              "best_validation": payload.get("best_validation"),
+              "qos_dual": dual,
+          })
+          PY
+
+      - name: Remove heavy checkpoints
+        if: always()
+        shell: bash
+        run: |
+          ROOT="final_td3_v3/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}"
+          find "$ROOT" -type f \( -name "*.pt" -o -name "*.pth" \) -delete || true
+          du -ah "$ROOT" | sort -h | tail -30 || true
+
+      - name: Upload compact seed artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v3-constrained-N${{ matrix.n_ris }}-seed${{ matrix.seed }}
+          path: final_td3_v3/N${{ matrix.n_ris }}/seed_${{ matrix.seed }}/
+          if-no-files-found: warn
+          compression-level: 9
+          retention-days: 90
+
+  statistics:
+    name: Final CI paired Holm and AO statistics
+    if: always()
+    needs: train
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout experiment branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install project
+        run: python -m pip install --no-build-isolation -e .
+
+      - name: Download all proposed seed artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: td3-v3-constrained-*
+          path: proposed_artifacts
+          merge-multiple: false
+
+      - name: Download retained DRL and deterministic AO artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p legacy_final traditional_final
+          gh run download "$LEGACY_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name td3-v2-fixed-final-8seed-statistics \
+            --dir legacy_final
+          gh run download "$TRADITIONAL_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name drl-vs-traditional-final-statistics \
+            --dir traditional_final
+
+      - name: Compute final v3 constrained statistics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/final_v3_constrained_statistics.py \
+            --proposed-root proposed_artifacts \
+            --legacy-root legacy_final \
+            --traditional-root traditional_final \
+            --output-dir final_v3_statistics
+          cat final_v3_statistics/FINAL_V3_NUMBERS.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload final thesis statistics
+        uses: actions/upload-artifact@v4
+        with:
+          name: td3-v3-constrained-final-8seed-ao-statistics
+          path: final_v3_statistics/
+          if-no-files-found: error
+          compression-level: 9
+          retention-days: 90
+
+      - name: Publish concise final issue
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          {
+            echo "Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "Legacy DRL source run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${LEGACY_RUN_ID}"
+            echo "Traditional source run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${TRADITIONAL_RUN_ID}"
+            echo
+            cat final_v3_statistics/FINAL_V3_NUMBERS.md
+          } > /tmp/final_v3_issue.md
+          head -c 60000 /tmp/final_v3_issue.md > /tmp/final_v3_issue_short.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Final TD3 v3 constrained 8-seed AO statistics run ${GITHUB_RUN_ID}" \
+            --body-file /tmp/final_v3_issue_short.md

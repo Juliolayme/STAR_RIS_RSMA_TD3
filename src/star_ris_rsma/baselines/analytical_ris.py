@@ -33,4 +33,8 @@ def solve(env: StarRisRsmaEnv) -> tuple[np.ndarray, dict[str, object]]:
         "evaluations": 1,
         "initialization": "closed_form_phase_alignment",
     })
-    return encode_action(action, env.config.p_max), metrics
+    return encode_action(
+        action,
+        env.config.p_max,
+        env.config.action_parameterization,
+    ), metrics

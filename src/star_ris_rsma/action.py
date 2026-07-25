@@ -58,47 +58,92 @@ def physical_action_dim(n_users: int, n_ris: int) -> int:
     return action_dim(n_users, n_ris)
 
 
-def decode_action(raw: np.ndarray, n_users: int, n_ris: int, p_max: float) -> DecodedAction:
+def decode_action(
+    raw: np.ndarray,
+    n_users: int,
+    n_ris: int,
+    p_max: float,
+    parameterization: str = "legacy_v1",
+) -> DecodedAction:
     raw = np.asarray(raw, dtype=float).reshape(-1)
     expected = action_dim(n_users, n_ris)
     if raw.size != expected:
         raise ValueError(f"Expected action dimension {expected}, got {raw.size}")
 
     i = 0
-    p_logits = raw[i:i + n_users + 1]; i += n_users + 1
-    c_logits = raw[i:i + n_users]; i += n_users
+    p_raw = raw[i:i + n_users + 1]; i += n_users + 1
+    c_raw = raw[i:i + n_users]; i += n_users
     beta_raw = raw[i:i + n_ris]; i += n_ris
     theta_t_raw = raw[i:i + n_ris]; i += n_ris
     theta_r_raw = raw[i:i + n_ris]
 
-    powers = p_max * softmax(p_logits)
-    common_fractions = softmax(c_logits)
-    beta_t = 1.0 / (1.0 + np.exp(-np.clip(beta_raw, -30.0, 30.0)))
-    theta_t = np.pi * np.tanh(theta_t_raw)
-    theta_r = np.pi * np.tanh(theta_r_raw)
+    if parameterization == "legacy_v1":
+        powers = p_max * softmax(p_raw)
+        common_fractions = softmax(c_raw)
+        beta_t = 1.0 / (1.0 + np.exp(-np.clip(beta_raw, -30.0, 30.0)))
+        theta_t = np.pi * np.tanh(theta_t_raw)
+        theta_r = np.pi * np.tanh(theta_r_raw)
+    elif parameterization == "physical_v3":
+        # The deterministic actor is bounded to [-1, 1]. Map that cube onto the
+        # full physical feasible domain instead of applying a second squash.
+        # Every simplex point is exactly reachable by raw = 2*x/total - 1.
+        clipped = np.clip(raw, -1.0, 1.0)
+        i = 0
+        p_raw = clipped[i:i + n_users + 1]; i += n_users + 1
+        c_raw = clipped[i:i + n_users]; i += n_users
+        beta_raw = clipped[i:i + n_ris]; i += n_ris
+        theta_t_raw = clipped[i:i + n_ris]; i += n_ris
+        theta_r_raw = clipped[i:i + n_ris]
+        powers = project_simplex(0.5 * (p_raw + 1.0) * p_max, p_max)
+        common_fractions = project_simplex(0.5 * (c_raw + 1.0), 1.0)
+        beta_t = 0.5 * (beta_raw + 1.0)
+        theta_t = wrap_phase(np.pi * theta_t_raw)
+        theta_r = wrap_phase(np.pi * theta_r_raw)
+    else:
+        raise ValueError(f"Unknown action parameterization: {parameterization}")
+
     return DecodedAction(powers, common_fractions, beta_t, theta_t, theta_r)
 
 
-def encode_action(action: DecodedAction, p_max: float) -> np.ndarray:
-    """Map a feasible physical action back to the unconstrained actor space."""
+def encode_action(
+    action: DecodedAction,
+    p_max: float,
+    parameterization: str = "legacy_v1",
+) -> np.ndarray:
+    """Map a feasible physical action back to the bounded actor coordinates."""
     powers = project_simplex(action.powers, p_max)
     fractions = project_simplex(action.common_fractions, 1.0)
-    beta = np.clip(action.beta_t, 1e-7, 1.0 - 1e-7)
-    theta_t = np.clip(wrap_phase(action.theta_t) / np.pi, -0.999999, 0.999999)
-    theta_r = np.clip(wrap_phase(action.theta_r) / np.pi, -0.999999, 0.999999)
+    beta = np.clip(action.beta_t, 0.0, 1.0)
+    theta_t = wrap_phase(action.theta_t)
+    theta_r = wrap_phase(action.theta_r)
 
-    p_logits = np.log(np.clip(powers / p_max, _EPS, None))
-    p_logits -= p_logits.mean()
-    c_logits = np.log(np.clip(fractions, _EPS, None))
-    c_logits -= c_logits.mean()
-    beta_logits = np.log(beta / (1.0 - beta))
-    return np.concatenate([
-        p_logits,
-        c_logits,
-        beta_logits,
-        np.arctanh(theta_t),
-        np.arctanh(theta_r),
-    ]).astype(np.float64)
+    if parameterization == "legacy_v1":
+        beta_safe = np.clip(beta, 1e-7, 1.0 - 1e-7)
+        theta_t_scaled = np.clip(theta_t / np.pi, -0.999999, 0.999999)
+        theta_r_scaled = np.clip(theta_r / np.pi, -0.999999, 0.999999)
+        p_logits = np.log(np.clip(powers / p_max, _EPS, None))
+        p_logits -= p_logits.mean()
+        c_logits = np.log(np.clip(fractions, _EPS, None))
+        c_logits -= c_logits.mean()
+        beta_logits = np.log(beta_safe / (1.0 - beta_safe))
+        return np.concatenate([
+            p_logits,
+            c_logits,
+            beta_logits,
+            np.arctanh(theta_t_scaled),
+            np.arctanh(theta_r_scaled),
+        ]).astype(np.float64)
+
+    if parameterization == "physical_v3":
+        return np.clip(np.concatenate([
+            2.0 * powers / p_max - 1.0,
+            2.0 * fractions - 1.0,
+            2.0 * beta - 1.0,
+            theta_t / np.pi,
+            theta_r / np.pi,
+        ]), -1.0, 1.0).astype(np.float64)
+
+    raise ValueError(f"Unknown action parameterization: {parameterization}")
 
 
 def flatten_physical(action: DecodedAction) -> np.ndarray:
