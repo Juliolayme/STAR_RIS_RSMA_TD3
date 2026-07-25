@@ -1,0 +1,36 @@
+\chapter*{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+\addcontentsline{toc}{chapter}{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+
+\section*{1. Kết luận}
+\addcontentsline{toc}{section}{1. Kết luận}
+Luận văn đã nghiên cứu bài toán phân bổ tài nguyên trong hệ thống SISO STAR--RIS hỗ trợ RSMA. Bài toán được xây dựng từ một luồng chung, bốn luồng riêng, đường truyền trực tiếp và đường ghép tầng qua STAR--RIS energy-splitting. Các biến tối ưu gồm công suất luồng chung/riêng, tỷ lệ phân bổ tốc độ chung, hệ số phân chia năng lượng và pha truyền/phản xạ. Mô hình tạo ra không gian hành động liên tục có số chiều $2K+1+3N$, đồng thời chứa các thành phần phi lồi do kênh phức, SINR, minimum common rate và ràng buộc QoS.
+
+Phương pháp chính là TD3 đơn tác tử. Luận văn đã mô tả và triển khai ba cơ chế cốt lõi của TD3: hai critic và clipped double Q, target-policy smoothing, và cập nhật actor trễ. Để thích nghi với bài toán STAR--RIS--RSMA, phương pháp được bổ sung blockwise observation normalization, physical action decoder, dimension-aware exploration noise, Huber loss, gradient clipping, dual controller cho QoS và checkpoint selection theo ưu tiên tính khả thi.
+
+Một đóng góp quan trọng là quy trình thực nghiệm có khả năng tái lập. Train, validation và test được lưu thành ScenarioBank độc lập; best checkpoint chỉ được chọn trên validation; test evaluation hoàn toàn xác định; raw result có scenario key, config hash, checksum và Git commit. AO--SCA, AO--Grid và AnalyticalRIS sử dụng cùng mô hình vật lý và merit function. Benchmark latency được chạy trong chế độ CPU một luồng và phân tích thống kê dùng thiết kế ghép cặp theo scenario.
+
+Kết quả đã kiểm toán trên $N=16,32,64,96,128$ cho thấy TD3 đạt mean QoS fraction từ 0,9892 đến 0,9994 và all-users-QoS probability từ 0,9798 đến 0,9985. Mean sum-rate tăng từ 10,7661 bit/s/Hz tại $N=16$ lên 12,4117 bit/s/Hz tại $N=128$. TD3 vượt AO--Grid và AnalyticalRIS rõ rệt về sum-rate, nhưng AO--SCA cao hơn TD3 từ 4,4476 đến 7,2246 bit/s/Hz. Đổi lại, TD3 nhanh hơn AO--SCA từ 884 đến 3690 lần và nhanh hơn AO--Grid từ 299 đến 1748 lần trong benchmark đã khai báo. AnalyticalRIS nhanh hơn TD3 khoảng hai lần nhưng không đáp ứng QoS.
+
+Vì vậy, đóng góp khoa học cốt lõi của luận văn là chứng minh một trade-off có thể kiểm chứng: TD3 cung cấp quyết định tài nguyên có QoS đáng tin cậy với latency thấp, trong khi chấp nhận quality gap so với solver cục bộ mạnh. Luận văn không khẳng định TD3 đạt maximum sum-rate hoặc tốt nhất tuyệt đối. Cách định vị này phù hợp với bằng chứng, giúp kết quả có giá trị cho các kịch bản cần ra quyết định nhanh sau huấn luyện.
+
+\section*{2. Hạn chế}
+\addcontentsline{toc}{section}{2. Hạn chế}
+Hạn chế thứ nhất là mô hình kênh Gaussian tổng hợp, chưa có vị trí, path loss, LoS/NLoS, Rician fading hoặc tương quan thời gian. Hạn chế thứ hai là CSI hoàn hảo được cung cấp trực tiếp cho policy. Hạn chế thứ ba là hệ thống SISO và không có active beamforming tại BS. Hạn chế thứ tư là pha truyền/phản xạ độc lập, trong khi phần cứng STAR--RIS thụ động có thể yêu cầu coupled phase. Hạn chế thứ năm là transition không phụ thuộc action, nên bài toán gần contextual optimization hơn điều khiển động dài hạn. Hạn chế thứ sáu là bundle kết quả cuối chưa có đầy đủ DDPG/PPO theo mọi $N$ và seed để đưa vào kết luận định lượng. Cuối cùng, tám seed và sự khác biệt giữa paired $t$-test với Wilcoxon cho thấy cần mở rộng phân tích bất định.
+
+\section*{3. Hướng phát triển}
+\addcontentsline{toc}{section}{3. Hướng phát triển}
+Các hướng phát triển ưu tiên gồm:
+\begin{enumerate}[label=\arabic*)]
+  \item \textbf{Mô hình kênh thực tế hơn:} xây dựng geometry-based channel, path loss, Rician fading, blockage và deployment hai phía STAR--RIS.
+  \item \textbf{CSI không hoàn hảo:} thêm noise/bias vào observation, robust training và đánh giá distribution shift.
+  \item \textbf{MISO/massive MIMO:} bổ sung precoder chủ động, beamforming và nhiều luồng common theo generalized RSMA.
+  \item \textbf{Coupled/discrete phase:} thay action decoder bằng parameterization thỏa ràng buộc phần cứng và lượng tử hóa pha.
+  \item \textbf{Hybrid TD3--AO:} dùng TD3 khởi tạo AO--SCA để thu hẹp quality gap với số iteration nhỏ.
+  \item \textbf{Constrained và safe RL:} áp dụng Lagrangian actor--critic có phân tích ổn định hoặc projection QoS gần cứng.
+  \item \textbf{Kiến trúc có cấu trúc:} sử dụng attention, graph neural network hoặc set transformer để chia sẻ tham số giữa phần tử và hỗ trợ nhiều $N$.
+  \item \textbf{Baseline học mạnh hơn:} hoàn tất DDPG/PPO và bổ sung SAC hoặc offline imitation từ nghiệm AO--SCA.
+  \item \textbf{Thực nghiệm hệ thống:} đo latency trên edge CPU/GPU, tính cả overhead CSI và triển khai mô hình tối ưu hóa on-device.
+  \item \textbf{Mở rộng ứng dụng:} nghiên cứu active STAR--RIS, ISAC, UAV, bảo mật vật lý và multi-cell.
+\end{enumerate}
+
+Tóm lại, luận văn đã xây dựng một nền tảng source--theory--evidence nhất quán cho nghiên cứu TD3 trong STAR--RIS--RSMA. Nền tảng này đủ để tiếp tục hoàn thiện baseline học, mở rộng mô hình vật lý và phát triển bài báo theo hướng đánh đổi chất lượng--độ trễ có khả năng tái lập.
