@@ -1,0 +1,147 @@
+% Consolidated front matter generated from titlepages.tex and preliminaries.tex.
+% Keep source markers below to make later splitting straightforward.
+% ===== frontmatter/titlepages.tex =====
+\begin{titlepage}
+\centering
+{\bfseries\fontsize{14}{17}\selectfont \UniversityName\par}
+\vspace{1.5cm}
+
+% Place the official UTH logo at figures/uth-logo.pdf when available.
+\IfFileExists{figures/uth-logo.pdf}{%
+  \includegraphics[width=4.1cm]{figures/uth-logo.pdf}\par
+}{%
+  \fbox{\parbox[c][2.4cm][c]{4.3cm}{\centering\bfseries LOGO UTH}}\par
+}
+\vspace{1.4cm}
+
+{\bfseries\fontsize{16}{20}\selectfont \AuthorName\par}
+\vfill
+{\bfseries\fontsize{20}{25}\selectfont \ThesisTitle\par}
+\vfill
+{\bfseries\fontsize{16}{20}\selectfont LUẬN VĂN THẠC SĨ\par}
+\vspace{0.4cm}
+{\fontsize{16}{20}\selectfont Ngành: \MajorName\par}
+{\fontsize{16}{20}\selectfont Mã số: \MajorCode\par}
+\vfill
+{\fontsize{13}{16}\selectfont \CompletionPlace, năm \CompletionYear\par}
+\end{titlepage}
+
+\begin{titlepage}
+\centering
+{\bfseries\fontsize{14}{17}\selectfont \UniversityName\par}
+\vspace{1.5cm}
+\IfFileExists{figures/uth-logo.pdf}{%
+  \includegraphics[width=4.1cm]{figures/uth-logo.pdf}\par
+}{%
+  \fbox{\parbox[c][2.4cm][c]{4.3cm}{\centering\bfseries LOGO UTH}}\par
+}
+\vspace{1.2cm}
+{\bfseries\fontsize{16}{20}\selectfont \AuthorName\par}
+\vfill
+{\bfseries\fontsize{20}{25}\selectfont \ThesisTitle\par}
+\vfill
+{\bfseries\fontsize{16}{20}\selectfont LUẬN VĂN THẠC SĨ\par}
+\vspace{0.35cm}
+{\fontsize{16}{20}\selectfont Ngành: \MajorName\par}
+{\fontsize{16}{20}\selectfont Mã số: \MajorCode\par}
+\vspace{1.2cm}
+\begin{flushleft}
+\hspace{2.5cm}{\bfseries\fontsize{14}{18}\selectfont NGƯỜI HƯỚNG DẪN KHOA HỌC:}\par
+\hspace{4.3cm}{\fontsize{14}{18}\selectfont 1. \SupervisorOne}\par
+\hspace{4.3cm}{\fontsize{14}{18}\selectfont 2. \SupervisorTwo}\par
+\end{flushleft}
+\vfill
+{\fontsize{13}{16}\selectfont \CompletionPlace, năm \CompletionYear\par}
+\end{titlepage}
+\clearpage
+% ===== frontmatter/preliminaries.tex =====
+\chapter*{LỜI CAM ĐOAN}
+Tôi xin cam đoan đây là công trình nghiên cứu của riêng tôi. Mô hình toán học, mã nguồn, quy trình thực nghiệm và các kết quả được trình bày trong luận văn được xây dựng, kiểm tra và tổng hợp trên cơ sở repository nghiên cứu của đề tài. Các số liệu được sử dụng đều có tệp dữ liệu thô, cấu hình, mã kiểm tra và thông tin truy xuất nguồn gốc đi kèm. Những nội dung kế thừa từ các công trình đã công bố được trích dẫn theo chuẩn IEEE và được liệt kê đầy đủ trong danh mục tài liệu tham khảo.
+
+Tôi không sử dụng kết quả thử nghiệm từ tập kiểm tra để lựa chọn siêu tham số hoặc checkpoint. Các nhận định về hiệu năng được trình bày đúng theo bằng chứng hiện có; trong đó, luận văn không xem AO--SCA là nghiệm tối ưu toàn cục và không khẳng định TD3 đạt tổng tốc độ cao nhất trong mọi trường hợp. Tôi xin chịu trách nhiệm về tính trung thực và nhất quán của nội dung luận văn.
+
+\vspace{1.2cm}
+\begin{flushright}
+\CompletionPlace, ngày \ldots\ tháng \ldots\ năm \CompletionYear\\
+Tác giả luận văn\\[2.2cm]
+\AuthorName
+\end{flushright}
+
+\clearpage
+\chapter*{LỜI CẢM ƠN}
+Tôi xin bày tỏ lòng biết ơn sâu sắc đến \SupervisorOne\ và \SupervisorTwo\ đã định hướng khoa học, góp ý về mô hình truyền thông, thuật toán học tăng cường sâu và phương pháp đánh giá thực nghiệm trong suốt quá trình thực hiện đề tài. Những yêu cầu nghiêm ngặt về tính tái lập, cách diễn giải thận trọng và sự nhất quán giữa công thức với mã nguồn là nền tảng giúp luận văn được hoàn thiện theo hướng nghiên cứu có thể kiểm chứng.
+
+Tôi trân trọng cảm ơn quý thầy cô của ngành \MajorName, Trường Đại học Giao thông vận tải Thành phố Hồ Chí Minh, đã cung cấp nền tảng kiến thức về tối ưu, trí tuệ nhân tạo, học máy và phương pháp nghiên cứu khoa học. Tôi cũng cảm ơn gia đình, đồng nghiệp và bạn bè đã luôn động viên, hỗ trợ về thời gian và điều kiện làm việc.
+
+Mặc dù đã cố gắng kiểm tra kỹ lưỡng, luận văn vẫn có thể còn những hạn chế do phạm vi mô phỏng, giả định kênh và thời lượng thực nghiệm. Tôi mong nhận được các ý kiến phản biện để tiếp tục hoàn thiện nghiên cứu và phát triển thành công trình công bố quốc tế.
+
+\vspace{1.2cm}
+\begin{flushright}
+Tác giả luận văn\\[2.2cm]
+\AuthorName
+\end{flushright}
+
+\clearpage
+\chapter*{TÓM TẮT}
+Luận văn nghiên cứu bài toán tối ưu phân bổ tài nguyên trong hệ thống truyền xuống SISO có bề mặt thông minh đồng thời truyền và phản xạ (STAR--RIS) hỗ trợ đa truy cập phân tách tốc độ (RSMA). Mỗi thông điệp người dùng được chia thành thành phần chung và thành phần riêng; trong khi STAR--RIS hoạt động theo giao thức phân chia năng lượng để phục vụ đồng thời người dùng ở phía truyền và phía phản xạ. Bài toán cần tối ưu đồng thời công suất của luồng chung và các luồng riêng, tỷ lệ phân bổ tốc độ chung, hệ số phân chia năng lượng, pha truyền và pha phản xạ. Sự kết hợp giữa hàm tốc độ phi tuyến, phép lấy giá trị nhỏ nhất của tốc độ chung, ràng buộc QoS và biến pha làm cho bài toán có tính phi lồi và số chiều tăng tuyến tính theo số phần tử STAR--RIS.
+
+Phương pháp chính của luận văn là Twin Delayed Deep Deterministic Policy Gradient (TD3), được xây dựng như một bộ tối ưu học được cho không gian hành động liên tục. Môi trường sử dụng chung một mô-đun vật lý và bộ tính tốc độ RSMA cho tất cả phương pháp. Tập kịch bản train, validation và test được khóa độc lập bằng ScenarioBank; checkpoint được lựa chọn chỉ trên validation và đánh giá test không sử dụng nhiễu thăm dò. Bên cạnh TD3, luận văn mô tả DDPG, PPO và ba phương pháp tối ưu truyền thống gồm AO--SCA, AO--Grid và AnalyticalRIS; các thí nghiệm loại bỏ gồm NoRIS, FixedRIS, RandomRIS và Equal-Power.
+
+Kết quả đã kiểm toán trên năm kích thước STAR--RIS $N\in\{16,32,64,96,128\}$ cho thấy TD3 đạt tỷ lệ người dùng thỏa QoS trung bình từ 0,9892 đến 0,9994 và xác suất toàn bộ người dùng cùng thỏa QoS từ 0,9798 đến 0,9985. Tổng tốc độ trung bình của TD3 tăng từ 10,7661 bit/s/Hz tại $N=16$ lên 12,4117 bit/s/Hz tại $N=128$. AO--SCA vẫn đạt tổng tốc độ cao hơn TD3, với chênh lệch từ 4,4476 đến 7,2246 bit/s/Hz, nhưng TD3 có độ trễ quyết định thấp hơn AO--SCA từ 884 đến 3690 lần trong benchmark CPU một luồng. Vì vậy, đóng góp trung tâm của luận văn không phải khẳng định TD3 tối đa hóa tổng tốc độ tuyệt đối, mà là chỉ ra một điểm cân bằng có độ tin cậy QoS cao và độ trễ ra quyết định thấp cho bài toán STAR--RIS--RSMA.
+
+\textbf{Từ khóa:} STAR--RIS, RSMA, TD3, học tăng cường sâu, phân bổ tài nguyên, QoS, tối ưu phi lồi.
+
+\clearpage
+\selectlanguage{english}
+\chapter*{ABSTRACT}
+This thesis studies resource allocation in a downlink SISO system where a simultaneous transmitting and reflecting reconfigurable intelligent surface (STAR--RIS) assists rate-splitting multiple access (RSMA). Each user message is divided into a common part and a private part, whereas the STAR--RIS employs an energy-splitting protocol to serve users located on both transmission and reflection sides. The optimization variables include common/private stream powers, common-rate allocation fractions, energy-splitting coefficients, and the transmission/reflection phases. The resulting problem is non-convex and its continuous action dimension grows linearly with the number of STAR--RIS elements.
+
+Twin Delayed Deep Deterministic Policy Gradient (TD3) is used as the primary learned optimizer. All compared methods share the same physical model and RSMA rate calculator. Disjoint train, validation, and test ScenarioBanks are locked by checksums; checkpoints are selected only on validation data, and test evaluation is deterministic and exploration-free. The framework also contains DDPG and PPO implementations, conventional AO--SCA, AO--Grid, and AnalyticalRIS baselines, together with NoRIS, FixedRIS, RandomRIS, and Equal-Power ablations.
+
+Audited results for $N\in\{16,32,64,96,128\}$ show that TD3 achieves a mean user QoS fraction between 0.9892 and 0.9994 and an all-user QoS probability between 0.9798 and 0.9985. Its mean sum-rate increases from 10.7661 bit/s/Hz at $N=16$ to 12.4117 bit/s/Hz at $N=128$. AO--SCA obtains a higher sum-rate by 4.4476--7.2246 bit/s/Hz, while TD3 is 884--3690 times faster than AO--SCA in the declared single-thread CPU benchmark. The thesis therefore positions TD3 as a QoS-reliable, low-latency quality--latency compromise rather than an absolute maximum-sum-rate solution.
+
+\textbf{Keywords:} STAR--RIS, RSMA, TD3, deep reinforcement learning, resource allocation, QoS, non-convex optimization.
+\selectlanguage{vietnamese}
+
+\clearpage
+\tableofcontents
+\clearpage
+\listoftables
+\clearpage
+\listoffigures
+\clearpage
+\chapter*{DANH MỤC TỪ VIẾT TẮT}
+\begin{longtable}{p{2.3cm}p{11.8cm}}
+\toprule
+\textbf{Từ viết tắt} & \textbf{Giải nghĩa}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Từ viết tắt} & \textbf{Giải nghĩa}\\
+\midrule
+\endhead
+AO & Alternating Optimization -- tối ưu luân phiên\\
+AWGN & Additive White Gaussian Noise -- nhiễu Gaussian trắng cộng\\
+BS & Base Station -- trạm gốc\\
+CSI & Channel State Information -- thông tin trạng thái kênh\\
+DDPG & Deep Deterministic Policy Gradient\\
+DRL & Deep Reinforcement Learning -- học tăng cường sâu\\
+ES & Energy Splitting -- phân chia năng lượng\\
+IoT & Internet of Things -- Internet vạn vật\\
+MDP & Markov Decision Process -- quá trình quyết định Markov\\
+MISO & Multiple-Input Single-Output\\
+NOMA & Non-Orthogonal Multiple Access\\
+PPO & Proximal Policy Optimization\\
+QoS & Quality of Service -- chất lượng dịch vụ\\
+RIS & Reconfigurable Intelligent Surface\\
+RL & Reinforcement Learning -- học tăng cường\\
+RSMA & Rate-Splitting Multiple Access\\
+SCA & Successive Convex Approximation\\
+SDMA & Space Division Multiple Access\\
+SIC & Successive Interference Cancellation\\
+SISO & Single-Input Single-Output\\
+STAR--RIS & Simultaneous Transmitting and Reflecting RIS\\
+TD3 & Twin Delayed Deep Deterministic Policy Gradient\\
+\bottomrule
+\end{longtable}
+\clearpage
