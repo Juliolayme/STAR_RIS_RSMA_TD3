@@ -1,0 +1,40 @@
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage{uththesis}
+
+% Metadata - edit here when the university confirms final wording.
+\newcommand{\UniversityName}{TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI\\THÀNH PHỐ HỒ CHÍ MINH}
+\newcommand{\AuthorName}{NGUYỄN DUY THANH}
+\newcommand{\StudentID}{2480101831}
+\newcommand{\ClassName}{KM2402}
+\newcommand{\MajorName}{Khoa học máy tính}
+\newcommand{\MajorCode}{8480101}
+\newcommand{\ThesisTitle}{TỐI ƯU PHÂN BỔ TÀI NGUYÊN SỬ DỤNG HỌC TĂNG CƯỜNG SÂU TRONG MẠNG STAR-RIS HỖ TRỢ RSMA}
+\newcommand{\SupervisorOne}{TS. TRẦN THIÊN THANH}
+\newcommand{\SupervisorTwo}{TS. NGÔ HOÀNG TÚ}
+\newcommand{\CompletionPlace}{Thành phố Hồ Chí Minh}
+\newcommand{\CompletionYear}{2026}
+
+\addbibresource{../references/references.bib}
+
+\begin{document}
+\selectlanguage{vietnamese}
+\pagenumbering{gobble}
+\input{frontmatter}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{content}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
+\begin{sloppypar}
+\printbibliography[title={TÀI LIỆU THAM KHẢO}]
+\end{sloppypar}
+
+\appendix
+\input{appendices}
+
+\end{document}
