@@ -1,0 +1,101 @@
+name: Build open-access thesis reference library
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "references/**"
+      - "scripts/download_open_access_references.py"
+      - ".github/workflows/build-reference-library.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-reference-library:
+    name: Download and audit open-access papers
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download declared open-access PDFs
+        run: |
+          set -euo pipefail
+          python scripts/download_open_access_references.py \
+            --inventory references/open_access_pdfs.tsv \
+            --output-dir reference_library/pdfs \
+            --report reference_library/DOWNLOAD_MANIFEST.json \
+            --continue-on-error
+
+      - name: Audit reference library
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          report_path = Path("reference_library/DOWNLOAD_MANIFEST.json")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+          print(json.dumps({
+              "reference_count": report["reference_count"],
+              "downloaded_count": report["downloaded_count"],
+              "metadata_only_count": report["metadata_only_count"],
+              "failed_count": report["failed_count"],
+              "failures": report["failures"],
+          }, indent=2))
+
+          if report["reference_count"] != 30:
+              raise RuntimeError("Expected exactly 30 curated references")
+          if report["metadata_only_count"] != 2:
+              raise RuntimeError("Expected exactly two metadata-only paywalled papers")
+          if report["failed_count"] != 0:
+              raise RuntimeError(f"Open-access downloads failed: {report['failures']}")
+          if report["downloaded_count"] != 28:
+              raise RuntimeError("Expected 28 legally open PDFs")
+
+          pdfs = sorted(Path("reference_library/pdfs").glob("*.pdf"))
+          if len(pdfs) != 28:
+              raise RuntimeError(f"Expected 28 PDF files, found {len(pdfs)}")
+          for pdf in pdfs:
+              if not pdf.read_bytes()[:5] == b"%PDF-":
+                  raise RuntimeError(f"Invalid PDF magic header: {pdf}")
+              print(f"PDF\t{pdf.name}\t{pdf.stat().st_size} bytes")
+          PY
+
+      - name: Copy citation files into artifact
+        run: |
+          cp references/README.md reference_library/
+          cp references/references.bib reference_library/
+          cp references/open_access_pdfs.tsv reference_library/
+
+      - name: Upload reference-library artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: star-ris-rsma-thesis-reference-library
+          path: reference_library
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo "## STAR-RIS–RSMA thesis reference library"
+            echo
+            echo "- Curated references: 30"
+            echo "- Legally open PDFs expected: 28"
+            echo "- Metadata-only publisher entries: 2"
+            echo "- BibTeX: \`references/references.bib\`"
+            echo "- Reading map: \`references/README.md\`"
+          } >> "$GITHUB_STEP_SUMMARY"
