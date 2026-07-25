@@ -11,7 +11,7 @@ on:
       - ".github/workflows/build-reference-library.yml"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-reference-library:
@@ -22,6 +22,8 @@ jobs:
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -72,8 +74,52 @@ jobs:
               print(f"PDF\t{pdf.name}\t{pdf.stat().st_size} bytes")
           PY
 
-      - name: Copy citation files into artifact
+      - name: Persist machine-readable download audit
+        if: always()
         run: |
+          set -euo pipefail
+          mkdir -p artifacts/reference_library
+          if [[ -f reference_library/DOWNLOAD_MANIFEST.json ]]; then
+            cp reference_library/DOWNLOAD_MANIFEST.json \
+              artifacts/reference_library/DOWNLOAD_MANIFEST.json
+            python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source = Path("artifacts/reference_library/DOWNLOAD_MANIFEST.json")
+          report = json.loads(source.read_text(encoding="utf-8"))
+          lines = [
+              "# Reference Library Download Status",
+              "",
+              f"- Curated references: **{report['reference_count']}**",
+              f"- Downloaded open PDFs: **{report['downloaded_count']}**",
+              f"- Metadata-only papers: **{report['metadata_only_count']}**",
+              f"- Failed downloads: **{report['failed_count']}**",
+              f"- Failures: `{report['failures']}`",
+              "",
+              "The complete PDF bundle is available as the GitHub Actions artifact "
+              "`star-ris-rsma-thesis-reference-library`.",
+          ]
+          Path("artifacts/reference_library/STATUS.md").write_text(
+              "\n".join(lines) + "\n", encoding="utf-8"
+          )
+          PY
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add artifacts/reference_library
+            if ! git diff --cached --quiet; then
+              git commit -m "Record open-access reference download audit"
+              git push origin HEAD:main
+            fi
+          else
+            echo "Downloader did not produce a manifest" >&2
+          fi
+
+      - name: Copy citation files into artifact
+        if: always()
+        run: |
+          mkdir -p reference_library
           cp references/README.md reference_library/
           cp references/references.bib reference_library/
           cp references/open_access_pdfs.tsv reference_library/
