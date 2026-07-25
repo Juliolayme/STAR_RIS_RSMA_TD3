@@ -1,0 +1,264 @@
+\chapter{MÔ HÌNH HỆ THỐNG VÀ BÀI TOÁN TỐI ƯU}
+\label{chap:system-model}
+
+\section{Kiến trúc hệ thống}
+Luận văn xét đường xuống của một tế bào đơn gồm một trạm gốc SISO, một STAR--RIS có $N$ phần tử và $K$ người dùng SISO. Một nửa người dùng được đặt ở phía phản xạ, nửa còn lại ở phía truyền theo chỉ báo cố định. Trong source code, chỉ báo phía người dùng được gán luân phiên $u_k=k\bmod 2$, do đó với $K=4$ có hai người dùng phía phản xạ và hai người dùng phía truyền. Mô hình không xét beamforming chủ động nhiều anten, phối hợp đa BS hoặc relay khuếch đại.
+
+BS truyền một luồng chung và $K$ luồng riêng theo RSMA. Tín hiệu đến người dùng qua hai thành phần: đường trực tiếp BS--user và đường ghép tầng BS--STAR--RIS--user. STAR--RIS hoạt động ở chế độ energy splitting, trong đó mỗi phần tử chia công suất tín hiệu tới thành thành phần truyền và phản xạ. Tập biến điều khiển của hệ thống gồm công suất, phân bổ common rate, hệ số beta và hai vector pha.
+
+\section{Mô hình kênh}
+\subsection{Kênh trực tiếp và kênh ghép tầng}
+Với người dùng $k$, source sinh
+\begin{align}
+ h_{d,k}&\sim\mathcal{CN}(0,0{,}35^2),\\
+ g_n&\sim\mathcal{CN}(0,1^2),\\
+ h_{r,k,n}&\sim\mathcal{CN}(0,0{,}75^2),
+\end{align}
+độc lập giữa các hệ số và scenario. Việc sử dụng các hệ số scale khác nhau tạo độ lớn tương đối cho đường trực tiếp, BS--RIS và RIS--user, nhưng không tương đương một mô hình geometry-based có path loss. Không có tọa độ, khoảng cách, shadowing, Rician factor hoặc tương quan không gian.
+
+Một mẫu kênh được ký hiệu
+\begin{equation}
+ \mathcal H=\{\bm h_d,\bm g,\bm H_r,\bm u\},
+\end{equation}
+trong đó $\bm h_d\in\C^K$, $\bm g\in\C^N$, $\bm H_r\in\C^{K\times N}$ và $\bm u\in\{0,1\}^K$.
+
+\subsection{Kênh hiệu dụng}
+Đặt
+\begin{align}
+ \bm\phi_T&=\sqrt{\bm\beta^T}\odot e^{j\bm\theta^T},\\
+ \bm\phi_R&=\sqrt{\bm1-\bm\beta^T}\odot e^{j\bm\theta^R},
+\end{align}
+trong đó căn bậc hai và hàm mũ được áp dụng theo phần tử. Kênh hiệu dụng của người dùng $k$ là
+\begin{equation}
+ h_k^{\mathrm{eff}}
+ =h_{d,k}+\sum_{n=1}^{N}h_{r,k,n}^{*}\phi_{s(k),n}g_n,
+ \label{eq:effective-channel-expanded}
+\end{equation}
+trong đó $s(k)=T$ nếu $u_k=1$, và $s(k)=R$ nếu $u_k=0$. Dấu liên hợp trên $h_{r,k,n}$ bám sát phép tính trong source. Độ lợi công suất là
+\begin{equation}
+ G_k=|h_k^{\mathrm{eff}}|^2.
+\end{equation}
+
+\section{Mô hình tín hiệu RSMA}
+Tín hiệu phát được viết lại dưới dạng vector công suất
+\begin{equation}
+ \bm p=[p_c,p_1,\ldots,p_K]^T.
+\end{equation}
+Source sử dụng tổng công suất chính xác bằng $P_{\max}$ sau projection simplex. Điều này tương đương giả định tối ưu luôn sử dụng hết ngân sách công suất trong miền tham số hóa. Trong bài toán toán học tổng quát có thể dùng bất đẳng thức $\sum p_i\le P_{\max}$, nhưng implementation giải mã actor lên biên simplex $\sum p_i=P_{\max}$.
+
+Tại người dùng $k$, common SINR, private SINR và tốc độ được tính đúng theo các phương trình ở Chương~\ref{chap:theory}. Việc tất cả luồng riêng cùng đi qua cùng $G_k$ là hệ quả của mô hình SISO không có precoder theo luồng. Nhiễu private đối với người dùng $k$ bằng
+\begin{equation}
+ I_{p,k}=G_k\sum_{j\ne k}p_j.
+\end{equation}
+Tốc độ common phân bổ được chuẩn hóa bằng vector $\bm\eta$:
+\begin{equation}
+ \bm C=R_c\bm\eta.
+\end{equation}
+
+\section{Chỉ số QoS}
+\subsection{Tỷ lệ người dùng thỏa QoS}
+Với ngưỡng $R_{\min}$ chung cho mọi người dùng, tỷ lệ QoS trong một scenario là
+\begin{equation}
+ q_{\mathrm{frac}}=\frac1K\sum_{k=1}^{K}\mathbb I(R_k\ge R_{\min}).
+ \label{eq:qos-fraction}
+\end{equation}
+Metric này phân biệt trường hợp 3/4 người dùng thỏa với 4/4 người dùng thỏa, nhưng hai scenario có cùng tỷ lệ có thể có mức deficit khác nhau.
+
+\subsection{Xác suất toàn bộ người dùng thỏa QoS}
+Biến chỉ báo
+\begin{equation}
+ q_{\mathrm{all}}=\mathbb I\left(\min_kR_k\ge R_{\min}\right)
+ \label{eq:all-qos}
+\end{equation}
+được lấy trung bình trên test bank để ước lượng xác suất tất cả người dùng cùng thỏa QoS. Đây là metric nghiêm ngặt hơn $q_{\mathrm{frac}}$.
+
+\subsection{Mức vi phạm QoS}
+Deficit tổng
+\begin{equation}
+ V=\sum_{k=1}^{K}\max(R_{\min}-R_k,0)
+ \label{eq:violation-ch3}
+\end{equation}
+đo khoảng cách liên tục đến miền khả thi. Khi $q_{\mathrm{all}}=0$, $V$ cho biết vi phạm nhẹ hay nghiêm trọng. Luận văn báo cáo cả ba chỉ số để tránh mất thông tin.
+
+\section{Vector trạng thái}
+\subsection{Cấu trúc observation}
+Observation chứa phần thực và phần ảo của toàn bộ kênh cùng chỉ báo phía người dùng:
+\begin{equation}
+ \bm s=
+ [\Re\{\bm h_d\},\Im\{\bm h_d\},
+ \Re\{\bm g\},\Im\{\bm g\},
+ \operatorname{vec}(\Re\{\bm H_r\}),
+ \operatorname{vec}(\Im\{\bm H_r\}),
+ \tilde{\bm u}]^T.
+ \label{eq:state-vector}
+\end{equation}
+Với normalization phiên bản cuối, $\tilde u_k=2u_k-1\in\{-1,1\}$. Số chiều là
+\begin{equation}
+ d_s=2(K+N+KN)+K.
+ \label{eq:state-dim}
+\end{equation}
+Với $K=4$, $d_s=8N+12$. Cụ thể, $d_s=140$ tại $N=16$, $268$ tại $N=32$ và $1036$ tại $N=128$.
+
+\subsection{Chuẩn hóa theo khối}
+Global $\ell_2$ normalization có thể làm mỗi hệ số nhỏ dần khi $N$ tăng, vì chuẩn toàn vector tăng theo căn số chiều. Phiên bản cuối sử dụng blockwise normalization:
+\begin{align}
+ \Re(h_{d,k}),\Im(h_{d,k})&\leftarrow \frac{\cdot}{0{,}35},\\
+ \Re(g_n),\Im(g_n)&\leftarrow \frac{\cdot}{1{,}0},\\
+ \Re(h_{r,k,n}),\Im(h_{r,k,n})&\leftarrow \frac{\cdot}{0{,}75}.
+\end{align}
+Sau đó giá trị được clip trong $[-8,8]$. Mục tiêu là giữ phân bố input xấp xỉ ổn định khi $N$ thay đổi, giúp cùng kiến trúc hidden layer hoạt động trên nhiều kích thước.
+
+\section{Vector hành động}
+\subsection{Cấu trúc action thô}
+Actor xuất vector
+\begin{equation}
+ \bm z=[\bm z_p,\bm z_{\eta},\bm z_{\beta},\bm z_T,\bm z_R]^T\in[-1,1]^{d_a},
+\end{equation}
+trong đó
+\begin{align}
+ \bm z_p&\in\R^{K+1},&
+ \bm z_{\eta}&\in\R^K,\\
+ \bm z_{\beta}&\in\R^N,&
+ \bm z_T,\bm z_R&\in\R^N.
+\end{align}
+Số chiều action là
+\begin{equation}
+ d_a=(K+1)+K+3N=2K+1+3N.
+ \label{eq:action-dim}
+\end{equation}
+Với $K=4$, $d_a=3N+9$, tương ứng 57, 105 và 393 khi $N=16,32,128$.
+
+\subsection{Giải mã action vật lý}
+Đặt
+\begin{align}
+ \tilde{\bm p}&=\frac12(\bm z_p+\bm1)P_{\max},\\
+ \bm p&=\Pi_{\Delta_{P_{\max}}}(\tilde{\bm p}),\\
+ \tilde{\bm\eta}&=\frac12(\bm z_{\eta}+\bm1),\\
+ \bm\eta&=\Pi_{\Delta_1}(\tilde{\bm\eta}),\\
+ \bm\beta^T&=\frac12(\bm z_{\beta}+\bm1),\\
+ \bm\theta^T&=\operatorname{wrap}(\pi\bm z_T),\\
+ \bm\theta^R&=\operatorname{wrap}(\pi\bm z_R).
+ \label{eq:action-decoder}
+\end{align}
+Ánh xạ này làm mọi action khả thi theo các ràng buộc hình học. QoS chưa được bảo đảm cứng; nó được xử lý qua reward và checkpoint selection.
+
+\section{Hàm mục tiêu và reward}
+\subsection{Bài toán tối ưu theo scenario}
+Với một mẫu kênh $\mathcal H$, bài toán lý tưởng là
+\begin{subequations}
+\label{prob:scenario}
+\begin{align}
+ \max_{\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R}
+ &\quad \Rsum(\mathcal H,\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R)\\
+ \text{s.t.}
+ &\quad \bm p\in\Delta_{P_{\max}},\\
+ &\quad \bm\eta\in\Delta_1,\\
+ &\quad \bm\beta^T\in[0,1]^N,\\
+ &\quad \bm\theta^T,\bm\theta^R\in[-\pi,\pi)^N,\\
+ &\quad R_k\ge R_{\min},\quad k=1,\ldots,K.
+\end{align}
+\end{subequations}
+Nếu miền QoS rỗng với một scenario, ràng buộc cứng không có nghiệm. Reward mềm cho phép thuật toán vẫn chọn action giảm deficit.
+
+\subsection{Merit function cho baseline}
+AO--SCA và các baseline sử dụng cùng merit
+\begin{equation}
+ f=\Rsum-\lambda_1V-\lambda_2V_2.
+ \label{eq:merit}
+\end{equation}
+Điều này bảo đảm solver không tối đa hóa một mục tiêu khác với TD3. Tuy nhiên, trong báo cáo cuối, metric chính vẫn được tách thành sum-rate và QoS thay vì chỉ báo reward tổng hợp.
+
+\subsection{Reward huấn luyện có dual multiplier}
+TD3 phiên bản cuối dùng
+\begin{equation}
+ r_t=R_{\mathrm{sum},t}-\lambda_tV_t-\lambda_2V_{2,t},
+\end{equation}
+trong đó $\lambda_t$ được cập nhật theo vi phạm EMA. Các tham số khai báo gồm $\lambda_0=8$, $\lambda_{\min}=4$, $\lambda_{\max}=64$, learning rate dual 20, mục tiêu vi phạm $10^{-3}$ và chu kỳ cập nhật 1000 bước. Penalty bình phương cố định là 8.
+
+\section{Cấu trúc quá trình quyết định}
+\subsection{Transition và episode}
+Mỗi episode có 32 bước. Ở mỗi bước, môi trường đánh giá action trên kênh hiện tại, sau đó lấy mẫu một kênh mới từ training bank nếu episode chưa kết thúc. Action không ảnh hưởng kênh tiếp theo. Do đó
+\begin{equation}
+ P(s_{t+1}|s_t,a_t)=P(s_{t+1})
+\end{equation}
+trong giới hạn sampler độc lập. Hệ số chiết khấu $\gamma=0{,}99$ vẫn được giữ theo TD3 chuẩn, nhưng return nhiều bước không phản ánh một động lực tài nguyên tích lũy.
+
+\subsection{Diễn giải như tối ưu amortized}
+Có thể xem mỗi scenario là một bài toán tối ưu riêng. Solver truyền thống giải lại từ đầu; TD3 học hàm
+\begin{equation}
+ \mu_{\phi}:\mathcal H\mapsto
+ (\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R).
+ \label{eq:amortized-optimizer}
+\end{equation}
+Chi phí huấn luyện được amortize trên nhiều lần suy luận. Đây là cơ sở của lợi thế latency, đồng thời giải thích vì sao chất lượng có thể thấp hơn solver lặp tối ưu trực tiếp từng scenario.
+
+\section{ScenarioBank}
+\subsection{Mục tiêu}
+ScenarioBank là tập cố định các kênh được lưu dưới dạng NPZ cùng metadata. Mỗi bank chứa các mảng $\bm h_d$, $\bm g$, $\bm H_r$ và $\bm u$ cho toàn bộ scenario. Các lợi ích gồm:
+\begin{itemize}
+  \item mọi phương pháp được đánh giá trên đúng cùng hiện thực kênh;
+  \item có thể ghép cặp kết quả theo scenario;
+  \item tái tạo được bằng seed và checksum;
+  \item phát hiện được trùng lặp giữa train, validation và test.
+\end{itemize}
+
+\subsection{Tách dữ liệu}
+Mỗi $N$ có 10.000 scenario train, 1.000 validation và 1.000 test. Các seed fallback 11001, 22001 và 33001 được sử dụng cho ba split. Hàm kiểm tra disjoint tạo fingerprint SHA-256 từ toàn bộ hệ số kênh của từng scenario và báo lỗi nếu trùng.
+
+\subsection{Provenance}
+Manifest lưu config đầy đủ, config hash, checksum bank, seed, thiết bị và Git commit. Raw CSV test lưu method, seed, scenario, metric, checkpoint step, config hash và bank checksum. Thiết kế này cho phép truy ngược mỗi dòng kết quả đến mã và dữ liệu.
+
+\section{Phân tích tính phi lồi và độ phức tạp}
+\subsection{Nguồn phi lồi}
+Bài toán có các nguồn phi lồi sau:
+\begin{enumerate}[label=\arabic*)]
+  \item biểu thức $|h_d+\bm h_r^H\bm\Phi\bm g|^2$ chứa tích và bình phương của biến pha;
+  \item SINR là tỷ số giữa đa thức theo công suất và độ lợi kênh;
+  \item common rate dùng minimum trên người dùng;
+  \item QoS tạo miền khả thi không lồi trong không gian kết hợp;
+  \item pha là biến tuần hoàn, làm miền có nhiều cực trị cục bộ.
+\end{enumerate}
+
+\subsection{Độ phức tạp đánh giá một action}
+Tính kênh hiệu dụng cần $O(KN)$ phép toán phức. Tính tốc độ cần $O(K)$ sau khi có $G_k$. Vì vậy chi phí metric chủ yếu là $O(KN)$. Actor inference với hai hidden layer kích thước $H$ có độ phức tạp
+\begin{equation}
+ O(d_sH+H^2+Hd_a).
+ \label{eq:actor-complexity}
+\end{equation}
+Khi $K$ cố định và $d_s,d_a=O(N)$, chi phí actor tăng xấp xỉ tuyến tính theo $N$ ngoài phần $H^2$ cố định.
+
+AO--SCA ước lượng gradient theo từng tọa độ bằng sai phân trung tâm, cần khoảng hai lần đánh giá cho mỗi biến trong khối. Nếu có $I$ vòng lặp, chi phí gần
+\begin{equation}
+ O\left(I\,d_a\,KN\right)
+\end{equation}
+chưa kể backtracking. Đây là nguyên nhân chênh lệch latency lớn khi $N$ tăng.
+
+\section{Giả định và giới hạn mô hình}
+Bảng~\ref{tab:model-assumptions} liệt kê các giả định cần được đọc cùng kết quả.
+
+\begin{table}[H]
+\caption{Các giả định chính của mô hình và ảnh hưởng đến diễn giải}
+\label{tab:model-assumptions}
+\begin{tabularx}{\textwidth}{p{3.8cm}Y Y}
+\toprule
+\textbf{Giả định} & \textbf{Lý do sử dụng} & \textbf{Giới hạn diễn giải}\\
+\midrule
+SISO BS và user & Tách trọng tâm vào RSMA power allocation và STAR--RIS & Không phản ánh beamforming MISO/massive MIMO\\
+Gaussian phức độc lập & Dễ tạo ScenarioBank quy mô lớn và tái lập & Không có geometry, path loss, LoS/Rician hoặc tương quan\\
+CSI hoàn hảo trong observation & Đánh giá năng lực tối ưu của policy & Chưa chứng minh độ bền với lỗi ước lượng\\
+Pha truyền/phản xạ độc lập & Không gian hành động liên tục, dễ kiểm soát & Có thể không khả thi với một số STAR--RIS thụ động\\
+SIC lý tưởng & Mô hình RSMA chuẩn & Không có residual SIC hoặc lỗi giải mã\\
+Action không ảnh hưởng transition & Tối ưu từng hiện thực kênh & Gần contextual bandit hơn điều khiển động\\
+Không xét chi phí huấn luyện online & Tập trung vào latency sau huấn luyện & Cần đánh giá vòng đời mô hình khi kênh phân bố thay đổi\\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả xây dựng (2026)}
+\end{table}
+
+\ThesisFigure{figures/chapter3_system_model.pdf}{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}{fig:ch3-system-model}
+\figuresource{Tác giả đề xuất (2026)}
+
+Hình~\ref{fig:ch3-system-model} cần thể hiện rõ BS phát một luồng chung và bốn luồng riêng; STAR--RIS chia năng lượng sang phía truyền và phía phản xạ; mỗi user nhận cả đường trực tiếp lẫn đường ghép tầng. Các hộp bên cạnh STAR--RIS ghi $\beta_n^T+\beta_n^R=1$ và hệ số biên độ $\sqrt{\beta}e^{j\theta}$. Phần dưới hình liệt kê vector action để nối trực tiếp kiến trúc vật lý với bài toán tối ưu. Việc vẽ đường trực tiếp là quan trọng vì source không phải mô hình blocked-link chỉ qua RIS.
+
+\section{Kết luận chương}
+Chương 3 đã chuyển cơ sở lý thuyết thành mô hình đúng với implementation: một hệ SISO, STAR--RIS energy-splitting, RSMA một luồng chung và $K$ luồng riêng, observation chứa CSI đầy đủ, action vật lý có số chiều $2K+1+3N$ và reward phạt QoS. Chương cũng làm rõ ScenarioBank, provenance và các giả định giới hạn. Chương tiếp theo mô tả cách TD3 được huấn luyện, lựa chọn checkpoint và so sánh với baseline.
