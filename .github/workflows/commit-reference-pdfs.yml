@@ -1,0 +1,113 @@
+name: Commit verified thesis reference PDFs
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/commit-reference-pdfs.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  commit-reference-pdfs:
+    name: Download, audit, and commit reference PDFs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Download verified open-access PDFs
+        run: |
+          set -euo pipefail
+          rm -rf references/pdfs
+          mkdir -p references/pdfs
+          python scripts/download_open_access_references.py \
+            --inventory references/open_access_pdfs.tsv \
+            --output-dir references/pdfs \
+            --report references/DOWNLOAD_MANIFEST.json \
+            --continue-on-error
+
+      - name: Audit repository PDF library
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          report_path = Path("references/DOWNLOAD_MANIFEST.json")
+          report = json.loads(report_path.read_text(encoding="utf-8"))
+
+          expected = {
+              "reference_count": 30,
+              "downloaded_count": 27,
+              "metadata_only_count": 3,
+              "failed_count": 0,
+          }
+          for key, value in expected.items():
+              actual = report.get(key)
+              if actual != value:
+                  raise RuntimeError(f"{key}: expected {value}, got {actual}")
+
+          pdfs = sorted(Path("references/pdfs").glob("*.pdf"))
+          if len(pdfs) != 27:
+              raise RuntimeError(f"Expected 27 PDFs, found {len(pdfs)}")
+
+          manifest_by_name = {
+              row["filename"]: row
+              for row in report["references"]
+              if row.get("status") == "downloaded"
+          }
+          if set(manifest_by_name) != {path.name for path in pdfs}:
+              raise RuntimeError("PDF filenames do not match DOWNLOAD_MANIFEST.json")
+
+          for pdf in pdfs:
+              if pdf.read_bytes()[:5] != b"%PDF-":
+                  raise RuntimeError(f"Invalid PDF header: {pdf}")
+              digest = hashlib.sha256(pdf.read_bytes()).hexdigest()
+              expected_digest = manifest_by_name[pdf.name]["sha256"]
+              if digest != expected_digest:
+                  raise RuntimeError(
+                      f"SHA-256 mismatch for {pdf.name}: {digest} != {expected_digest}"
+                  )
+              print(f"PASS\t{pdf.name}\t{pdf.stat().st_size}\t{digest}")
+          PY
+
+      - name: Commit PDFs and manifest to main
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f references/pdfs references/DOWNLOAD_MANIFEST.json
+          if git diff --cached --quiet; then
+            echo "Reference PDF library already matches the audited inventory."
+          else
+            git commit -m "Store verified open-access thesis PDFs in repository"
+            git push origin HEAD:main
+          fi
+
+      - name: Write summary
+        if: always()
+        run: |
+          {
+            echo "## Reference PDFs committed to main"
+            echo
+            echo "- Curated references: 30"
+            echo "- PDFs committed: 27"
+            echo "- Metadata/full-text-only entries: 3"
+            echo "- Directory: \`references/pdfs/\`"
+            echo "- Provenance: \`references/DOWNLOAD_MANIFEST.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"
