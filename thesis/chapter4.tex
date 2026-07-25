@@ -1,0 +1,251 @@
+\chapter{PHƯƠNG PHÁP TD3 VÀ QUY TRÌNH THỰC NGHIỆM}
+\label{chap:method}
+
+\section{Tổng quan pipeline nghiên cứu}
+Pipeline được thiết kế theo nguyên tắc ``một mô hình vật lý, nhiều bộ giải''. Tất cả phương pháp nhận cùng một \texttt{ChannelSample}, sử dụng cùng hàm tính kênh hiệu dụng, cùng bộ giải mã action và cùng công thức tốc độ RSMA. Sự khác biệt chỉ nằm ở cách chọn action. TD3, DDPG và PPO học một policy từ dữ liệu; AO--SCA, AO--Grid và AnalyticalRIS giải trực tiếp từng scenario; các ablation thay thế một phần quyết định của TD3 bằng cấu hình cố định hoặc ngẫu nhiên.
+
+Quy trình gồm sáu pha: tạo ScenarioBank; huấn luyện; đánh giá validation định kỳ; chọn checkpoint; đánh giá test xác định; và tổng hợp thống kê/latency. Mọi output quan trọng đều có manifest, config hash, checksum bank và Git commit. Cách tổ chức này giảm nguy cơ ``code drift'' giữa lần huấn luyện và lần vẽ biểu đồ.
+
+\section{Kiến trúc mạng nơ-ron}
+\subsection{Actor}
+Actor là MLP xác định
+\begin{equation}
+ \mu_{\phi}:\R^{d_s}\rightarrow[-1,1]^{d_a}.
+\end{equation}
+Kiến trúc gồm hai hidden layer kích thước $H=256$:
+\begin{equation}
+ d_s\rightarrow256\rightarrow256\rightarrow d_a.
+\end{equation}
+Mỗi hidden layer dùng LayerNorm và ReLU trong cấu hình cuối; đầu ra dùng Tanh. LayerNorm giúp giảm thay đổi phân bố kích hoạt giữa các kích thước $N$, trong khi Tanh tạo action thô nằm trong miền lập phương.
+
+\subsection{Hai critic}
+Mỗi critic nhận vector ghép $[s,a]$ và trả về một scalar:
+\begin{equation}
+ Q_{\psi_i}:\R^{d_s+d_a}\rightarrow\R,
+ \qquad i\in\{1,2\}.
+\end{equation}
+Kiến trúc là
+\begin{equation}
+ d_s+d_a\rightarrow256\rightarrow256\rightarrow1.
+\end{equation}
+Hai critic khởi tạo độc lập và được tối ưu chung bằng tổng Huber loss. Chỉ critic thứ nhất được dùng trong actor objective, đúng với TD3 chuẩn.
+
+\subsection{Target networks}
+Actor target và hai critic target được sao chép từ mạng online khi khởi tạo. Target không nhận gradient trực tiếp; chúng được soft-update sau mỗi lần cập nhật actor. Việc lưu toàn bộ target và optimizer state trong checkpoint cho phép tiếp tục huấn luyện; khi inference-only, chỉ actor cần được phục hồi.
+
+\section{Replay buffer và thu thập dữ liệu}
+Replay buffer có dung lượng 200.000 transition. Mỗi transition gồm $(s_t,a_t,r_t,s_{t+1},d_t)$. Trong 2.000 bước warm-up, action được lấy đều trong $[-1,1]^{d_a}$ để phủ không gian. Sau warm-up, actor action được cộng Gaussian exploration noise.
+
+Để tránh tổng năng lượng nhiễu tăng quá mạnh khi $d_a$ lớn, implementation dùng hệ số tỷ lệ theo số chiều:
+\begin{equation}
+ \kappa_d=\min\left(1,\sqrt{\frac{d_{\mathrm{ref}}}{d_a}}\right),
+ \label{eq:noise-dim-scale}
+\end{equation}
+trong đó $d_{\mathrm{ref}}=64$. Độ lệch chuẩn hiệu dụng bằng $\sigma\kappa_d$. Cơ chế này giữ chuẩn kỳ vọng của vector nhiễu ổn định hơn khi $N$ tăng.
+
+Exploration noise giảm tuyến tính từ 0,12 xuống 0,03 trong 100.000 bước:
+\begin{equation}
+ \sigma_t=\sigma_0+\min\left(\frac{t}{T_{\mathrm{decay}}},1\right)(\sigma_f-\sigma_0).
+ \label{eq:exploration-schedule}
+\end{equation}
+Mục tiêu là thăm dò mạnh ở đầu và tinh chỉnh ở cuối.
+
+\section{Cập nhật TD3}
+\subsection{Tạo target}
+Với mini-batch kích thước 256, target action là
+\begin{equation}
+ a'_j=\operatorname{clip}\left(
+ \mu_{\phi'}(s'_j)+\epsilon_j,-1,1
+ \right),
+\end{equation}
+trong đó $\epsilon_j$ có độ lệch chuẩn target 0,15, bị clip ở 0,30 và tiếp tục nhân hệ số $\kappa_d$. Target value là
+\begin{equation}
+ y_j=r_j+\gamma(1-d_j)\min(Q_{\psi_1'}(s_j',a_j'),Q_{\psi_2'}(s_j',a_j')).
+\end{equation}
+
+\subsection{Cập nhật critic}
+Tổng loss là
+\begin{equation}
+ L_Q=\frac1B\sum_{j=1}^{B}
+ \left[\ell_{\mathrm{Huber}}(Q_{\psi_1}(s_j,a_j)-y_j)
+ +\ell_{\mathrm{Huber}}(Q_{\psi_2}(s_j,a_j)-y_j)\right].
+\end{equation}
+Learning rate critic là $3\times10^{-4}$. Sau backpropagation, chuẩn gradient của toàn bộ hai critic được clip ở 10.
+
+\subsection{Cập nhật actor}
+Mỗi hai lần cập nhật critic, actor được cập nhật theo
+\begin{equation}
+ L_{\mu}=-\frac1B\sum_{j=1}^{B}Q_{\psi_1}(s_j,\mu_{\phi}(s_j)).
+\end{equation}
+Learning rate actor là $10^{-4}$. Actor gradient cũng được clip ở 10. Sau đó các target network được soft-update với $\tau=0{,}005$.
+
+\section{Điều khiển dual cho QoS}
+\subsection{Động cơ}
+Khi $N$ tăng, distribution của sum-rate và violation thay đổi. Một penalty tuyến tính cố định có thể làm policy ưu tiên sum-rate quá mức tại một kích thước, nhưng trở nên bảo thủ ở kích thước khác. Dual controller điều chỉnh trọng số vi phạm theo dữ liệu huấn luyện.
+
+\subsection{Cập nhật multiplier}
+Controller duy trì $\lambda_t$ và EMA $\bar V_t$. Sau warm-up, cứ 1.000 bước:
+\begin{equation}
+ \lambda_{t+1}=\operatorname{clip}
+ (\lambda_t+20(\bar V_t-10^{-3}),4,64).
+\end{equation}
+EMA dùng $\rho=0{,}95$. Controller chỉ thay đổi reward lưu vào replay; metric môi trường gốc vẫn được ghi riêng để kiểm toán.
+
+\subsection{Hạn chế}
+Đây là một heuristic constrained training chứ không phải chứng minh hội tụ primal--dual. Việc update theo violation của policy đang thăm dò có thể gây dao động. Tuy nhiên, projection và khoảng multiplier hữu hạn giảm nguy cơ reward nổ. Các log lưu $\lambda_t$, EMA và cờ update để phân tích.
+
+\section{Lựa chọn checkpoint theo ưu tiên tính khả thi}
+\subsection{Vấn đề của selection theo reward}
+Nếu chỉ chọn checkpoint có mean reward cao nhất, một policy có sum-rate cao nhưng QoS thấp vẫn có thể thắng tùy penalty. Phiên bản cuối định nghĩa ba mục tiêu validation: mean QoS fraction ít nhất 0,99, mean all-QoS ít nhất 0,95 và mean violation không vượt 0,001.
+
+\subsection{Constraint gap}
+Tại checkpoint, các gap được tính
+\begin{align}
+ g_1&=\max(0,0{,}99-\bar q_{\mathrm{frac}}),\\
+ g_2&=\max(0,0{,}95-\bar q_{\mathrm{all}}),\\
+ g_3&=\frac{\max(0,\bar V-0{,}001)}{0{,}001},\\
+ g&=g_1+g_2+g_3.
+\end{align}
+Checkpoint khả thi nếu $g=0$. Selection key được sắp xếp từ trái sang phải:
+\begin{equation}
+ (\mathbb I[g=0],\, \bar R_{\mathrm{sum}}\text{ nếu khả thi, ngược lại }-g,\,-\bar V,\,
+ \bar q_{\mathrm{all}},\bar q_{\mathrm{frac}},\bar r).
+\end{equation}
+Nhờ đó, checkpoint khả thi luôn ưu tiên hơn không khả thi; trong nhóm khả thi, sum-rate được tối đa hóa.
+
+\subsection{Không sử dụng test để chọn mô hình}
+Validation được thực hiện mỗi 5.000 bước trên 1.000 scenario. \texttt{best.pt} chỉ thay đổi khi selection key tốt hơn. Test bank chỉ được dùng sau huấn luyện và không ảnh hưởng checkpoint, penalty hay siêu tham số.
+
+\section{Giả mã thuật toán}
+\begin{algorithm}[H]
+\caption{Huấn luyện TD3 có điều khiển QoS và checkpoint selection}
+\label{alg:td3-training}
+\begin{algorithmic}[1]
+\Require Cấu hình $\mathcal C$, train bank $\mathcal B_{tr}$, validation bank $\mathcal B_{val}$, seed
+\Ensure Checkpoint $\phi^{\star}$ và manifest
+\State Khởi tạo actor $\mu_{\phi}$, critics $Q_{\psi_1},Q_{\psi_2}$ và target
+\State Khởi tạo replay buffer $\mathcal D$, dual multiplier $\lambda$, best key $\leftarrow\varnothing$
+\State Lấy $s_1$ từ $\mathcal B_{tr}$
+\For{$t=1$ đến $T$}
+  \If{$t\le T_{warm}$}
+    \State Lấy $a_t\sim\mathcal U([-1,1]^{d_a})$
+  \Else
+    \State $a_t\leftarrow\operatorname{clip}(\mu_{\phi}(s_t)+\epsilon_t,-1,1)$
+  \EndIf
+  \State Giải mã $a_t$ sang biến vật lý và tính $R_{\mathrm{sum},t},V_t,V_{2,t}$
+  \State $r_t\leftarrow R_{\mathrm{sum},t}-\lambda_tV_t-\lambda_2V_{2,t}$
+  \State Lưu $(s_t,a_t,r_t,s_{t+1},d_t)$ vào $\mathcal D$
+  \State Cập nhật EMA violation và $\lambda_t$ theo chu kỳ
+  \If{$|\mathcal D|\ge B$}
+    \State Lấy mini-batch và cập nhật hai critic theo clipped double-Q target
+    \If{$t$ thỏa policy delay}
+      \State Cập nhật actor; soft-update actor/critic target
+    \EndIf
+  \EndIf
+  \If{$t$ là bước validation}
+    \State Đánh giá xác định trên $\mathcal B_{val}$; tính selection key
+    \If{selection key tốt hơn best key}
+      \State Lưu \texttt{best.pt} và \texttt{best\_validation.json}
+    \EndIf
+  \EndIf
+\EndFor
+\State Lưu \texttt{latest.pt}, training log và manifest
+\State \Return \texttt{best.pt}
+\end{algorithmic}
+\end{algorithm}
+
+\section{Baseline học tăng cường}
+\subsection{DDPG}
+DDPG dùng cùng observation, action decoder, reward và ScenarioBank. Điểm khác là chỉ có một critic, không target smoothing và actor cập nhật mỗi bước. Do đó so sánh DDPG--TD3 có thể cô lập vai trò của clipped double Q và delayed update. Tuy nhiên, bộ kết quả cuối được kiểm toán trong repository chưa chứa đầy đủ run DDPG cho mọi $N$ và seed; luận văn không sử dụng giá trị chưa kiểm toán để đưa ra kết luận định lượng.
+
+\subsection{PPO}
+PPO dùng actor stochastic và value network, thu thập rollout dài 2.048 bước, tính generalized advantage estimation với $\lambda_{GAE}=0{,}95$. PPO phù hợp làm baseline on-policy và có tiền lệ trực tiếp trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}. Tương tự DDPG, implementation có trong framework nhưng các bảng kết quả chính chỉ dùng bundle đã hoàn tất provenance.
+
+\section{Baseline tối ưu truyền thống}
+\subsection{AO--SCA}
+AO--SCA chia action vật lý thành hai khối:
+\begin{itemize}
+  \item khối RSMA: $\bm p$ và $\bm\eta$;
+  \item khối STAR--RIS: $\bm\beta^T$, $\bm\theta^T$, $\bm\theta^R$.
+\end{itemize}
+Tại điểm $x^{(t)}$, gradient của merit được ước lượng bằng sai phân trung tâm. Surrogate cho một khối là
+\begin{equation}
+ \widetilde f(z;x^{(t)})=
+ \nabla f(x^{(t)})^T(z-x^{(t)})-
+ \frac{\rho}{2}\|z-x^{(t)}\|_2^2.
+ \label{eq:ao-sca-surrogate}
+\end{equation}
+Nghiệm surrogate là projection của $x^{(t)}+\nabla f/\rho$ lên miền khả thi. Backtracking tăng $\rho$ cho đến khi cả surrogate gain và exact merit gain không âm. Solver khởi tạo từ AnalyticalRIS, tối đa 20 outer iteration và dừng khi relative gain dưới $10^{-4}$. Đây là phương pháp cục bộ, phụ thuộc khởi tạo và không phải upper bound.
+
+\subsection{AO--Grid}
+AO--Grid là tìm kiếm coordinate codebook xác định. Mỗi tọa độ công suất/common fraction được thử trên grid hữu hạn với phần khối lượng dư được phân phối lại để giữ simplex. Beta và pha dùng codebook cố định. Mọi candidate được đánh giá, và chỉ candidate không giảm merit tốt nhất được giữ. Không có random perturbation trong AO--Grid.
+
+\subsection{AnalyticalRIS}
+AnalyticalRIS căn chỉnh một vector pha dùng chung theo kênh ghép tầng tổng hợp, đặt $\beta_n^T=\beta_n^R=0{,}5$, chia đều công suất giữa $K+1$ luồng và chia đều common rate. Vì không tối ưu tất cả biến, tên chính xác là ``analytical phase alignment with equal allocation''.
+
+\section{Ablation study}
+Bốn ablation được định nghĩa:
+\begin{itemize}
+  \item \textbf{NoRIS:} loại bỏ hoàn toàn đường gián tiếp STAR--RIS, giữ đường trực tiếp.
+  \item \textbf{FixedRIS:} đặt beta 0,5 và pha truyền/phản xạ bằng 0.
+  \item \textbf{RandomRIS:} lấy một cấu hình ngẫu nhiên tái lập cho mỗi scenario.
+  \item \textbf{Equal-Power:} giữ beta, pha và common allocation học được, nhưng ghi đè toàn bộ công suất luồng bằng nhau.
+\end{itemize}
+Ablation không phải baseline tối ưu; mục tiêu là giải thích thành phần nào tạo hiệu năng.
+
+\section{Giao thức thực nghiệm}
+\subsection{Kích thước và số seed}
+Các kích thước là $N=16,32,64,96,128$. TD3 dùng tám seed độc lập $0$--$7$ cho mỗi $N$. Mỗi seed được huấn luyện 100.000 bước và đánh giá trên cùng test bank 1.000 scenario. Trước khi ghép cặp với baseline, kết quả TD3 được trung bình theo seed cho từng scenario để tránh xem tám seed như tám scenario độc lập.
+
+\subsection{Đánh giá xác định}
+Khi test, exploration noise bằng 0. PPO nếu dùng test cũng chọn deterministic action. Mỗi scenario tạo đúng một dòng raw CSV. Điều này cho phép tái tính mọi bảng mà không cần chạy lại policy.
+
+\subsection{Latency CPU một luồng}
+Benchmark ép Torch, OpenMP và MKL dùng một thread. Sau warm-up, đo riêng:
+\begin{enumerate}[label=\arabic*)]
+  \item inference actor;
+  \item tính metric vật lý;
+  \item end-to-end solve time.
+\end{enumerate}
+Đối với solver, thời gian bao gồm toàn bộ iteration/evaluation. Benchmark không đại diện mọi phần cứng nhưng tạo môi trường so sánh kiểm soát.
+
+\subsection{Phân tích thống kê}
+Với mỗi $N$ và cặp phương pháp, sử dụng chênh lệch theo scenario. Báo cáo mean difference, 95\% CI, paired $t$-test, exact Wilcoxon, paired effect size và Holm-adjusted $p$-value. Số so sánh chính là 15 tương ứng ba baseline trên năm $N$.
+
+\section{Cấu hình thực nghiệm}
+\begin{table}[H]
+\caption{Các siêu tham số chính của TD3 phiên bản cuối}
+\label{tab:td3-hyperparameters}
+\begin{tabularx}{\textwidth}{Y C Y C}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị} & \textbf{Tham số} & \textbf{Giá trị}\\
+\midrule
+Số user $K$ & 4 & Hidden dimension & 256\\
+Train steps & 100.000 & Batch size & 256\\
+Replay size & 200.000 & Warm-up & 2.000\\
+$\gamma$ & 0,99 & $\tau$ & 0,005\\
+Actor learning rate & $10^{-4}$ & Critic learning rate & $3\times10^{-4}$\\
+Policy delay & 2 & Target noise & 0,15\\
+Noise clip & 0,30 & Gradient clip & 10\\
+Exploration start/final & 0,12 / 0,03 & Decay steps & 100.000\\
+QoS minimum & 0,5 & Noise power & 0,001\\
+Linear/quadratic penalty & 8 / 8 & Dual range & $[4,64]$\\
+Validation interval & 5.000 & Validation scenarios & 1.000\\
+Test scenarios & 1.000 & Seed count & 8\\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ các tệp \texttt{configs/v3/constrained\_action\_n*.yaml} (2026)}
+\end{table}
+
+\section{Kiểm soát chất lượng và khả năng tái lập}
+Trước full run, test suite phải pass. Các kiểm tra bao gồm tính hữu hạn, shape, action feasibility, disjoint ScenarioBank, deterministic test, selection validation-only, monotonic exact merit của AO--SCA, codebook xác định của AO--Grid và duplicate key khi merge. Sau run, audit kiểm tra coverage theo $N$, seed, scenario, checksum và file figure/table.
+
+Một nguyên tắc quan trọng là không sửa phương trình vật lý để làm một thuật toán có lợi. Mọi thay đổi physics phải làm thay đổi config/provenance và yêu cầu chạy lại tất cả phương pháp. Tương tự, không được loại baseline mạnh chỉ vì nó vượt TD3.
+
+\ThesisFigure{figures/chapter4_td3_pipeline.pdf}{Pipeline huấn luyện, lựa chọn checkpoint và đánh giá TD3}{fig:ch4-pipeline}
+\figuresource{Tác giả đề xuất (2026)}
+
+Hình~\ref{fig:ch4-pipeline} nên chia thành ba lane. Lane dữ liệu thể hiện train/validation/test ScenarioBank tách biệt. Lane huấn luyện thể hiện actor, hai critic, replay buffer, dual controller và action decoder. Lane đánh giá thể hiện validation selection, best checkpoint, deterministic test, raw CSV, thống kê và latency. Mũi tên bị chặn từ test về checkpoint cần được vẽ rõ để nhấn mạnh không có test leakage.
+
+\section{Kết luận chương}
+Chương 4 đã mô tả đầy đủ kiến trúc TD3, replay, exploration, dual QoS, checkpoint selection, baseline, ablation và giao thức thống kê. Thiết kế thực nghiệm ưu tiên tính nhất quán và khả năng truy xuất hơn việc tối ưu riêng một thuật toán. Chương 5 sử dụng bundle đã kiểm toán để phân tích kết quả và giới hạn kết luận.
