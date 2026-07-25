@@ -1,0 +1,454 @@
+[{"stream_name":"stderr","time":7.765823192,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":7.765897996,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":7.765902521,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":7.765905323,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stderr","time":8.423574906,"data":"0.00s - Debugger warning: It seems that frozen modules are being used, which may\n"}
+,{"stream_name":"stderr","time":8.4236075,"data":"0.00s - make the debugger miss breakpoints. Please pass -Xfrozen_modules=off\n"}
+,{"stream_name":"stderr","time":8.423612862,"data":"0.00s - to python to disable frozen modules.\n"}
+,{"stream_name":"stderr","time":8.423618998,"data":"0.00s - Note: Debugging will proceed. Set PYDEVD_DISABLE_FILE_VALIDATION=1 to disable this validation.\n"}
+,{"stream_name":"stdout","time":10.722705698,"data":"$ git clone --filter=blob:none --branch agent/td3-qos-scalability-v2 https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git /kaggle/working/STAR_RIS_RSMA_TD3\n"}
+,{"stream_name":"stdout","time":10.722749648,"data":"Cloning into '/kaggle/working/STAR_RIS_RSMA_TD3'...\n"}
+,{"stream_name":"stdout","time":11.769993482,"data":"$ git checkout --detach 89c39da461523a7f5911a302cb9415aeaa5824ce\n"}
+,{"stream_name":"stdout","time":11.770025412,"data":"HEAD is now at 89c39da Remove temporary latency CI diagnostic workflow\n"}
+,{"stream_name":"stdout","time":11.770033702,"data":"$ /usr/bin/python3 -m pip install -q --no-build-isolation -e /kaggle/working/STAR_RIS_RSMA_TD3 tabulate\n"}
+,{"stream_name":"stdout","time":19.805811354,"data":"Repository commit: 89c39da461523a7f5911a302cb9415aeaa5824ce\n"}
+,{"stream_name":"stdout","time":19.805847977,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":21.615815005,"data":"{\n"}
+,{"stream_name":"stdout","time":21.615845202,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":21.615850869,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_train.npz\",\n"}
+,{"stream_name":"stdout","time":21.615856285,"data":"    \"checksum\": \"b51439f19a262ead64d5beab9d5c0b59986d905a5dbf8cfec27b0e2a89d28934\",\n"}
+,{"stream_name":"stdout","time":21.615861732,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":21.61586646,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":21.615871378,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":21.615876068,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":21.615880728,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":21.615885334,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":21.615890607,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":21.61589568,"data":"    }\n"}
+,{"stream_name":"stdout","time":21.615900571,"data":"  },\n"}
+,{"stream_name":"stdout","time":21.615905108,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":21.615909773,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_validation.npz\",\n"}
+,{"stream_name":"stdout","time":21.615914747,"data":"    \"checksum\": \"ff3bb90b6af684e3b9176db101992400a2cbae2c9bc3359761ba4889db40a1d9\",\n"}
+,{"stream_name":"stdout","time":21.615933112,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":21.615936907,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":21.615940694,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":21.615944387,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":21.615948109,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":21.615951826,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":21.615955483,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":21.615959384,"data":"    }\n"}
+,{"stream_name":"stdout","time":21.615962936,"data":"  },\n"}
+,{"stream_name":"stdout","time":21.615966481,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":21.615970185,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz\",\n"}
+,{"stream_name":"stdout","time":21.615974209,"data":"    \"checksum\": \"ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7\",\n"}
+,{"stream_name":"stdout","time":21.615978229,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":21.615981888,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":21.615985613,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":21.615989272,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":21.615992911,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":21.615996525,"data":"      \"n_ris\": 16,\n"}
+,{"stream_name":"stdout","time":21.616000189,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":21.616004041,"data":"    }\n"}
+,{"stream_name":"stdout","time":21.616007566,"data":"  }\n"}
+,{"stream_name":"stdout","time":21.616011049,"data":"}\n"}
+,{"stream_name":"stdout","time":21.616016099,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":24.354799079,"data":"{\n"}
+,{"stream_name":"stdout","time":24.354828351,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":24.354832267,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_train.npz\",\n"}
+,{"stream_name":"stdout","time":24.354836146,"data":"    \"checksum\": \"644567748ca3bf6d519ae7b74b7812aa5a57f33b77786c27972ac7f78ac30ea5\",\n"}
+,{"stream_name":"stdout","time":24.354840139,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":24.354843577,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":24.354847097,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":24.354850458,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":24.354853781,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":24.354857119,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":24.354860554,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":24.354864119,"data":"    }\n"}
+,{"stream_name":"stdout","time":24.354867406,"data":"  },\n"}
+,{"stream_name":"stdout","time":24.354870602,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":24.354874011,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_validation.npz\",\n"}
+,{"stream_name":"stdout","time":24.354890706,"data":"    \"checksum\": \"5f273747e249ffb92ad14c707fb44da44b02d2e59d07ebc5e051d1d2bba58733\",\n"}
+,{"stream_name":"stdout","time":24.35489441,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":24.354897719,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":24.354901121,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":24.354904451,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":24.354907851,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":24.354911169,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":24.354914569,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":24.354918103,"data":"    }\n"}
+,{"stream_name":"stdout","time":24.354938056,"data":"  },\n"}
+,{"stream_name":"stdout","time":24.354941449000002,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":24.354944983,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz\",\n"}
+,{"stream_name":"stdout","time":24.354948854,"data":"    \"checksum\": \"6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef\",\n"}
+,{"stream_name":"stdout","time":24.35495275,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":24.354956319,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":24.354964672,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":24.3549682,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":24.354971769,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":24.354975388,"data":"      \"n_ris\": 32,\n"}
+,{"stream_name":"stdout","time":24.354978981,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":24.354982739,"data":"    }\n"}
+,{"stream_name":"stdout","time":24.354986196,"data":"  }\n"}
+,{"stream_name":"stdout","time":24.354989618,"data":"}\n"}
+,{"stream_name":"stdout","time":24.354993627,"data":"$ /usr/bin/python3 scripts/create_scenario_banks.py --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --output-dir /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks --train-count 10000 --validation-count 1000 --test-count 1000\n"}
+,{"stream_name":"stdout","time":28.831183609,"data":"{\n"}
+,{"stream_name":"stdout","time":28.831221827,"data":"  \"train\": {\n"}
+,{"stream_name":"stdout","time":28.831229705,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_train.npz\",\n"}
+,{"stream_name":"stdout","time":28.831235678,"data":"    \"checksum\": \"f1bd39b659fe342179a1822520d8548fc7ad31818fdf6454e9dd6f6c55ea035d\",\n"}
+,{"stream_name":"stdout","time":28.831242222,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.831247792,"data":"      \"split\": \"train\",\n"}
+,{"stream_name":"stdout","time":28.831253142,"data":"      \"seed\": 11001,\n"}
+,{"stream_name":"stdout","time":28.831257835,"data":"      \"count\": 10000,\n"}
+,{"stream_name":"stdout","time":28.831262439,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.831267223,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":28.831277391,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.831280985,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.831284055,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.831287199,"data":"  \"validation\": {\n"}
+,{"stream_name":"stdout","time":28.831301335,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_validation.npz\",\n"}
+,{"stream_name":"stdout","time":28.831304125,"data":"    \"checksum\": \"c2d7d0f7f13235ab59dc57de1d740fafa6478103732d384f976eb691a92ba1ac\",\n"}
+,{"stream_name":"stdout","time":28.831306695,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.831309023,"data":"      \"split\": \"validation\",\n"}
+,{"stream_name":"stdout","time":28.831311476,"data":"      \"seed\": 22001,\n"}
+,{"stream_name":"stdout","time":28.831313783,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":28.831317022,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.831339397,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":28.831343819,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.831348404,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.831352435,"data":"  },\n"}
+,{"stream_name":"stdout","time":28.831355922,"data":"  \"test\": {\n"}
+,{"stream_name":"stdout","time":28.831359533,"data":"    \"path\": \"/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz\",\n"}
+,{"stream_name":"stdout","time":28.831363957,"data":"    \"checksum\": \"ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae\",\n"}
+,{"stream_name":"stdout","time":28.831367852,"data":"    \"metadata\": {\n"}
+,{"stream_name":"stdout","time":28.831371355,"data":"      \"split\": \"test\",\n"}
+,{"stream_name":"stdout","time":28.831374743,"data":"      \"seed\": 33001,\n"}
+,{"stream_name":"stdout","time":28.831382961,"data":"      \"count\": 1000,\n"}
+,{"stream_name":"stdout","time":28.831386152,"data":"      \"n_users\": 4,\n"}
+,{"stream_name":"stdout","time":28.831388473,"data":"      \"n_ris\": 64,\n"}
+,{"stream_name":"stdout","time":28.831390785,"data":"      \"generator\": \"star_ris_rsma.physics.generate_channel/v1\"\n"}
+,{"stream_name":"stdout","time":28.831393209,"data":"    }\n"}
+,{"stream_name":"stdout","time":28.83139547,"data":"  }\n"}
+,{"stream_name":"stdout","time":28.831397803,"data":"}\n"}
+,{"stream_name":"stdout","time":29.008736413,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_0/train\n"}
+,{"stream_name":"stdout","time":29.008769451,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_1/train\n"}
+,{"stream_name":"stdout","time":968.786838017,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_0/test.csv\n"}
+,{"stream_name":"stdout","time":975.106758114,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_0 --seed 0\n"}
+,{"stream_name":"stdout","time":975.656009928,"data":"{\n"}
+,{"stream_name":"stdout","time":975.656045692,"data":"  \"mean_all_qos\": 0.966,\n"}
+,{"stream_name":"stdout","time":975.656052668,"data":"  \"mean_qos_fraction\": 0.98625,\n"}
+,{"stream_name":"stdout","time":975.656057863,"data":"  \"mean_sum_rate\": 9.798434884040079,\n"}
+,{"stream_name":"stdout","time":975.656076872,"data":"  \"mean_violation\": 0.012782024239561266,\n"}
+,{"stream_name":"stdout","time":975.656081003,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":975.656084579,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":975.656087976,"data":"  \"seed\": 0\n"}
+,{"stream_name":"stdout","time":975.656091461,"data":"}\n"}
+,{"stream_name":"stdout","time":975.656094982,"data":"Finished: {'n_ris': 16, 'seed': 0, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":975.656098424,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_2/train\n"}
+,{"stream_name":"stdout","time":977.330085936,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_1/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_1/test.csv\n"}
+,{"stream_name":"stdout","time":983.344824105,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_1 --seed 1\n"}
+,{"stream_name":"stdout","time":983.943964255,"data":"{\n"}
+,{"stream_name":"stdout","time":983.944002618,"data":"  \"mean_all_qos\": 0.973,\n"}
+,{"stream_name":"stdout","time":983.944009623,"data":"  \"mean_qos_fraction\": 0.98275,\n"}
+,{"stream_name":"stdout","time":983.944020847,"data":"  \"mean_sum_rate\": 9.476760140908423,\n"}
+,{"stream_name":"stdout","time":983.944027257,"data":"  \"mean_violation\": 0.012281848147299584,\n"}
+,{"stream_name":"stdout","time":983.944033345,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":983.944039514,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":983.944045518,"data":"  \"seed\": 1\n"}
+,{"stream_name":"stdout","time":983.944052375,"data":"}\n"}
+,{"stream_name":"stdout","time":983.944058042,"data":"Finished: {'n_ris': 16, 'seed': 1, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":983.944064054,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_3/train\n"}
+,{"stream_name":"stdout","time":1922.208212517,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_3/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_3/test.csv\n"}
+,{"stream_name":"stdout","time":1928.280356711,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_3 --seed 3\n"}
+,{"stream_name":"stdout","time":1928.85528593,"data":"{\n"}
+,{"stream_name":"stdout","time":1928.855322915,"data":"  \"mean_all_qos\": 0.975,\n"}
+,{"stream_name":"stdout","time":1928.855328948,"data":"  \"mean_qos_fraction\": 0.9895,\n"}
+,{"stream_name":"stdout","time":1928.855333881,"data":"  \"mean_sum_rate\": 11.195558119760758,\n"}
+,{"stream_name":"stdout","time":1928.855338668,"data":"  \"mean_violation\": 0.012110161137283299,\n"}
+,{"stream_name":"stdout","time":1928.855343515,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":1928.855348369,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":1928.855366553,"data":"  \"seed\": 3\n"}
+,{"stream_name":"stdout","time":1928.855370376,"data":"}\n"}
+,{"stream_name":"stdout","time":1928.85537385,"data":"Finished: {'n_ris': 16, 'seed': 3, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":1928.855377699,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_4/train\n"}
+,{"stream_name":"stdout","time":1942.111512713,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_2/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_2/test.csv\n"}
+,{"stream_name":"stdout","time":1948.323816971,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_2 --seed 2\n"}
+,{"stream_name":"stdout","time":1948.88105127,"data":"{\n"}
+,{"stream_name":"stdout","time":1948.881086861,"data":"  \"mean_all_qos\": 0.994,\n"}
+,{"stream_name":"stdout","time":1948.881093298,"data":"  \"mean_qos_fraction\": 0.9955,\n"}
+,{"stream_name":"stdout","time":1948.881098338,"data":"  \"mean_sum_rate\": 11.459611602759193,\n"}
+,{"stream_name":"stdout","time":1948.881102929,"data":"  \"mean_violation\": 0.003147575462882974,\n"}
+,{"stream_name":"stdout","time":1948.881107591,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":1948.881112398,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":1948.881116851,"data":"  \"seed\": 2\n"}
+,{"stream_name":"stdout","time":1948.881121182,"data":"}\n"}
+,{"stream_name":"stdout","time":1948.881125305,"data":"Finished: {'n_ris': 16, 'seed': 2, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":1948.881130051,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_5/train\n"}
+,{"stream_name":"stdout","time":2853.580958701,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_4/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_4/test.csv\n"}
+,{"stream_name":"stdout","time":2859.600262002,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_4 --seed 4\n"}
+,{"stream_name":"stdout","time":2860.187154112,"data":"{\n"}
+,{"stream_name":"stdout","time":2860.1872475,"data":"  \"mean_all_qos\": 0.961,\n"}
+,{"stream_name":"stdout","time":2860.187256892,"data":"  \"mean_qos_fraction\": 0.9775,\n"}
+,{"stream_name":"stdout","time":2860.187262466,"data":"  \"mean_sum_rate\": 11.507020845068658,\n"}
+,{"stream_name":"stdout","time":2860.187267838,"data":"  \"mean_violation\": 0.009675539090128318,\n"}
+,{"stream_name":"stdout","time":2860.187272288,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":2860.187277185,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":2860.187281586,"data":"  \"seed\": 4\n"}
+,{"stream_name":"stdout","time":2860.187286046,"data":"}\n"}
+,{"stream_name":"stdout","time":2860.18729088,"data":"Finished: {'n_ris': 16, 'seed': 4, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":2860.187318643,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_6/train\n"}
+,{"stream_name":"stdout","time":2882.448626404,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_5/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_5/test.csv\n"}
+,{"stream_name":"stdout","time":2888.389769705,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_5 --seed 5\n"}
+,{"stream_name":"stdout","time":2888.943749375,"data":"{\n"}
+,{"stream_name":"stdout","time":2888.943829515,"data":"  \"mean_all_qos\": 0.994,\n"}
+,{"stream_name":"stdout","time":2888.943836816,"data":"  \"mean_qos_fraction\": 0.996,\n"}
+,{"stream_name":"stdout","time":2888.943842025,"data":"  \"mean_sum_rate\": 11.499016798011809,\n"}
+,{"stream_name":"stdout","time":2888.943847093,"data":"  \"mean_violation\": 0.0022009036188753678,\n"}
+,{"stream_name":"stdout","time":2888.943852168,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":2888.943857488,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":2888.943862493,"data":"  \"seed\": 5\n"}
+,{"stream_name":"stdout","time":2888.943867248,"data":"}\n"}
+,{"stream_name":"stdout","time":2888.943872167,"data":"Finished: {'n_ris': 16, 'seed': 5, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":2888.943877473,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_7/train\n"}
+,{"stream_name":"stdout","time":3791.915985314,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_6/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_6/test.csv\n"}
+,{"stream_name":"stdout","time":3797.795872487,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_6 --seed 6\n"}
+,{"stream_name":"stdout","time":3798.388501505,"data":"{\n"}
+,{"stream_name":"stdout","time":3798.388540368,"data":"  \"mean_all_qos\": 0.978,\n"}
+,{"stream_name":"stdout","time":3798.388547933,"data":"  \"mean_qos_fraction\": 0.989,\n"}
+,{"stream_name":"stdout","time":3798.388553444,"data":"  \"mean_sum_rate\": 9.641441962935788,\n"}
+,{"stream_name":"stdout","time":3798.388558498,"data":"  \"mean_violation\": 0.010188818781989323,\n"}
+,{"stream_name":"stdout","time":3798.388563568,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":3798.388568904,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":3798.388573808,"data":"  \"seed\": 6\n"}
+,{"stream_name":"stdout","time":3798.388578671,"data":"}\n"}
+,{"stream_name":"stdout","time":3798.388583518,"data":"Finished: {'n_ris': 16, 'seed': 6, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":3798.388588826,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_0/train\n"}
+,{"stream_name":"stdout","time":3834.541531044,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n16.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_7/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N16_test.npz --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_7/test.csv\n"}
+,{"stream_name":"stdout","time":3840.606801464,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N16/seed_7 --seed 7\n"}
+,{"stream_name":"stdout","time":3841.206232986,"data":"{\n"}
+,{"stream_name":"stdout","time":3841.206261991,"data":"  \"mean_all_qos\": 0.997,\n"}
+,{"stream_name":"stdout","time":3841.206268275,"data":"  \"mean_qos_fraction\": 0.9975,\n"}
+,{"stream_name":"stdout","time":3841.206273397,"data":"  \"mean_sum_rate\": 11.551342828759388,\n"}
+,{"stream_name":"stdout","time":3841.206278334,"data":"  \"mean_violation\": 0.003414715775404587,\n"}
+,{"stream_name":"stdout","time":3841.206283087,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":3841.206287909,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":3841.206303612,"data":"  \"seed\": 7\n"}
+,{"stream_name":"stdout","time":3841.206308833,"data":"}\n"}
+,{"stream_name":"stdout","time":3841.206313644,"data":"Finished: {'n_ris': 16, 'seed': 7, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":3841.206318607,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_1/train\n"}
+,{"stream_name":"stdout","time":4733.470013834,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_0/test.csv\n"}
+,{"stream_name":"stdout","time":4739.554681918,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_0 --seed 0\n"}
+,{"stream_name":"stdout","time":4740.12378693,"data":"{\n"}
+,{"stream_name":"stdout","time":4740.123830103,"data":"  \"mean_all_qos\": 0.996,\n"}
+,{"stream_name":"stdout","time":4740.123837574,"data":"  \"mean_qos_fraction\": 0.99675,\n"}
+,{"stream_name":"stdout","time":4740.123843259,"data":"  \"mean_sum_rate\": 10.216309601190572,\n"}
+,{"stream_name":"stdout","time":4740.123848907,"data":"  \"mean_violation\": 0.0037296681835726105,\n"}
+,{"stream_name":"stdout","time":4740.123854896,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":4740.123861021,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":4740.123866445,"data":"  \"seed\": 0\n"}
+,{"stream_name":"stdout","time":4740.12387257,"data":"}\n"}
+,{"stream_name":"stdout","time":4740.123877735,"data":"Finished: {'n_ris': 32, 'seed': 0, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":4740.123883258,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_2/train\n"}
+,{"stream_name":"stdout","time":4774.819940219,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_1/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_1/test.csv\n"}
+,{"stream_name":"stdout","time":4780.796231375,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_1 --seed 1\n"}
+,{"stream_name":"stdout","time":4781.436625194,"data":"{\n"}
+,{"stream_name":"stdout","time":4781.43668724,"data":"  \"mean_all_qos\": 0.994,\n"}
+,{"stream_name":"stdout","time":4781.436699024,"data":"  \"mean_qos_fraction\": 0.99625,\n"}
+,{"stream_name":"stdout","time":4781.43670513,"data":"  \"mean_sum_rate\": 10.289598418260626,\n"}
+,{"stream_name":"stdout","time":4781.436710456,"data":"  \"mean_violation\": 0.0028678062660149124,\n"}
+,{"stream_name":"stdout","time":4781.436715672,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":4781.436720744,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":4781.436725716,"data":"  \"seed\": 1\n"}
+,{"stream_name":"stdout","time":4781.436730561,"data":"}\n"}
+,{"stream_name":"stdout","time":4781.436735353,"data":"Finished: {'n_ris': 32, 'seed': 1, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":4781.436740909,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_3/train\n"}
+,{"stream_name":"stdout","time":5689.841860909,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_2/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_2/test.csv\n"}
+,{"stream_name":"stdout","time":5696.13710958,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_2 --seed 2\n"}
+,{"stream_name":"stdout","time":5696.739707785,"data":"{\n"}
+,{"stream_name":"stdout","time":5696.739768917,"data":"  \"mean_all_qos\": 0.998,\n"}
+,{"stream_name":"stdout","time":5696.739778177,"data":"  \"mean_qos_fraction\": 0.9995,\n"}
+,{"stream_name":"stdout","time":5696.739783703,"data":"  \"mean_sum_rate\": 10.286575863447906,\n"}
+,{"stream_name":"stdout","time":5696.739788966,"data":"  \"mean_violation\": 0.001,\n"}
+,{"stream_name":"stdout","time":5696.739794368,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":5696.739799594,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":5696.739804489,"data":"  \"seed\": 2\n"}
+,{"stream_name":"stdout","time":5696.739809702,"data":"}\n"}
+,{"stream_name":"stdout","time":5696.739814622,"data":"Finished: {'n_ris': 32, 'seed': 2, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":5696.739820231,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_4/train\n"}
+,{"stream_name":"stdout","time":5730.112062574,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_3/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_3/test.csv\n"}
+,{"stream_name":"stdout","time":5736.236322235,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_3 --seed 3\n"}
+,{"stream_name":"stdout","time":5736.815812808,"data":"{\n"}
+,{"stream_name":"stdout","time":5736.815855866,"data":"  \"mean_all_qos\": 0.996,\n"}
+,{"stream_name":"stdout","time":5736.815861788,"data":"  \"mean_qos_fraction\": 0.99675,\n"}
+,{"stream_name":"stdout","time":5736.815882667,"data":"  \"mean_sum_rate\": 10.244292226363031,\n"}
+,{"stream_name":"stdout","time":5736.815886509,"data":"  \"mean_violation\": 0.00253474061185466,\n"}
+,{"stream_name":"stdout","time":5736.815891003,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":5736.815895034,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":5736.815898907,"data":"  \"seed\": 3\n"}
+,{"stream_name":"stdout","time":5736.815902695,"data":"}\n"}
+,{"stream_name":"stdout","time":5736.815906376,"data":"Finished: {'n_ris': 32, 'seed': 3, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":5736.815910301,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_5/train\n"}
+,{"stream_name":"stdout","time":6641.445938151,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_4/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_4/test.csv\n"}
+,{"stream_name":"stdout","time":6647.893630061,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_4 --seed 4\n"}
+,{"stream_name":"stdout","time":6648.456002258,"data":"{\n"}
+,{"stream_name":"stdout","time":6648.456090021,"data":"  \"mean_all_qos\": 0.995,\n"}
+,{"stream_name":"stdout","time":6648.456098604,"data":"  \"mean_qos_fraction\": 0.99825,\n"}
+,{"stream_name":"stdout","time":6648.456104892,"data":"  \"mean_sum_rate\": 10.588840145314524,\n"}
+,{"stream_name":"stdout","time":6648.456111005,"data":"  \"mean_violation\": 0.0015636701791137439,\n"}
+,{"stream_name":"stdout","time":6648.456117066,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":6648.456123345,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":6648.456129308,"data":"  \"seed\": 4\n"}
+,{"stream_name":"stdout","time":6648.456145423,"data":"}\n"}
+,{"stream_name":"stdout","time":6648.456151312,"data":"Finished: {'n_ris': 32, 'seed': 4, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":6648.456157403,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_6/train\n"}
+,{"stream_name":"stdout","time":6683.747206463,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_5/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_5/test.csv\n"}
+,{"stream_name":"stdout","time":6689.701762253,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_5 --seed 5\n"}
+,{"stream_name":"stdout","time":6690.250141893,"data":"{\n"}
+,{"stream_name":"stdout","time":6690.250210949,"data":"  \"mean_all_qos\": 0.997,\n"}
+,{"stream_name":"stdout","time":6690.250219238,"data":"  \"mean_qos_fraction\": 0.9975,\n"}
+,{"stream_name":"stdout","time":6690.25022438,"data":"  \"mean_sum_rate\": 10.343167426109787,\n"}
+,{"stream_name":"stdout","time":6690.250242797,"data":"  \"mean_violation\": 0.0035611090538116585,\n"}
+,{"stream_name":"stdout","time":6690.25024672,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":6690.25025046,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":6690.25025395,"data":"  \"seed\": 5\n"}
+,{"stream_name":"stdout","time":6690.250257576,"data":"}\n"}
+,{"stream_name":"stdout","time":6690.250279423,"data":"Finished: {'n_ris': 32, 'seed': 5, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":6690.250284725,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_7/train\n"}
+,{"stream_name":"stdout","time":7577.34884878,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_6/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_6/test.csv\n"}
+,{"stream_name":"stdout","time":7583.705845643,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_6 --seed 6\n"}
+,{"stream_name":"stdout","time":7584.242325758,"data":"{\n"}
+,{"stream_name":"stdout","time":7584.242467442,"data":"  \"mean_all_qos\": 0.986,\n"}
+,{"stream_name":"stdout","time":7584.242477779,"data":"  \"mean_qos_fraction\": 0.98975,\n"}
+,{"stream_name":"stdout","time":7584.242482769,"data":"  \"mean_sum_rate\": 12.309157165268545,\n"}
+,{"stream_name":"stdout","time":7584.242487244,"data":"  \"mean_violation\": 0.0024317463584458765,\n"}
+,{"stream_name":"stdout","time":7584.242491719,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":7584.24249652,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":7584.242500954,"data":"  \"seed\": 6\n"}
+,{"stream_name":"stdout","time":7584.242505324,"data":"}\n"}
+,{"stream_name":"stdout","time":7584.242509585,"data":"Finished: {'n_ris': 32, 'seed': 6, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":7584.242514354,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_0/train\n"}
+,{"stream_name":"stdout","time":7626.137429621,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n32.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_7/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N32_test.npz --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_7/test.csv\n"}
+,{"stream_name":"stdout","time":7632.565862719,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N32/seed_7 --seed 7\n"}
+,{"stream_name":"stdout","time":7633.118012599,"data":"{\n"}
+,{"stream_name":"stdout","time":7633.118050014,"data":"  \"mean_all_qos\": 0.993,\n"}
+,{"stream_name":"stdout","time":7633.118057239,"data":"  \"mean_qos_fraction\": 0.99475,\n"}
+,{"stream_name":"stdout","time":7633.118063347,"data":"  \"mean_sum_rate\": 11.450000000612397,\n"}
+,{"stream_name":"stdout","time":7633.118069102,"data":"  \"mean_violation\": 0.0022629937556377495,\n"}
+,{"stream_name":"stdout","time":7633.118074966,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":7633.118094306,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":7633.118098572,"data":"  \"seed\": 7\n"}
+,{"stream_name":"stdout","time":7633.118102791,"data":"}\n"}
+,{"stream_name":"stdout","time":7633.118106587,"data":"Finished: {'n_ris': 32, 'seed': 7, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":7633.118110903,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_1/train\n"}
+,{"stream_name":"stdout","time":8566.985747345,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_0/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 0 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_0/test.csv\n"}
+,{"stream_name":"stdout","time":8573.182541692,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_0 --seed 0\n"}
+,{"stream_name":"stdout","time":8573.73173499,"data":"{\n"}
+,{"stream_name":"stdout","time":8573.731798275,"data":"  \"mean_all_qos\": 1.0,\n"}
+,{"stream_name":"stdout","time":8573.731805944,"data":"  \"mean_qos_fraction\": 1.0,\n"}
+,{"stream_name":"stdout","time":8573.731811267,"data":"  \"mean_sum_rate\": 11.326487962864444,\n"}
+,{"stream_name":"stdout","time":8573.731816829,"data":"  \"mean_violation\": 0.0,\n"}
+,{"stream_name":"stdout","time":8573.731822341,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":8573.73182791,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":8573.731832159,"data":"  \"seed\": 0\n"}
+,{"stream_name":"stdout","time":8573.731836976,"data":"}\n"}
+,{"stream_name":"stdout","time":8573.731841195,"data":"Finished: {'n_ris': 64, 'seed': 0, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":8573.731845699,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_2/train\n"}
+,{"stream_name":"stdout","time":8613.738800712,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_1/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 1 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_1/test.csv\n"}
+,{"stream_name":"stdout","time":8620.136818984,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_1 --seed 1\n"}
+,{"stream_name":"stdout","time":8620.720750335,"data":"{\n"}
+,{"stream_name":"stdout","time":8620.720788998,"data":"  \"mean_all_qos\": 0.988,\n"}
+,{"stream_name":"stdout","time":8620.720795816,"data":"  \"mean_qos_fraction\": 0.99125,\n"}
+,{"stream_name":"stdout","time":8620.72080149,"data":"  \"mean_sum_rate\": 11.26713999422646,\n"}
+,{"stream_name":"stdout","time":8620.720808641,"data":"  \"mean_violation\": 0.009164120029487577,\n"}
+,{"stream_name":"stdout","time":8620.720818035,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":8620.720821781,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":8620.720825429,"data":"  \"seed\": 1\n"}
+,{"stream_name":"stdout","time":8620.720828965,"data":"}\n"}
+,{"stream_name":"stdout","time":8620.720832476,"data":"Finished: {'n_ris': 64, 'seed': 1, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":8620.72085005,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_3/train\n"}
+,{"stream_name":"stdout","time":9539.586020276,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_2/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 2 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_2/test.csv\n"}
+,{"stream_name":"stdout","time":9545.56075412,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_2 --seed 2\n"}
+,{"stream_name":"stdout","time":9546.140318635,"data":"{\n"}
+,{"stream_name":"stdout","time":9546.140355201,"data":"  \"mean_all_qos\": 0.997,\n"}
+,{"stream_name":"stdout","time":9546.140362112,"data":"  \"mean_qos_fraction\": 0.99775,\n"}
+,{"stream_name":"stdout","time":9546.140367281,"data":"  \"mean_sum_rate\": 11.273436492334744,\n"}
+,{"stream_name":"stdout","time":9546.140372252,"data":"  \"mean_violation\": 0.0013744784124434008,\n"}
+,{"stream_name":"stdout","time":9546.14037695,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":9546.140381874,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":9546.140386545,"data":"  \"seed\": 2\n"}
+,{"stream_name":"stdout","time":9546.14039114,"data":"}\n"}
+,{"stream_name":"stdout","time":9546.140396187,"data":"Finished: {'n_ris': 64, 'seed': 2, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":9546.14040127,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_4/train\n"}
+,{"stream_name":"stdout","time":9595.036818764,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_3/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 3 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_3/test.csv\n"}
+,{"stream_name":"stdout","time":9601.453981507,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_3 --seed 3\n"}
+,{"stream_name":"stdout","time":9602.065969576,"data":"{\n"}
+,{"stream_name":"stdout","time":9602.066006641,"data":"  \"mean_all_qos\": 1.0,\n"}
+,{"stream_name":"stdout","time":9602.066012893,"data":"  \"mean_qos_fraction\": 1.0,\n"}
+,{"stream_name":"stdout","time":9602.06601814,"data":"  \"mean_sum_rate\": 11.575187811991778,\n"}
+,{"stream_name":"stdout","time":9602.066023591,"data":"  \"mean_violation\": 0.0,\n"}
+,{"stream_name":"stdout","time":9602.066028799,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":9602.066034278,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":9602.066039302,"data":"  \"seed\": 3\n"}
+,{"stream_name":"stdout","time":9602.066044562,"data":"}\n"}
+,{"stream_name":"stdout","time":9602.066049624,"data":"Finished: {'n_ris': 64, 'seed': 3, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":9602.066054992,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_5/train\n"}
+,{"stream_name":"stdout","time":10522.967026568,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_4/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 4 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_4/test.csv\n"}
+,{"stream_name":"stdout","time":10529.053738582,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_4 --seed 4\n"}
+,{"stream_name":"stdout","time":10529.635837468,"data":"{\n"}
+,{"stream_name":"stdout","time":10529.63589129,"data":"  \"mean_all_qos\": 0.999,\n"}
+,{"stream_name":"stdout","time":10529.635897432,"data":"  \"mean_qos_fraction\": 0.99925,\n"}
+,{"stream_name":"stdout","time":10529.635902366,"data":"  \"mean_sum_rate\": 11.626751555130669,\n"}
+,{"stream_name":"stdout","time":10529.63590716,"data":"  \"mean_violation\": 0.000161511170133608,\n"}
+,{"stream_name":"stdout","time":10529.635912135,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":10529.635917183,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":10529.635921875,"data":"  \"seed\": 4\n"}
+,{"stream_name":"stdout","time":10529.635926523,"data":"}\n"}
+,{"stream_name":"stdout","time":10529.635930995,"data":"Finished: {'n_ris': 64, 'seed': 4, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":10529.635935855,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_6/train\n"}
+,{"stream_name":"stdout","time":10579.579324587,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_5/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 5 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_5/test.csv\n"}
+,{"stream_name":"stdout","time":10585.814709691,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_5 --seed 5\n"}
+,{"stream_name":"stdout","time":10586.401963132,"data":"{\n"}
+,{"stream_name":"stdout","time":10586.402024667,"data":"  \"mean_all_qos\": 0.999,\n"}
+,{"stream_name":"stdout","time":10586.402032671,"data":"  \"mean_qos_fraction\": 0.99925,\n"}
+,{"stream_name":"stdout","time":10586.402037935,"data":"  \"mean_sum_rate\": 12.68871132195472,\n"}
+,{"stream_name":"stdout","time":10586.402042755,"data":"  \"mean_violation\": 5.8690292695390994e-06,\n"}
+,{"stream_name":"stdout","time":10586.402047763,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":10586.402052951,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":10586.402057756,"data":"  \"seed\": 5\n"}
+,{"stream_name":"stdout","time":10586.402062713,"data":"}\n"}
+,{"stream_name":"stdout","time":10586.402067254,"data":"Finished: {'n_ris': 64, 'seed': 5, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":10586.402072365,"data":"$ /usr/bin/python3 scripts/run_train_v2.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_7/train\n"}
+,{"stream_name":"stdout","time":11505.994862811,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_6/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 6 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_6/test.csv\n"}
+,{"stream_name":"stdout","time":11512.274572633,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_6 --seed 6\n"}
+,{"stream_name":"stdout","time":11512.886728774,"data":"{\n"}
+,{"stream_name":"stdout","time":11512.886766627,"data":"  \"mean_all_qos\": 0.991,\n"}
+,{"stream_name":"stdout","time":11512.886774334,"data":"  \"mean_qos_fraction\": 0.99325,\n"}
+,{"stream_name":"stdout","time":11512.886780012,"data":"  \"mean_sum_rate\": 12.524428036801787,\n"}
+,{"stream_name":"stdout","time":11512.886785494,"data":"  \"mean_violation\": 0.002266767694533801,\n"}
+,{"stream_name":"stdout","time":11512.886790774,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":11512.886796784,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":11512.886802242,"data":"  \"seed\": 6\n"}
+,{"stream_name":"stdout","time":11512.886807464,"data":"}\n"}
+,{"stream_name":"stdout","time":11512.886812748,"data":"Finished: {'n_ris': 64, 'seed': 6, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":11572.777191409,"data":"$ /usr/bin/python3 scripts/run_evaluate.py --method td3 --config /kaggle/working/STAR_RIS_RSMA_TD3/configs/v3/constrained_action_n64.yaml --checkpoint /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_7/train/best.pt --bank /kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N64_test.npz --seed 7 --output /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_7/test.csv\n"}
+,{"stream_name":"stdout","time":11578.363833066,"data":"$ /usr/bin/python3 scripts/audit_pilot_output.py --root /kaggle/working/thesis_td3_low_n/final_td3_v3/N64/seed_7 --seed 7\n"}
+,{"stream_name":"stdout","time":11578.811933987,"data":"{\n"}
+,{"stream_name":"stdout","time":11578.811960168,"data":"  \"mean_all_qos\": 0.981,\n"}
+,{"stream_name":"stdout","time":11578.811982708,"data":"  \"mean_qos_fraction\": 0.99525,\n"}
+,{"stream_name":"stdout","time":11578.811988667,"data":"  \"mean_sum_rate\": 11.337382915607213,\n"}
+,{"stream_name":"stdout","time":11578.811993988,"data":"  \"mean_violation\": 0.008585459042731754,\n"}
+,{"stream_name":"stdout","time":11578.811998677,"data":"  \"rows\": 1000,\n"}
+,{"stream_name":"stdout","time":11578.812003222,"data":"  \"scenarios\": 1000,\n"}
+,{"stream_name":"stdout","time":11578.812008019,"data":"  \"seed\": 7\n"}
+,{"stream_name":"stdout","time":11578.812018643,"data":"}\n"}
+,{"stream_name":"stdout","time":11578.812022608,"data":"Finished: {'n_ris': 64, 'seed': 7, 'status': 'completed'}\n"}
+,{"stream_name":"stdout","time":11584.823455509,"data":"Stage output: /kaggle/working/thesis_td3_low_n\n"}
+,{"stream_name":"stdout","time":11584.823492902,"data":"Files: 257\n"}
+,{"stream_name":"stderr","time":11588.015953021,"data":"/usr/local/lib/python3.12/dist-packages/mistune.py:435: SyntaxWarning: invalid escape sequence '\\|'\n"}
+,{"stream_name":"stderr","time":11588.015983015,"data":"  cells[i][c] = re.sub('\\\\\\\\\\|', '|', cell)\n"}
+,{"stream_name":"stderr","time":11588.195272287,"data":"/usr/local/lib/python3.12/dist-packages/nbconvert/filters/filter_links.py:36: SyntaxWarning: invalid escape sequence '\\_'\n"}
+,{"stream_name":"stderr","time":11588.195305138,"data":"  text = re.sub(r'_', '\\_', text) # Escape underscores in display text\n"}
+,{"stream_name":"stderr","time":11588.857756727,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to notebook\n"}
+,{"stream_name":"stderr","time":11589.192050108,"data":"[NbConvertApp] Writing 64539 bytes to __notebook__.ipynb\n"}
+,{"stream_name":"stderr","time":11591.71580338,"data":"[NbConvertApp] Converting notebook __notebook__.ipynb to html\n"}
+,{"stream_name":"stderr","time":11592.622349349,"data":"[NbConvertApp] Writing 378557 bytes to __results__.html\n"}
+]

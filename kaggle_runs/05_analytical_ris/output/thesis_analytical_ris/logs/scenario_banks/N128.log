@@ -1,0 +1,38 @@
+{
+  "train": {
+    "path": "/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_train.npz",
+    "checksum": "37029da7537afe983139565a6a4fc99537f419704853fd60bb42a7a99111bea1",
+    "metadata": {
+      "split": "train",
+      "seed": 11001,
+      "count": 1,
+      "n_users": 4,
+      "n_ris": 128,
+      "generator": "star_ris_rsma.physics.generate_channel/v1"
+    }
+  },
+  "validation": {
+    "path": "/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_validation.npz",
+    "checksum": "fe4f6c0a84c636795828d513ba52a9eb1ad89041e3f69b7c23b01377e8ffd096",
+    "metadata": {
+      "split": "validation",
+      "seed": 22001,
+      "count": 1,
+      "n_users": 4,
+      "n_ris": 128,
+      "generator": "star_ris_rsma.physics.generate_channel/v1"
+    }
+  },
+  "test": {
+    "path": "/kaggle/working/STAR_RIS_RSMA_TD3/artifacts/scenario_banks/N128_test.npz",
+    "checksum": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+    "metadata": {
+      "split": "test",
+      "seed": 33001,
+      "count": 1000,
+      "n_users": 4,
+      "n_ris": 128,
+      "generator": "star_ris_rsma.physics.generate_channel/v1"
+    }
+  }
+}

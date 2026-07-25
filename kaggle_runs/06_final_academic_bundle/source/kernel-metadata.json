@@ -1,0 +1,21 @@
+{
+  "id": "duythanhb1909984/star-ris-final-academic-bundle",
+  "id_no": 128473060,
+  "title": "STAR RIS Final Academic Bundle",
+  "code_file": "star-ris-final-academic-bundle.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": [],
+  "dataset_sources": [
+    "duythanhb1909984/star-ris-stage-outputs-final-v2"
+  ],
+  "kernel_sources": [],
+  "competition_sources": [],
+  "model_sources": [],
+  "docker_image": "gcr.io/kaggle-private-byod/python@sha256:37c64f7dd9c54116ecd1bcc88817c5469b88387388fade02bfa8bf3fc647d461",
+  "machine_shape": "NvidiaTeslaT4"
+}
