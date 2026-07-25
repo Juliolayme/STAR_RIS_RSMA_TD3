@@ -2,6 +2,13 @@ name: Build open-access thesis reference library
 
 on:
   workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "references/**"
+      - "scripts/download_open_access_references.py"
+      - ".github/workflows/build-reference-library.yml"
   push:
     branches:
       - main
@@ -20,7 +27,7 @@ jobs:
     timeout-minutes: 60
 
     steps:
-      - name: Checkout main
+      - name: Checkout current revision
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -75,7 +82,7 @@ jobs:
           PY
 
       - name: Persist machine-readable download audit
-        if: always()
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           mkdir -p artifacts/reference_library
