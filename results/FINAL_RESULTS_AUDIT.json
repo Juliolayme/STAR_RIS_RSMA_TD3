@@ -1,0 +1,53 @@
+{
+  "verdict": "PASS_WITH_CAVEATS",
+  "approved_for_thesis_integration": true,
+  "q1_paper_positioning": "quality-latency trade-off; not overall superiority",
+  "fatal_errors": [],
+  "caveats": [
+    "Some Student-t confidence limits for bounded QoS metrics extend outside their physical range. Keep the unmodified values for reproducibility, but clip only the visual display or use bootstrap/binomial intervals in the thesis.",
+    "No comparison remains significant under exact Wilcoxon-Holm correction at alpha=0.05. The paired t-Holm results are significant, but with eight training seeds the paper must report both tests and avoid an unconditional significance claim.",
+    "AO-SCA achieves the highest sum-rate at every N; TD3 must not be presented as the best-quality method.",
+    "AnalyticalRIS is faster than TD3 but fails QoS in this experiment; TD3 must not be called the fastest absolute method.",
+    "AO-Grid and AnalyticalRIS are weak quality baselines here. A Q1 submission should justify their parameterization and add ablations or stronger learning baselines where possible."
+  ],
+  "source_kernel": "duythanhb1909984/star-ris-final-academic-bundle",
+  "scientific_algorithm_commit": "89c39da461523a7f5911a302cb9415aeaa5824ce",
+  "report_generation_commit": "b67adee55def9dbc32c8acded09dad68c51ee49a",
+  "td3_qos_fraction_range": [
+    0.98925,
+    0.9994375
+  ],
+  "td3_all_qos_range": [
+    0.97975,
+    0.9985
+  ],
+  "td3_sum_rate_n16": 10.766148397780512,
+  "td3_sum_rate_n128": 12.411701224014006,
+  "td3_vs_ao_grid_percent_range": [
+    169.11729614889092,
+    211.68990473599501
+  ],
+  "td3_vs_analytical_percent_range": [
+    440.671936077086,
+    526.1977423976815
+  ],
+  "ao_sca_minus_td3_sum_rate_range": [
+    4.447578961511125,
+    7.224557918395643
+  ],
+  "ao_sca_over_td3_latency_range": [
+    884.123372955289,
+    3690.435500885801
+  ],
+  "ao_grid_over_td3_latency_range": [
+    299.1527807471221,
+    1747.9381718937286
+  ],
+  "analytical_ris_faster_than_td3_range": [
+    2.073175671030543,
+    2.303322188371312
+  ],
+  "paired_t_holm_significant_count": 15,
+  "wilcoxon_holm_significant_count": 0,
+  "generated_utc": "2026-07-25T01:46:29.538155+00:00"
+}
