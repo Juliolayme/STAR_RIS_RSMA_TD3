@@ -1,0 +1,81 @@
+\chapter{KHẢ NĂNG TÁI LẬP VÀ TRUY XUẤT BẰNG CHỨNG}
+\label{app:reproducibility}
+
+\section{Cấu trúc repository}
+Các nguồn sự thật được phân tách như sau:
+\begin{itemize}
+  \item \texttt{src/star\_ris\_rsma/}: mô hình vật lý, môi trường, agent, replay và ScenarioBank;
+  \item \texttt{scripts/}: entrypoint train, evaluate, solver, latency, merge, statistics và plot;
+  \item \texttt{configs/}: cấu hình theo $N$;
+  \item \texttt{references/}: BibTeX, danh sách 30 tài liệu và 27 PDF open-access;
+  \item \texttt{kaggle\_runs/}: source/output đã lưu của các phiên Kaggle;
+  \item \texttt{results/}: raw evidence, bảng, hình, audit và reviewer report;
+  \item \texttt{thesis/}: mã LaTeX của luận văn.
+\end{itemize}
+
+\section{Quy trình tái tạo ScenarioBank}
+\begin{lstlisting}[style=thesispython,caption={Lệnh tạo ScenarioBank khóa},label={lst:create-bank}]
+python scripts/create_scenario_banks.py \
+  --config configs/v3/constrained_action_n32.yaml \
+  --output-dir artifacts/scenario_banks \
+  --train-count 10000 \
+  --validation-count 1000 \
+  --test-count 1000
+\end{lstlisting}
+Sau khi tạo, cần kiểm tra shape, finite value, metadata và tính disjoint. Không thay test seed giữa các phương pháp.
+
+\section{Quy trình huấn luyện và đánh giá}
+\begin{lstlisting}[style=thesispython,caption={Huấn luyện TD3 cho một seed},label={lst:train-td3}]
+python scripts/run_train_v2.py \
+  --config configs/v3/constrained_action_n32.yaml \
+  --seed 0 \
+  --output results/train/td3/N32/seed_0
+\end{lstlisting}
+
+\begin{lstlisting}[style=thesispython,caption={Đánh giá checkpoint trên test bank},label={lst:test-td3}]
+python scripts/run_evaluate.py \
+  --method td3 \
+  --config configs/v3/constrained_action_n32.yaml \
+  --checkpoint results/train/td3/N32/seed_0/best.pt \
+  --bank artifacts/scenario_banks/N32_test.npz \
+  --seed 0 \
+  --output results/test/td3/N32/seed_0.csv
+\end{lstlisting}
+
+\section{Provenance tối thiểu}
+Mỗi kết quả cuối phải có:
+\begin{enumerate}[label=\arabic*)]
+  \item method, seed, scenario và split;
+  \item config hash;
+  \item ScenarioBank checksum;
+  \item checkpoint step đối với learned method;
+  \item Git commit;
+  \item metric raw không làm tròn;
+  \item solve/inference time và metadata solver nếu áp dụng.
+\end{enumerate}
+
+\section{Checklist trước khi cập nhật luận văn}
+\begin{longtable}{p{1.0cm}p{11.5cm}p{1.7cm}}
+\caption{Checklist tích hợp kết quả vào luận văn}\label{tab:integration-checklist}\\
+\toprule
+\textbf{STT} & \textbf{Điều kiện} & \textbf{Trạng thái}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{STT} & \textbf{Điều kiện} & \textbf{Trạng thái}\\
+\midrule
+\endhead
+1 & Test suite pass trên commit dùng để chạy full & Bắt buộc\\
+2 & Train/validation/test bank disjoint và checksum khớp & Bắt buộc\\
+3 & Best checkpoint không đọc test & Bắt buộc\\
+4 & Evaluation deterministic và exploration-free & Bắt buộc\\
+5 & AO--SCA exact merit không giảm trong tolerance & Bắt buộc\\
+6 & AO--Grid không có random perturbation & Bắt buộc\\
+7 & Merge không có duplicate method/seed/scenario & Bắt buộc\\
+8 & Raw CSV, bảng, hình và manifest cùng commit & Bắt buộc\\
+9 & Không dùng kết quả MADDPG cũ & Bắt buộc\\
+10 & Báo cáo quality gap của AO--SCA & Bắt buộc\\
+11 & Báo cáo cả $t$-Holm và Wilcoxon-Holm & Bắt buộc\\
+12 & Không gọi AnalyticalRIS là full analytical optimum & Bắt buộc\\
+\bottomrule
+\end{longtable}
