@@ -65,16 +65,16 @@ jobs:
 
           if report["reference_count"] != 30:
               raise RuntimeError("Expected exactly 30 curated references")
-          if report["metadata_only_count"] != 2:
-              raise RuntimeError("Expected exactly two metadata-only paywalled papers")
+          if report["metadata_only_count"] != 3:
+              raise RuntimeError("Expected exactly three metadata/full-text-only papers")
           if report["failed_count"] != 0:
               raise RuntimeError(f"Open-access downloads failed: {report['failures']}")
-          if report["downloaded_count"] != 28:
-              raise RuntimeError("Expected 28 legally open PDFs")
+          if report["downloaded_count"] != 27:
+              raise RuntimeError("Expected 27 verified open PDFs")
 
           pdfs = sorted(Path("reference_library/pdfs").glob("*.pdf"))
-          if len(pdfs) != 28:
-              raise RuntimeError(f"Expected 28 PDF files, found {len(pdfs)}")
+          if len(pdfs) != 27:
+              raise RuntimeError(f"Expected 27 PDF files, found {len(pdfs)}")
           for pdf in pdfs:
               if not pdf.read_bytes()[:5] == b"%PDF-":
                   raise RuntimeError(f"Invalid PDF magic header: {pdf}")
@@ -100,7 +100,7 @@ jobs:
               "",
               f"- Curated references: **{report['reference_count']}**",
               f"- Downloaded open PDFs: **{report['downloaded_count']}**",
-              f"- Metadata-only papers: **{report['metadata_only_count']}**",
+              f"- Metadata/full-text-only papers: **{report['metadata_only_count']}**",
               f"- Failed downloads: **{report['failed_count']}**",
               f"- Failures: `{report['failures']}`",
               "",
@@ -147,8 +147,8 @@ jobs:
             echo "## STAR-RIS–RSMA thesis reference library"
             echo
             echo "- Curated references: 30"
-            echo "- Legally open PDFs expected: 28"
-            echo "- Metadata-only publisher entries: 2"
+            echo "- Verified open PDFs: 27"
+            echo "- Metadata/full-text-only entries: 3"
             echo "- BibTeX: \`references/references.bib\`"
             echo "- Reading map: \`references/README.md\`"
           } >> "$GITHUB_STEP_SUMMARY"
