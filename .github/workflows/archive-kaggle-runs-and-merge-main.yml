@@ -1,0 +1,421 @@
+name: Archive Kaggle runs and merge research branch to main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/td3-qos-scalability-v2
+    paths:
+      - ".github/workflows/archive-kaggle-runs-and-merge-main.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  archive-and-merge:
+    name: Archive six Kaggle runs and merge to main
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      SOURCE_BRANCH: agent/td3-qos-scalability-v2
+      TARGET_BRANCH: main
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout complete research branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/td3-qos-scalability-v2
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --upgrade "kaggle>=1.8.4,<3"
+
+      - name: Download notebook source and output for all six runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from __future__ import annotations
+
+          import datetime as dt
+          import hashlib
+          import json
+          import os
+          import shutil
+          import subprocess
+          from pathlib import Path
+
+          runs = [
+              {
+                  "stage": "01_td3_low_n",
+                  "kernel": "thanhnguyen1423/star-ris-td3-low-n-final",
+                  "username": "thanhnguyen1423",
+                  "secret": "KAGGLE_TD3_KEY",
+              },
+              {
+                  "stage": "02_td3_high_n",
+                  "kernel": "thanhnguyen1423/star-ris-td3-high-n-final",
+                  "username": "thanhnguyen1423",
+                  "secret": "KAGGLE_TD3_KEY",
+              },
+              {
+                  "stage": "03_ao_grid",
+                  "kernel": "ronganminh/star-ris-ao-grid-final",
+                  "username": "ronganminh",
+                  "secret": "KAGGLE_DDPG_KEY",
+              },
+              {
+                  "stage": "04_ao_sca",
+                  "kernel": "ronganminh/star-ris-ao-sca-final",
+                  "username": "ronganminh",
+                  "secret": "KAGGLE_DDPG_KEY",
+              },
+              {
+                  "stage": "05_analytical_ris",
+                  "kernel": "duythanhb1909984/star-ris-analytical-ris-final",
+                  "username": "duythanhb1909984",
+                  "secret": "KAGGLE_PPO_KEY",
+              },
+              {
+                  "stage": "06_final_academic_bundle",
+                  "kernel": "duythanhb1909984/star-ris-final-academic-bundle",
+                  "username": "duythanhb1909984",
+                  "secret": "KAGGLE_PPO_KEY",
+              },
+          ]
+
+          root = Path("kaggle_runs")
+          if root.exists():
+              shutil.rmtree(root)
+          root.mkdir(parents=True)
+
+          max_github_file = 95 * 1024 * 1024
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          def run_visible(command: list[str], env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+              print("$", " ".join(command))
+              result = subprocess.run(
+                  command,
+                  env=env,
+                  text=True,
+                  stdout=subprocess.PIPE,
+                  stderr=subprocess.STDOUT,
+                  check=False,
+              )
+              print(result.stdout)
+              if result.returncode != 0:
+                  raise RuntimeError(
+                      f"Command failed with exit code {result.returncode}: {' '.join(command)}"
+                  )
+              return result
+
+          # Canonical final-result files already committed from the audited run.
+          canonical_by_hash: dict[str, str] = {}
+          results_root = Path("results")
+          if results_root.exists():
+              for path in sorted(results_root.rglob("*")):
+                  if path.is_file() and path.stat().st_size <= max_github_file:
+                      canonical_by_hash.setdefault(sha256(path), path.as_posix())
+
+          archive_manifest: dict[str, object] = {
+              "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+              "purpose": (
+                  "Canonical archive of Kaggle notebook source and saved outputs so that "
+                  "Codex and thesis authors can trace every theoretical statement to code and evidence."
+              ),
+              "runs": [],
+              "large_files_not_committed": [],
+              "deduplicated_files": [],
+          }
+
+          for item in runs:
+              key = os.environ.get(item["secret"], "").strip()
+              if not key:
+                  raise RuntimeError(f"Missing secret {item['secret']}")
+
+              env = os.environ.copy()
+              env["KAGGLE_USERNAME"] = item["username"]
+              env["KAGGLE_KEY"] = key
+
+              stage_root = root / item["stage"]
+              source_root = stage_root / "source"
+              output_root = stage_root / "output"
+              source_root.mkdir(parents=True)
+              output_root.mkdir(parents=True)
+
+              status = run_visible(
+                  ["kaggle", "kernels", "status", item["kernel"]], env
+              ).stdout
+              if "COMPLETE" not in status.upper():
+                  raise RuntimeError(
+                      f"Kernel is not complete: {item['kernel']}\n{status}"
+                  )
+
+              run_visible(
+                  [
+                      "kaggle",
+                      "kernels",
+                      "pull",
+                      item["kernel"],
+                      "-p",
+                      str(source_root),
+                      "-m",
+                  ],
+                  env,
+              )
+              run_visible(
+                  [
+                      "kaggle",
+                      "kernels",
+                      "output",
+                      item["kernel"],
+                      "-p",
+                      str(output_root),
+                      "-o",
+                  ],
+                  env,
+              )
+
+              # Notebook 06 output duplicates the audited canonical results directory.
+              # Replace exact duplicates with readable pointers rather than storing two copies.
+              if item["stage"] == "06_final_academic_bundle":
+                  for path in sorted(output_root.rglob("*")):
+                      if not path.is_file() or path.stat().st_size > max_github_file:
+                          continue
+                      digest = sha256(path)
+                      canonical = canonical_by_hash.get(digest)
+                      if not canonical:
+                          continue
+                      pointer_path = path.with_name(path.name + ".canonical.json")
+                      pointer_path.write_text(
+                          json.dumps(
+                              {
+                                  "sha256": digest,
+                                  "canonical_repository_path": canonical,
+                                  "original_kaggle_output_path": path.relative_to(stage_root).as_posix(),
+                              },
+                              indent=2,
+                          ),
+                          encoding="utf-8",
+                      )
+                      archive_manifest["deduplicated_files"].append(
+                          {
+                              "stage": item["stage"],
+                              "original_path": path.relative_to(root).as_posix(),
+                              "canonical_repository_path": canonical,
+                              "sha256": digest,
+                          }
+                      )
+                      path.unlink()
+
+              # GitHub rejects individual files >=100 MiB. Preserve provenance instead of
+              # silently dropping them. Text, notebooks, CSV, JSON, figures, and normal
+              # checkpoints remain committed whenever they fit the platform limit.
+              for path in sorted(stage_root.rglob("*")):
+                  if not path.is_file() or path.stat().st_size <= max_github_file:
+                      continue
+                  record = {
+                      "stage": item["stage"],
+                      "kernel": item["kernel"],
+                      "path": path.relative_to(root).as_posix(),
+                      "size_bytes": path.stat().st_size,
+                      "sha256": sha256(path),
+                      "retrieval": f"kaggle kernels output {item['kernel']}",
+                  }
+                  placeholder = path.with_name(path.name + ".external.json")
+                  placeholder.write_text(json.dumps(record, indent=2), encoding="utf-8")
+                  archive_manifest["large_files_not_committed"].append(record)
+                  path.unlink()
+
+              files = []
+              for path in sorted(stage_root.rglob("*")):
+                  if path.is_file():
+                      files.append(
+                          {
+                              "path": path.relative_to(stage_root).as_posix(),
+                              "size_bytes": path.stat().st_size,
+                              "sha256": sha256(path),
+                          }
+                      )
+
+              notebook_files = [
+                  entry["path"] for entry in files if entry["path"].endswith(".ipynb")
+              ]
+              stage_manifests = [
+                  entry["path"]
+                  for entry in files
+                  if entry["path"].endswith("STAGE_MANIFEST.json")
+              ]
+              archive_manifest["runs"].append(
+                  {
+                      "stage": item["stage"],
+                      "kernel": item["kernel"],
+                      "kaggle_url": f"https://www.kaggle.com/code/{item['kernel']}",
+                      "status": status.strip(),
+                      "notebook_files": notebook_files,
+                      "stage_manifests": stage_manifests,
+                      "file_count": len(files),
+                      "files": files,
+                  }
+              )
+
+          (root / "KAGGLE_RUN_MANIFEST.json").write_text(
+              json.dumps(archive_manifest, indent=2, sort_keys=True),
+              encoding="utf-8",
+          )
+
+          readme = """# Kaggle Run Archive
+
+          This directory is the canonical repository archive of the six final Kaggle runs.
+
+          Each run contains:
+
+          - `source/`: the notebook source and Kaggle kernel metadata pulled from the saved version;
+          - `output/`: the files saved by the completed Kaggle run;
+          - SHA-256, size, source-kernel, and retrieval metadata in `KAGGLE_RUN_MANIFEST.json`.
+
+          The authoritative implementation is under `star_ris_rsma/`, `scripts/`, and `configs/`.
+          The authoritative audited paper/thesis evidence is under `results/`.
+          Exact notebook-06 duplicates are represented by `.canonical.json` pointers to avoid
+          committing duplicate binary data. Files exceeding GitHub's per-file limit are represented
+          by `.external.json` records containing size, SHA-256, kernel reference, and retrieval command.
+
+          ## Run order
+
+          1. `01_td3_low_n`
+          2. `02_td3_high_n`
+          3. `03_ao_grid`
+          4. `04_ao_sca`
+          5. `05_analytical_ris`
+          6. `06_final_academic_bundle`
+          """
+          (root / "README.md").write_text(
+              "\n".join(line.strip() for line in readme.splitlines()) + "\n",
+              encoding="utf-8",
+          )
+
+          codex_guide = """# Codex Repository Guide for Thesis Writing
+
+          ## Source of truth
+
+          - Physical model and environment: `star_ris_rsma/`
+          - Experiment entrypoints and result generation: `scripts/`
+          - Declared experiment configurations: `configs/`
+          - Original final notebook sources: `kaggle_notebooks/`
+          - Saved Kaggle notebook source and output: `kaggle_runs/`
+          - Audited tables, figures, raw evidence, and provenance: `results/`
+
+          ## Required consistency rule
+
+          Derive every equation, variable definition, constraint, state/action description,
+          reward term, neural-network detail, training setting, baseline description, and
+          evaluation protocol from the checked-in code/configuration. Do not introduce a
+          theoretical assumption that is absent from the implementation without labeling it
+          as a proposed extension.
+
+          ## Final scientific positioning
+
+          - TD3 is a QoS-reliable, low-latency quality/latency compromise.
+          - AO-SCA has higher sum-rate in the final experiment and is a local iterative baseline,
+            not a global optimum or upper bound.
+          - TD3 is much faster than AO-SCA and AO-Grid, but AnalyticalRIS is faster than TD3 and
+            fails QoS in this experiment.
+          - Report both paired t-Holm and exact Wilcoxon-Holm results; do not claim significance
+            under both tests.
+          - Use `results/FINAL_RESULTS_REVIEW.md` and `results/FINAL_RESULTS_AUDIT.json` as mandatory
+            reviewer guardrails when drafting the thesis and paper.
+
+          ## Reproducibility anchors
+
+          - Scientific algorithm commit: `89c39da461523a7f5911a302cb9415aeaa5824ce`
+          - Report-generation commit: `b67adee55def9dbc32c8acded09dad68c51ee49a`
+          - Five STAR-RIS sizes: 16, 32, 64, 96, 128
+          - TD3: eight independent training seeds per size
+          - Evaluation: 1,000 locked test scenarios per seed/size
+          """
+          Path("CODEX_REPOSITORY_GUIDE.md").write_text(
+              "\n".join(line.strip() for line in codex_guide.splitlines()) + "\n",
+              encoding="utf-8",
+          )
+
+          print(json.dumps({
+              "runs": len(archive_manifest["runs"]),
+              "deduplicated_files": len(archive_manifest["deduplicated_files"]),
+              "large_files_not_committed": len(archive_manifest["large_files_not_committed"]),
+          }, indent=2))
+          PY
+
+      - name: Commit Kaggle archive to research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kaggle_runs CODEX_REPOSITORY_GUIDE.md
+          if git diff --cached --quiet; then
+            echo "Kaggle archive already matches the saved runs."
+          else
+            git commit -m "Archive all final Kaggle notebooks and outputs"
+            git push origin "HEAD:${SOURCE_BRANCH}"
+          fi
+
+      - name: Merge complete research branch into main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$TARGET_BRANCH" "$SOURCE_BRANCH"
+          source_sha="$(git rev-parse "origin/${SOURCE_BRANCH}")"
+
+          git checkout -B "$TARGET_BRANCH" "origin/${TARGET_BRANCH}"
+          git merge --no-ff "origin/${SOURCE_BRANCH}" \
+            -m "Merge complete STAR-RIS TD3 research code, Kaggle runs, and audited results"
+
+          if git push origin "$TARGET_BRANCH"; then
+            echo "Direct merge push to main succeeded."
+          else
+            echo "Direct push was blocked; attempting repository PR merge."
+            git checkout "$SOURCE_BRANCH"
+            gh pr ready 6 || true
+            gh pr merge 6 --merge --admin || gh pr merge 6 --merge
+          fi
+
+          git fetch origin "$TARGET_BRANCH" "$SOURCE_BRANCH"
+          if ! git merge-base --is-ancestor "$source_sha" "origin/${TARGET_BRANCH}"; then
+            echo "main does not contain the complete research branch" >&2
+            exit 1
+          fi
+
+          echo "Verified main contains research commit: $source_sha"
+          echo "Main head: $(git rev-parse origin/${TARGET_BRANCH})"
+
+      - name: Write merge summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Kaggle archive and main merge"
+            echo
+            echo "- Source branch: \`${SOURCE_BRANCH}\`"
+            echo "- Target branch: \`${TARGET_BRANCH}\`"
+            echo "- Kaggle runs archived: 6"
+            echo "- Code guide: \`CODEX_REPOSITORY_GUIDE.md\`"
+            echo "- Run inventory: \`kaggle_runs/KAGGLE_RUN_MANIFEST.json\`"
+            echo "- Audited thesis evidence: \`results/\`"
+          } >> "$GITHUB_STEP_SUMMARY"
