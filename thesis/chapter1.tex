@@ -10,6 +10,17 @@ RSMA cung cấp một lớp linh hoạt hơn bằng cách chia một phần thô
 
 Ở phía môi trường truyền sóng, RIS và STAR--RIS bổ sung khả năng điều khiển kênh thông qua bề mặt gồm nhiều phần tử có thể lập trình. Thay vì chỉ thích nghi tại máy phát và máy thu, hệ thống còn điều chỉnh đường truyền gián tiếp. Tuy nhiên, khả năng này không tạo ra năng lượng mới và không loại bỏ các giới hạn vật lý. Các nghiên cứu về ``myths'' của RIS nhấn mạnh rằng lợi ích mảng, suy hao đường truyền và chi phí điều khiển phải được diễn giải thận trọng, đặc biệt khi so sánh với relay hoặc massive MIMO \cite{Bjornson2020RISMyths}. Vì vậy, luận văn sử dụng mô hình truyền thông đơn giản để nghiên cứu thuật toán, đồng thời ghi rõ các giả định chưa phản ánh đầy đủ phần cứng thực.
 
+% FIGURE-INTEGRATED: CH1 START
+\begin{landscape}
+\ThesisFigure{figures/chapter1_rsma_vs_conventional.pdf}
+{So sánh nguyên lý phân bổ tài nguyên và xử lý nhiễu của OMA, SDMA, NOMA và RSMA}
+{fig:ch1-rsma-comparison}[0.96\linewidth]
+\figuresource{Tác giả xây dựng dựa trên \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals,Clerckx2021NOMACritical} (2026)}
+\end{landscape}
+
+Hình~\ref{fig:ch1-rsma-comparison} sử dụng biểu tượng trạm gốc và ba người dùng để minh họa cách từng kỹ thuật tổ chức tài nguyên và xử lý nhiễu. Trong phần OMA, các đường nét đứt biểu diễn việc cấp tài nguyên thời gian hoặc tần số trực giao; các ô tài nguyên chỉ mang tính minh họa và không ánh xạ bắt buộc theo tỷ lệ một--một với số người dùng. Trong phần SDMA, các mũi tên bản rộng biểu diễn các búp sóng không gian tách biệt trong một hệ đa anten; đây là minh họa khái niệm và không phải kiến trúc SISO được mô phỏng trong luận văn. Trong phần NOMA, các mũi tên có độ dày khác nhau biểu diễn các lớp công suất được chồng trên cùng tài nguyên thời gian--tần số, còn biểu tượng SIC tại người dùng mạnh thể hiện quá trình giải mã liên tiếp; chúng không phải ba búp sóng độc lập. Trong phần RSMA, luồng màu tím là luồng chung $s_c$ được mọi người dùng giải mã trước, còn các đường màu riêng là các luồng riêng $s_k$; sau SIC, mỗi người dùng tiếp tục giải mã luồng riêng tương ứng. Ba người dùng trong hình chỉ dùng để trình bày trực quan, trong khi cấu hình thực nghiệm của luận văn sử dụng $K=4$ người dùng. Hình vì vậy làm rõ lý do RSMA có thể dung hòa giữa giải mã một phần nhiễu và xem phần nhiễu còn lại như tạp âm.
+% FIGURE-INTEGRATED: CH1 END
+
 \section{Tổng quan RSMA}
 \subsection{Nguyên lý phân tách thông điệp}
 Trong RSMA một lớp, thông điệp $W_k$ của người dùng $k$ được chia thành phần chung $W_{c,k}$ và phần riêng $W_{p,k}$. Các phần chung của nhiều người dùng được ghép thành một thông điệp chung $W_c$, mã hóa thành ký hiệu $s_c$. Phần riêng được mã hóa thành $s_k$. Máy phát truyền đồng thời luồng chung và các luồng riêng. Mỗi người dùng giải mã $s_c$ trước khi dùng SIC để loại bỏ nó, sau đó giải mã $s_k$ trong sự hiện diện của các luồng riêng còn lại.
@@ -105,11 +116,6 @@ Thứ ba là \textbf{tách biệt train/validation/test}. Nếu test được d�
 Thứ tư là \textbf{đánh giá đa chiều}. Một phương pháp có sum-rate cao nhưng vi phạm QoS hoặc có độ trễ quá lớn có thể không phù hợp. Luận văn báo cáo đồng thời chất lượng, độ tin cậy, vi phạm và thời gian.
 
 Thứ năm là \textbf{diễn giải thống kê}. Khi số seed hữu hạn, kiểm định tham số và phi tham số có thể cho kết luận khác nhau. Luận văn báo cáo cả paired $t$-test và Wilcoxon sau hiệu chỉnh Holm thay vì chỉ lựa chọn kiểm định có lợi.
-
-\ThesisFigure{figures/chapter1_research_landscape.pdf}{Bản đồ nghiên cứu và khoảng trống của luận văn}{fig:ch1-landscape}
-\figuresource{Tác giả đề xuất (2026)}
-
-Hình~\ref{fig:ch1-landscape} được thiết kế như một bản đồ ba lớp. Lớp thứ nhất gồm các nền tảng RSMA, RIS/STAR--RIS và tối ưu phi lồi. Lớp thứ hai gồm các phương pháp AO--SCA, codebook, DDPG, PPO và TD3. Lớp thứ ba là quy trình đánh giá gồm ScenarioBank, QoS, latency và kiểm định thống kê. Các mũi tên hội tụ vào khoảng trống trung tâm: một pipeline SISO STAR--RIS--RSMA thống nhất và có khả năng tái lập. Hình giúp liên kết tổng quan tài liệu với lựa chọn phương pháp ở các chương sau, thay vì xem TD3 như một thành phần tách rời khỏi mô hình truyền thông.
 
 \section{Kết luận chương}
 Chương này đã hệ thống hóa nền tảng RSMA, RIS, STAR--RIS, tối ưu tài nguyên và học tăng cường sâu. Tổng quan cho thấy đã có nhiều công trình mạnh về từng thành phần và một số nghiên cứu kết hợp trực tiếp STAR--RIS--RSMA. Tuy nhiên, sự khác biệt lớn về hệ anten, mô hình pha, mục tiêu và giao thức đánh giá tạo ra nhu cầu về một nghiên cứu bám sát source code và báo cáo đầy đủ trade-off chất lượng--độ trễ. Chương tiếp theo trình bày chi tiết cơ sở lý thuyết cần thiết để xây dựng mô hình và thuật toán.

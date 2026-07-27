@@ -159,10 +159,16 @@ Kênh Gaussian tổng hợp và SISO giới hạn khả năng suy rộng. Các c
 \subsection{Conclusion validity}
 Mâu thuẫn giữa hai kiểm định và tám seed yêu cầu diễn giải thận trọng. Các tỷ lệ phần trăm lớn so với baseline yếu không đủ cho claim phổ quát. Kết luận chính dựa vào pattern nhất quán giữa quality, QoS và latency, không chỉ $p$-value.
 
-\ThesisFigure{figures/chapter5_quality_latency_tradeoff.pdf}{Không gian đánh đổi chất lượng--QoS--độ trễ của các phương pháp}{fig:ch5-tradeoff}
-\figuresource{Tác giả đề xuất dựa trên kết quả đã kiểm toán (2026)}
+% FIGURE-INTEGRATED: CH5 START
+\begin{landscape}
+\ThesisFigure{figures/chapter5_quality_latency_tradeoff.pdf}
+{Không gian đánh đổi định tính giữa tổng tốc độ, độ tin cậy QoS và độ trễ ra quyết định}
+{fig:ch5-tradeoff}[0.90\linewidth]
+\figuresource{Tác giả xây dựng từ kết quả đã kiểm toán trong repository (2026)}
+\end{landscape}
 
-Hình~\ref{fig:ch5-tradeoff} nên là sơ đồ định tính ba trục hoặc ma trận hai chiều có mã hóa QoS. Trục ngang là latency tăng dần, trục dọc là sum-rate tăng dần. AnalyticalRIS nằm góc trái thấp với ký hiệu QoS không đạt; AO--Grid nằm giữa thấp; TD3 nằm vùng trái--giữa với QoS cao; AO--SCA nằm phía phải cao. Không nên vẽ các tọa độ tuyệt đối khi chưa nhập raw latency và sum-rate theo từng $N$; thay vào đó ghi các tỷ lệ range cạnh mũi tên. Hình liên kết trực tiếp với kết luận trade-off của chương.
+Hình~\ref{fig:ch5-tradeoff} tổng hợp định tính vị trí của bốn phương pháp trong không gian chất lượng--độ trễ. AnalyticalRIS nằm gần phía độ trễ thấp nhất nhưng được đánh dấu không đạt QoS; AO--Grid có chất lượng cao hơn cấu hình phân tích đơn giản nhưng vẫn thấp hơn TD3; TD3 nằm ở vùng trung gian với viền xanh biểu thị độ tin cậy QoS cao; AO--SCA nằm ở vùng tổng tốc độ cao nhất nhưng có thời gian giải lớn hơn. Mũi tên giữa TD3 và AO--SCA diễn giải hai chiều của trade-off: AO--SCA cải thiện chất lượng nghiệm, còn TD3 giảm mạnh độ trễ ra quyết định. Các tọa độ trong hình không phải số đo theo một thang tuyến tính và không thay thế bảng raw theo từng $N$; chúng chỉ tóm tắt kết luận đã được lượng hóa bằng các khoảng chênh lệch và tỷ lệ tốc độ ở các mục trước.
+% FIGURE-INTEGRATED: CH5 END
 
 \section{Hàm ý thực tiễn}
 Trong một hệ thống có phân bố kênh tương đối ổn định và có thể huấn luyện offline, TD3 phù hợp làm bộ khởi tạo hoặc bộ ra quyết định nhanh. Khi thời gian cho phép, có thể dùng TD3 action làm khởi tạo cho AO--SCA, kỳ vọng giảm iteration và thu hẹp quality gap. Cấu trúc hybrid này kết hợp amortized inference với local refinement và là hướng nghiên cứu có giá trị.

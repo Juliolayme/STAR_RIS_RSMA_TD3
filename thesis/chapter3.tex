@@ -6,6 +6,17 @@ Luận văn xét đường xuống của một tế bào đơn gồm một trạ
 
 BS truyền một luồng chung và $K$ luồng riêng theo RSMA. Tín hiệu đến người dùng qua hai thành phần: đường trực tiếp BS--user và đường ghép tầng BS--STAR--RIS--user. STAR--RIS hoạt động ở chế độ energy splitting, trong đó mỗi phần tử chia công suất tín hiệu tới thành thành phần truyền và phản xạ. Tập biến điều khiển của hệ thống gồm công suất, phân bổ common rate, hệ số beta và hai vector pha.
 
+% FIGURE-INTEGRATED: CH3 START
+\begin{landscape}
+\ThesisFigure{figures/chapter3_system_model.pdf}
+{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA được sử dụng trong luận văn}
+{fig:ch3-system-model}[0.94\linewidth]
+\figuresource{Tác giả xây dựng từ mô hình vật lý và cấu hình trong repository (2026)}
+\end{landscape}
+
+Hình~\ref{fig:ch3-system-model} mô tả đúng kiến trúc được cài đặt: một trạm gốc SISO phát một luồng chung $s_c$ và bốn luồng riêng $s_1,\ldots,s_4$ tới bốn người dùng SISO. Người dùng 1 và 3 nằm ở miền phản xạ, còn người dùng 2 và 4 nằm ở miền truyền qua, phù hợp với cách source gán chỉ báo miền luân phiên. Đường xám nét đứt là kênh trực tiếp BS--user; đường xanh dương nối BS với STAR--RIS và các đường xanh lá/cam tạo đường ghép tầng phản xạ hoặc truyền qua. Do đó, hình không giả định liên kết trực tiếp bị chặn hoàn toàn. Công thức cạnh STAR--RIS thể hiện hệ số biên độ--pha theo energy splitting, trong khi hai dải phía dưới nối trực tiếp mô hình vật lý với vector hành động và observation của tác tử. Cách trình bày này làm rõ TD3 không điều khiển một beamformer nhiều anten mà tối ưu công suất RSMA, tỷ lệ tốc độ chung, hệ số chia năng lượng và hai vector pha.
+% FIGURE-INTEGRATED: CH3 END
+
 \section{Mô hình kênh}
 \subsection{Kênh trực tiếp và kênh ghép tầng}
 Với người dùng $k$, source sinh
@@ -254,11 +265,6 @@ Không xét chi phí huấn luyện online & Tập trung vào latency sau huấn
 \end{tabularx}
 \tablesource{Tác giả xây dựng (2026)}
 \end{table}
-
-\ThesisFigure{figures/chapter3_system_model.pdf}{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}{fig:ch3-system-model}
-\figuresource{Tác giả đề xuất (2026)}
-
-Hình~\ref{fig:ch3-system-model} cần thể hiện rõ BS phát một luồng chung và bốn luồng riêng; STAR--RIS chia năng lượng sang phía truyền và phía phản xạ; mỗi user nhận cả đường trực tiếp lẫn đường ghép tầng. Các hộp bên cạnh STAR--RIS ghi $\beta_n^T+\beta_n^R=1$ và hệ số biên độ $\sqrt{\beta}e^{j\theta}$. Phần dưới hình liệt kê vector action để nối trực tiếp kiến trúc vật lý với bài toán tối ưu. Việc vẽ đường trực tiếp là quan trọng vì source không phải mô hình blocked-link chỉ qua RIS.
 
 \section{Kết luận chương}
 Chương 3 đã chuyển cơ sở lý thuyết thành mô hình đúng với implementation: một hệ SISO, STAR--RIS energy-splitting, RSMA một luồng chung và $K$ luồng riêng, observation chứa CSI đầy đủ, action vật lý có số chiều $2K+1+3N$ và reward phạt QoS. Chương cũng làm rõ ScenarioBank, provenance và các giả định giới hạn. Chương tiếp theo mô tả cách TD3 được huấn luyện, lựa chọn checkpoint và so sánh với baseline.
