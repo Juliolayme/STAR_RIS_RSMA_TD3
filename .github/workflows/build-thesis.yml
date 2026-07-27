@@ -9,6 +9,10 @@ on:
       - "thesis/**/*.sty"
       - "thesis/**/*.bib"
       - "thesis/**/*.md"
+      - "thesis/scripts/**/*.py"
+      - "thesis/figures/**/*.drawio"
+      - "thesis/figures/**/*.svg"
+      - "thesis/figures/**/*.png"
       - "thesis/figures/**/*.pdf"
       - "thesis/latexmkrc"
       - "references/references.bib"
@@ -29,6 +33,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Integrate and verify Draw.io figures
+        run: python thesis/scripts/integrate_figures.py
+
       - name: Install XeLaTeX toolchain
         run: |
           sudo apt-get update
@@ -46,6 +53,15 @@ jobs:
           cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
           pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
 
+      - name: Reject unresolved references and missing figures
+        working-directory: thesis
+        run: |
+          set -euo pipefail
+          if grep -E "LaTeX Warning: (Citation|Reference).*undefined|There were undefined references|File .* not found" main.log; then
+            echo "Unresolved citation/reference or missing figure detected"
+            exit 1
+          fi
+
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
@@ -54,16 +70,23 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit built PDF to branch
+      - name: Commit integrated sources and built PDF to branch
         shell: bash
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            thesis/chapter1.tex \
+            thesis/chapter2.tex \
+            thesis/chapter3.tex \
+            thesis/chapter4.tex \
+            thesis/chapter5.tex \
+            thesis/FIGURE_VERIFICATION.md
           git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
           if git diff --cached --quiet; then
-            echo "PDF unchanged"
+            echo "Thesis sources and PDF unchanged"
             exit 0
           fi
-          git commit -m "Build thesis PDF [skip ci]"
+          git commit -m "Integrate thesis figures and rebuild PDF [skip ci]"
           git push origin "HEAD:${GITHUB_REF_NAME}"
