@@ -17,6 +17,13 @@ on:
       - "thesis/latexmkrc"
       - "references/references.bib"
       - ".github/workflows/build-thesis.yml"
+  pull_request:
+    branches:
+      - thesis/latex-full-v1
+    paths:
+      - "thesis/**"
+      - "references/references.bib"
+      - ".github/workflows/build-thesis.yml"
   workflow_dispatch:
 
 permissions:
@@ -28,9 +35,10 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Checkout branch
+      - name: Checkout source branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
       - name: Integrate and verify Draw.io figures
@@ -70,8 +78,10 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit integrated sources and built PDF to branch
+      - name: Commit integrated sources and built PDF
         shell: bash
+        env:
+          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -89,4 +99,4 @@ jobs:
             exit 0
           fi
           git commit -m "Integrate thesis figures and rebuild PDF [skip ci]"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          git push origin "HEAD:${SOURCE_BRANCH}"
