@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="drawio" version="30.0.2">
+  <diagram name="Tổng quan RIS và STAR-RIS">
+    <mxGraphModel dx="2100" dy="1050" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2100" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="left" value="RIS truyền thống" style="rounded=1;container=1;pointerEvents=0;whiteSpace=wrap;html=1;fillColor=#f7f9fc;strokeColor=#6c8ebf;strokeWidth=3;verticalAlign=top;spacingTop=16;fontFamily=Times New Roman;fontSize=18;fontSize=25;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="960" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="right" value="STAR-RIS" style="rounded=1;container=1;pointerEvents=0;whiteSpace=wrap;html=1;fillColor=#f2fbf5;strokeColor=#2e7d32;strokeWidth=4;verticalAlign=top;spacingTop=16;fontFamily=Times New Roman;fontSize=18;fontSize=25;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="40" width="1020" height="700" as="geometry" />
+        </mxCell>
+        <mxCell id="bs1" value="Trạm gốc" style="sketch=0;html=1;pointerEvents=1;dashed=0;fillColor=none;strokeColor=none;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.cisco.wireless.antenna;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="260" width="88" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="ris" value="Bề mặt RIS" style="rounded=1;whiteSpace=wrap;html=1;container=1;pointerEvents=0;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=3;verticalLabelPosition=bottom;verticalAlign=top;align=center;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="440" y="210" width="150" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e1" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="15" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e2" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="57" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e3" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="99" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e4" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="15" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e5" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="57" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e6" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="99" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e7" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="15" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e8" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="57" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e9" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="99" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e10" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="15" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e11" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="57" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e12" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="99" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e13" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="15" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e14" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="57" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_e15" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#6c8ebf;strokeWidth=1;" vertex="1" parent="ris">
+          <mxGeometry x="99" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="u1" value="Người dùng" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#4f81bd;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="770" y="220" width="70" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="blind" value="Vùng khuất phủ sóng" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#eeeeee;strokeColor=#999999;dashed=1;opacity=70;fontFamily=Times New Roman;fontSize=18;fontStyle=2;" vertex="1" parent="1">
+          <mxGeometry x="690" y="430" width="230" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="f2e1" value="Tia tới" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classicThin;strokeColor=#4f81bd;strokeWidth=3;" edge="1" parent="1" source="bs1" target="ris">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2e2" value="Tia phản xạ" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classicThin;strokeColor=#4f81bd;strokeWidth=3;" edge="1" parent="1" source="ris" target="u1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rnote" value="Chỉ phản xạ&amp;#xa;Phủ sóng nửa không gian" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Times New Roman;fontSize=18;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="260" y="530" width="360" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="bs2" value="Trạm gốc" style="sketch=0;html=1;pointerEvents=1;dashed=0;fillColor=none;strokeColor=none;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top;align=center;outlineConnect=0;shape=mxgraph.cisco.wireless.antenna;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="270" width="88" height="104" as="geometry" />
+        </mxCell>
+        <mxCell id="star" value="STAR-RIS" style="rounded=1;whiteSpace=wrap;html=1;container=1;pointerEvents=0;fillColor=#d5e8d4;strokeColor=#2e7d32;strokeWidth=3;verticalLabelPosition=bottom;verticalAlign=top;align=center;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1410" y="210" width="150" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e1" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="15" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e2" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="57" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e3" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="99" y="18" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e4" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="15" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e5" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="57" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e6" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="99" y="60" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e7" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="15" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e8" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="57" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e9" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="99" y="102" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e10" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="15" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e11" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="57" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e12" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="99" y="144" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e13" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="15" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e14" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="57" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="star_e15" value="" style="rounded=0;html=1;fillColor=#ffffff;strokeColor=#2e7d32;strokeWidth=1;" vertex="1" parent="star">
+          <mxGeometry x="99" y="186" width="34" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="ur" value="Người dùng phía phản xạ" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#70ad47;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="130" width="70" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="ut" value="Người dùng phía truyền qua" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#ed7d31;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;fontFamily=Times New Roman;fontSize=18;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1780" y="320" width="70" height="66" as="geometry" />
+        </mxCell>
+        <mxCell id="f2e3" value="Tia tới" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classicThin;strokeColor=#4f81bd;strokeWidth=3;" edge="1" parent="1" source="bs2" target="star">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2e4" value="Tia phản xạ" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classicThin;curved=1;strokeColor=#70ad47;strokeWidth=3;" edge="1" parent="1" source="star" target="ur">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="f2e5" value="Tia truyền qua" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classicThin;strokeColor=#ed7d31;strokeWidth=3;" edge="1" parent="1" source="star" target="ut">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="rside" value="Miền phản xạ" style="text;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=18;fontStyle=1;fontColor=#2e7d32;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="90" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="tside" value="Miền truyền qua" style="text;whiteSpace=wrap;html=1;align=center;verticalAlign=middle;fontFamily=Times New Roman;fontSize=18;fontStyle=1;fontColor=#c55a11;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="250" width="250" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="formula" value="φ&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;T&lt;/sup&gt; = √β&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;T&lt;/sup&gt;e&lt;sup&gt;jθ&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;T&lt;/sup&gt;&lt;/sup&gt;&amp;#xa;φ&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;R&lt;/sup&gt; = √(1−β&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;T&lt;/sup&gt;)e&lt;sup&gt;jθ&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;R&lt;/sup&gt;&lt;/sup&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Times New Roman;fontSize=18;fillColor=#ffffff;strokeColor=#2e7d32;fontSize=20;" vertex="1" parent="1">
+          <mxGeometry x="1610" y="500" width="390" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="modes" value="ES: Chia năng lượng   |   MS: Chuyển chế độ   |   TS: Chuyển theo thời gian" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Times New Roman;fontSize=18;fillColor=#edf7ee;strokeColor=#82b366;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="620" width="820" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="compare" value="Tiêu chí" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="260" y="790" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" value="RIS truyền thống" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="560" y="790" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" value="STAR-RIS" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="790" width="720" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ra0" value="Phạm vi phủ sóng" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="260" y="850" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rb0" value="Nửa không gian" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="560" y="850" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rc0" value="Toàn không gian" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="850" width="720" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ra1" value="Điều khiển tín hiệu" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="260" y="910" width="300" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rb1" value="Chỉ phản xạ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="560" y="910" width="560" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="rc1" value="Đồng thời truyền qua và phản xạ" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#999999;fontFamily=Times New Roman;fontSize=18;" vertex="1" parent="1">
+          <mxGeometry x="1120" y="910" width="720" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
