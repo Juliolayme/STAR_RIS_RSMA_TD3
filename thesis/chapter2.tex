@@ -133,6 +133,17 @@ trong đó $\bm\Phi_{u_k}=\bm\Phi_T$ nếu $u_k=1$, ngược lại là $\bm\Phi_
 \subsection{Giả định pha độc lập}
 Các phương trình \eqref{eq:phi-t}--\eqref{eq:phi-r} cho phép $\theta_n^T$ và $\theta_n^R$ độc lập. Mô hình coupled phase-shift cho thấy trong một STAR--RIS thụ động lossless, hai pha có thể chịu ràng buộc chênh lệch nhất định \cite{Liu2021STARCoupledPhase,Wang2022STAROptimization}. Do source code sử dụng pha độc lập, luận văn xem đây là miền khả thi lý tưởng hóa. Kết quả có ý nghĩa như đánh giá thuật toán trong mô hình đã công bố, không phải upper bound phần cứng chính xác.
 
+% FIGURE-INTEGRATED: CH2 START
+\begin{landscape}
+\ThesisFigure{figures/chapter2_ris_star_ris_overview.pdf}
+{So sánh RIS phản xạ truyền thống và STAR--RIS hỗ trợ phủ sóng toàn không gian}
+{fig:ch2-ris-star-ris}[0.94\linewidth]
+\figuresource{Tác giả xây dựng dựa trên \cite{Xu2021STARRIS,Mu2021STARAided,Wu2021IRSTutorial} (2026)}
+\end{landscape}
+
+Hình~\ref{fig:ch2-ris-star-ris} đối chiếu trực tiếp hai nguyên lý điều khiển môi trường truyền. Ở nửa trái, RIS truyền thống chỉ tạo đường phản xạ nên chủ yếu phục vụ người dùng trong cùng nửa không gian và để lại một miền khuất ở phía sau bề mặt. Ở nửa phải, STAR--RIS đồng thời tạo tia phản xạ và tia truyền qua để phục vụ hai nhóm người dùng ở hai phía. Hai hệ số $\phi_n^T$ và $\phi_n^R$ trong hình nhấn mạnh rằng tỷ lệ công suất $\beta_n^T$ phải được chuyển thành biên độ bằng căn bậc hai, đồng thời thỏa $\beta_n^T+\beta_n^R=1$. Dải ES--MS--TS đặt STAR--RIS trong ba giao thức phổ biến; luận văn lựa chọn ES vì mỗi phần tử đồng thời truyền và phản xạ, phù hợp với không gian hành động liên tục được TD3 tối ưu. Hình là cầu nối giữa khái niệm phủ sóng toàn không gian và mô hình hệ số phức được sử dụng trong các phương trình tiếp theo.
+% FIGURE-INTEGRATED: CH2 END
+
 \section{Bài toán tối ưu phi lồi}
 Kết hợp RSMA và STAR--RIS tạo bài toán tổng quát
 \begin{subequations}
@@ -312,11 +323,6 @@ Với metric bị chặn trong $[0,1]$ như QoS fraction, khoảng $t$ có thể
 
 \subsection{Kiểm định ghép cặp}
 Khi hai phương pháp được đánh giá trên cùng scenario, chênh lệch $d_i=x_i-y_i$ tạo thiết kế ghép cặp. Paired $t$-test kiểm tra trung bình $d_i$, còn Wilcoxon signed-rank kiểm tra phân bố chênh lệch theo thứ hạng mà không giả định chuẩn. Nhiều so sánh làm tăng false positive, vì vậy $p$-value được điều chỉnh bằng Holm. Kết quả khác nhau giữa hai kiểm định phải được báo cáo thay vì chọn một kiểm định có lợi.
-
-\ThesisFigure{figures/chapter2_conceptual_foundation.pdf}{Liên kết lý thuyết giữa RSMA, STAR--RIS và TD3}{fig:ch2-foundation}
-\figuresource{Tác giả đề xuất (2026)}
-
-Hình~\ref{fig:ch2-foundation} liên kết ba tầng lý thuyết. Tầng tín hiệu RSMA chuyển công suất và tỷ lệ common rate thành tốc độ người dùng; tầng STAR--RIS chuyển beta và pha thành kênh hiệu dụng; tầng TD3 ánh xạ CSI sang toàn bộ biến điều khiển và nhận reward từ tầng vật lý. Mũi tên hồi tiếp từ QoS violation về reward minh họa lý do cần penalty và dual controller. Hình cũng chỉ rõ action decoder nằm giữa actor và mô hình vật lý, bảo đảm mạng nơ-ron không trực tiếp phát sinh biến bất khả thi.
 
 \section{Kết luận chương}
 Chương 2 đã trình bày chuỗi công thức từ tín hiệu RSMA đến tốc độ người dùng, mô hình hệ số STAR--RIS energy-splitting, nguyên lý actor--critic và ba cơ chế cốt lõi của TD3. Bên cạnh đó, chương giải thích reward phạt QoS, dual ascent, projection và công cụ thống kê. Các thành phần này tạo nền tảng để Chương 3 xây dựng mô hình hệ thống cụ thể và bài toán tối ưu bám sát source code.

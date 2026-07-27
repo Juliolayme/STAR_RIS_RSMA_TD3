@@ -242,10 +242,16 @@ Trước full run, test suite phải pass. Các kiểm tra bao gồm tính hữu
 
 Một nguyên tắc quan trọng là không sửa phương trình vật lý để làm một thuật toán có lợi. Mọi thay đổi physics phải làm thay đổi config/provenance và yêu cầu chạy lại tất cả phương pháp. Tương tự, không được loại baseline mạnh chỉ vì nó vượt TD3.
 
-\ThesisFigure{figures/chapter4_td3_pipeline.pdf}{Pipeline huấn luyện, lựa chọn checkpoint và đánh giá TD3}{fig:ch4-pipeline}
-\figuresource{Tác giả đề xuất (2026)}
+% FIGURE-INTEGRATED: CH4 START
+\begin{landscape}
+\ThesisFigure{figures/chapter4_td3_training_pipeline.pdf}
+{Quy trình huấn luyện, lựa chọn checkpoint và đánh giá TD3 không rò rỉ tập kiểm thử}
+{fig:ch4-pipeline}[0.95\linewidth]
+\figuresource{Tác giả xây dựng từ giao thức thực nghiệm của repository (2026)}
+\end{landscape}
 
-Hình~\ref{fig:ch4-pipeline} nên chia thành ba lane. Lane dữ liệu thể hiện train/validation/test ScenarioBank tách biệt. Lane huấn luyện thể hiện actor, hai critic, replay buffer, dual controller và action decoder. Lane đánh giá thể hiện validation selection, best checkpoint, deterministic test, raw CSV, thống kê và latency. Mũi tên bị chặn từ test về checkpoint cần được vẽ rõ để nhấn mạnh không có test leakage.
+Hình~\ref{fig:ch4-pipeline} tổng hợp ba lớp của pipeline thực nghiệm. Lớp dữ liệu gồm ba ScenarioBank không giao nhau, trong đó tập kiểm thử được gắn biểu tượng khóa. Lớp huấn luyện biểu diễn vòng lặp giữa môi trường, actor TD3, bộ giải mã hành động khả thi, replay buffer, hai critic và bộ điều khiển đối ngẫu QoS; ba cơ chế target-policy smoothing, delayed policy update và lấy minimum của hai critic được ghi riêng để phân biệt TD3 với DDPG. Tập validation chỉ đi vào khối lựa chọn checkpoint sau mỗi 5.000 bước. Sau khi \texttt{best.pt} được khóa, chính sách mới được đánh giá xác định với exploration noise bằng không trên test bank, sau đó ghi raw CSV, thực hiện thống kê ghép cặp, đo độ trễ và tạo báo cáo. Dòng cảnh báo cuối hình cùng việc không có mũi tên quay từ test về training thể hiện rõ nguyên tắc chống test leakage.
+% FIGURE-INTEGRATED: CH4 END
 
 \section{Kết luận chương}
 Chương 4 đã mô tả đầy đủ kiến trúc TD3, replay, exploration, dual QoS, checkpoint selection, baseline, ablation và giao thức thống kê. Thiết kế thực nghiệm ưu tiên tính nhất quán và khả năng truy xuất hơn việc tối ưu riêng một thuật toán. Chương 5 sử dụng bundle đã kiểm toán để phân tích kết quả và giới hạn kết luận.
