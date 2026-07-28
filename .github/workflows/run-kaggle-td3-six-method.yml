@@ -6,7 +6,7 @@ on:
     branches:
       - experiments/drl-six-method-v1
     paths:
-      - experiments/six_method/TRIGGER_TD3
+      - experiments/six_method/TRIGGER_ALL
 
 permissions:
   contents: read
