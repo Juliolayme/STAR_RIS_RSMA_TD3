@@ -1,0 +1,67 @@
+name: Fix six-method Kaggle slugs and collect
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - experiments/six_method/FIX_SLUGS_NOW
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  fix-and-dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Replace metadata ids with actual Kaggle URL slugs
+        run: |
+          set -euo pipefail
+          files=(
+            .github/workflows/collect-six-method-results.yml
+            .github/workflows/check-and-dispatch-six-method-now.yml
+          )
+          for file in "${files[@]}"; do
+            sed -i \
+              -e 's#thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1#thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64#g' \
+              -e 's#thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1#thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128#g' \
+              -e 's#ronganminh/star-ris-ddpg-sixmethod-low-n-v1#ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64#g' \
+              -e 's#ronganminh/star-ris-ddpg-sixmethod-high-n-v1#ronganminh/star-ris-ddpg-six-method-benchmark-96-128#g' \
+              -e 's#duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1#duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64#g' \
+              -e 's#duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1#duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128#g' \
+              "$file"
+          done
+
+          grep -R "six-method-benchmark" \
+            .github/workflows/collect-six-method-results.yml \
+            .github/workflows/check-and-dispatch-six-method-now.yml
+          if grep -R "sixmethod-.*-n-v1" "${files[@]}"; then
+            echo "Old incorrect Kaggle slug remains" >&2
+            exit 1
+          fi
+
+      - name: Commit corrected slugs
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            .github/workflows/collect-six-method-results.yml \
+            .github/workflows/check-and-dispatch-six-method-now.yml
+          git commit -m "Use actual Kaggle slugs for six-method collection"
+          git push origin HEAD:main
+
+      - name: Dispatch corrected stage checker
+        run: |
+          sleep 5
+          gh workflow run check-and-dispatch-six-method-now.yml --ref main
