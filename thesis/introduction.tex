@@ -3,83 +3,89 @@
 
 \section*{1. Tính cấp thiết của đề tài}
 \addcontentsline{toc}{section}{1. Tính cấp thiết của đề tài}
-Sự phát triển của các hệ thống thông tin vô tuyến thế hệ mới đặt ra yêu cầu đồng thời về tốc độ dữ liệu, độ tin cậy, độ trễ và khả năng phục vụ số lượng lớn thiết bị. Trong môi trường phổ tần hữu hạn, việc chỉ tăng công suất phát hoặc mở rộng băng thông không phải lúc nào cũng khả thi. Một hướng tiếp cận quan trọng là cải thiện cách mạng quản lý nhiễu và điều khiển môi trường truyền sóng. RSMA được đề xuất như một khung đa truy cập linh hoạt, trong đó thông điệp của mỗi người dùng được phân tách thành phần chung và phần riêng. Người nhận trước tiên giải mã luồng chung, thực hiện khử nhiễu liên tiếp, sau đó giải mã luồng riêng của mình. Cơ chế này cho phép điều chỉnh liên tục giữa hai thái cực: coi nhiễu là tạp âm và giải mã một phần nhiễu, từ đó tổng quát hóa nhiều chiến lược đa truy cập đã có \cite{Mao2022RSMAFundamentals,Mao2018RSMABridging,Clerckx2021NOMACritical}.
+Các hệ thống thông tin vô tuyến thế hệ mới phải đồng thời nâng cao tốc độ dữ liệu, phục vụ nhiều người dùng, duy trì chất lượng dịch vụ và rút ngắn thời gian ra quyết định. Trong điều kiện băng thông và công suất hữu hạn, hiệu năng không chỉ phụ thuộc vào mức năng lượng phát mà còn phụ thuộc vào cách quản lý nhiễu và cách điều khiển môi trường truyền sóng.
 
-Song song với tiến bộ ở lớp đa truy cập, RIS và STAR--RIS cho phép thay đổi có chủ đích biên độ hoặc pha của sóng điện từ trên đường truyền gián tiếp. RIS phản xạ truyền thống chủ yếu phục vụ người dùng ở cùng một nửa không gian, trong khi STAR--RIS có khả năng đồng thời truyền và phản xạ, mở rộng vùng phủ sang hai phía của bề mặt \cite{Xu2021STARRIS,Mu2021STARAided,Khalid2022STARDesign}. Khi kết hợp RSMA với STAR--RIS, hệ thống có thêm bậc tự do để điều khiển nhiễu: RSMA xử lý nhiễu ở miền tín hiệu, còn STAR--RIS định hình kênh hiệu dụng. Tuy nhiên, lợi ích này đi kèm bài toán tối ưu có nhiều biến liên tục, gồm công suất luồng chung, công suất các luồng riêng, tỷ lệ phân bổ tốc độ chung, hệ số phân chia năng lượng và các pha truyền/phản xạ.
+Đa truy cập phân chia tốc độ (Rate-Splitting Multiple Access, RSMA) là một kỹ thuật quản lý nhiễu linh hoạt. Thông điệp của mỗi người dùng được chia thành phần chung và phần riêng. Mọi người dùng giải mã luồng chung trước, loại bỏ luồng này, rồi giải mã luồng riêng của mình. Nhờ đó, RSMA có thể điều chỉnh giữa hai cách xử lý nhiễu: xem nhiễu như tạp âm hoặc giải mã một phần nhiễu \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals}.
 
-Các phương pháp tối ưu truyền thống như AO, SCA hoặc tìm kiếm theo codebook có ưu điểm là bám sát cấu trúc toán học của bài toán. Dù vậy, chúng thường phải lặp nhiều lần cho mỗi hiện thực kênh mới. Trong bối cảnh yêu cầu ra quyết định nhanh, chi phí tính toán trực tuyến có thể trở thành nút thắt. Học tăng cường sâu cung cấp một cách nhìn khác: thực hiện phần lớn chi phí trong giai đoạn huấn luyện, sau đó sử dụng mạng nơ-ron như một ánh xạ gần tức thời từ trạng thái kênh sang quyết định phân bổ tài nguyên. TD3 đặc biệt phù hợp với không gian hành động liên tục và được thiết kế để giảm sai lệch ước lượng giá trị nhờ hai critic, cập nhật chính sách trễ và làm trơn chính sách đích \cite{Fujimoto2018TD3}.
+Bề mặt thông minh tái cấu hình đồng thời truyền và phản xạ (Simultaneously Transmitting and Reflecting Reconfigurable Intelligent Surface, STAR--RIS) cho phép tạo cả thành phần truyền qua và phản xạ từ cùng một bề mặt. So với bề mặt thông minh tái cấu hình (Reconfigurable Intelligent Surface, RIS) chỉ phản xạ theo mô hình thông dụng, STAR--RIS có thể phục vụ người dùng ở cả hai phía của bề mặt \cite{Xu2021STARRIS,Mu2021STARAided}. Khi kết hợp STAR--RIS với RSMA, hệ thống có thêm nhiều biến điều khiển gồm công suất, tỷ lệ tốc độ chung, hệ số chia năng lượng và pha của từng phần tử.
 
-Đề tài vì vậy tập trung xây dựng một quy trình nghiên cứu thống nhất cho hệ thống SISO STAR--RIS hỗ trợ RSMA, trong đó TD3 là phương pháp học chính. Luận văn không chỉ quan tâm đến tổng tốc độ, mà còn xem xét tỷ lệ thỏa QoS, xác suất tất cả người dùng cùng thỏa QoS, mức vi phạm ràng buộc, độ trễ ra quyết định, khả năng mở rộng theo số phần tử STAR--RIS và độ tin cậy thống kê. Đây là cách tiếp cận cần thiết để tránh kết luận chỉ dựa trên một chỉ số hoặc một lần chạy.
+Bài toán tối ưu đồng thời các biến trên có tính phi lồi và số chiều tăng theo số phần tử STAR--RIS. Các bộ giải lặp có thể đạt nghiệm tốt nhưng phải giải lại cho từng hiện thực kênh. Học tăng cường sâu (Deep Reinforcement Learning, DRL) cung cấp hướng tiếp cận khác: thực hiện chi phí học chủ yếu ở giai đoạn huấn luyện và dùng mạng nơ-ron để tạo quyết định nhanh khi suy luận. Luận văn lựa chọn thuật toán gradient chính sách xác định sâu trì hoãn kép (Twin Delayed Deep Deterministic Policy Gradient, TD3) vì thuật toán này phù hợp với không gian hành động liên tục và có ba cơ chế giảm sai số ước lượng: hai Critic, làm trơn hành động đích và cập nhật Actor trễ \cite{Fujimoto2018TD3}.
 
-\section*{2. Vấn đề và khoảng trống nghiên cứu}
-\addcontentsline{toc}{section}{2. Vấn đề và khoảng trống nghiên cứu}
-Các công trình về RSMA đã hình thành nền tảng lý thuyết tương đối đầy đủ cho việc phân chia thông điệp, thiết kế precoder và tối ưu tổng tốc độ dưới CSI không hoàn hảo \cite{Joudeh2016RSMASumRate,Li2020RSPractical}. Các nghiên cứu RIS đã phát triển mô hình tối ưu kết hợp giữa biến chủ động và thụ động, đồng thời chỉ ra các vấn đề thực tế về suy hao đường truyền, ước lượng kênh và giới hạn phần cứng \cite{Wu2019IRSBeamforming,Huang2019RISEnergyEfficiency,DiRenzo2020SmartRadio,Bjornson2020RISMyths,Wu2021IRSTutorial}. Với STAR--RIS, ba giao thức energy splitting, mode switching và time switching được nghiên cứu rộng rãi; mô hình pha ghép cũng cho thấy giả định pha truyền và pha phản xạ độc lập có thể là lý tưởng hóa đối với phần cứng thụ động \cite{Mu2021STARAided,Liu2021STARCoupledPhase,Wang2022STAROptimization}.
+Chất lượng dịch vụ (Quality of Service, QoS) được xem là ràng buộc trung tâm thay vì chỉ là chỉ số phụ. Vì vậy, luận văn không chỉ đánh giá tổng tốc độ mà còn xem xét tỷ lệ người dùng đạt QoS, xác suất toàn bộ người dùng cùng đạt QoS, mức vi phạm, tính ổn định theo seed và độ trễ ra quyết định.
 
-Một số công trình gần đây đã kết hợp trực tiếp STAR--RIS và RSMA. Meng và cộng sự sử dụng PPO để tối đa hóa tổng tốc độ trong mạng STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}; Ge và cộng sự nghiên cứu chiến lược rate-splitting cho massive MIMO với tối ưu chung \cite{Ge2024RSMAMassiveMIMO}; Chang và cộng sự sử dụng AO và penalty-SCA trong bài toán truyền thông bí mật \cite{Chang2024CovertSTARRSMA}. Những nghiên cứu này chứng minh tiềm năng của việc kết hợp hai công nghệ, nhưng mô hình anten, mục tiêu, ràng buộc và giao thức đánh giá khác nhau đáng kể. Do đó, không thể trực tiếp chuyển công thức hoặc kết quả của một công trình sang mô hình SISO của luận văn.
+\section*{2. Vấn đề nghiên cứu}
+\addcontentsline{toc}{section}{2. Vấn đề nghiên cứu}
+Hệ thống được nghiên cứu là mạng truyền xuống một đầu vào, một đầu ra (Single-Input Single-Output, SISO) gồm một trạm gốc, một STAR--RIS thụ động và bốn người dùng. STAR--RIS vận hành theo giao thức phân chia năng lượng (Energy Splitting, ES). Trạm gốc phát một luồng chung và bốn luồng riêng theo RSMA. Bài toán cần lựa chọn đồng thời:
+\begin{itemize}
+  \item công suất của luồng chung và các luồng riêng;
+  \item tỷ lệ phân bổ tốc độ chung cho từng người dùng;
+  \item hệ số chia năng lượng truyền qua và phản xạ;
+  \item pha truyền và pha phản xạ của từng phần tử STAR--RIS.
+\end{itemize}
 
-Khoảng trống mà luận văn hướng đến gồm bốn điểm. Thứ nhất, cần một mô hình SISO tối giản nhưng nhất quán, trong đó tất cả phương pháp sử dụng cùng phương trình kênh và cùng bộ tính tốc độ RSMA. Thứ hai, cần một không gian hành động khả thi về mặt vật lý, tránh tình trạng actor sinh ra nghiệm vi phạm tổng công suất hoặc vi phạm quy tắc phân chia năng lượng. Thứ ba, cần quy trình đánh giá khóa train/validation/test để loại bỏ rò rỉ dữ liệu và lựa chọn checkpoint trên tập test. Thứ tư, cần diễn giải hiệu năng dưới góc nhìn đánh đổi chất lượng--độ trễ thay vì chỉ khẳng định một thuật toán ``tốt nhất'' theo tổng tốc độ.
+Các biến trên tác động lẫn nhau thông qua kênh hiệu dụng và biểu thức tỷ số tín hiệu trên nhiễu và can nhiễu (Signal-to-Interference-plus-Noise Ratio, SINR). Tốc độ luồng chung còn bị giới hạn bởi người dùng giải mã yếu nhất. Vì vậy, miền nghiệm có nhiều cực trị cục bộ và khó giải nhanh khi số phần tử tăng.
+
+Luận văn đặt TD3 trong hai nhóm so sánh. Nhóm DRL gồm gradient chính sách xác định sâu (Deep Deterministic Policy Gradient, DDPG) \cite{Lillicrap2015DDPG} và tối ưu chính sách lân cận (Proximal Policy Optimization, PPO) \cite{Meng2024PPOSTARRSMA}. Nhóm truyền thống gồm tối ưu luân phiên (Alternating Optimization, AO), xấp xỉ lồi liên tiếp (Successive Convex Approximation, SCA), tìm kiếm lưới và căn chỉnh pha phân tích. Phương pháp kết hợp AO--SCA được xem là bộ giải cục bộ, không phải nghiệm tối ưu toàn cục.
 
 \section*{3. Mục tiêu nghiên cứu}
 \addcontentsline{toc}{section}{3. Mục tiêu nghiên cứu}
 \subsection*{3.1. Mục tiêu tổng quát}
-Mục tiêu tổng quát của luận văn là xây dựng và đánh giá phương pháp TD3 đơn tác tử để tối ưu đồng thời tài nguyên RSMA và cấu hình STAR--RIS trong hệ thống truyền xuống SISO, qua đó đạt sự cân bằng giữa tổng tốc độ truyền, mức độ đáp ứng QoS và độ trễ ra quyết định.
+Xây dựng và đánh giá một bộ tối ưu TD3 cho bài toán phân bổ tài nguyên trong mạng STAR--RIS hỗ trợ RSMA, hướng đến sự cân bằng giữa tổng tốc độ, khả năng đáp ứng QoS và độ trễ ra quyết định.
 
 \subsection*{3.2. Mục tiêu cụ thể}
-Các mục tiêu cụ thể gồm:
 \begin{enumerate}[label=\arabic*)]
-  \item Xây dựng mô hình toán học cho hệ thống SISO STAR--RIS energy-splitting hỗ trợ RSMA với người dùng ở cả phía truyền và phía phản xạ.
-  \item Xây dựng bài toán tối ưu đồng thời công suất luồng chung/riêng, tỷ lệ phân bổ tốc độ chung, hệ số phân chia năng lượng và pha truyền/phản xạ dưới ràng buộc tổng công suất và QoS.
-  \item Mô hình hóa bài toán thành một quá trình quyết định theo ngữ cảnh và phát triển thuật toán TD3 cho không gian hành động liên tục có số chiều tăng theo số phần tử STAR--RIS.
-  \item Xây dựng các baseline truyền thống và học tăng cường trong cùng một môi trường vật lý; thực hiện ablation để đánh giá vai trò của STAR--RIS và chính sách phân bổ công suất.
-  \item Đánh giá bằng ScenarioBank khóa, nhiều seed, thống kê ghép cặp, khoảng tin cậy, kiểm định giả thuyết và benchmark độ trễ CPU một luồng.
+  \item Xây dựng mô hình tín hiệu, kênh hiệu dụng, tốc độ RSMA và mô hình ES của STAR--RIS thống nhất với source code.
+  \item Phát biểu bài toán tối ưu đồng thời các biến công suất, tốc độ chung, chia năng lượng và pha dưới các ràng buộc vật lý và QoS.
+  \item Xây dựng trạng thái, hành động, hàm thưởng, bộ giải mã hành động vật lý và quy trình huấn luyện TD3.
+  \item So sánh TD3 với DDPG, PPO, AO--SCA, AO--Grid và AnalyticalRIS trên cùng tập kịch bản kiểm thử khóa.
+  \item Đánh giá kết quả bằng nhiều seed, thống kê ghép cặp, hiệu chỉnh Holm và benchmark độ trễ trên cùng bộ xử lý trung tâm (Central Processing Unit, CPU).
 \end{enumerate}
 
 \section*{4. Câu hỏi nghiên cứu}
 \addcontentsline{toc}{section}{4. Câu hỏi nghiên cứu}
 \begin{researchquestion}
-\textbf{RQ1:} TD3 có học được ánh xạ từ trạng thái kênh sang phương án phân bổ tài nguyên khả thi và duy trì QoS ổn định trên các kịch bản chưa quan sát hay không?
+\textbf{RQ1:} TD3 có tạo được hành động khả thi và duy trì QoS ổn định trên các kịch bản chưa dùng để lựa chọn mô hình hay không?
 \end{researchquestion}
 \begin{researchquestion}
-\textbf{RQ2:} Chất lượng nghiệm của TD3, xét theo tổng tốc độ và vi phạm QoS, khác như thế nào so với AO--SCA, AO--Grid và AnalyticalRIS?
+\textbf{RQ2:} Trong ba implementation DRL được đánh giá, TD3 khác DDPG và PPO như thế nào về tổng tốc độ, QoS, tính ổn định và độ trễ?
 \end{researchquestion}
 \begin{researchquestion}
-\textbf{RQ3:} Khi số phần tử STAR--RIS tăng từ 16 đến 128, tổng tốc độ, độ tin cậy QoS và độ trễ của các phương pháp thay đổi theo xu hướng nào?
+\textbf{RQ3:} TD3 tạo ra điểm đánh đổi chất lượng--độ trễ như thế nào khi so với AO--SCA, AO--Grid và AnalyticalRIS?
 \end{researchquestion}
 \begin{researchquestion}
-\textbf{RQ4:} TD3 tạo ra điểm đánh đổi chất lượng--độ trễ ra sao so với các solver lặp truyền thống?
+\textbf{RQ4:} Khi số phần tử STAR--RIS tăng từ 16 lên 128, chất lượng nghiệm, độ tin cậy QoS và độ trễ của các phương pháp thay đổi theo xu hướng nào?
 \end{researchquestion}
 
 \section*{5. Đối tượng và phạm vi nghiên cứu}
 \addcontentsline{toc}{section}{5. Đối tượng và phạm vi nghiên cứu}
-Đối tượng nghiên cứu gồm: hệ thống truyền xuống SISO STAR--RIS hỗ trợ RSMA; mô hình energy-splitting của STAR--RIS; bài toán phân bổ công suất và tốc độ chung; thuật toán TD3 cùng các baseline; và quy trình đánh giá thực nghiệm có tính tái lập.
+Đối tượng nghiên cứu gồm mô hình STAR--RIS hỗ trợ RSMA, bài toán phân bổ tài nguyên liên tục, thuật toán TD3 và các phương pháp so sánh. Cấu hình mô phỏng dùng một trạm gốc SISO, bốn người dùng SISO và một STAR--RIS có số phần tử $N\in\{16,32,64,96,128\}$.
 
-Phạm vi mô hình được giới hạn ở một trạm gốc SISO, bốn người dùng SISO, một STAR--RIS thụ động và các kích thước $N\in\{16,32,64,96,128\}$. Người dùng được gán cố định vào phía truyền hoặc phía phản xạ. CSI được cung cấp cho bộ ra quyết định thông qua observation. Kênh được sinh tổng hợp theo phân bố Gaussian phức với các hệ số tỷ lệ cố định; chưa xét vị trí hình học, suy hao đường truyền theo khoảng cách, kênh Rician, di động, tương quan thời gian, đa ô, active STAR--RIS, lỗi phần cứng, sai số ước lượng CSI hoặc thử nghiệm phần cứng.
+Thông tin trạng thái kênh (Channel State Information, CSI) được cung cấp hoàn hảo cho bộ ra quyết định. Kênh được sinh tổng hợp theo phân bố Gaussian phức độc lập. Người dùng được gán cố định vào miền truyền qua hoặc miền phản xạ. Mô hình chưa xét chuyển động người dùng, tương quan thời gian, suy hao theo vị trí, kênh Rician, đa ô, lỗi ước lượng CSI, lượng tử hóa pha, sai số khử nhiễu, tiêu thụ công suất phần cứng hoặc thử nghiệm thiết bị thật.
 
-Phạm vi thuật toán tập trung vào TD3. DDPG và PPO được trình bày như baseline học tăng cường trong framework; tuy nhiên, các tuyên bố định lượng cuối cùng của luận văn chỉ sử dụng những kết quả đã có đầy đủ kiểm toán và provenance trong bundle thực nghiệm. AO--SCA được xem là baseline tối ưu cục bộ, không phải nghiệm tối ưu toàn cục hay upper bound.
+Luận văn đánh giá các implementation và siêu tham số đã công bố trong repository. Các thuật toán DRL dùng cùng ngân sách 100.000 tương tác, cùng ScenarioBank và cùng quy tắc lựa chọn checkpoint; tuy nhiên, chưa thực hiện tìm kiếm siêu tham số với ngân sách bằng nhau cho mọi thuật toán. Do đó, kết luận chỉ áp dụng cho giao thức thực nghiệm đã khai báo.
 
 \section*{6. Phương pháp nghiên cứu}
 \addcontentsline{toc}{section}{6. Phương pháp nghiên cứu}
-Luận văn sử dụng kết hợp các phương pháp sau:
 \begin{itemize}
-  \item \textbf{Tổng hợp tài liệu:} phân tích các công trình nền tảng về RSMA, RIS, STAR--RIS, TD3 và SCA từ thư viện PDF đã kiểm tra trong repository.
-  \item \textbf{Mô hình hóa toán học:} xây dựng kênh hiệu dụng, SINR, tốc độ chung/riêng, hàm mục tiêu và tập ràng buộc.
-  \item \textbf{Thiết kế thuật toán:} ánh xạ observation và action sang không gian vật lý; thiết kế reward phạt QoS; áp dụng dual ascent chiếu để điều chỉnh hệ số phạt.
-  \item \textbf{Mô phỏng định lượng:} triển khai bằng Python và PyTorch, huấn luyện nhiều seed trên các ScenarioBank độc lập.
-  \item \textbf{Đánh giá thống kê:} tính trung bình, độ lệch chuẩn, khoảng tin cậy 95\%, kiểm định $t$ ghép cặp, Wilcoxon ghép cặp, hiệu chỉnh Holm và effect size.
-  \item \textbf{Đánh giá hệ thống:} đo inference, tính metric và end-to-end latency trong chế độ CPU một luồng.
+  \item \textbf{Tổng hợp tài liệu:} nghiên cứu cơ sở RSMA, RIS, STAR--RIS, DDPG, PPO, TD3 và các kỹ thuật tối ưu phi lồi.
+  \item \textbf{Mô hình hóa:} xây dựng phương trình kênh, tín hiệu, SINR, tốc độ, QoS, hàm mục tiêu và ràng buộc.
+  \item \textbf{Thiết kế thuật toán:} xây dựng Actor, hai Critic, Replay Buffer, bộ điều khiển đối ngẫu QoS và phép chiếu hành động vào miền vật lý.
+  \item \textbf{Mô phỏng:} triển khai bằng Python/PyTorch, huấn luyện tám seed trên từng kích thước STAR--RIS và đánh giá trên tập kiểm thử khóa.
+  \item \textbf{Phân tích thống kê:} sử dụng trung bình, độ lệch chuẩn, khoảng tin cậy (Confidence Interval, CI), kiểm định ghép cặp, kích thước ảnh hưởng và hiệu chỉnh Holm.
+  \item \textbf{Đánh giá hệ thống:} đo độ trễ của sáu phương pháp trên cùng một CPU runner một luồng.
 \end{itemize}
 
 \section*{7. Đóng góp của luận văn}
 \addcontentsline{toc}{section}{7. Đóng góp của luận văn}
-Các đóng góp chính gồm:
 \begin{enumerate}[label=\arabic*)]
-  \item Một mô hình SISO STAR--RIS--RSMA thống nhất, trong đó các hệ số STAR--RIS, công suất và tỷ lệ tốc độ được giải mã từ cùng một vector hành động khả thi.
-  \item Một bộ tối ưu TD3 có cơ chế hai critic, target-policy smoothing, delayed update, normalization theo khối, action projection và điều khiển dual cho QoS.
-  \item Một quy trình ScenarioBank khóa train/validation/test, checkpoint selection theo ưu tiên tính khả thi, đánh giá test không thăm dò và lưu provenance bằng checksum/config hash/Git commit.
-  \item Một đánh giá đa chiều về sum-rate, QoS, violation, scalability, ablation, latency và ý nghĩa thống kê.
-  \item Một diễn giải khoa học thận trọng: TD3 được định vị là giải pháp cân bằng chất lượng--độ trễ có QoS cao, trong khi AO--SCA đạt tổng tốc độ cao hơn trong thí nghiệm đã thực hiện.
+  \item Xây dựng mô hình SISO STAR--RIS--RSMA thống nhất, trong đó mọi phương pháp dùng chung mô-đun vật lý và bộ tính tốc độ.
+  \item Xây dựng tham số hóa hành động \texttt{physical\_v3}, bảo đảm công suất và tỷ lệ tốc độ nằm trên simplex, hệ số chia năng lượng thuộc $[0,1]$ và pha nằm trong miền hợp lệ.
+  \item Xây dựng TD3 có hai Critic, làm trơn hành động đích, cập nhật Actor trễ, chuẩn hóa trạng thái theo khối và điều khiển đối ngẫu cho QoS.
+  \item Xây dựng quy trình ScenarioBank tách biệt huấn luyện--xác thực--kiểm thử, lựa chọn checkpoint theo ưu tiên tính khả thi và lưu đầy đủ provenance.
+  \item Thực hiện benchmark sáu phương pháp trên năm kích thước STAR--RIS, tám seed cho mỗi thuật toán DRL và 1.000 kịch bản kiểm thử khóa.
+  \item Đưa ra kết luận cân bằng: AO--SCA đạt tổng tốc độ cao nhất, AnalyticalRIS có độ trễ thấp nhất, còn TD3 là phương pháp DRL ổn định nhất và tạo điểm cân bằng tốt giữa chất lượng, QoS và độ trễ trong giao thức đã đánh giá.
 \end{enumerate}
 
 \section*{8. Kết cấu luận văn}
 \addcontentsline{toc}{section}{8. Kết cấu luận văn}
-Ngoài phần Mở đầu, Kết luận, Tài liệu tham khảo và Phụ lục, luận văn gồm năm chương. Chương 1 tổng quan các hướng nghiên cứu và xác định khoảng trống. Chương 2 trình bày cơ sở lý thuyết về RSMA, STAR--RIS, học tăng cường và TD3. Chương 3 xây dựng mô hình hệ thống và bài toán tối ưu. Chương 4 mô tả chi tiết phương pháp TD3, các baseline và quy trình thực nghiệm. Chương 5 phân tích kết quả mô phỏng, độ trễ, kiểm định thống kê, ablation và các mối đe dọa đến tính hợp lệ của kết luận.
+Ngoài phần Mở đầu, Kết luận, Tài liệu tham khảo và Phụ lục, luận văn gồm bốn chương. Chương 1 trình bày cơ sở lý thuyết và công dụng của các công nghệ RSMA, STAR--RIS và DRL bằng cách diễn giải trực quan, hạn chế công thức. Chương 2 xây dựng mô hình hệ thống và bài toán tối ưu. Chương 3 trình bày quá trình xây dựng TD3, các phương pháp so sánh và giao thức thực nghiệm. Chương 4 báo cáo kết quả mô phỏng, phân tích thống kê, độ trễ, giới hạn và trả lời các câu hỏi nghiên cứu.
