@@ -50,12 +50,12 @@ jobs:
             cat "$RUNNER_TEMP/six_method_status/${name}.txt"
           }
 
-          query "$TD3_USER" "$TD3_KEY" "thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1" "td3_low_n"
-          query "$TD3_USER" "$TD3_KEY" "thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1" "td3_high_n"
-          query "$DDPG_USER" "$DDPG_KEY" "ronganminh/star-ris-ddpg-sixmethod-low-n-v1" "ddpg_low_n"
-          query "$DDPG_USER" "$DDPG_KEY" "ronganminh/star-ris-ddpg-sixmethod-high-n-v1" "ddpg_high_n"
-          query "$PPO_USER" "$PPO_KEY" "duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1" "ppo_low_n"
-          query "$PPO_USER" "$PPO_KEY" "duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1" "ppo_high_n"
+          query "$TD3_USER" "$TD3_KEY" "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64" "td3_low_n"
+          query "$TD3_USER" "$TD3_KEY" "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128" "td3_high_n"
+          query "$DDPG_USER" "$DDPG_KEY" "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64" "ddpg_low_n"
+          query "$DDPG_USER" "$DDPG_KEY" "ronganminh/star-ris-ddpg-six-method-benchmark-96-128" "ddpg_high_n"
+          query "$PPO_USER" "$PPO_KEY" "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64" "ppo_low_n"
+          query "$PPO_USER" "$PPO_KEY" "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128" "ppo_high_n"
 
           python - <<'PY'
           import datetime as dt
@@ -65,12 +65,12 @@ jobs:
 
           root = Path(os.environ["RUNNER_TEMP"]) / "six_method_status"
           refs = {
-              "td3_low_n": "thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1",
-              "td3_high_n": "thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1",
-              "ddpg_low_n": "ronganminh/star-ris-ddpg-sixmethod-low-n-v1",
-              "ddpg_high_n": "ronganminh/star-ris-ddpg-sixmethod-high-n-v1",
-              "ppo_low_n": "duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1",
-              "ppo_high_n": "duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1",
+              "td3_low_n": "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64",
+              "td3_high_n": "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128",
+              "ddpg_low_n": "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64",
+              "ddpg_high_n": "ronganminh/star-ris-ddpg-six-method-benchmark-96-128",
+              "ppo_low_n": "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64",
+              "ppo_high_n": "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128",
           }
           stages = {}
           all_complete = True
@@ -79,7 +79,10 @@ jobs:
               raw = (root / f"{name}.txt").read_text(encoding="utf-8", errors="replace").strip()
               upper = raw.upper()
               complete = "COMPLETE" in upper
-              failed = any(token in upper for token in ("ERROR", "FAILED", "CANCELLED", "CANCELED"))
+              failed = any(token in upper for token in (
+                  "ERROR", "FAILED", "CANCELLED", "CANCELED",
+                  "PERMISSION", "CANNOT ACCESS KERNEL",
+              ))
               stages[name] = {
                   "kernel": ref,
                   "raw_status": raw,
