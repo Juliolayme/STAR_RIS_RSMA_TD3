@@ -1,257 +1,159 @@
-\chapter{PHƯƠNG PHÁP TD3 VÀ QUY TRÌNH THỰC NGHIỆM}
-\label{chap:method}
+\chapter{MÔ PHỎNG VÀ ĐÁNH GIÁ}
+\label{chap:results}
 
-\section{Tổng quan pipeline nghiên cứu}
-Pipeline được thiết kế theo nguyên tắc ``một mô hình vật lý, nhiều bộ giải''. Tất cả phương pháp nhận cùng một \texttt{ChannelSample}, sử dụng cùng hàm tính kênh hiệu dụng, cùng bộ giải mã action và cùng công thức tốc độ RSMA. Sự khác biệt chỉ nằm ở cách chọn action. TD3, DDPG và PPO học một policy từ dữ liệu; AO--SCA, AO--Grid và AnalyticalRIS giải trực tiếp từng scenario; các ablation thay thế một phần quyết định của TD3 bằng cấu hình cố định hoặc ngẫu nhiên.
-
-Quy trình gồm sáu pha: tạo ScenarioBank; huấn luyện; đánh giá validation định kỳ; chọn checkpoint; đánh giá test xác định; và tổng hợp thống kê/latency. Mọi output quan trọng đều có manifest, config hash, checksum bank và Git commit. Cách tổ chức này giảm nguy cơ ``code drift'' giữa lần huấn luyện và lần vẽ biểu đồ.
-
-\section{Kiến trúc mạng nơ-ron}
-\subsection{Actor}
-Actor là MLP xác định
-\begin{equation}
- \mu_{\phi}:\R^{d_s}\rightarrow[-1,1]^{d_a}.
-\end{equation}
-Kiến trúc gồm hai hidden layer kích thước $H=256$:
-\begin{equation}
- d_s\rightarrow256\rightarrow256\rightarrow d_a.
-\end{equation}
-Mỗi hidden layer dùng LayerNorm và ReLU trong cấu hình cuối; đầu ra dùng Tanh. LayerNorm giúp giảm thay đổi phân bố kích hoạt giữa các kích thước $N$, trong khi Tanh tạo action thô nằm trong miền lập phương.
-
-\subsection{Hai critic}
-Mỗi critic nhận vector ghép $[s,a]$ và trả về một scalar:
-\begin{equation}
- Q_{\psi_i}:\R^{d_s+d_a}\rightarrow\R,
- \qquad i\in\{1,2\}.
-\end{equation}
-Kiến trúc là
-\begin{equation}
- d_s+d_a\rightarrow256\rightarrow256\rightarrow1.
-\end{equation}
-Hai critic khởi tạo độc lập và được tối ưu chung bằng tổng Huber loss. Chỉ critic thứ nhất được dùng trong actor objective, đúng với TD3 chuẩn.
-
-\subsection{Target networks}
-Actor target và hai critic target được sao chép từ mạng online khi khởi tạo. Target không nhận gradient trực tiếp; chúng được soft-update sau mỗi lần cập nhật actor. Việc lưu toàn bộ target và optimizer state trong checkpoint cho phép tiếp tục huấn luyện; khi inference-only, chỉ actor cần được phục hồi.
-
-\section{Replay buffer và thu thập dữ liệu}
-Replay buffer có dung lượng 200.000 transition. Mỗi transition gồm $(s_t,a_t,r_t,s_{t+1},d_t)$. Trong 2.000 bước warm-up, action được lấy đều trong $[-1,1]^{d_a}$ để phủ không gian. Sau warm-up, actor action được cộng Gaussian exploration noise.
-
-Để tránh tổng năng lượng nhiễu tăng quá mạnh khi $d_a$ lớn, implementation dùng hệ số tỷ lệ theo số chiều:
-\begin{equation}
- \kappa_d=\min\left(1,\sqrt{\frac{d_{\mathrm{ref}}}{d_a}}\right),
- \label{eq:noise-dim-scale}
-\end{equation}
-trong đó $d_{\mathrm{ref}}=64$. Độ lệch chuẩn hiệu dụng bằng $\sigma\kappa_d$. Cơ chế này giữ chuẩn kỳ vọng của vector nhiễu ổn định hơn khi $N$ tăng.
-
-Exploration noise giảm tuyến tính từ 0,12 xuống 0,03 trong 100.000 bước:
-\begin{equation}
- \sigma_t=\sigma_0+\min\left(\frac{t}{T_{\mathrm{decay}}},1\right)(\sigma_f-\sigma_0).
- \label{eq:exploration-schedule}
-\end{equation}
-Mục tiêu là thăm dò mạnh ở đầu và tinh chỉnh ở cuối.
-
-\section{Cập nhật TD3}
-\subsection{Tạo target}
-Với mini-batch kích thước 256, target action là
-\begin{equation}
- a'_j=\operatorname{clip}\left(
- \mu_{\phi'}(s'_j)+\epsilon_j,-1,1
- \right),
-\end{equation}
-trong đó $\epsilon_j$ có độ lệch chuẩn target 0,15, bị clip ở 0,30 và tiếp tục nhân hệ số $\kappa_d$. Target value là
-\begin{equation}
- y_j=r_j+\gamma(1-d_j)\min(Q_{\psi_1'}(s_j',a_j'),Q_{\psi_2'}(s_j',a_j')).
-\end{equation}
-
-\subsection{Cập nhật critic}
-Tổng loss là
-\begin{equation}
- L_Q=\frac1B\sum_{j=1}^{B}
- \left[\ell_{\mathrm{Huber}}(Q_{\psi_1}(s_j,a_j)-y_j)
- +\ell_{\mathrm{Huber}}(Q_{\psi_2}(s_j,a_j)-y_j)\right].
-\end{equation}
-Learning rate critic là $3\times10^{-4}$. Sau backpropagation, chuẩn gradient của toàn bộ hai critic được clip ở 10.
-
-\subsection{Cập nhật actor}
-Mỗi hai lần cập nhật critic, actor được cập nhật theo
-\begin{equation}
- L_{\mu}=-\frac1B\sum_{j=1}^{B}Q_{\psi_1}(s_j,\mu_{\phi}(s_j)).
-\end{equation}
-Learning rate actor là $10^{-4}$. Actor gradient cũng được clip ở 10. Sau đó các target network được soft-update với $\tau=0{,}005$.
-
-\section{Điều khiển dual cho QoS}
-\subsection{Động cơ}
-Khi $N$ tăng, distribution của sum-rate và violation thay đổi. Một penalty tuyến tính cố định có thể làm policy ưu tiên sum-rate quá mức tại một kích thước, nhưng trở nên bảo thủ ở kích thước khác. Dual controller điều chỉnh trọng số vi phạm theo dữ liệu huấn luyện.
-
-\subsection{Cập nhật multiplier}
-Controller duy trì $\lambda_t$ và EMA $\bar V_t$. Sau warm-up, cứ 1.000 bước:
-\begin{equation}
- \lambda_{t+1}=\operatorname{clip}
- (\lambda_t+20(\bar V_t-10^{-3}),4,64).
-\end{equation}
-EMA dùng $\rho=0{,}95$. Controller chỉ thay đổi reward lưu vào replay; metric môi trường gốc vẫn được ghi riêng để kiểm toán.
-
-\subsection{Hạn chế}
-Đây là một heuristic constrained training chứ không phải chứng minh hội tụ primal--dual. Việc update theo violation của policy đang thăm dò có thể gây dao động. Tuy nhiên, projection và khoảng multiplier hữu hạn giảm nguy cơ reward nổ. Các log lưu $\lambda_t$, EMA và cờ update để phân tích.
-
-\section{Lựa chọn checkpoint theo ưu tiên tính khả thi}
-\subsection{Vấn đề của selection theo reward}
-Nếu chỉ chọn checkpoint có mean reward cao nhất, một policy có sum-rate cao nhưng QoS thấp vẫn có thể thắng tùy penalty. Phiên bản cuối định nghĩa ba mục tiêu validation: mean QoS fraction ít nhất 0,99, mean all-QoS ít nhất 0,95 và mean violation không vượt 0,001.
-
-\subsection{Constraint gap}
-Tại checkpoint, các gap được tính
-\begin{align}
- g_1&=\max(0,0{,}99-\bar q_{\mathrm{frac}}),\\
- g_2&=\max(0,0{,}95-\bar q_{\mathrm{all}}),\\
- g_3&=\frac{\max(0,\bar V-0{,}001)}{0{,}001},\\
- g&=g_1+g_2+g_3.
-\end{align}
-Checkpoint khả thi nếu $g=0$. Selection key được sắp xếp từ trái sang phải:
-\begin{equation}
- (\mathbb I[g=0],\, \bar R_{\mathrm{sum}}\text{ nếu khả thi, ngược lại }-g,\,-\bar V,\,
- \bar q_{\mathrm{all}},\bar q_{\mathrm{frac}},\bar r).
-\end{equation}
-Nhờ đó, checkpoint khả thi luôn ưu tiên hơn không khả thi; trong nhóm khả thi, sum-rate được tối đa hóa.
-
-\subsection{Không sử dụng test để chọn mô hình}
-Validation được thực hiện mỗi 5.000 bước trên 1.000 scenario. \texttt{best.pt} chỉ thay đổi khi selection key tốt hơn. Test bank chỉ được dùng sau huấn luyện và không ảnh hưởng checkpoint, penalty hay siêu tham số.
-
-\section{Giả mã thuật toán}
-\begin{algorithm}[H]
-\caption{Huấn luyện TD3 có điều khiển QoS và checkpoint selection}
-\label{alg:td3-training}
-\begin{algorithmic}[1]
-\Require Cấu hình $\mathcal C$, train bank $\mathcal B_{tr}$, validation bank $\mathcal B_{val}$, seed
-\Ensure Checkpoint $\phi^{\star}$ và manifest
-\State Khởi tạo actor $\mu_{\phi}$, critics $Q_{\psi_1},Q_{\psi_2}$ và target
-\State Khởi tạo replay buffer $\mathcal D$, dual multiplier $\lambda$, best key $\leftarrow\varnothing$
-\State Lấy $s_1$ từ $\mathcal B_{tr}$
-\For{$t=1$ đến $T$}
-  \If{$t\le T_{warm}$}
-    \State Lấy $a_t\sim\mathcal U([-1,1]^{d_a})$
-  \Else
-    \State $a_t\leftarrow\operatorname{clip}(\mu_{\phi}(s_t)+\epsilon_t,-1,1)$
-  \EndIf
-  \State Giải mã $a_t$ sang biến vật lý và tính $R_{\mathrm{sum},t},V_t,V_{2,t}$
-  \State $r_t\leftarrow R_{\mathrm{sum},t}-\lambda_tV_t-\lambda_2V_{2,t}$
-  \State Lưu $(s_t,a_t,r_t,s_{t+1},d_t)$ vào $\mathcal D$
-  \State Cập nhật EMA violation và $\lambda_t$ theo chu kỳ
-  \If{$|\mathcal D|\ge B$}
-    \State Lấy mini-batch và cập nhật hai critic theo clipped double-Q target
-    \If{$t$ thỏa policy delay}
-      \State Cập nhật actor; soft-update actor/critic target
-    \EndIf
-  \EndIf
-  \If{$t$ là bước validation}
-    \State Đánh giá xác định trên $\mathcal B_{val}$; tính selection key
-    \If{selection key tốt hơn best key}
-      \State Lưu \texttt{best.pt} và \texttt{best\_validation.json}
-    \EndIf
-  \EndIf
-\EndFor
-\State Lưu \texttt{latest.pt}, training log và manifest
-\State \Return \texttt{best.pt}
-\end{algorithmic}
-\end{algorithm}
-
-\section{Baseline học tăng cường}
-\subsection{DDPG}
-DDPG dùng cùng observation, action decoder, reward và ScenarioBank. Điểm khác là chỉ có một critic, không target smoothing và actor cập nhật mỗi bước. Do đó so sánh DDPG--TD3 có thể cô lập vai trò của clipped double Q và delayed update. Tuy nhiên, bộ kết quả cuối được kiểm toán trong repository chưa chứa đầy đủ run DDPG cho mọi $N$ và seed; luận văn không sử dụng giá trị chưa kiểm toán để đưa ra kết luận định lượng.
-
-\subsection{PPO}
-PPO dùng actor stochastic và value network, thu thập rollout dài 2.048 bước, tính generalized advantage estimation với $\lambda_{GAE}=0{,}95$. PPO phù hợp làm baseline on-policy và có tiền lệ trực tiếp trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}. Tương tự DDPG, implementation có trong framework nhưng các bảng kết quả chính chỉ dùng bundle đã hoàn tất provenance.
-
-\section{Baseline tối ưu truyền thống}
-\subsection{AO--SCA}
-AO--SCA chia action vật lý thành hai khối:
-\begin{itemize}
-  \item khối RSMA: $\bm p$ và $\bm\eta$;
-  \item khối STAR--RIS: $\bm\beta^T$, $\bm\theta^T$, $\bm\theta^R$.
-\end{itemize}
-Tại điểm $x^{(t)}$, gradient của merit được ước lượng bằng sai phân trung tâm. Surrogate cho một khối là
-\begin{equation}
- \widetilde f(z;x^{(t)})=
- \nabla f(x^{(t)})^T(z-x^{(t)})-
- \frac{\rho}{2}\|z-x^{(t)}\|_2^2.
- \label{eq:ao-sca-surrogate}
-\end{equation}
-Nghiệm surrogate là projection của $x^{(t)}+\nabla f/\rho$ lên miền khả thi. Backtracking tăng $\rho$ cho đến khi cả surrogate gain và exact merit gain không âm. Solver khởi tạo từ AnalyticalRIS, tối đa 20 outer iteration và dừng khi relative gain dưới $10^{-4}$. Đây là phương pháp cục bộ, phụ thuộc khởi tạo và không phải upper bound.
-
-\subsection{AO--Grid}
-AO--Grid là tìm kiếm coordinate codebook xác định. Mỗi tọa độ công suất/common fraction được thử trên grid hữu hạn với phần khối lượng dư được phân phối lại để giữ simplex. Beta và pha dùng codebook cố định. Mọi candidate được đánh giá, và chỉ candidate không giảm merit tốt nhất được giữ. Không có random perturbation trong AO--Grid.
-
-\subsection{AnalyticalRIS}
-AnalyticalRIS căn chỉnh một vector pha dùng chung theo kênh ghép tầng tổng hợp, đặt $\beta_n^T=\beta_n^R=0{,}5$, chia đều công suất giữa $K+1$ luồng và chia đều common rate. Vì không tối ưu tất cả biến, tên chính xác là ``analytical phase alignment with equal allocation''.
-
-\section{Ablation study}
-Bốn ablation được định nghĩa:
-\begin{itemize}
-  \item \textbf{NoRIS:} loại bỏ hoàn toàn đường gián tiếp STAR--RIS, giữ đường trực tiếp.
-  \item \textbf{FixedRIS:} đặt beta 0,5 và pha truyền/phản xạ bằng 0.
-  \item \textbf{RandomRIS:} lấy một cấu hình ngẫu nhiên tái lập cho mỗi scenario.
-  \item \textbf{Equal-Power:} giữ beta, pha và common allocation học được, nhưng ghi đè toàn bộ công suất luồng bằng nhau.
-\end{itemize}
-Ablation không phải baseline tối ưu; mục tiêu là giải thích thành phần nào tạo hiệu năng.
-
-\section{Giao thức thực nghiệm}
-\subsection{Kích thước và số seed}
-Các kích thước là $N=16,32,64,96,128$. TD3 dùng tám seed độc lập $0$--$7$ cho mỗi $N$. Mỗi seed được huấn luyện 100.000 bước và đánh giá trên cùng test bank 1.000 scenario. Trước khi ghép cặp với baseline, kết quả TD3 được trung bình theo seed cho từng scenario để tránh xem tám seed như tám scenario độc lập.
-
-\subsection{Đánh giá xác định}
-Khi test, exploration noise bằng 0. PPO nếu dùng test cũng chọn deterministic action. Mỗi scenario tạo đúng một dòng raw CSV. Điều này cho phép tái tính mọi bảng mà không cần chạy lại policy.
-
-\subsection{Latency CPU một luồng}
-Benchmark ép Torch, OpenMP và MKL dùng một thread. Sau warm-up, đo riêng:
+\section{Mục tiêu và nguyên tắc đánh giá}
+Chương này đánh giá sáu phương pháp gồm TD3, DDPG, PPO, AO--SCA, AO--Grid và AnalyticalRIS. Mục tiêu không phải chỉ tìm phương pháp có tổng tốc độ lớn nhất, mà xác định mức cân bằng giữa bốn nhóm chỉ số:
 \begin{enumerate}[label=\arabic*)]
-  \item inference actor;
-  \item tính metric vật lý;
-  \item end-to-end solve time.
+  \item tổng tốc độ và xu hướng theo số phần tử STAR--RIS;
+  \item tỷ lệ người dùng đạt QoS, xác suất toàn bộ người dùng đạt QoS và mức vi phạm;
+  \item độ ổn định giữa các seed huấn luyện;
+  \item độ trễ ra quyết định trên cùng một nền tảng CPU.
 \end{enumerate}
-Đối với solver, thời gian bao gồm toàn bộ iteration/evaluation. Benchmark không đại diện mọi phần cứng nhưng tạo môi trường so sánh kiểm soát.
 
-\subsection{Phân tích thống kê}
-Với mỗi $N$ và cặp phương pháp, sử dụng chênh lệch theo scenario. Báo cáo mean difference, 95\% CI, paired $t$-test, exact Wilcoxon, paired effect size và Holm-adjusted $p$-value. Số so sánh chính là 15 tương ứng ba baseline trên năm $N$.
+Toàn bộ kết quả được lấy từ bundle \texttt{results/six\_method\_v1} đã có audit verdict \texttt{PASS}. Các thuật toán DRL dùng tám seed tại mỗi $N$, trong khi mọi phương pháp được đánh giá trên cùng 1.000 kịch bản kiểm thử khóa. Các số liệu không được chọn lọc lại sau khi xem kết quả.
 
-\section{Cấu hình thực nghiệm}
+\section{Thiết lập mô phỏng}
 \begin{table}[H]
-\caption{Các siêu tham số chính của TD3 phiên bản cuối}
-\label{tab:td3-hyperparameters}
-\begin{tabularx}{\textwidth}{Y C Y C}
+\caption{Thiết lập chính của benchmark sáu phương pháp}
+\label{tab:simulation-setup}
+\begin{tabularx}{\textwidth}{p{5.1cm}Y}
 \toprule
-\textbf{Tham số} & \textbf{Giá trị} & \textbf{Tham số} & \textbf{Giá trị}\\
+\textbf{Thành phần} & \textbf{Giá trị}\
 \midrule
-Số user $K$ & 4 & Hidden dimension & 256\\
-Train steps & 100.000 & Batch size & 256\\
-Replay size & 200.000 & Warm-up & 2.000\\
-$\gamma$ & 0,99 & $\tau$ & 0,005\\
-Actor learning rate & $10^{-4}$ & Critic learning rate & $3\times10^{-4}$\\
-Policy delay & 2 & Target noise & 0,15\\
-Noise clip & 0,30 & Gradient clip & 10\\
-Exploration start/final & 0,12 / 0,03 & Decay steps & 100.000\\
-QoS minimum & 0,5 & Noise power & 0,001\\
-Linear/quadratic penalty & 8 / 8 & Dual range & $[4,64]$\\
-Validation interval & 5.000 & Validation scenarios & 1.000\\
-Test scenarios & 1.000 & Seed count & 8\\
+Số người dùng & $K=4$; hai người dùng miền phản xạ và hai người dùng miền truyền qua\\
+Số phần tử STAR--RIS & $N\in\{16,32,64,96,128\}$\\
+Công suất tối đa & $P_{\max}=1$\\
+Công suất nhiễu & $\sigma^2=0{,}001$\\
+Ngưỡng QoS & $R_{\min}=0{,}5$ bit/s/Hz\\
+Số seed DRL & 8 seed, từ 0 đến 7, cho mỗi thuật toán và mỗi $N$\\
+Ngân sách huấn luyện & 100.000 tương tác môi trường cho mỗi seed và mỗi $N$\\
+ScenarioBank & 10.000 train, 1.000 validation, 1.000 test cho mỗi $N$\\
+Chọn checkpoint & Dựa trên validation, ưu tiên tính khả thi QoS\\
+Kiểm thử & Hành động xác định, không có nhiễu khám phá\\
+Đo độ trễ & 100 lần lặp cho mỗi phương pháp và mỗi $N$, CPU một luồng\\
+Scientific commit & \texttt{99318fefa53bef91fa5f105ec71ddae73fc96c39}\\
 \bottomrule
 \end{tabularx}
-\tablesource{Tác giả tổng hợp từ các tệp \texttt{configs/v3/constrained\_action\_n*.yaml} (2026)}
+\tablesource{Tác giả tổng hợp từ manifest và cấu hình benchmark \texttt{six\_method\_v1} (2026)}
 \end{table}
 
-\section{Kiểm soát chất lượng và khả năng tái lập}
-Trước full run, test suite phải pass. Các kiểm tra bao gồm tính hữu hạn, shape, action feasibility, disjoint ScenarioBank, deterministic test, selection validation-only, monotonic exact merit của AO--SCA, codebook xác định của AO--Grid và duplicate key khi merge. Sau run, audit kiểm tra coverage theo $N$, seed, scenario, checksum và file figure/table.
+TD3, DDPG và PPO dùng cùng trạng thái, action decoder, reward QoS, ngân sách tương tác và tập dữ liệu. Tuy nhiên, như đã trình bày ở Chương~\ref{chap:method}, siêu tham số không được tìm kiếm với ngân sách bằng nhau cho cả ba thuật toán. Do đó, phần so sánh DRL phản ánh ba implementation đã công bố.
 
-Một nguyên tắc quan trọng là không sửa phương trình vật lý để làm một thuật toán có lợi. Mọi thay đổi physics phải làm thay đổi config/provenance và yêu cầu chạy lại tất cả phương pháp. Tương tự, không được loại baseline mạnh chỉ vì nó vượt TD3.
-
-% FIGURE-INTEGRATED: CH4 START
+\section{Diễn biến trên tập xác thực}
 \begin{landscape}
-\ThesisFigure{figures/chapter4_td3_training_pipeline.pdf}
-{Quy trình huấn luyện, lựa chọn checkpoint và đánh giá TD3 không rò rỉ tập kiểm thử}
-{fig:ch4-pipeline}[0.95\linewidth]
-\figuresource{Tác giả xây dựng từ giao thức thực nghiệm của repository (2026)}
+\ThesisFigure{figures/pdf/chapter4_fig01_training_overview.pdf}
+{Diễn biến các chỉ số trên tập xác thực trong quá trình huấn luyện TD3, DDPG và PPO}
+{fig:ch4-validation-curves}[0.95\linewidth]
+\figuresource{Tác giả tổng hợp từ các tệp \texttt{VALIDATION\_RAW.csv} của bundle \texttt{six\_method\_v1} (2026)}
 \end{landscape}
 
-Hình~\ref{fig:ch4-pipeline} tổng hợp ba lớp của pipeline thực nghiệm. Lớp dữ liệu gồm ba ScenarioBank không giao nhau, trong đó tập kiểm thử được gắn biểu tượng khóa. Lớp huấn luyện biểu diễn vòng lặp giữa môi trường, actor TD3, bộ giải mã hành động khả thi, replay buffer, hai critic và bộ điều khiển đối ngẫu QoS; ba cơ chế target-policy smoothing, delayed policy update và lấy minimum của hai critic được ghi riêng để phân biệt TD3 với DDPG. Tập validation chỉ đi vào khối lựa chọn checkpoint sau mỗi 5.000 bước. Sau khi \texttt{best.pt} được khóa, chính sách mới được đánh giá xác định với exploration noise bằng không trên test bank, sau đó ghi raw CSV, thực hiện thống kê ghép cặp, đo độ trễ và tạo báo cáo. Dòng cảnh báo cuối hình cùng việc không có mũi tên quay từ test về training thể hiện rõ nguyên tắc chống test leakage.
-% FIGURE-INTEGRATED: CH4 END
+Hình~\ref{fig:ch4-validation-curves} trình bày tổng tốc độ xác thực tại $N=32$ và $N=128$, cùng xác suất toàn bộ người dùng đạt QoS tại $N=128$. Mỗi đường là trung bình tám seed và dải bao quanh biểu diễn một độ lệch chuẩn.
+
+Tại $N=32$, DDPG vẫn cạnh tranh với TD3 và có biến thiên nhỏ hơn ở giai đoạn cuối. Khi tăng lên $N=128$, dải biến thiên của DDPG mở rộng rõ rệt và một số seed suy giảm mạnh. PPO giữ tổng tốc độ quanh mức thấp và không tiến vào vùng toàn bộ người dùng đạt QoS cao trong ngân sách 100.000 tương tác. TD3 duy trì xu hướng ổn định hơn ở cả hai kích thước.
+
+Các đường xác thực không được dùng để kết luận trực tiếp về hiệu năng test; vai trò của chúng là giải thích quá trình lựa chọn checkpoint và sự khác biệt về ổn định. Mọi kết luận định lượng dưới đây dùng tập kiểm thử khóa.
+
+\section{Hiệu năng trên tập kiểm thử}
+\input{generated/table_six_method_performance}
+
+\input{generated/figure_six_method_performance}
+
+Hình~\ref{fig:ch4-six-method-performance} được vẽ lại trực tiếp từ bảng hiệu năng đã kiểm toán, với toàn bộ nhãn bằng tiếng Việt. Bốn panel cho thấy một phương pháp có thể tốt ở một tiêu chí nhưng không tốt ở tiêu chí khác. AO--SCA có tổng tốc độ cao nhất; AO--Grid có QoS hoàn hảo nhưng tổng tốc độ thấp; AnalyticalRIS nhanh và đơn giản nhưng không đạt QoS; TD3 duy trì QoS gần một với tổng tốc độ đứng thứ hai trong phần lớn cấu hình.
+
+\subsection{Kết quả của TD3}
+Tổng tốc độ trung bình của TD3 tăng từ 10,7661 bit/s/Hz tại $N=16$ lên 12,4117 bit/s/Hz tại $N=128$. Mức tăng tuyệt đối là 1,6456 bit/s/Hz. Xu hướng này cho thấy Actor khai thác được số phần tử tăng để cải thiện kênh hiệu dụng trong mô hình đã công bố.
+
+Tỷ lệ người dùng đạt QoS của TD3 lần lượt là 0,9893; 0,9962; 0,9970; 0,9994 và 0,9991 khi $N$ tăng từ 16 đến 128. Xác suất toàn bộ người dùng đạt QoS nằm từ 0,9798 đến 0,9985. Mức vi phạm trung bình thấp hơn 0,0083 ở mọi cấu hình và giảm xuống khoảng $5,3\times10^{-4}$ tại $N=96$.
+
+Không nên diễn giải xu hướng này thành định luật tăng trưởng điện từ. Bộ sinh kênh không mô hình diện tích bề mặt, path loss theo khoảng cách hoặc aperture. Kết luận phù hợp là TD3 có khả năng mở rộng đến $N=128$ trong môi trường Gaussian và tham số hóa đã sử dụng \cite{Bjornson2020RISMyths,DiRenzo2020SmartRadio}.
+
+\subsection{TD3 so với DDPG}
+DDPG đạt tổng tốc độ 8,0956 tại $N=16$, tăng lên 10,2295 tại $N=32$, sau đó giảm còn 9,2887; 7,5368 và 4,9659 tại $N=64,96,128$. Độ lệch chuẩn tổng tốc độ giữa seed tăng lên 5,0875 tại $N=128$, cho thấy độ nhạy lớn đối với quá trình huấn luyện.
+
+Tại $N=32$, DDPG đạt tỷ lệ QoS 0,9985 và xác suất toàn bộ người dùng đạt QoS 0,9964, nhỉnh hơn TD3 tương ứng 0,9962 và 0,9944. DDPG cũng có độ trễ thấp hơn TD3 một lượng nhỏ. Vì vậy, không được kết luận TD3 thống trị DDPG trên mọi chỉ số.
+
+Từ $N=64$ trở lên, DDPG suy giảm rõ: xác suất toàn bộ người dùng đạt QoS giảm từ 0,6234 xuống 0,1376 và 0,0040. Tại $N=128$, mức vi phạm trung bình đạt 0,5512. Trong khi đó TD3 giữ xác suất toàn bộ người dùng đạt QoS 0,9984. Kết quả cho thấy TD3 có khả năng mở rộng và ổn định tốt hơn trong ba implementation DRL được đánh giá.
+
+\subsection{TD3 so với PPO}
+PPO đạt tổng tốc độ khoảng 2,10--2,16 bit/s/Hz trên toàn bộ năm kích thước. Tỷ lệ người dùng đạt QoS nằm khoảng 0,61--0,66 và xác suất toàn bộ người dùng đạt QoS chỉ khoảng 0,04--0,09. PPO vì vậy chưa học được policy khả thi trong ngân sách 100.000 tương tác.
+
+Một nguyên nhân hợp lý là PPO là phương pháp on-policy và phải học trên action có số chiều từ 57 đến 393. Tuy nhiên, kết quả không chứng minh PPO về bản chất không phù hợp với STAR--RIS--RSMA. Nghiên cứu trước đã cho thấy PPO có thể hoạt động trong một mô hình khác \cite{Meng2024PPOSTARRSMA}. Cần ngân sách tương tác, kiến trúc và tuning riêng để đánh giá giới hạn thực sự của PPO.
+
+\subsection{TD3 so với AO--SCA}
+AO--SCA đạt tổng tốc độ 15,2137 tại $N=16$ và tăng lên 19,6363 tại $N=128$, cao nhất trong sáu phương pháp. Chênh lệch AO--SCA so với TD3 tăng từ 4,4476 lên 7,2246 bit/s/Hz. AO--SCA cũng duy trì QoS rất cao: tại $N\ge64$, tỷ lệ QoS và xác suất toàn bộ người dùng đạt QoS đều bằng một trong dữ liệu tổng hợp.
+
+Kết quả này phải được báo cáo nổi bật vì AO--SCA là baseline mạnh nhất về chất lượng. TD3 không thay thế AO--SCA trong bài toán tối ưu offline không giới hạn thời gian. Lợi thế của TD3 nằm ở thời gian ra quyết định, còn khoảng cách chất lượng phản ánh \emph{amortization gap}: Actor tạo nghiệm trong một forward pass thay vì tối ưu trực tiếp từng kịch bản.
+
+AO--SCA vẫn là solver cục bộ phụ thuộc khởi tạo, dùng sai phân hữu hạn và số vòng lặp hữu hạn. Kết quả không được gọi là nghiệm tối ưu toàn cục hoặc cận trên lý thuyết.
+
+\subsection{TD3 so với AO--Grid}
+AO--Grid đạt tổng tốc độ gần 3,982 bit/s/Hz ở mọi $N$ và có QoS bằng một. Hành vi này cho thấy codebook tìm được nghiệm bảo thủ, phân phối tài nguyên đủ để thỏa ngưỡng nhưng không khai thác tốt số phần tử tăng để nâng tổng tốc độ.
+
+TD3 cao hơn AO--Grid 6,7848 bit/s/Hz tại $N=16$ và 8,4296 bit/s/Hz tại $N=128$. Dù vậy, AO--Grid minh họa rằng QoS hoàn hảo không đồng nghĩa chất lượng phổ cao. Một codebook dày hơn có thể cải thiện tổng tốc độ nhưng làm tăng số lần đánh giá.
+
+\subsection{TD3 so với AnalyticalRIS}
+AnalyticalRIS có tổng tốc độ xấp xỉ 1,982 bit/s/Hz và tỷ lệ QoS bằng không ở mọi $N$. Phương pháp đặt beta, công suất và tốc độ chung bằng nhau, nên không thích nghi với sự khác biệt kênh giữa người dùng. Mức vi phạm khoảng 0,018 và gần như không đổi khi $N$ tăng.
+
+TD3 vượt AnalyticalRIS hơn 8,78 bit/s/Hz tại $N=16$ và hơn 10,43 bit/s/Hz tại $N=128$. Chênh lệch lớn không nên được dùng một mình để khẳng định ưu thế phổ quát, vì AnalyticalRIS là baseline đơn giản nhằm tạo điểm tham chiếu độ trễ.
+
+\section{Đánh giá độ trễ}
+\input{generated/table_six_method_latency}
+
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter4_fig03_quality_qos_latency_tradeoff.pdf}
+{Độ trễ CPU, tỷ lệ so với TD3 và không gian đánh đổi chất lượng--độ trễ}
+{fig:ch4-quality-latency}[0.95\linewidth]
+\figuresource{Tác giả tổng hợp từ \texttt{TABLE\_SIX\_METHOD\_CPU\_LATENCY.csv} và \texttt{TABLE\_SIX\_METHOD\_PERFORMANCE.csv} (2026)}
+\end{landscape}
+
+\subsection{Độ trễ của nhóm DRL}
+Độ trễ trung bình của TD3 tăng từ 0,246 ms tại $N=16$ lên 0,342 ms tại $N=128$. DDPG nhanh hơn TD3 một lượng nhỏ, từ 0,220 đến 0,307 ms, do chỉ có một Actor tương tự về kích thước và không có khác biệt lớn trong suy luận. PPO chậm hơn, từ 0,382 đến 0,521 ms, nhưng vẫn ở dưới một mili giây.
+
+Như vậy, TD3 không phải thuật toán DRL nhanh nhất theo số đo này; DDPG có latency thấp hơn. Lợi thế của TD3 là giữ chất lượng và QoS khi $N$ tăng.
+
+\subsection{TD3 so với solver lặp}
+AO--Grid có độ trễ từ 70,60 đến 531,25 ms, tương ứng chậm hơn TD3 khoảng 287 đến 1.553 lần. AO--SCA có độ trễ từ 216,44 đến 1.039,04 ms, chậm hơn TD3 khoảng 880; 1.438; 2.121; 2.860 và 3.038 lần tại năm giá trị $N$.
+
+Khoảng cách tăng theo $N$ vì AO--SCA phải ước lượng gradient theo nhiều tọa độ và lặp lại phép tính kênh; AO--Grid phải đánh giá nhiều ứng viên. Actor TD3 tăng gần tuyến tính theo kích thước input/output và không thực hiện vòng lặp tối ưu online.
+
+\subsection{AnalyticalRIS và đường biên đánh đổi}
+AnalyticalRIS có độ trễ nhỏ nhất, từ 0,122 đến 0,150 ms, nhanh hơn TD3 khoảng hai lần. Tuy nhiên, phương pháp này không đạt QoS trong thí nghiệm. Hình~\ref{fig:ch4-quality-latency} vì vậy thể hiện ba vùng: AnalyticalRIS rất nhanh nhưng chất lượng thấp; AO--SCA chất lượng cao nhưng chậm; TD3 nằm giữa, giữ QoS cao với độ trễ dưới một mili giây.
+
+Các tỷ lệ chỉ áp dụng cho CPU runner và implementation đã công bố. Chúng không phải cam kết latency trên mọi phần cứng hoặc khi tích hợp đầy đủ quy trình ước lượng CSI và báo hiệu.
+
+\section{Phân tích thống kê}
+\input{generated/table_td3_paired_tests_holm}
+
+Bảng~\ref{tab:td3-paired-tests-holm} thực hiện 25 so sánh liên quan trực tiếp đến TD3: năm phương pháp đối chiếu tại năm giá trị $N$. Cả kiểm định $t$ ghép cặp và Wilcoxon ghép cặp sau hiệu chỉnh Holm đều bác bỏ giả thuyết không ở mức $\alpha=0{,}05$ cho 25/25 trường hợp.
+
+Dấu của chênh lệch phải được đọc cùng kết quả. TD3 có tổng tốc độ cao hơn DDPG, PPO, AO--Grid và AnalyticalRIS tại mọi $N$, nhưng thấp hơn AO--SCA tại mọi $N$. Tại $N=32$, chênh lệch TD3--DDPG chỉ 0,4865 bit/s/Hz và Cohen's $d_z=0,5200$, nhỏ hơn nhiều so với các so sánh khác, dù vẫn có ý nghĩa do 1.000 cặp kịch bản.
+
+Một số giá trị $p$ bị phần mềm lưu thành 0 vì nhỏ hơn giới hạn số học. Trong diễn giải, chúng được xem là nhỏ hơn ngưỡng biểu diễn chứ không phải xác suất bằng không. Ngoài ra, kiểm định dùng kết quả DRL đã trung bình theo seed trên từng kịch bản, nên chưa đồng thời mô hình hóa biến thiên giữa seed và giữa kịch bản.
+
+\input{generated/statistical_limitations}
+
+\section{Khả năng mở rộng}
+Khi $N$ tăng từ 16 lên 128, chiều trạng thái tăng từ 140 lên 1.036 và chiều action tăng từ 57 lên 393. TD3 vẫn duy trì QoS gần một và tổng tốc độ tăng. DDPG lại suy giảm khi action lớn, trong khi PPO giữ hiệu năng thấp.
+
+MLP hiện tại cần huấn luyện riêng cho từng $N$ và không khai thác tính hoán vị của các phần tử STAR--RIS. Kiến trúc attention, set network hoặc graph network có thể chia sẻ tham số và tổng quát giữa nhiều kích thước. Đây là hướng phát triển cần thiết khi $N$ lớn hơn 128.
+
+\section{Trả lời các câu hỏi nghiên cứu}
+\subsection{RQ1: Tính khả thi và QoS của TD3}
+TD3 tạo action luôn thỏa ràng buộc hình học nhờ action decoder. Trên tập kiểm thử khóa, tỷ lệ người dùng đạt QoS từ 0,9893 đến 0,9994 và xác suất toàn bộ người dùng đạt QoS từ 0,9798 đến 0,9985. Vì vậy, câu trả lời là có trong phạm vi mô hình và ScenarioBank đã công bố.
+
+\subsection{RQ2: TD3 so với DDPG và PPO}
+TD3 có tổng tốc độ cao hơn DDPG và PPO tại mọi $N$. DDPG cạnh tranh ở $N=32$ và có latency thấp hơn TD3, nhưng mất ổn định khi $N$ tăng. PPO ổn định về mức thấp nhưng chưa đạt QoS. Do đó, TD3 là implementation DRL có khả năng mở rộng tốt nhất trong ba phương pháp được đánh giá, không phải bằng chứng rằng TD3 luôn vượt mọi cấu hình DDPG/PPO.
+
+\subsection{RQ3: TD3 so với phương pháp truyền thống}
+AO--SCA đạt tổng tốc độ cao nhất và QoS rất cao nhưng có độ trễ lớn hơn TD3 từ 880 đến 3.038 lần. AO--Grid đạt QoS hoàn hảo nhưng tổng tốc độ thấp và chậm hơn TD3 hàng trăm đến hơn một nghìn lần. AnalyticalRIS nhanh nhất nhưng không đạt QoS. TD3 tạo điểm cân bằng mạnh giữa chất lượng, QoS và độ trễ.
+
+\subsection{RQ4: Ảnh hưởng của số phần tử STAR--RIS}
+Tổng tốc độ TD3 tăng 1,6456 bit/s/Hz giữa $N=16$ và $N=128$, trong khi QoS được giữ gần một và latency chỉ tăng khoảng 0,096 ms. AO--SCA tăng chất lượng nhiều hơn nhưng latency tăng mạnh; DDPG giảm ổn định; PPO gần như không cải thiện. Xu hướng này chỉ áp dụng cho bộ sinh kênh và cấu hình đã sử dụng.
+
+\section{Hàm ý thực tiễn}
+TD3 phù hợp khi hệ thống có thể huấn luyện offline và cần tạo quyết định nhanh cho nhiều hiện thực kênh. Trong tối ưu offline hoặc khi có thời gian giải dài, AO--SCA có thể được ưu tiên. Một hướng triển khai thực tế là dùng Actor TD3 làm điểm khởi tạo nhanh, sau đó chạy một số ít vòng AO--SCA khi ngân sách thời gian cho phép. Cách lai này có thể giảm khoảng cách chất lượng mà vẫn tận dụng ưu thế latency.
+
+Khi phân bố kênh thay đổi, cần phát hiện drift và huấn luyện lại. Khi xét CSI không hoàn hảo hoặc phần cứng ghép pha, trạng thái và action decoder phải được thay đổi thay vì chỉ thêm nhiễu vào mô hình hiện tại.
 
 \section{Kết luận chương}
-Chương 4 đã mô tả đầy đủ kiến trúc TD3, replay, exploration, dual QoS, checkpoint selection, baseline, ablation và giao thức thống kê. Thiết kế thực nghiệm ưu tiên tính nhất quán và khả năng truy xuất hơn việc tối ưu riêng một thuật toán. Chương 5 sử dụng bundle đã kiểm toán để phân tích kết quả và giới hạn kết luận.
+Benchmark sáu phương pháp cho thấy AO--SCA đạt tổng tốc độ cao nhất, AnalyticalRIS đạt độ trễ thấp nhất, còn TD3 là phương pháp DRL ổn định nhất và duy trì QoS gần một đến $N=128$. TD3 không tốt nhất trên mọi chỉ số, nhưng tạo sự cân bằng rõ giữa chất lượng nghiệm, độ tin cậy QoS và thời gian ra quyết định. Kết luận này được hỗ trợ bởi bảng dữ liệu thô, kiểm định ghép cặp và audit provenance, đồng thời bị giới hạn bởi mô hình SISO, CSI hoàn hảo, kênh tổng hợp và số seed hữu hạn.
