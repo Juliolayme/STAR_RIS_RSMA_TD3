@@ -1,0 +1,67 @@
+% Generated for the audited six-method benchmark.
+% Scientific protocol commit: 99318fefa53bef91fa5f105ec71ddae73fc96c39
+% Source: configs/v3/constrained_action_n*.yaml and src/star_ris_rsma/agents/*.py
+
+\begin{table}[htbp]
+  \centering
+  \caption{Các thiết lập chung của giao thức thực nghiệm đối với TD3, DDPG và PPO.}
+  \label{tab:drl-common-protocol}
+  \small
+  \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.36\textwidth}X}
+    \toprule
+    \textbf{Thành phần} & \textbf{Giá trị sử dụng} \\
+    \midrule
+    Số phần tử STAR-RIS & $N\in\{16,32,64,96,128\}$ \\
+    Số người dùng & $K=4$ \\
+    Số seed huấn luyện & 8 seed độc lập, từ 0 đến 7 \\
+    Ngân sách tương tác & 100.000 tương tác môi trường cho mỗi thuật toán, mỗi seed và mỗi $N$ \\
+    ScenarioBank & 10.000 kịch bản huấn luyện, 1.000 kịch bản xác thực và 1.000 kịch bản kiểm thử khóa cho mỗi $N$ \\
+    Chuẩn hóa trạng thái & \texttt{blockwise\_v2} \\
+    Tham số hóa hành động & \texttt{physical\_v3} \\
+    Kích thước lớp ẩn & Hai lớp ẩn, mỗi lớp 256 nút, hàm kích hoạt ReLU \\
+    Hệ số chiết khấu & $\gamma=0{,}99$ \\
+    Hệ số cập nhật mềm & $\tau=0{,}005$ đối với các mạng đích của TD3 và DDPG \\
+    Kích thước batch & 256 đối với TD3 và DDPG \\
+    Dung lượng Replay Buffer & 200.000 transition đối với TD3 và DDPG \\
+    Giai đoạn warm-up & 2.000 tương tác đối với TD3 và DDPG \\
+    Lịch nhiễu khám phá & Giảm tuyến tính từ 0,12 xuống 0,03 trong 100.000 tương tác đối với TD3 và DDPG \\
+    Hàm thưởng có ràng buộc QoS & Thành phần tổng tốc độ kết hợp phạt tuyến tính, phạt bậc hai và bộ điều khiển đối ngẫu QoS \\
+    Chọn checkpoint & Ưu tiên tính khả thi QoS, sau đó mới xét tổng tốc độ trên tập xác thực \\
+    Kiểm thử & Hành động xác định, không sử dụng nhiễu khám phá \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{landscape}
+\begin{table}[p]
+  \centering
+  \caption{Các siêu tham số riêng của ba thuật toán học tăng cường sâu.}
+  \label{tab:drl-specific-hyperparameters}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabularx}{0.98\linewidth}{>{\raggedright\arraybackslash}p{0.22\linewidth}XXX}
+    \toprule
+    \textbf{Thành phần} & \textbf{TD3} & \textbf{DDPG} & \textbf{PPO} \\
+    \midrule
+    Kiến trúc chính & Actor xác định, hai Critic, Actor đích và hai Critic đích & Actor xác định, một Critic, Actor đích và Critic đích & Actor ngẫu nhiên Gaussian và một mạng giá trị \\
+    Tốc độ học Actor & $1\times10^{-4}$ & $3\times10^{-4}$ & Dùng optimizer chung với tốc độ $3\times10^{-4}$ \\
+    Tốc độ học Critic & $3\times10^{-4}$ & $3\times10^{-4}$ & Dùng optimizer chung với tốc độ $3\times10^{-4}$ \\
+    Hàm mất mát Critic/Value & Huber & MSE & MSE cho mạng giá trị \\
+    Layer Normalization & Có, trong Actor và hai Critic & Không & Không \\
+    Cắt gradient & Chuẩn $L_2$ tối đa 10 & Không cấu hình riêng & Chuẩn $L_2$ tối đa 1 \\
+    Cập nhật Actor trễ & Mỗi 2 lần cập nhật Critic & Không & Không áp dụng \\
+    Làm trơn action đích & Độ lệch chuẩn 0,15; cắt ở 0,30; có chuẩn hóa theo chiều action & Không & Không áp dụng \\
+    Cơ chế giảm đánh giá quá cao & Lấy giá trị nhỏ hơn của hai Critic đích & Không có Critic thứ hai & Không dùng mục tiêu Q kiểu TD3/DDPG \\
+    Replay Buffer & 200.000 transition & 200.000 transition & Không sử dụng \\
+    Kích thước batch / rollout & Batch 256 & Batch 256 & Rollout 2.048 bước \\
+    Số epoch cập nhật & Một cập nhật mỗi bước sau khi đủ batch & Một cập nhật mỗi bước sau khi đủ batch & 10 epoch trên mỗi rollout \\
+    Hệ số clipping PPO & Không áp dụng & Không áp dụng & 0,2 \\
+    Hệ số entropy & Không áp dụng & Không áp dụng & 0,001 \\
+    GAE & Không áp dụng & Không áp dụng & $\lambda_{\mathrm{GAE}}=0{,}95$ \\
+    Cách khám phá & Nhiễu Gaussian giảm dần trên action xác định & Nhiễu Gaussian giảm dần trên action xác định & Lấy mẫu từ chính sách Gaussian rồi ánh xạ qua $\tanh$ \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+\end{landscape}
+
+\noindent\textit{Lưu ý về tính công bằng:} Ba thuật toán dùng cùng ScenarioBank, ngân sách 100.000 tương tác, hàm thưởng QoS, quy tắc chọn checkpoint và tập kiểm thử. Tuy nhiên, cấu hình không phải là một cuộc tìm kiếm siêu tham số có ngân sách bằng nhau cho cả ba thuật toán. TD3 sử dụng thêm Layer Normalization, Huber loss, cắt gradient và chuẩn hóa nhiễu theo chiều action. Do đó, kết luận thực nghiệm phải được diễn đạt là ``TD3 tốt nhất trong ba implementation được đánh giá theo giao thức đã công bố'', không phải là bằng chứng rằng TD3 luôn vượt mọi cấu hình DDPG hoặc PPO có thể có.
