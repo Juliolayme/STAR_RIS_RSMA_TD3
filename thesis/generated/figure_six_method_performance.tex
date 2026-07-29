@@ -4,10 +4,9 @@
 \centering
 \begin{tikzpicture}
 \begin{groupplot}[
-  group style={group size=2 by 2,horizontal sep=1.3cm,vertical sep=1.4cm},
-  width=0.42\linewidth,
-  height=0.29\linewidth,
-  xlabel={Số phần tử STAR--RIS, $N$},
+  group style={group size=2 by 2,horizontal sep=1.2cm,vertical sep=1.15cm},
+  width=0.41\linewidth,
+  height=0.24\linewidth,
   xtick={16,32,64,96,128},
   grid=both,
   major grid style={line width=.2pt,draw=gray!50},
@@ -15,9 +14,7 @@
   tick label style={font=\scriptsize},
   label style={font=\small},
   title style={font=\small\bfseries},
-  legend style={font=\scriptsize,draw=none,fill=none},
-  mark size=2pt,
-  line width=0.8pt
+  legend style={font=\scriptsize,draw=none,fill=none}
 ]
 
 \nextgroupplot[
@@ -31,7 +28,7 @@
 \addplot[teal,mark=square*] coordinates {(16,8.0956)(32,10.2295)(64,9.2887)(96,7.5368)(128,4.9659)};\addlegendentry{DDPG}
 \addplot[orange,mark=triangle*] coordinates {(16,2.1216)(32,2.1438)(64,2.1581)(96,2.0991)(128,2.1293)};\addlegendentry{PPO}
 \addplot[red,mark=diamond*] coordinates {(16,15.2137)(32,16.4524)(64,17.8059)(96,18.8800)(128,19.6363)};\addlegendentry{AO--SCA}
-\addplot[violet,mark=pentagon*] coordinates {(16,3.9814)(32,3.9819)(64,3.9820)(96,3.9821)(128,3.9821)};\addlegendentry{AO--Grid}
+\addplot[violet,mark=star] coordinates {(16,3.9814)(32,3.9819)(64,3.9820)(96,3.9821)(128,3.9821)};\addlegendentry{AO--Grid}
 \addplot[black,mark=x] coordinates {(16,1.9812)(32,1.9820)(64,1.9821)(96,1.9821)(128,1.9821)};\addlegendentry{AnalyticalRIS}
 
 \nextgroupplot[
@@ -43,11 +40,12 @@
 \addplot[teal,mark=square*] coordinates {(16,0.9089)(32,0.9985)(64,0.8675)(96,0.6098)(128,0.5592)};
 \addplot[orange,mark=triangle*] coordinates {(16,0.6242)(32,0.6468)(64,0.6638)(96,0.6103)(128,0.6138)};
 \addplot[red,mark=diamond*] coordinates {(16,0.9950)(32,0.9998)(64,1.0000)(96,1.0000)(128,1.0000)};
-\addplot[violet,mark=pentagon*] coordinates {(16,1.0000)(32,1.0000)(64,1.0000)(96,1.0000)(128,1.0000)};
+\addplot[violet,mark=star] coordinates {(16,1.0000)(32,1.0000)(64,1.0000)(96,1.0000)(128,1.0000)};
 \addplot[black,mark=x] coordinates {(16,0)(32,0)(64,0)(96,0)(128,0)};
 
 \nextgroupplot[
   title={Xác suất toàn bộ người dùng đạt QoS},
+  xlabel={Số phần tử STAR--RIS, $N$},
   ylabel={Xác suất},
   ymin=0,ymax=1.05
 ]
@@ -55,11 +53,12 @@
 \addplot[teal,mark=square*] coordinates {(16,0.7953)(32,0.9964)(64,0.6234)(96,0.1376)(128,0.0040)};
 \addplot[orange,mark=triangle*] coordinates {(16,0.0515)(32,0.0691)(64,0.0944)(96,0.0598)(128,0.0401)};
 \addplot[red,mark=diamond*] coordinates {(16,0.9830)(32,0.9990)(64,1.0000)(96,1.0000)(128,1.0000)};
-\addplot[violet,mark=pentagon*] coordinates {(16,1.0000)(32,1.0000)(64,1.0000)(96,1.0000)(128,1.0000)};
+\addplot[violet,mark=star] coordinates {(16,1.0000)(32,1.0000)(64,1.0000)(96,1.0000)(128,1.0000)};
 \addplot[black,mark=x] coordinates {(16,0)(32,0)(64,0)(96,0)(128,0)};
 
 \nextgroupplot[
   title={Mức vi phạm QoS trung bình},
+  xlabel={Số phần tử STAR--RIS, $N$},
   ylabel={Mức vi phạm},
   ymin=0,ymax=0.60
 ]
@@ -67,12 +66,13 @@
 \addplot[teal,mark=square*] coordinates {(16,0.04357)(32,0.00204)(64,0.15639)(96,0.39717)(128,0.55116)};
 \addplot[orange,mark=triangle*] coordinates {(16,0.07947)(32,0.07532)(64,0.06182)(96,0.07807)(128,0.09205)};
 \addplot[red,mark=diamond*] coordinates {(16,0.000013)(32,0.0000001)(64,0)(96,0)(128,0)};
-\addplot[violet,mark=pentagon*] coordinates {(16,0)(32,0)(64,0)(96,0)(128,0)};
+\addplot[violet,mark=star] coordinates {(16,0)(32,0)(64,0)(96,0)(128,0)};
 \addplot[black,mark=x] coordinates {(16,0.01883)(32,0.01802)(64,0.01794)(96,0.01793)(128,0.01793)};
 
 \end{groupplot}
-\node at ($(group c1r2.south)!0.5!(group c2r2.south)+(0,-1.1cm)$) {\ref{sixmethodlegend}};
 \end{tikzpicture}
+\par\smallskip
+\pgfplotslegendfromname{sixmethodlegend}
 \caption{So sánh hiệu năng của sáu phương pháp trên cùng tập kiểm thử khóa}
 \label{fig:ch4-six-method-performance}
 \figuresource{Tác giả vẽ lại từ \texttt{TABLE\_SIX\_METHOD\_PERFORMANCE.csv}, bundle \texttt{six\_method\_v1} đã kiểm toán (2026)}

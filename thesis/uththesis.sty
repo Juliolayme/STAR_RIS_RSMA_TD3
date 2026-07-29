@@ -133,12 +133,12 @@
   \par\vspace{-4pt}\begin{flushright}\fontsize{12}{14}\selectfont\itshape Nguồn: #1\end{flushright}
 }
 
-% Draw.io figure inclusion with a build-safe placeholder.
+% Draw.io figure inclusion with printable width and height limits.
 \NewDocumentCommand{\ThesisFigure}{m m m O{0.88\textwidth}}{%
   \begin{figure}[H]
     \centering
     \IfFileExists{#1}{%
-      \includegraphics[width=#4]{#1}%
+      \includegraphics[width=#4,height=0.74\textheight,keepaspectratio]{#1}%
     }{%
       \fbox{%
         \begin{minipage}[c][6.6cm][c]{0.86\textwidth}
