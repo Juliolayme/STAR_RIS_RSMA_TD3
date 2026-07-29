@@ -40,12 +40,10 @@ Scientific commit & \texttt{99318fefa53bef91fa5f105ec71ddae73fc96c39}\\
 TD3, DDPG và PPO dùng cùng trạng thái, action decoder, reward QoS, ngân sách tương tác và tập dữ liệu. Tuy nhiên, như đã trình bày ở Chương~\ref{chap:method}, siêu tham số không được tìm kiếm với ngân sách bằng nhau cho cả ba thuật toán. Do đó, phần so sánh DRL phản ánh ba implementation đã công bố.
 
 \section{Diễn biến trên tập xác thực}
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter4_fig01_training_overview.pdf}
 {Diễn biến các chỉ số trên tập xác thực trong quá trình huấn luyện TD3, DDPG và PPO}
 {fig:ch4-validation-curves}[0.95\linewidth]
 \figuresource{Tác giả tổng hợp từ các tệp \texttt{VALIDATION\_RAW.csv} của bundle \texttt{six\_method\_v1} (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch4-validation-curves} trình bày tổng tốc độ xác thực tại $N=32$ và $N=128$, cùng xác suất toàn bộ người dùng đạt QoS tại $N=128$. Mỗi đường là trung bình tám seed và dải bao quanh biểu diễn một độ lệch chuẩn.
 
@@ -99,12 +97,10 @@ TD3 vượt AnalyticalRIS hơn 8,78 bit/s/Hz tại $N=16$ và hơn 10,43 bit/s/H
 \section{Đánh giá độ trễ}
 \input{generated/table_six_method_latency}
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter4_fig03_quality_qos_latency_tradeoff.pdf}
 {Độ trễ CPU, tỷ lệ so với TD3 và không gian đánh đổi chất lượng--độ trễ}
 {fig:ch4-quality-latency}[0.95\linewidth]
 \figuresource{Tác giả tổng hợp từ \texttt{TABLE\_SIX\_METHOD\_CPU\_LATENCY.csv} và \texttt{TABLE\_SIX\_METHOD\_PERFORMANCE.csv} (2026)}
-\end{landscape}
 
 \subsection{Độ trễ của nhóm DRL}
 Độ trễ trung bình của TD3 tăng từ 0,246 ms tại $N=16$ lên 0,342 ms tại $N=128$. DDPG nhanh hơn TD3 một lượng nhỏ, từ 0,220 đến 0,307 ms, do chỉ có một Actor tương tự về kích thước và không có khác biệt lớn trong suy luận. PPO chậm hơn, từ 0,382 đến 0,521 ms, nhưng vẫn ở dưới một mili giây.

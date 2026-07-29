@@ -6,12 +6,10 @@ Luận văn xét đường xuống của một tế bào đơn gồm một trạ
 
 BS phát một luồng chung và bốn luồng riêng theo RSMA. Mỗi người dùng nhận tín hiệu từ đường trực tiếp BS--người dùng và đường ghép tầng BS--STAR--RIS--người dùng. STAR--RIS vận hành theo ES, vì vậy mỗi phần tử đồng thời tạo thành phần truyền qua và phản xạ.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter2_fig01_system_model_3d.pdf}
 {Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}
 {fig:ch2-system-model}[0.95\linewidth]
 \figuresource{Tác giả xây dựng từ mô hình vật lý và cấu hình thực nghiệm của đề tài (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch2-system-model} thể hiện STAR--RIS dưới dạng tấm nghiêng theo phối cảnh. Miền phản xạ nằm bên trái, miền truyền qua nằm bên phải. Đường xám nét đứt biểu diễn kênh trực tiếp; đường xanh dương từ BS đến STAR--RIS cùng các đường xanh lá hoặc cam tạo thành kênh ghép tầng. Hình cũng cho thấy một luồng chung $s_c$ và bốn luồng riêng $s_1,\ldots,s_4$ được truyền đồng thời.
 
@@ -98,12 +96,10 @@ trong đó $p_c\ge0$, $p_k\ge0$ và
 \end{equation}
 Các ký hiệu dữ liệu được chuẩn hóa có công suất trung bình bằng một và độc lập với nhau.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter2_fig02_rsma_transmit_decode.pdf}
 {Quy trình tạo tín hiệu và giải mã luồng chung, luồng riêng trong RSMA}
 {fig:ch2-rsma-decode}[0.95\linewidth]
 \figuresource{Tác giả xây dựng dựa trên mô hình RSMA một lớp \cite{Mao2022RSMAFundamentals} (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch2-rsma-decode} mô tả quá trình chia thông điệp, mã hóa và giải mã. Tất cả người dùng đều giải mã $s_c$. Sau SIC, người dùng $k$ chỉ giải mã luồng riêng $s_k$ và xem các luồng riêng khác như nhiễu.
 
@@ -187,12 +183,10 @@ trong đó
  \bm\theta^R&=[\theta_1^R,\ldots,\theta_N^R]^T.
 \end{align}
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter2_fig03_optimization_variables_constraints.pdf}
 {Các nhóm biến quyết định, mục tiêu và ràng buộc của bài toán}
 {fig:ch2-variables-constraints}[0.94\linewidth]
 \figuresource{Tác giả xây dựng từ bài toán tối ưu của luận văn (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch2-variables-constraints} nhóm các biến theo ý nghĩa vật lý. Công suất và tỷ lệ tốc độ nằm trên simplex; hệ số chia năng lượng bị chặn trong $[0,1]$; hai vector pha nằm trong miền tuần hoàn; tốc độ của mỗi người dùng phải đạt ngưỡng QoS.
 

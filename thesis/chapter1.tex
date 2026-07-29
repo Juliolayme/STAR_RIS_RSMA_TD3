@@ -16,12 +16,10 @@ Trong luận văn, tài nguyên được hiểu theo nghĩa rộng, gồm công 
 
 Đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) miền công suất chồng nhiều tín hiệu trên cùng tài nguyên. Người dùng có kênh mạnh thực hiện SIC theo một thứ tự giải mã. NOMA có thể cải thiện hiệu quả phổ trong một số cấu hình, nhưng phụ thuộc vào chênh lệch kênh, phân bổ công suất và độ chính xác của SIC \cite{Clerckx2021NOMACritical}.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter1_fig01_oma_sdma_noma_rsma.pdf}
 {So sánh nguyên lý hoạt động của OMA, SDMA, NOMA và RSMA}
 {fig:ch1-access-comparison}[0.96\linewidth]
 \figuresource{Tác giả xây dựng dựa trên \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals,Clerckx2021NOMACritical} (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch1-access-comparison} minh họa sự khác nhau giữa bốn kỹ thuật. OMA cấp tài nguyên trực giao riêng; SDMA tách người dùng bằng búp sóng; NOMA truyền một tín hiệu chồng công suất và giải mã theo thứ tự; RSMA truyền một luồng chung cùng nhiều luồng riêng. Ba người dùng trong hình chỉ dùng để minh họa, trong khi mô phỏng của luận văn sử dụng bốn người dùng.
 
@@ -60,12 +58,10 @@ Luận văn sử dụng ES. Với phần tử thứ $n$, tỷ lệ công suất 
 \end{equation}
 Biên độ tác động lên tín hiệu tương ứng là $\sqrt{\beta_n^T}$ và $\sqrt{\beta_n^R}$, vì $\beta$ biểu diễn tỷ lệ công suất chứ không phải biên độ.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter1_fig02_ris_vs_star_ris.pdf}
 {So sánh phạm vi điều khiển tín hiệu của RIS và STAR--RIS}
 {fig:ch1-ris-star}[0.96\linewidth]
 \figuresource{Tác giả xây dựng dựa trên \cite{Xu2021STARRIS,Mu2021STARAided,Khalid2022STARDesign} (2026)}
-\end{landscape}
 
 Trong Hình~\ref{fig:ch1-ris-star}, RIS truyền thống chỉ tạo tia phản xạ và chủ yếu phục vụ một nửa không gian. STAR--RIS được vẽ nghiêng theo phối cảnh, với miền phản xạ ở bên trái và miền truyền qua ở bên phải. Tia tới được chia thành hai nhánh, giúp hệ thống phục vụ người dùng ở hai phía trong cùng tài nguyên thời gian--tần số.
 
@@ -77,12 +73,10 @@ Trong học tăng cường (Reinforcement Learning, RL), tác tử nhận trạn
 
 Trong luận văn, trạng thái chứa CSI hiện tại; hành động chứa các biến công suất, tốc độ chung và STAR--RIS; phần thưởng khuyến khích tổng tốc độ nhưng trừ điểm khi vi phạm QoS. Sau huấn luyện, Actor thực hiện một lần truyền thẳng để tạo quyết định. Vì kênh kế tiếp được lấy mẫu độc lập và không phụ thuộc hành động hiện tại, TD3 được diễn giải như một bộ tối ưu học được theo ngữ cảnh hơn là một bộ điều khiển động lực dài hạn.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter1_fig03_drl_control_loop.pdf}
 {Vòng lặp DRL và vai trò của TD3 trong bài toán phân bổ tài nguyên}
 {fig:ch1-drl-loop}[0.94\linewidth]
 \figuresource{Tác giả xây dựng dựa trên \cite{Lillicrap2015DDPG,Fujimoto2018TD3,Meng2024PPOSTARRSMA} (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch1-drl-loop} cho thấy môi trường cung cấp trạng thái kênh cho TD3. Actor tạo hành động phân bổ tài nguyên; môi trường tính tổng tốc độ và mức vi phạm QoS để tạo phần thưởng. Vòng lặp này được lặp lại trên nhiều kịch bản trong giai đoạn huấn luyện.
 

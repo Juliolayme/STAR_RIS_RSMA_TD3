@@ -62,12 +62,10 @@ Với $K=4$, action có 57 chiều tại $N=16$ và 393 chiều tại $N=128$.
 \end{align}
 Ở đây $\Pi_{\Delta_c}$ là phép chiếu lên simplex không âm có tổng bằng $c$. Phép chiếu bảo đảm tổng công suất bằng $P_{\max}$ và tổng tỷ lệ tốc độ chung bằng một. Hệ số beta tự động thuộc $[0,1]$, còn pha được đưa về $[-\pi,\pi)$.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter3_fig02_action_decoder.pdf}
 {Bộ giải mã action chuẩn hóa thành các biến vật lý khả thi}
 {fig:ch3-action-decoder}[0.94\linewidth]
 \figuresource{Tác giả xây dựng từ tham số hóa \texttt{physical\_v3} của source code (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch3-action-decoder} cho thấy năm nhánh của action. Nhờ tham số hóa này, Actor không cần học lại các ràng buộc hình học cơ bản. QoS chưa được bảo đảm cứng mà được xử lý bằng reward, bộ điều khiển đối ngẫu và lựa chọn checkpoint.
 
@@ -107,12 +105,10 @@ Mỗi Critic nhận cặp $[s,a]$ và trả về một giá trị vô hướng:
 \end{equation}
 Hai Critic được khởi tạo độc lập. Ngoài các mạng online, TD3 còn có Actor đích và hai Critic đích.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter3_fig01_td3_architecture.pdf}
 {Kiến trúc Actor, hai Critic, các mạng đích và Replay Buffer của TD3}
 {fig:ch3-td3-architecture}[0.95\linewidth]
 \figuresource{Tác giả xây dựng dựa trên TD3 \cite{Fujimoto2018TD3} và implementation của đề tài (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch3-td3-architecture} thể hiện ba cải tiến cốt lõi: lấy giá trị nhỏ hơn của hai Critic, làm trơn action đích và cập nhật Actor trễ. Replay Buffer cho phép tái sử dụng transition, giúp TD3 có hiệu suất mẫu tốt hơn phương pháp on-policy trong cùng ngân sách tương tác.
 
@@ -178,12 +174,10 @@ Cứ 5.000 bước, policy được đánh giá xác định trên tập xác th
 
 Tập kiểm thử chỉ được dùng sau khi checkpoint đã khóa. Exploration noise bằng không trong kiểm thử. Quy tắc này ngăn rò rỉ test vào quá trình lựa chọn mô hình.
 
-\begin{landscape}
 \ThesisFigure{figures/pdf/chapter3_fig03_train_validation_test_pipeline.pdf}
 {Quy trình huấn luyện, xác thực, chọn checkpoint và kiểm thử}
 {fig:ch3-training-pipeline}[0.95\linewidth]
 \figuresource{Tác giả xây dựng từ giao thức thực nghiệm đã khóa (2026)}
-\end{landscape}
 
 Hình~\ref{fig:ch3-training-pipeline} trình bày ba tầng dữ liệu, huấn luyện và báo cáo. Tập kiểm thử được khóa và không có đường quay lại huấn luyện. Sau kiểm thử, kết quả được lưu thành CSV thô, bảng, hình, thống kê và benchmark độ trễ.
 

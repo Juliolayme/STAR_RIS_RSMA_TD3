@@ -1,21 +1,10 @@
 {
   "audit_verdict": "PASS",
-  "shared_scenario_banks": true,
   "scientific_commit": "99318fefa53bef91fa5f105ec71ddae73fc96c39",
-  "published_main_commit": "5dce28bd5b27f2ac8eb59d4045cb8ee88076bdf8",
-  "synchronized_thesis_merge_commit": "b1f1f2437b6361b8d2e38b55678da4185a815470",
-  "source_tables": [
-    "results/six_method_v1/tables/TABLE_SIX_METHOD_PERFORMANCE.csv",
-    "results/six_method_v1/tables/TABLE_SIX_METHOD_CPU_LATENCY.csv",
-    "results/six_method_v1/tables/TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv"
-  ],
-  "generated_assets": [
-    "thesis/generated/table_drl_hyperparameters.tex",
-    "thesis/generated/table_six_method_performance.tex",
-    "thesis/generated/table_six_method_latency.tex",
-    "thesis/generated/table_td3_paired_tests_holm.tex",
-    "thesis/generated/statistical_limitations.tex"
-  ],
-  "generator": "thesis/scripts/generate_six_method_thesis_assets.py",
-  "interpretation_scope": "TD3 is the best-performing and most scalable DRL implementation among TD3, DDPG, and PPO under the locked protocol; AO-SCA has the highest sum-rate among all six evaluated methods."
+  "source_directory": "/home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3/results/six_method_v1/tables",
+  "generated_files": [
+    "table_six_method_performance.tex",
+    "table_six_method_latency.tex",
+    "table_td3_paired_tests_holm.tex"
+  ]
 }
