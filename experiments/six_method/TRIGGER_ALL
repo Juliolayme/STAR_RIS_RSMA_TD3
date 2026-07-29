@@ -1,0 +1,6 @@
+protocol=drl_v3_qos_constrained_fair
+methods=td3,ddpg,ppo
+n_values=16,32,64,96,128
+seeds=0,1,2,3,4,5,6,7
+test_scenarios=1000
+split=low_n,high_n

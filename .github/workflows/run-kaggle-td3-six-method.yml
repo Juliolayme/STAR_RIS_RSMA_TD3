@@ -1,0 +1,113 @@
+name: Run TD3 low-high stages for six-method benchmark
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiments/drl-six-method-v1
+    paths:
+      - experiments/six_method/TRIGGER_ALL
+
+permissions:
+  contents: read
+
+jobs:
+  submit-td3-stage:
+    name: Submit TD3 ${{ matrix.group }} stage
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - group: low-n
+            n_values: "16 32 64"
+            slug: star-ris-td3-sixmethod-low-n-v1
+          - group: high-n
+            n_values: "96 128"
+            slug: star-ris-td3-sixmethod-high-n-v1
+
+    env:
+      KAGGLE_USERNAME: thanhnguyen1423
+      KAGGLE_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      METHOD: td3
+      N_VALUES: ${{ matrix.n_values }}
+      KERNEL_SLUG: ${{ matrix.slug }}
+      REPO_COMMIT: ${{ github.sha }}
+
+    steps:
+      - name: Checkout experiment commit
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install "kaggle>=1.8.4,<3"
+
+      - name: Build immutable Kaggle kernel
+        run: |
+          set -euo pipefail
+          rm -rf kaggle_submit
+          mkdir -p kaggle_submit
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          method = os.environ["METHOD"]
+          n_values = [int(value) for value in os.environ["N_VALUES"].split()]
+          commit = os.environ["REPO_COMMIT"]
+          slug = os.environ["KERNEL_SLUG"]
+          output_name = f"six_method_{method}_{'low_n' if max(n_values) <= 64 else 'high_n'}"
+          runner = f'''from __future__ import annotations
+          import shutil
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          REPO = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
+          if REPO.exists():
+              shutil.rmtree(REPO)
+          subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(REPO)], check=True)
+          subprocess.run(["git", "checkout", "--detach", "{commit}"], cwd=REPO, check=True)
+          subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(REPO), "tabulate"], check=True)
+          subprocess.run([
+              sys.executable,
+              "scripts/run_drl_stage.py",
+              "--method", "{method}",
+              "--n-values", {', '.join(repr(str(v)) for v in n_values)},
+              "--seeds", "0", "1", "2", "3", "4", "5", "6", "7",
+              "--output", "/kaggle/working/{output_name}",
+              "--max-parallel", "2",
+          ], cwd=REPO, check=True)
+          '''
+          Path("kaggle_submit/runner.py").write_text(runner, encoding="utf-8")
+          metadata = {
+              "id": f"{os.environ['KAGGLE_USERNAME']}/{slug}",
+              "title": f"STAR-RIS {method.upper()} six-method benchmark {n_values}",
+              "code_file": "runner.py",
+              "language": "python",
+              "kernel_type": "script",
+              "is_private": True,
+              "enable_gpu": True,
+              "enable_internet": True,
+              "enable_tpu": False,
+              "dataset_sources": [],
+              "kernel_sources": [],
+              "competition_sources": [],
+          }
+          Path("kaggle_submit/kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+      - name: Push Kaggle T4 kernel
+        run: |
+          set -euo pipefail
+          kaggle kernels push -p kaggle_submit --accelerator NvidiaTeslaT4 --timeout 43200
+          kaggle kernels status "${KAGGLE_USERNAME}/${KERNEL_SLUG}" || true
