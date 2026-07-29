@@ -1,0 +1,60 @@
+name: One-shot repair thesis table rows
+
+on:
+  push:
+    branches:
+      - thesis/build-check-4chap
+    paths:
+      - "thesis/TRIGGER_TABLE_ROW_REPAIR"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: thesis/build-check-4chap
+          fetch-depth: 0
+      - name: Repair authored table header rows and remove temporary markers
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              Path("thesis/chapter2.tex"): {
+                  r"\textbf{Giả định} & \textbf{Mục đích} & \textbf{Giới hạn}":
+                  r"\textbf{Giả định} & \textbf{Mục đích} & \textbf{Giới hạn}\tabularnewline",
+              },
+              Path("thesis/chapter4.tex"): {
+                  r"\textbf{Thành phần} & \textbf{Giá trị}":
+                  r"\textbf{Thành phần} & \textbf{Giá trị}\tabularnewline",
+              },
+          }
+
+          for path, mapping in replacements.items():
+              lines = path.read_text(encoding="utf-8").splitlines()
+              changed = False
+              for index, line in enumerate(lines):
+                  for prefix, target in mapping.items():
+                      if line.startswith(prefix):
+                          lines[index] = target
+                          changed = True
+              if not changed:
+                  raise SystemExit(f"Expected table header not found in {path}")
+              path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+          for marker in Path("thesis").glob("BUILD_CHECK_4CH*.md"):
+              marker.unlink()
+          Path("thesis/TRIGGER_TABLE_ROW_REPAIR").unlink(missing_ok=True)
+          Path(".github/workflows/fix-thesis-table-rows.yml").unlink()
+          PY
+      - name: Commit repaired thesis sources
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Repair thesis table header rows and clean CI markers"
+          git push origin HEAD:thesis/build-check-4chap
