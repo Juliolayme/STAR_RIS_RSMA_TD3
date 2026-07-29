@@ -1,0 +1,346 @@
+collect	UNKNOWN STEP	﻿2026-07-29T00:10:35.4949311Z Current runner version: '2.336.0'
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4977448Z ##[group]Runner Image Provisioner
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4978507Z Hosted Compute Agent
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4979177Z Version: 20260707.563
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4979919Z Commit: 02667638d2b423fbc733a8e32a88b44996a3ba6e
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4980703Z Build Date: 2026-07-07T19:33:50Z
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4981423Z Worker ID: {53f80cf5-1d5a-4398-886a-abc57ce063e5}
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4982280Z Azure Region: eastus
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4983024Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4984885Z ##[group]Operating System
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4985638Z Ubuntu
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4986219Z 24.04.4
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4987733Z LTS
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4988413Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4989101Z ##[group]Runner Image
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4989810Z Image: ubuntu-24.04
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4990505Z Version: 20260720.247.2
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4991964Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260720.247/images/ubuntu/Ubuntu2404-Readme.md
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4993615Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260720.247
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4994682Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4996002Z ##[group]GITHUB_TOKEN Permissions
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4998759Z Contents: write
+collect	UNKNOWN STEP	2026-07-29T00:10:35.4999500Z Metadata: read
+collect	UNKNOWN STEP	2026-07-29T00:10:35.5000192Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:35.5002542Z Secret source: Actions
+collect	UNKNOWN STEP	2026-07-29T00:10:35.5004115Z Prepare workflow directory
+collect	UNKNOWN STEP	2026-07-29T00:10:35.5371008Z Prepare all required actions
+collect	UNKNOWN STEP	2026-07-29T00:10:35.5421368Z Getting action download info
+collect	UNKNOWN STEP	2026-07-29T00:10:35.7519418Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+collect	UNKNOWN STEP	2026-07-29T00:10:36.0048686Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+collect	UNKNOWN STEP	2026-07-29T00:10:36.0872429Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+collect	UNKNOWN STEP	2026-07-29T00:10:36.3308815Z Complete job name: collect
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4407987Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4420150Z ##[group]Run actions/checkout@v4
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4421440Z with:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4422325Z   ref: experiments/drl-six-method-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4423421Z   fetch-depth: 0
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4424360Z   repository: Juliolayme/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4433473Z   token: ***
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4434332Z   ssh-strict: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4435193Z   ssh-user: git
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4436066Z   persist-credentials: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4437162Z   clean: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4438059Z   sparse-checkout-cone-mode: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4439121Z   fetch-tags: false
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4440074Z   show-progress: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4441001Z   lfs: false
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4441826Z   submodules: false
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4442720Z   set-safe-directory: true
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4443734Z   allow-unsafe-pr-checkout: false
+collect	UNKNOWN STEP	2026-07-29T00:10:36.4445085Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5613146Z Syncing repository: Juliolayme/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5616162Z ##[group]Getting Git version info
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5618519Z Working directory is '/home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3'
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5621614Z [command]/usr/bin/git version
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5696081Z git version 2.54.0
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5728271Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5749496Z Temporarily overriding HOME='/home/runner/work/_temp/50bfb4bc-c37c-4672-a8b2-63b255aa61ff' before making global git config changes
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5754636Z Adding repository directory to the temporary git global config as a safe directory
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5762090Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5825309Z Deleting the contents of '/home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3'
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5830021Z ##[group]Initializing the repository
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5835436Z [command]/usr/bin/git init /home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5965841Z hint: Using 'master' as the name for the initial branch. This default branch name
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5969754Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5973138Z hint: to use in all of your new repositories, which will suppress this warning,
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5975915Z hint: call:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5977615Z hint:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5979419Z hint: 	git config --global init.defaultBranch <name>
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5981627Z hint:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.5983793Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6017525Z hint: 'development'. The just-created branch can be renamed via this command:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6020587Z hint:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6022218Z hint: 	git branch -m <name>
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6023944Z hint:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6030216Z hint: Disable this message with "git config set advice.defaultBranchName false"
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6034459Z Initialized empty Git repository in /home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3/.git/
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6041160Z [command]/usr/bin/git remote add origin https://github.com/Juliolayme/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6071283Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6073920Z ##[group]Disabling automatic garbage collection
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6078411Z [command]/usr/bin/git config --local gc.auto 0
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6129795Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6131929Z ##[group]Setting up auth
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6134898Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6180034Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6578301Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6625811Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6861696Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+collect	UNKNOWN STEP	2026-07-29T00:10:36.6903886Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+collect	UNKNOWN STEP	2026-07-29T00:10:36.7168780Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+collect	UNKNOWN STEP	2026-07-29T00:10:36.7209123Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:36.7211736Z ##[group]Fetching the repository
+collect	UNKNOWN STEP	2026-07-29T00:10:36.7222821Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0205725Z From https://github.com/Juliolayme/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0208728Z  * [new branch]      agent/bootstrap-validated-source -> origin/agent/bootstrap-validated-source
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0210586Z  * [new branch]      agent/fix-six-research-blockers -> origin/agent/fix-six-research-blockers
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0212280Z  * [new branch]      agent/td3-qos-scalability-v2 -> origin/agent/td3-qos-scalability-v2
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0213864Z  * [new branch]      experiments/drl-six-method-v1 -> origin/experiments/drl-six-method-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0215169Z  * [new branch]      main                 -> origin/main
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0216586Z  * [new branch]      thesis/integrate-figures-run -> origin/thesis/integrate-figures-run
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0218459Z  * [new branch]      thesis/latex-full-v1 -> origin/thesis/latex-full-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0220511Z  * [new branch]      validation/reference-library -> origin/validation/reference-library
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0257655Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0258855Z ##[group]Determining the checkout info
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0266091Z [command]/usr/bin/git branch --list --remote origin/experiments/drl-six-method-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0304763Z   origin/experiments/drl-six-method-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0314286Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0319137Z [command]/usr/bin/git sparse-checkout disable
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0378673Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0419506Z ##[group]Checking out the ref
+collect	UNKNOWN STEP	2026-07-29T00:10:39.0423928Z [command]/usr/bin/git checkout --progress --force -B experiments/drl-six-method-v1 refs/remotes/origin/experiments/drl-six-method-v1
+collect	UNKNOWN STEP	2026-07-29T00:10:39.5893260Z Switched to a new branch 'experiments/drl-six-method-v1'
+collect	UNKNOWN STEP	2026-07-29T00:10:39.5899447Z branch 'experiments/drl-six-method-v1' set up to track 'origin/experiments/drl-six-method-v1'.
+collect	UNKNOWN STEP	2026-07-29T00:10:39.5958990Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6002208Z [command]/usr/bin/git log -1 --format=%H
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6031523Z 89810529f250214a23ed88741f88a1eab5bb5c4d
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6330125Z ##[group]Run if [[ -f results/six_method_v1/SIX_METHOD_AUDIT.json ]]; then
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6330771Z ^[[36;1mif [[ -f results/six_method_v1/SIX_METHOD_AUDIT.json ]]; then^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6331190Z ^[[36;1m  echo "done=true" >> "$GITHUB_OUTPUT"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6331628Z ^[[36;1m  echo "Six-method result is already present on the experiment branch."^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6332027Z ^[[36;1melse^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6332271Z ^[[36;1m  echo "done=false" >> "$GITHUB_OUTPUT"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6332600Z ^[[36;1mfi^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6385700Z shell: /usr/bin/bash -e {0}
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6386017Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6617993Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6620091Z ##[group]Run actions/setup-python@v5
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6620388Z with:
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6620603Z   python-version: 3.11
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6620849Z   check-latest: false
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6623207Z   token: ***
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6623451Z   update-environment: true
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6623713Z   allow-prereleases: false
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6623957Z   freethreaded: false
+collect	UNKNOWN STEP	2026-07-29T00:10:39.6624185Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8054649Z ##[group]Installed versions
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8157252Z (node:2191) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8158378Z (Use `node --trace-deprecation ...` to show where the warning was created)
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8159316Z Successfully set up CPython (3.11.15)
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8160232Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8359866Z ##[group]Run python -m pip install "kaggle>=1.8.4,<3"
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8360304Z ^[[36;1mpython -m pip install "kaggle>=1.8.4,<3"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8509162Z shell: /usr/bin/bash -e {0}
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8509677Z env:
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8510157Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8510961Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8511762Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8512627Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8513367Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8514124Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+collect	UNKNOWN STEP	2026-07-29T00:10:39.8514950Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:42.5230880Z Collecting kaggle<3,>=1.8.4
+collect	UNKNOWN STEP	2026-07-29T00:10:42.6441043Z   Downloading kaggle-2.2.4-py3-none-any.whl.metadata (17 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.6680819Z Collecting bleach (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.6730130Z   Downloading bleach-6.4.0-py3-none-any.whl.metadata (32 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7004890Z Collecting jupytext (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7052480Z   Downloading jupytext-1.19.5-py3-none-any.whl.metadata (15 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7265821Z Collecting kagglesdk<1.0,>=0.1.35 (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7333274Z   Downloading kagglesdk-0.1.35-py3-none-any.whl.metadata (13 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7531335Z Collecting packaging (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.7578777Z   Downloading packaging-26.2-py3-none-any.whl.metadata (3.5 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9120886Z Collecting protobuf (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9179069Z   Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl.metadata (595 bytes)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9329157Z Collecting python-dateutil (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9377429Z   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9539836Z Collecting python-dotenv (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9590328Z   Downloading python_dotenv-1.2.2-py3-none-any.whl.metadata (27 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9751490Z Collecting python-slugify (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:42.9794305Z   Downloading python_slugify-8.0.4-py2.py3-none-any.whl.metadata (8.5 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0079133Z Collecting requests (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0122858Z   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0423707Z Collecting tqdm (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0463481Z   Downloading tqdm-4.70.0-py3-none-any.whl.metadata (57 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0735271Z Collecting urllib3>=1.15.1 (from kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0781180Z   Downloading urllib3-2.7.0-py3-none-any.whl.metadata (6.9 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0919559Z Collecting webencodings (from bleach->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.0963095Z   Downloading webencodings-0.5.1-py2.py3-none-any.whl.metadata (2.1 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1116225Z Collecting markdown-it-py>=1.0 (from jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1157789Z   Downloading markdown_it_py-4.2.0-py3-none-any.whl.metadata (7.4 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1328191Z Collecting mdit-py-plugins (from jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1402482Z   Downloading mdit_py_plugins-0.6.1-py3-none-any.whl.metadata (2.9 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1568526Z Collecting nbformat (from jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.1657528Z   Downloading nbformat-5.10.4-py3-none-any.whl.metadata (3.6 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2011306Z Collecting pyyaml (from jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2077702Z   Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2205221Z Collecting mdurl~=0.1 (from markdown-it-py>=1.0->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2252067Z   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2419015Z Collecting fastjsonschema>=2.15 (from nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2473021Z   Downloading fastjsonschema-2.22.1-py3-none-any.whl.metadata (2.1 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2690861Z Collecting jsonschema>=2.6 (from nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.2734497Z   Downloading jsonschema-4.26.0-py3-none-any.whl.metadata (7.6 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3036740Z Collecting jupyter-core!=5.0.*,>=4.12 (from nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3091906Z   Downloading jupyter_core-5.9.1-py3-none-any.whl.metadata (1.5 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3261225Z Collecting traitlets>=5.1 (from nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3317737Z   Downloading traitlets-5.15.1-py3-none-any.whl.metadata (10 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3481546Z Collecting attrs>=22.2.0 (from jsonschema>=2.6->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3534807Z   Downloading attrs-26.1.0-py3-none-any.whl.metadata (8.8 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3679882Z Collecting jsonschema-specifications>=2023.03.6 (from jsonschema>=2.6->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3725543Z   Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl.metadata (2.9 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3917326Z Collecting referencing>=0.28.4 (from jsonschema>=2.6->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.3964197Z   Downloading referencing-0.37.0-py3-none-any.whl.metadata (2.8 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.6602683Z Collecting rpds-py>=0.25.0 (from jsonschema>=2.6->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.6700273Z   Downloading rpds_py-2026.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.1 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.6908685Z Collecting platformdirs>=2.5 (from jupyter-core!=5.0.*,>=4.12->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.6950188Z   Downloading platformdirs-4.11.0-py3-none-any.whl.metadata (5.5 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7143823Z Collecting typing-extensions>=4.4.0 (from referencing>=0.28.4->jsonschema>=2.6->nbformat->jupytext->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7234878Z   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7392278Z Collecting six>=1.5 (from python-dateutil->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7438456Z   Downloading six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7574140Z Collecting text-unidecode>=1.3 (from python-slugify->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.7627250Z   Downloading text_unidecode-1.3-py2.py3-none-any.whl.metadata (2.4 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.8575503Z Collecting charset_normalizer<4,>=2 (from requests->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.8618741Z   Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (41 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.8829273Z Collecting idna<4,>=2.5 (from requests->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.8891672Z   Downloading idna-3.18-py3-none-any.whl.metadata (6.1 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9105914Z Collecting certifi>=2023.5.7 (from requests->kaggle<3,>=1.8.4)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9156200Z   Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9279653Z Downloading kaggle-2.2.4-py3-none-any.whl (126 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9396560Z Downloading kagglesdk-0.1.35-py3-none-any.whl (248 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9495406Z Downloading urllib3-2.7.0-py3-none-any.whl (131 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9565242Z Downloading bleach-6.4.0-py3-none-any.whl (165 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9638490Z Downloading jupytext-1.19.5-py3-none-any.whl (229 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9712133Z Downloading markdown_it_py-4.2.0-py3-none-any.whl (91 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9784171Z Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9871087Z Downloading mdit_py_plugins-0.6.1-py3-none-any.whl (66 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:43.9947683Z Downloading nbformat-5.10.4-py3-none-any.whl (78 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0031064Z Downloading fastjsonschema-2.22.1-py3-none-any.whl (26 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0097462Z Downloading jsonschema-4.26.0-py3-none-any.whl (90 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0170165Z Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0243293Z Downloading jsonschema_specifications-2025.9.1-py3-none-any.whl (18 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0313752Z Downloading jupyter_core-5.9.1-py3-none-any.whl (29 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0380836Z Downloading platformdirs-4.11.0-py3-none-any.whl (23 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0445370Z Downloading referencing-0.37.0-py3-none-any.whl (26 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0514309Z Downloading rpds_py-2026.6.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (371 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0600908Z Downloading traitlets-5.15.1-py3-none-any.whl (85 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0679015Z Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0749004Z Downloading packaging-26.2-py3-none-any.whl (100 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0813074Z Downloading protobuf-7.35.1-cp310-abi3-manylinux2014_x86_64.whl (327 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.0907291Z Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1003771Z Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1072966Z Downloading python_dotenv-1.2.2-py3-none-any.whl (22 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1142033Z Downloading python_slugify-8.0.4-py2.py3-none-any.whl (10 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1224279Z Downloading text_unidecode-1.3-py2.py3-none-any.whl (78 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1301852Z Downloading pyyaml-6.0.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (806 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1385461Z    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 806.6/806.6 kB 99.0 MB/s  0:00:00
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1427560Z Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1498959Z Downloading charset_normalizer-3.4.9-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (221 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1571691Z Downloading idna-3.18-py3-none-any.whl (65 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1639655Z Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1711475Z Downloading tqdm-4.70.0-py3-none-any.whl (80 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.1777765Z Downloading webencodings-0.5.1-py2.py3-none-any.whl (11 kB)
+collect	UNKNOWN STEP	2026-07-29T00:10:44.2971468Z Installing collected packages: webencodings, text-unidecode, urllib3, typing-extensions, traitlets, tqdm, six, rpds-py, pyyaml, python-slugify, python-dotenv, protobuf, platformdirs, packaging, mdurl, idna, fastjsonschema, charset_normalizer, certifi, bleach, attrs, requests, referencing, python-dateutil, markdown-it-py, jupyter-core, mdit-py-plugins, kagglesdk, jsonschema-specifications, jsonschema, nbformat, jupytext, kaggle
+collect	UNKNOWN STEP	2026-07-29T00:10:45.8562425Z 
+collect	UNKNOWN STEP	2026-07-29T00:10:45.8584555Z Successfully installed attrs-26.1.0 bleach-6.4.0 certifi-2026.7.22 charset_normalizer-3.4.9 fastjsonschema-2.22.1 idna-3.18 jsonschema-4.26.0 jsonschema-specifications-2025.9.1 jupyter-core-5.9.1 jupytext-1.19.5 kaggle-2.2.4 kagglesdk-0.1.35 markdown-it-py-4.2.0 mdit-py-plugins-0.6.1 mdurl-0.1.2 nbformat-5.10.4 packaging-26.2 platformdirs-4.11.0 protobuf-7.35.1 python-dateutil-2.9.0.post0 python-dotenv-1.2.2 python-slugify-8.0.4 pyyaml-6.0.3 referencing-0.37.0 requests-2.34.2 rpds-py-2026.6.3 six-1.17.0 text-unidecode-1.3 tqdm-4.70.0 traitlets-5.15.1 typing-extensions-4.16.0 urllib3-2.7.0 webencodings-0.5.1
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9631717Z ##[group]Run set -euo pipefail
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9632097Z ^[[36;1mset -euo pipefail^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9632354Z ^[[36;1mrm -rf collected^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9632640Z ^[[36;1mmkdir -p collected/drl collected/baselines^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9632947Z ^[[36;1m^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9633138Z ^[[36;1mcheck_kernel() {^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9633371Z ^[[36;1m  local user="$1"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9633597Z ^[[36;1m  local key="$2"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9633813Z ^[[36;1m  local ref="$3"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9634035Z ^[[36;1m  local status^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9634472Z ^[[36;1m  status=$(KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" kaggle kernels status "$ref" 2>&1 || true)^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9634969Z ^[[36;1m  echo "$ref: $status"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9635338Z ^[[36;1m  if echo "$status" | grep -Eqi "ERROR|CANCELLED|CANCELED|FAILED"; then^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9635783Z ^[[36;1m    echo "Kernel failed: $ref" >&2^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9636062Z ^[[36;1m    exit 1^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9636296Z ^[[36;1m  fi^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9636553Z ^[[36;1m  if ! echo "$status" | grep -Eqi "COMPLETE"; then^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9636865Z ^[[36;1m    return 1^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9637348Z ^[[36;1m  fi^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9637552Z ^[[36;1m  return 0^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9637764Z ^[[36;1m}^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9637951Z ^[[36;1m^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9638145Z ^[[36;1mall_ready=true^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9638432Z ^[[36;1mwhile IFS='|' read -r user key ref destination; do^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9638800Z ^[[36;1m  if check_kernel "$user" "$key" "$ref"; then^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9639124Z ^[[36;1m    mkdir -p "$destination"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9639433Z ^[[36;1m    KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" \^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9639989Z ^[[36;1m      kaggle kernels output "$ref" -p "$destination"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9640302Z ^[[36;1m  else^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9640521Z ^[[36;1m    all_ready=false^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9640756Z ^[[36;1m  fi^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9640956Z ^[[36;1mdone <<EOF^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9641379Z ^[[36;1m${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1|collected/drl/td3_low_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9642048Z ^[[36;1m${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1|collected/drl/td3_high_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9642731Z ^[[36;1m${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-sixmethod-low-n-v1|collected/drl/ddpg_low_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9643430Z ^[[36;1m${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-sixmethod-high-n-v1|collected/drl/ddpg_high_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9644224Z ^[[36;1m${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1|collected/drl/ppo_low_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9644923Z ^[[36;1m${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1|collected/drl/ppo_high_n^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9645413Z ^[[36;1mEOF^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9645612Z ^[[36;1m^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9645821Z ^[[36;1mif [[ "$all_ready" != true ]]; then^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9646150Z ^[[36;1m  echo "ready=false" >> "$GITHUB_OUTPUT"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9646606Z ^[[36;1m  echo "At least one DRL stage is still running; the hourly collector will retry."^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9647230Z ^[[36;1m  exit 0^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9647431Z ^[[36;1mfi^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9647617Z ^[[36;1m^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9647876Z ^[[36;1mKAGGLE_USERNAME="$DDPG_USER" KAGGLE_KEY="$DDPG_KEY" \^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9648394Z ^[[36;1m  kaggle kernels output ronganminh/star-ris-ao-grid-final -p collected/baselines/ao_grid^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9648933Z ^[[36;1mKAGGLE_USERNAME="$DDPG_USER" KAGGLE_KEY="$DDPG_KEY" \^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9649447Z ^[[36;1m  kaggle kernels output ronganminh/star-ris-ao-sca-final -p collected/baselines/ao_sca^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9649965Z ^[[36;1mKAGGLE_USERNAME="$PPO_USER" KAGGLE_KEY="$PPO_KEY" \^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9650559Z ^[[36;1m  kaggle kernels output duythanhb1909984/star-ris-analytical-ris-final -p collected/baselines/analytical_ris^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9651301Z ^[[36;1mecho "ready=true" >> "$GITHUB_OUTPUT"^[[0m
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9695841Z shell: /usr/bin/bash -e {0}
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9696099Z env:
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9696372Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9696819Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9697477Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9697862Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9698246Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9698628Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9698968Z   TD3_USER: thanhnguyen1423
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9699329Z   TD3_KEY: ***
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9699536Z   DDPG_USER: ronganminh
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9699873Z   DDPG_KEY: ***
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9700114Z   PPO_USER: duythanhb1909984
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9700377Z   PPO_KEY: ***
+collect	UNKNOWN STEP	2026-07-29T00:10:45.9700581Z ##[endgroup]
+collect	UNKNOWN STEP	2026-07-29T00:10:46.7083437Z thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1: Cannot access kernel 'thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:47.1170564Z thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1: Cannot access kernel 'thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:47.6428061Z ronganminh/star-ris-ddpg-sixmethod-low-n-v1: Cannot access kernel 'ronganminh/star-ris-ddpg-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:48.0378293Z ronganminh/star-ris-ddpg-sixmethod-high-n-v1: Cannot access kernel 'ronganminh/star-ris-ddpg-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:48.4970872Z duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1: Cannot access kernel 'duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:48.9465051Z duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1: Cannot access kernel 'duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug — use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.
+collect	UNKNOWN STEP	2026-07-29T00:10:48.9498010Z At least one DRL stage is still running; the hourly collector will retry.
+collect	UNKNOWN STEP	2026-07-29T00:10:48.9657545Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+collect	UNKNOWN STEP	2026-07-29T00:10:48.9658796Z Post job cleanup.
+collect	UNKNOWN STEP	2026-07-29T00:10:49.0902886Z (node:2263) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+collect	UNKNOWN STEP	2026-07-29T00:10:49.0903916Z (Use `node --trace-deprecation ...` to show where the warning was created)
+collect	UNKNOWN STEP	2026-07-29T00:10:49.1083418Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+collect	UNKNOWN STEP	2026-07-29T00:10:49.1084752Z Post job cleanup.
+collect	UNKNOWN STEP	2026-07-29T00:10:49.1957691Z [command]/usr/bin/git version
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2005863Z git version 2.54.0
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2048550Z Temporarily overriding HOME='/home/runner/work/_temp/668210ec-0345-4f84-a268-c6ed4cb7c690' before making global git config changes
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2050019Z Adding repository directory to the temporary git global config as a safe directory
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2056075Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2103678Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2149151Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2409134Z fatal: No url found for submodule path 'kaggle_runs/01_td3_low_n/output/STAR_RIS_RSMA_TD3' in .gitmodules
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2455712Z ##[warning]The process '/usr/bin/git' failed with exit code 128
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2580754Z Cleaning up orphan processes
+collect	UNKNOWN STEP	2026-07-29T00:10:49.2933389Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
