@@ -62,14 +62,31 @@ jobs:
       - name: Regenerate audited thesis tables
         run: python thesis/scripts/generate_six_method_thesis_assets.py
 
-      - name: Install XeLaTeX toolchain
+      - name: Install XeLaTeX and PDF toolchain
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            latexmk biber \
+            latexmk biber ghostscript \
             texlive-xetex texlive-latex-extra texlive-fonts-recommended \
             texlive-lang-other texlive-science texlive-bibtex-extra \
             texlive-pictures fonts-texgyre poppler-utils
+
+      - name: Normalize Draw.io PDFs for XeLaTeX
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/thesis_pdf_normalized"
+          for pdf in thesis/figures/pdf/*.pdf; do
+            out="$RUNNER_TEMP/thesis_pdf_normalized/$(basename "$pdf")"
+            gs -q -dNOPAUSE -dBATCH -dSAFER \
+              -sDEVICE=pdfwrite \
+              -dCompatibilityLevel=1.7 \
+              -dPDFSETTINGS=/prepress \
+              -dDetectDuplicateImages=true \
+              -dCompressFonts=true \
+              -sOutputFile="$out" "$pdf"
+            test -s "$out"
+            mv "$out" "$pdf"
+          done
 
       - name: Build thesis
         working-directory: thesis
