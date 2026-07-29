@@ -20,7 +20,8 @@ METHOD_LABELS = {
     "analytical_ris": "AnalyticalRIS",
 }
 METHOD_ORDER = ["td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris"]
-ROW_END = r" \\"
+LB = r"\\"
+ROW_END = " " + LB
 
 
 def fmt(value: float, digits: int = 4) -> str:
@@ -38,9 +39,9 @@ def fmt_violation(value: float) -> str:
 
 
 def ordered(frame: pd.DataFrame) -> pd.DataFrame:
-    frame = frame.copy()
-    frame["_order"] = frame["method"].map({m: i for i, m in enumerate(METHOD_ORDER)})
-    return frame.sort_values(["n_ris", "_order"])
+    result = frame.copy()
+    result["_order"] = result["method"].map({m: i for i, m in enumerate(METHOD_ORDER)})
+    return result.sort_values(["n_ris", "_order"])
 
 
 def write_performance(frame: pd.DataFrame, output: Path) -> None:
@@ -49,14 +50,14 @@ def write_performance(frame: pd.DataFrame, output: Path) -> None:
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r r r r}",
         r"\caption{Hiệu năng của sáu phương pháp trên tập kiểm thử khóa.}",
-        r"\label{tab:six-method-performance}\",
+        r"\label{tab:six-method-performance}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} " + LB,
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\",
+        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} " + LB,
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
@@ -78,12 +79,14 @@ def write_performance(frame: pd.DataFrame, output: Path) -> None:
         ]
         lines.append(" & ".join(cells) + ROW_END)
         previous_n = n_ris
-    lines += [
-        r"\end{longtable}",
-        r"\end{landscape}",
-        "",
-        r"\noindent\textit{Cách đọc bảng:} Đối với TD3, DDPG và PPO, giá trị được tổng hợp theo tám seed, mỗi seed đánh giá trên 1.000 kịch bản kiểm thử khóa. Đối với AO--SCA, AO--Grid và AnalyticalRIS, độ biến thiên chủ yếu đến từ các kịch bản kênh. Vì hai nhóm có đơn vị bất định khác nhau, không so sánh trực tiếp độ rộng khoảng tin cậy như thể chúng có cùng nguồn biến thiên.",
-    ]
+    lines.extend(
+        [
+            r"\end{longtable}",
+            r"\end{landscape}",
+            "",
+            r"\noindent\textit{Cách đọc bảng:} Đối với TD3, DDPG và PPO, giá trị được tổng hợp theo tám seed, mỗi seed đánh giá trên 1.000 kịch bản kiểm thử khóa. Đối với AO--SCA, AO--Grid và AnalyticalRIS, độ biến thiên chủ yếu đến từ các kịch bản kênh. Vì hai nhóm có đơn vị bất định khác nhau, không so sánh trực tiếp độ rộng khoảng tin cậy như thể chúng có cùng nguồn biến thiên.",
+        ]
+    )
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -93,14 +96,14 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r r r r}",
         r"\caption{Độ trễ ra quyết định của sáu phương pháp trên cùng một CPU runner.}",
-        r"\label{tab:six-method-latency}\",
+        r"\label{tab:six-method-latency}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} " + LB,
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\",
+        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} " + LB,
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
@@ -122,12 +125,14 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
         ]
         lines.append(" & ".join(cells) + ROW_END)
         previous_n = n_ris
-    lines += [
-        r"\end{longtable}",
-        r"\end{landscape}",
-        "",
-        r"\noindent\textit{Lưu ý:} Các số đo được thực hiện đơn luồng trên cùng một CPU runner. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đã công bố và phải được diễn giải cùng chất lượng nghiệm và QoS.",
-    ]
+    lines.extend(
+        [
+            r"\end{longtable}",
+            r"\end{landscape}",
+            "",
+            r"\noindent\textit{Lưu ý:} Các số đo được thực hiện đơn luồng trên cùng một CPU runner. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đã công bố và phải được diễn giải cùng chất lượng nghiệm và QoS.",
+        ]
+    )
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -153,14 +158,14 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r c c}",
         r"\caption{So sánh ghép cặp tổng tốc độ giữa TD3 và năm phương pháp còn lại sau hiệu chỉnh Holm.}",
-        r"\label{tab:td3-paired-tests-holm}\",
+        r"\label{tab:td3-paired-tests-holm}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \",
+        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} " + LB,
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{6}{c}{\tablename\ \thetable\ -- tiếp theo}\",
+        r"\multicolumn{6}{c}{\tablename\ \thetable\ -- tiếp theo}" + LB,
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \",
+        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} " + LB,
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
@@ -181,12 +186,14 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
         ]
         lines.append(" & ".join(cells) + ROW_END)
         previous_n = n_ris
-    lines += [
-        r"\end{longtable}",
-        r"\end{landscape}",
-        "",
-        r"\noindent Trong bảng, ``Có'' nghĩa là bác bỏ giả thuyết không ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm. Dấu âm khi so với AO--SCA cho thấy AO--SCA có tổng tốc độ trung bình cao hơn TD3; dấu dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu.",
-    ]
+    lines.extend(
+        [
+            r"\end{longtable}",
+            r"\end{landscape}",
+            "",
+            r"\noindent Trong bảng, ``Có'' nghĩa là bác bỏ giả thuyết không ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm. Dấu âm khi so với AO--SCA cho thấy AO--SCA có tổng tốc độ trung bình cao hơn TD3; dấu dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu.",
+        ]
+    )
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
