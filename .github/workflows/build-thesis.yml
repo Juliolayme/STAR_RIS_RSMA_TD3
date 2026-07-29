@@ -1,27 +1,20 @@
-name: Build thesis PDF
+name: Build four-chapter thesis PDF
 
 on:
   push:
     branches:
-      - thesis/latex-full-v1
+      - thesis/restructure-4chap-v2
     paths:
-      - "thesis/**/*.tex"
-      - "thesis/**/*.sty"
-      - "thesis/**/*.bib"
-      - "thesis/**/*.md"
-      - "thesis/scripts/**/*.py"
-      - "thesis/figures/**/*.drawio"
-      - "thesis/figures/**/*.svg"
-      - "thesis/figures/**/*.png"
-      - "thesis/figures/**/*.pdf"
-      - "thesis/latexmkrc"
+      - "thesis/**"
+      - "results/six_method_v1/**"
       - "references/references.bib"
       - ".github/workflows/build-thesis.yml"
   pull_request:
     branches:
-      - thesis/latex-full-v1
+      - thesis/restructure-4chap-v2
     paths:
       - "thesis/**"
+      - "results/six_method_v1/**"
       - "references/references.bib"
       - ".github/workflows/build-thesis.yml"
   workflow_dispatch:
@@ -41,8 +34,33 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
-      - name: Integrate and verify Draw.io figures
-        run: python thesis/scripts/integrate_figures.py
+      - name: Verify four-chapter structure and figure files
+        run: |
+          set -euo pipefail
+          ! grep -R "\\input{chapter5}" thesis/content*.tex
+          ! grep -q "\\chapter\*{TÓM TẮT}" thesis/frontmatter.tex
+          ! grep -q "\\chapter\*{ABSTRACT}" thesis/frontmatter.tex
+          for f in \
+            thesis/figures/pdf/chapter1_fig01_oma_sdma_noma_rsma.pdf \
+            thesis/figures/pdf/chapter1_fig02_ris_vs_star_ris.pdf \
+            thesis/figures/pdf/chapter1_fig03_drl_control_loop.pdf \
+            thesis/figures/pdf/chapter2_fig01_system_model_3d.pdf \
+            thesis/figures/pdf/chapter2_fig02_rsma_transmit_decode.pdf \
+            thesis/figures/pdf/chapter2_fig03_optimization_variables_constraints.pdf \
+            thesis/figures/pdf/chapter3_fig01_td3_architecture.pdf \
+            thesis/figures/pdf/chapter3_fig02_action_decoder.pdf \
+            thesis/figures/pdf/chapter3_fig03_train_validation_test_pipeline.pdf \
+            thesis/figures/pdf/chapter4_fig01_training_overview.pdf \
+            thesis/figures/pdf/chapter4_fig03_quality_qos_latency_tradeoff.pdf; do
+            test -s "$f"
+          done
+          grep -q '"verdict".*"PASS"' results/six_method_v1/SIX_METHOD_AUDIT.json
+
+      - name: Set up Python table generator
+        run: python -m pip install --disable-pip-version-check pandas
+
+      - name: Regenerate audited thesis tables
+        run: python thesis/scripts/generate_six_method_thesis_assets.py
 
       - name: Install XeLaTeX toolchain
         run: |
@@ -51,15 +69,15 @@ jobs:
             latexmk biber \
             texlive-xetex texlive-latex-extra texlive-fonts-recommended \
             texlive-lang-other texlive-science texlive-bibtex-extra \
-            fonts-texgyre poppler-utils
+            texlive-pictures fonts-texgyre poppler-utils
 
       - name: Build thesis
         working-directory: thesis
         run: |
           latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex
           mkdir -p build
-          cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
-          pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+          pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
 
       - name: Reject unresolved references and missing figures
         working-directory: thesis
@@ -69,34 +87,31 @@ jobs:
             echo "Unresolved citation/reference or missing figure detected"
             exit 1
           fi
+          chapter_count=$(grep -c '^\\chapter{' chapter1.tex chapter2.tex chapter3.tex chapter4.tex | awk -F: '{s+=$2} END{print s}')
+          test "$chapter_count" -eq 4
 
       - name: Upload PDF artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis
-          path: thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          name: Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH
+          path: thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit integrated sources and built PDF
+      - name: Commit generated tables and built PDF
+        if: github.event_name == 'push'
         shell: bash
         env:
-          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
+          SOURCE_BRANCH: ${{ github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            thesis/chapter1.tex \
-            thesis/chapter2.tex \
-            thesis/chapter3.tex \
-            thesis/chapter4.tex \
-            thesis/chapter5.tex \
-            thesis/FIGURE_VERIFICATION.md
-          git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis.pdf
+          git add thesis/generated
+          git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
           if git diff --cached --quiet; then
-            echo "Thesis sources and PDF unchanged"
+            echo "Generated assets and PDF unchanged"
             exit 0
           fi
-          git commit -m "Integrate thesis figures and rebuild PDF [skip ci]"
+          git commit -m "Build audited four-chapter thesis PDF [skip ci]"
           git push origin "HEAD:${SOURCE_BRANCH}"
