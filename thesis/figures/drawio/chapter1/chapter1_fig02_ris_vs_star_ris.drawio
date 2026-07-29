@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="drawio" version="31.0.2">
+  <diagram name="Hinh 1.2">
+    <mxGraphModel dx="1100" dy="1580" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1580" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="topf" value="" style="rounded=1;arcSize=3;html=1;fillColor=#FCFCFC;strokeColor=#B0BEC5;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="20" y="100" width="1060" height="560" as="geometry" />
+        </mxCell>
+        <mxCell id="botf" value="" style="rounded=1;arcSize=3;html=1;fillColor=#FBFDFE;strokeColor=#0277BD;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="20" y="680" width="1060" height="620" as="geometry" />
+        </mxCell>
+        <mxCell id="topt" value="RIS truyền thống" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=24;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="20" y="112" width="1060" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="tops" value="Chỉ phản xạ — phủ sóng nửa không gian" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="20" y="146" width="1060" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="bott" value="STAR-RIS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=24;fontStyle=1;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="20" y="692" width="1060" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="bots" value="Phản xạ và truyền qua đồng thời — phục vụ hai phía" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontColor=#0277BD;" vertex="1" parent="1">
+          <mxGeometry x="20" y="726" width="1060" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ncov" value="" style="rounded=0;html=1;fillColor=#EEEEEE;strokeColor=#9E9E9E;strokeWidth=2;dashed=1;dashPattern=6 4;opacity=70;" vertex="1" parent="1">
+          <mxGeometry x="580" y="250" width="480" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="ncovt" value="Vùng phủ sóng hạn chế&#xa;&#xa;Không có tín hiệu truyền qua panel nên&#xa;người dùng phía sau RIS không được phục vụ." style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontColor=#616161;" vertex="1" parent="1">
+          <mxGeometry x="596" y="320" width="448" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="tbsl" value="Trạm gốc (BS)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=18;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="40" y="190" width="220" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tbs" value="" style="html=1;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;outlineConnect=0;fillColor=#B0BEC5;strokeColor=#1565C0;gradientColor=none;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="128" y="218" width="44" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="trisl" value="Panel RIS (chỉ phản xạ)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="350" y="296" width="240" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tu1" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="170" y="500" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="tu2" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="290" y="500" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="tul" value="Người dùng phía phản xạ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="110" y="554" width="290" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tinc" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#1565C0;strokeWidth=3;exitX=1;exitY=0.4;exitDx=0;exitDy=0;" edge="1" parent="1" source="tbs" target="ris_c0_3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tinct" value="Tia tới" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="216" y="212" width="120" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tr1" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#2E7D32;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ris_c0_0" target="tu1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tr2" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#2E7D32;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="ris_c1_0" target="tu2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tr1t" value="Tia phản xạ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="40" y="410" width="180" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tc1" value="Chỉ phản xạ" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="40" y="592" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tc2" value="Phủ sóng nửa không gian" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="310" y="592" width="330" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="rband" value="" style="rounded=0;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;strokeWidth=2;dashed=1;dashPattern=6 4;opacity=45;" vertex="1" parent="1">
+          <mxGeometry x="40" y="770" width="470" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="tband" value="" style="rounded=0;html=1;fillColor=#FFF3E0;strokeColor=#E65100;strokeWidth=2;dashed=1;dashPattern=6 4;opacity=45;" vertex="1" parent="1">
+          <mxGeometry x="640" y="770" width="420" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="rbh" value="Miền phản xạ — bên trái STAR-RIS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="50" y="1166" width="450" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="tbh" value="Miền truyền qua — bên phải STAR-RIS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#BF360C;" vertex="1" parent="1">
+          <mxGeometry x="650" y="1166" width="400" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="sbsl" value="Trạm gốc (BS)" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=18;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="52" y="800" width="220" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sbs" value="" style="html=1;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;outlineConnect=0;fillColor=#B0BEC5;strokeColor=#1565C0;gradientColor=none;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
+          <mxGeometry x="140" y="828" width="44" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="srsl" value="STAR-RIS thụ động" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="465" y="872" width="220" height="26" as="geometry" />
+        </mxCell>
+        <mxCell id="beta" value="β&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;T&lt;/sup&gt; + β&lt;sub&gt;n&lt;/sub&gt;&lt;sup&gt;R&lt;/sup&gt; = 1" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#0277BD;strokeWidth=2;fontFamily=Times New Roman;fontSize=18;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="488" y="1100" width="168" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="ru1" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="90" y="1076" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="ru2" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="210" y="1076" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="tu3" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="770" y="1076" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="tu4" value="" style="sketch=0;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;fillColor=#37474F;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;outlineConnect=0;align=center;shape=mxgraph.office.users.mobile_user;" vertex="1" parent="1">
+          <mxGeometry x="890" y="1076" width="50" height="48" as="geometry" />
+        </mxCell>
+        <mxCell id="rul" value="Người dùng miền phản xạ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontColor=#1B5E20;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1130" width="270" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="tul2" value="Người dùng miền truyền qua" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=16;fontColor=#BF360C;" vertex="1" parent="1">
+          <mxGeometry x="720" y="1130" width="290" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sinc" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#1565C0;strokeWidth=3;exitX=1;exitY=0.3;exitDx=0;exitDy=0;" edge="1" parent="1" source="sbs" target="srs_c0_4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sinct" value="Tia tới" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#1565C0;" vertex="1" parent="1">
+          <mxGeometry x="250" y="818" width="120" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="sr1" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#2E7D32;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="srs_c0_0" target="ru1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sr2" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#2E7D32;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="srs_c1_0" target="ru2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="sr1t" value="Tia phản xạ" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#2E7D32;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1010" width="180" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="st1" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#E65100;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="srs_c4_0" target="tu3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st2" value="" style="edgeStyle=none;html=1;endArrow=block;endFill=1;endSize=5;strokeColor=#E65100;strokeWidth=3;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="srs_c4_1" target="tu4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="st1t" value="Tia truyền qua" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#E65100;" vertex="1" parent="1">
+          <mxGeometry x="880" y="1000" width="180" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="pes" value="ES: chia năng lượng" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#E1F5FE;strokeColor=#01579B;strokeWidth=3;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1216" width="330" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="pms" value="MS: chuyển chế độ" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#FAFAFA;strokeColor=#90A4AE;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1216" width="310" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="pts" value="TS: chuyển theo thời gian" style="rounded=1;arcSize=14;html=1;whiteSpace=wrap;fillColor=#FAFAFA;strokeColor=#90A4AE;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontColor=#455A64;" vertex="1" parent="1">
+          <mxGeometry x="720" y="1216" width="340" height="52" as="geometry" />
+        </mxCell>
+
+        <mxCell id="h0" value="Tiêu chí" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1330" width="280" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="h1" value="RIS truyền thống" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#ECEFF1;strokeColor=#546E7A;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1330" width="380" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="h2" value="STAR-RIS" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#E1F5FE;strokeColor=#0277BD;strokeWidth=2;fontFamily=Times New Roman;fontSize=17;fontStyle=1;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1330" width="400" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="a0" value="Điều khiển tín hiệu" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1386" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="Chỉ thành phần phản xạ" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1386" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="Đồng thời phản xạ và truyền qua" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#F5FBFE;strokeColor=#4FC3F7;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1386" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="b0" value="Phạm vi phục vụ" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1446" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="Nửa không gian trước panel" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1446" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="Toàn không gian, cả hai phía panel" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#F5FBFE;strokeColor=#4FC3F7;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1446" width="400" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c0" value="Phục vụ hai phía" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#263238;" vertex="1" parent="1">
+          <mxGeometry x="20" y="1506" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c1x" value="Không" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#90A4AE;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#37474F;" vertex="1" parent="1">
+          <mxGeometry x="300" y="1506" width="380" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="c2x" value="Có — phục vụ đồng thời cả hai miền" style="rounded=0;html=1;whiteSpace=wrap;fillColor=#F5FBFE;strokeColor=#4FC3F7;strokeWidth=1;fontFamily=Times New Roman;fontSize=16;fontColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="680" y="1506" width="400" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="ris_t0" value="" style="rounded=0;html=1;fillColor=#546E7A;strokeColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="420" y="420" width="16" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_t1" value="" style="rounded=0;html=1;fillColor=#546E7A;strokeColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="438" y="429" width="16" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_t2" value="" style="rounded=0;html=1;fillColor=#546E7A;strokeColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="456" y="438" width="16" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_t3" value="" style="rounded=0;html=1;fillColor=#546E7A;strokeColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="474" y="447" width="16" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_t4" value="" style="rounded=0;html=1;fillColor=#546E7A;strokeColor=#546E7A;" vertex="1" parent="1">
+          <mxGeometry x="492" y="456" width="16" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c0_0" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="400" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c1_0" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="438" y="409" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c2_0" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="456" y="418" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c3_0" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="474" y="427" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c4_0" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="492" y="436" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c0_1" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="378" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c1_1" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="438" y="387" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c2_1" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="456" y="396" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c3_1" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="474" y="405" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c4_1" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="492" y="414" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c0_2" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="356" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c1_2" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="438" y="365" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c2_2" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="456" y="374" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c3_2" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="474" y="383" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c4_2" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="492" y="392" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c0_3" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="420" y="334" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c1_3" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="438" y="343" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c2_3" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="456" y="352" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c3_3" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="474" y="361" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ris_c4_3" value="" style="rounded=0;html=1;fillColor=#CFD8DC;strokeColor=#546E7A;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="492" y="370" width="16" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_t0" value="" style="rounded=0;html=1;fillColor=#01579B;strokeColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="525" y="1020" width="17" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_t1" value="" style="rounded=0;html=1;fillColor=#01579B;strokeColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="544" y="1031" width="17" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_t2" value="" style="rounded=0;html=1;fillColor=#01579B;strokeColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="563" y="1042" width="17" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_t3" value="" style="rounded=0;html=1;fillColor=#01579B;strokeColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="582" y="1053" width="17" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_t4" value="" style="rounded=0;html=1;fillColor=#01579B;strokeColor=#01579B;" vertex="1" parent="1">
+          <mxGeometry x="601" y="1064" width="17" height="8" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c0_0" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="525" y="1000" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c1_0" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="544" y="1011" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c2_0" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="563" y="1022" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c3_0" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="582" y="1033" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c4_0" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="601" y="1044" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c0_1" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="525" y="977" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c1_1" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="544" y="988" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c2_1" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="563" y="999" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c3_1" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="582" y="1010" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c4_1" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="601" y="1021" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c0_2" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="525" y="954" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c1_2" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="544" y="965" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c2_2" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="563" y="976" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c3_2" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="582" y="987" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c4_2" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="601" y="998" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c0_3" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="525" y="931" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c1_3" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="544" y="942" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c2_3" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="563" y="953" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c3_3" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="582" y="964" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c4_3" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="601" y="975" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c0_4" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="525" y="908" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c1_4" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="544" y="919" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c2_4" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="563" y="930" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c3_4" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="582" y="941" width="17" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="srs_c4_4" value="" style="rounded=0;html=1;fillColor=#B3E5FC;strokeColor=#0277BD;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="601" y="952" width="17" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
