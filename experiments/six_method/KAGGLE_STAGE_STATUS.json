@@ -1,0 +1,43 @@
+{
+  "checked_utc": "2026-07-29T02:58:48.710549+00:00",
+  "all_complete": true,
+  "any_failed": false,
+  "stages": {
+    "td3_low_n": {
+      "kernel": "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64",
+      "raw_status": "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    },
+    "td3_high_n": {
+      "kernel": "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128",
+      "raw_status": "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    },
+    "ddpg_low_n": {
+      "kernel": "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64",
+      "raw_status": "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    },
+    "ddpg_high_n": {
+      "kernel": "ronganminh/star-ris-ddpg-six-method-benchmark-96-128",
+      "raw_status": "ronganminh/star-ris-ddpg-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    },
+    "ppo_low_n": {
+      "kernel": "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64",
+      "raw_status": "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    },
+    "ppo_high_n": {
+      "kernel": "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128",
+      "raw_status": "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
+      "failed": false
+    }
+  }
+}

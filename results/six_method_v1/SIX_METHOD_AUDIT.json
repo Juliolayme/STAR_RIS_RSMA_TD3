@@ -1,0 +1,54 @@
+{
+  "drl_repository_commit": "99318fefa53bef91fa5f105ec71ddae73fc96c39",
+  "drl_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "finite_core_metrics": true,
+  "latency_min_samples_per_method_n": 100,
+  "methods": [
+    "td3",
+    "ddpg",
+    "ppo",
+    "ao_sca",
+    "ao_grid",
+    "analytical_ris"
+  ],
+  "n_values": [
+    16,
+    32,
+    64,
+    96,
+    128
+  ],
+  "published_figures": [
+    "fig01_six_method_sum_rate.png",
+    "fig02_six_method_qos_fraction.png",
+    "fig03_six_method_all_qos.png",
+    "fig04_six_method_violation.png",
+    "fig05_six_method_cpu_latency.png",
+    "fig06_six_method_quality_latency.png"
+  ],
+  "published_tables": [
+    "TABLE_SIX_METHOD_CPU_LATENCY.csv",
+    "TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
+    "TABLE_SIX_METHOD_PERFORMANCE.csv"
+  ],
+  "required_stages": [
+    "ddpg_high_n",
+    "ddpg_low_n",
+    "ppo_high_n",
+    "ppo_low_n",
+    "td3_high_n",
+    "td3_low_n"
+  ],
+  "shared_scenario_banks": true,
+  "test_scenarios_per_n": 1000,
+  "verdict": "PASS"
+}
