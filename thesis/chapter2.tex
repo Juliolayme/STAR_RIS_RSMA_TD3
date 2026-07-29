@@ -1,328 +1,257 @@
-\chapter{CƠ SỞ LÝ THUYẾT VỀ RSMA, STAR--RIS VÀ TD3}
-\label{chap:theory}
+\chapter{MÔ HÌNH HỆ THỐNG VÀ BÀI TOÁN TỐI ƯU}
+\label{chap:system-model}
 
-\section{Mô hình tín hiệu vô tuyến băng gốc}
-Một hệ thống truyền thông vô tuyến băng hẹp thường được mô hình hóa ở miền băng gốc phức. Với ký hiệu phát $x\in\C$, hệ số kênh $h\in\C$ và nhiễu $n\sim\mathcal{CN}(0,\sigma^2)$, tín hiệu thu có dạng
-\begin{equation}
- y=hx+n.
- \label{eq:baseband}
-\end{equation}
-Đại lượng $|h|^2$ biểu diễn độ lợi công suất tức thời. Khi nhiều luồng được truyền đồng thời, một luồng mục tiêu được giải mã trong sự hiện diện của các luồng khác, tỷ số tín hiệu trên nhiễu và can nhiễu được viết
-\begin{equation}
- \gamma=\frac{P_{\mathrm{s}}|h|^2}{\sum_i P_{\mathrm{i},i}|h_i|^2+\sigma^2}.
- \label{eq:sinr-general}
-\end{equation}
-Nếu sử dụng mã đủ dài và giả định kênh Gaussian, tốc độ phổ tức thời được xấp xỉ bởi
-\begin{equation}
- R=\log_2(1+\gamma)\quad \text{bit/s/Hz}.
- \label{eq:shannon-rate}
-\end{equation}
-Công thức Shannon trong luận văn đóng vai trò metric mô phỏng, không phải cam kết về throughput ứng dụng thực. Các yếu tố như blocklength hữu hạn, coding gap, overhead ước lượng kênh và đồng bộ chưa được đưa vào.
+\section{Kiến trúc hệ thống}
+Luận văn xét đường xuống của một tế bào đơn gồm một trạm gốc (Base Station, BS) SISO, một STAR--RIS thụ động có $N$ phần tử và $K=4$ người dùng SISO. Người dùng 1 và 3 nằm ở miền phản xạ; người dùng 2 và 4 nằm ở miền truyền qua. Việc gán phía được cố định trong toàn bộ kịch bản để tập trung đánh giá bài toán phân bổ tài nguyên.
 
-\section{Đa truy cập phân tách tốc độ}
-\subsection{Cấu trúc thông điệp và tín hiệu phát}
-Xét $K$ người dùng. Thông điệp của người dùng $k$ được chia thành $W_{c,k}$ và $W_{p,k}$. Các phần chung được ghép và mã hóa thành luồng chung $s_c$; phần riêng tạo thành $s_k$. Trong mô hình SISO, tín hiệu phát là
-\begin{equation}
- x=\sqrt{p_c}s_c+\sum_{k=1}^{K}\sqrt{p_k}s_k,
- \label{eq:rsma-tx}
-\end{equation}
-trong đó $p_c\ge 0$, $p_k\ge 0$ và
-\begin{equation}
- p_c+\sum_{k=1}^{K}p_k\le P_{\max}.
- \label{eq:power-constraint}
-\end{equation}
-Các ký hiệu dữ liệu được chuẩn hóa $\E[|s_c|^2]=\E[|s_k|^2]=1$ và độc lập. Tài liệu RSMA nhấn mạnh rằng phân tách thông điệp cung cấp một cơ chế mềm để phân bổ nhiễu giữa miền ``được giải mã'' và miền ``được coi như tạp âm'' \cite{Mao2022RSMAFundamentals,Mao2018RSMABridging}.
+BS phát một luồng chung và bốn luồng riêng theo RSMA. Mỗi người dùng nhận tín hiệu từ đường trực tiếp BS--người dùng và đường ghép tầng BS--STAR--RIS--người dùng. STAR--RIS vận hành theo ES, vì vậy mỗi phần tử đồng thời tạo thành phần truyền qua và phản xạ.
 
-\subsection{Giải mã luồng chung}
-Tín hiệu thu của người dùng $k$ là
-\begin{equation}
- y_k=h_k^{\mathrm{eff}}x+n_k,
- \label{eq:user-rx}
-\end{equation}
-trong đó $h_k^{\mathrm{eff}}$ là kênh hiệu dụng sau khi cộng đường trực tiếp và đường STAR--RIS. Khi giải mã luồng chung, tất cả luồng riêng được xem là nhiễu. Vì tất cả luồng đi qua cùng một kênh SISO hiệu dụng, SINR luồng chung là
-\begin{equation}
- \gamma_{c,k}=\frac{|h_k^{\mathrm{eff}}|^2p_c}
- {|h_k^{\mathrm{eff}}|^2\sum_{j=1}^{K}p_j+\sigma^2}.
- \label{eq:common-sinr}
-\end{equation}
-Tốc độ chung mà người dùng $k$ có thể giải mã là
-\begin{equation}
- R_{c,k}=\log_2(1+\gamma_{c,k}).
- \label{eq:common-rate-user}
-\end{equation}
-Do mọi người dùng phải giải mã cùng mã từ $s_c$, tốc độ chung hệ thống bị giới hạn bởi người dùng yếu nhất:
-\begin{equation}
- R_c=\min_{k\in\{1,\ldots,K\}}R_{c,k}.
- \label{eq:common-rate-min}
-\end{equation}
-Phép lấy minimum là một nguồn không trơn của bài toán tối ưu. Một thay đổi nhỏ trong kênh có thể làm người dùng giới hạn thay đổi, khiến gradient của hàm mục tiêu biến đổi theo từng miền.
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter2_fig01_system_model_3d.pdf}
+{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}
+{fig:ch2-system-model}[0.95\linewidth]
+\figuresource{Tác giả xây dựng từ mô hình vật lý và cấu hình thực nghiệm của đề tài (2026)}
+\end{landscape}
 
-\subsection{Phân bổ tốc độ chung}
-Gọi $\eta_k\ge 0$ là tỷ lệ tốc độ chung dành cho người dùng $k$, với
-\begin{equation}
- \sum_{k=1}^{K}\eta_k=1.
- \label{eq:common-fraction-simplex}
-\end{equation}
-Phần tốc độ chung của người dùng là
-\begin{equation}
- C_k=\eta_kR_c.
- \label{eq:common-allocation}
-\end{equation}
-Sử dụng tỷ lệ thay vì trực tiếp tối ưu $C_k$ giúp bảo đảm tổng phân bổ luôn bằng tốc độ chung khả dụng. Đây cũng là cách source code chuẩn hóa vector common fractions trên simplex.
+Hình~\ref{fig:ch2-system-model} thể hiện STAR--RIS dưới dạng tấm nghiêng theo phối cảnh. Miền phản xạ nằm bên trái, miền truyền qua nằm bên phải. Đường xám nét đứt biểu diễn kênh trực tiếp; đường xanh dương từ BS đến STAR--RIS cùng các đường xanh lá hoặc cam tạo thành kênh ghép tầng. Hình cũng cho thấy một luồng chung $s_c$ và bốn luồng riêng $s_1,\ldots,s_4$ được truyền đồng thời.
 
-\subsection{Giải mã luồng riêng}
-Sau khi giải mã và loại bỏ luồng chung bằng SIC lý tưởng, người dùng $k$ giải mã $s_k$ trong sự hiện diện của các luồng riêng khác. SINR là
-\begin{equation}
- \gamma_{p,k}=\frac{|h_k^{\mathrm{eff}}|^2p_k}
- {|h_k^{\mathrm{eff}}|^2\sum_{j\ne k}p_j+\sigma^2}.
- \label{eq:private-sinr}
-\end{equation}
-Tốc độ riêng và tốc độ tổng của người dùng lần lượt là
+\section{Các giả định nghiên cứu}
+Các giả định được sử dụng nhất quán trong source code và mô phỏng gồm:
+\begin{itemize}
+  \item CSI hoàn hảo được cung cấp cho bộ ra quyết định;
+  \item các hệ số kênh được sinh độc lập theo phân bố Gaussian phức;
+  \item STAR--RIS thụ động, vận hành theo ES và không khuếch đại tín hiệu;
+  \item pha truyền và pha phản xạ được điều khiển độc lập;
+  \item SIC lý tưởng, không có nhiễu dư sau khi loại bỏ luồng chung;
+  \item mỗi bước sử dụng một kịch bản kênh độc lập; hành động không làm thay đổi phân bố kênh kế tiếp;
+  \item không xét chi phí ước lượng CSI, báo hiệu điều khiển và tiêu thụ công suất phần cứng.
+\end{itemize}
+
+Các giả định này giúp cô lập tác động của thuật toán nhưng giới hạn khả năng suy rộng sang hệ thống thực. Đặc biệt, mô hình pha độc lập có thể không phù hợp với một số kiến trúc STAR--RIS thụ động có ràng buộc ghép pha \cite{Liu2021STARCoupledPhase,Wang2022STAROptimization}.
+
+\section{Mô hình kênh}
+\subsection{Kênh trực tiếp và kênh ghép tầng}
+Gọi $h_{d,k}\in\mathbb{C}$ là kênh trực tiếp từ BS đến người dùng $k$, $\bm g\in\mathbb{C}^{N}$ là kênh từ BS đến STAR--RIS và $\bm h_{r,k}\in\mathbb{C}^{N}$ là kênh từ STAR--RIS đến người dùng $k$. Trong bộ sinh kênh của luận văn,
 \begin{align}
- R_{p,k}&=\log_2(1+\gamma_{p,k}),\label{eq:private-rate}\\
- R_k&=C_k+R_{p,k}.\label{eq:user-total-rate}
+ h_{d,k}&\sim\mathcal{CN}(0,0{,}35^2),\\
+ g_n&\sim\mathcal{CN}(0,1^2),\\
+ h_{r,k,n}&\sim\mathcal{CN}(0,0{,}75^2),
+ \label{eq:channel-distributions}
 \end{align}
-Tổng tốc độ hệ thống được tính
+độc lập giữa các hệ số và giữa các kịch bản.
+
+Nhiễu tại người dùng được mô hình bằng nhiễu Gaussian trắng cộng (Additive White Gaussian Noise, AWGN)
 \begin{equation}
- \Rsum=\sum_{k=1}^{K}R_k.
- \label{eq:sum-rate}
+ n_k\sim\mathcal{CN}(0,\sigma^2),
 \end{equation}
-Trong mô hình lý tưởng, $\sum_k C_k=R_c$, do đó tổng tốc độ bằng $R_c+\sum_kR_{p,k}$. Tuy nhiên, vector $\bm\eta$ vẫn quan trọng vì quyết định người dùng nào nhận phần common rate để thỏa QoS.
+với $\sigma^2=0{,}001$ trong cấu hình mô phỏng.
 
-\subsection{Quan hệ với SDMA và NOMA}
-RSMA một lớp có thể xem như một siêu cấu trúc. Khi $p_c=0$, chỉ còn các luồng riêng và hệ thống gần với chiến lược coi nhiễu liên người dùng là tạp âm. Khi luồng chung mang một phần lớn thông tin của người dùng yếu và được người dùng khác giải mã, mô hình tiến gần tư tưởng NOMA. Điểm quan trọng không phải là gán nhãn một cấu hình là SDMA hay NOMA, mà là khả năng học hoặc tối ưu một cấu hình trung gian theo kênh \cite{Mao2018RSMABridging,Clerckx2021NOMACritical}.
+Các hệ số tỷ lệ trong \eqref{eq:channel-distributions} tạo khác biệt tương đối giữa ba loại kênh nhưng không phải mô hình suy hao dựa trên khoảng cách. Luận văn không gán tọa độ, không dùng hệ số Rician và không mô hình tương quan không gian.
 
-\section{RIS và STAR--RIS}
-\subsection{Hệ số phản xạ của RIS}
-Trong mô hình truyền thông đơn giản, phần tử RIS thứ $n$ có hệ số
-\begin{equation}
- \phi_n=\alpha_ne^{j\theta_n},\qquad 0\le\alpha_n\le 1,
- \label{eq:ris-coefficient}
-\end{equation}
-trong đó $\alpha_n$ là biên độ và $\theta_n$ là pha. Với RIS thụ động lý tưởng, nhiều nghiên cứu đặt $\alpha_n=1$ và chỉ tối ưu pha. Tuy nhiên, mô hình thực tế có thể có biên độ phụ thuộc pha, tổn hao và lượng tử hóa \cite{Wu2021IRSTutorial}. Luận văn sử dụng mô hình liên tục để tập trung vào bài toán thuật toán.
-
-\subsection{Energy splitting của STAR--RIS}
-Đối với STAR--RIS, mỗi phần tử tạo một hệ số truyền và một hệ số phản xạ. Gọi $\beta_n^T\in[0,1]$ là tỷ lệ công suất dành cho truyền. Tỷ lệ phản xạ là
+\subsection{Hệ số STAR--RIS}
+Với phần tử thứ $n$, hệ số chia năng lượng truyền qua là $\beta_n^T\in[0,1]$ và hệ số phản xạ là
 \begin{equation}
  \beta_n^R=1-\beta_n^T.
- \label{eq:beta-conservation}
+ \label{eq:beta-conservation-ch2}
 \end{equation}
-Hệ số phức được viết
+Hai hệ số phức được viết
 \begin{align}
- \phi_n^T&=\sqrt{\beta_n^T}e^{j\theta_n^T},\label{eq:phi-t}\\
- \phi_n^R&=\sqrt{\beta_n^R}e^{j\theta_n^R}.
- \label{eq:phi-r}
+ \phi_n^T&=\sqrt{\beta_n^T}\,e^{j\theta_n^T},\\
+ \phi_n^R&=\sqrt{1-\beta_n^T}\,e^{j\theta_n^R},
+ \label{eq:star-coefficients}
 \end{align}
-Dấu căn bậc hai là bắt buộc vì $\beta$ biểu diễn tỷ lệ \emph{công suất}, trong khi hệ số nhân vào tín hiệu là biên độ. Dùng $\beta$ trực tiếp thay cho $\sqrt{\beta}$ sẽ làm sai quy luật bảo toàn năng lượng.
+trong đó $\theta_n^T,\theta_n^R\in[-\pi,\pi)$. Dấu căn bậc hai bảo đảm $\beta$ được hiểu là tỷ lệ công suất, còn hệ số nhân vào tín hiệu là biên độ.
 
-Gom các hệ số vào ma trận đường chéo
+Đặt
 \begin{align}
  \bm\Phi_T&=\operatorname{diag}(\phi_1^T,\ldots,\phi_N^T),\\
  \bm\Phi_R&=\operatorname{diag}(\phi_1^R,\ldots,\phi_N^R).
 \end{align}
-Nếu người dùng $k$ nằm phía truyền, hệ số $\bm\Phi_T$ được sử dụng; nếu ở phía phản xạ, hệ số $\bm\Phi_R$ được sử dụng.
-
-\subsection{Kênh ghép tầng}
-Gọi $h_{d,k}\in\C$ là kênh trực tiếp BS--user, $\bm g\in\C^N$ là kênh BS--STAR--RIS và $\bm h_{r,k}\in\C^N$ là kênh STAR--RIS--user. Với chỉ báo $u_k\in\{0,1\}$, trong đó $u_k=1$ cho phía truyền và $u_k=0$ cho phía phản xạ, kênh hiệu dụng là
+Gọi $u_k\in\{0,1\}$ là chỉ báo phía người dùng, với $u_k=1$ cho miền truyền qua và $u_k=0$ cho miền phản xạ. Khi đó
 \begin{equation}
- h_k^{\mathrm{eff}}=h_{d,k}+\bm h_{r,k}^{H}\bm\Phi_{u_k}\bm g,
- \label{eq:effective-channel}
+ \bm\Phi_{u_k}=u_k\bm\Phi_T+(1-u_k)\bm\Phi_R.
 \end{equation}
-trong đó $\bm\Phi_{u_k}=\bm\Phi_T$ nếu $u_k=1$, ngược lại là $\bm\Phi_R$. Tổng ở đường ghép tầng cho phép pha của các phần tử cộng tăng cường hoặc triệt tiêu. Vì một vector pha phải phục vụ nhiều người dùng, không thể đồng thời căn chỉnh hoàn hảo cho tất cả khi kênh khác nhau.
 
-\subsection{Giả định pha độc lập}
-Các phương trình \eqref{eq:phi-t}--\eqref{eq:phi-r} cho phép $\theta_n^T$ và $\theta_n^R$ độc lập. Mô hình coupled phase-shift cho thấy trong một STAR--RIS thụ động lossless, hai pha có thể chịu ràng buộc chênh lệch nhất định \cite{Liu2021STARCoupledPhase,Wang2022STAROptimization}. Do source code sử dụng pha độc lập, luận văn xem đây là miền khả thi lý tưởng hóa. Kết quả có ý nghĩa như đánh giá thuật toán trong mô hình đã công bố, không phải upper bound phần cứng chính xác.
+\subsection{Kênh hiệu dụng}
+Kênh hiệu dụng của người dùng $k$ là tổng đường trực tiếp và đường ghép tầng:
+\begin{equation}
+ h_k^{\mathrm{eff}}=h_{d,k}+\bm h_{r,k}^{H}\bm\Phi_{u_k}\bm g.
+ \label{eq:effective-channel-ch2}
+\end{equation}
+Độ lợi công suất tương ứng là
+\begin{equation}
+ G_k=\left|h_k^{\mathrm{eff}}\right|^2.
+\end{equation}
+Một vector pha phải phục vụ nhiều người dùng có kênh khác nhau, vì vậy không thể đồng thời căn chỉnh hoàn hảo cho mọi người dùng. Đây là một nguồn tạo tính phi lồi của bài toán.
 
-% FIGURE-INTEGRATED: CH2 START
+\section{Mô hình tín hiệu RSMA}
+\subsection{Tín hiệu phát}
+BS truyền tín hiệu
+\begin{equation}
+ x=\sqrt{p_c}s_c+\sum_{k=1}^{K}\sqrt{p_k}s_k,
+ \label{eq:rsma-transmit-ch2}
+\end{equation}
+trong đó $p_c\ge0$, $p_k\ge0$ và
+\begin{equation}
+ p_c+\sum_{k=1}^{K}p_k\le P_{\max}.
+ \label{eq:power-budget-ch2}
+\end{equation}
+Các ký hiệu dữ liệu được chuẩn hóa có công suất trung bình bằng một và độc lập với nhau.
+
 \begin{landscape}
-\ThesisFigure{figures/chapter2_ris_star_ris_overview.pdf}
-{So sánh RIS phản xạ truyền thống và STAR--RIS hỗ trợ phủ sóng toàn không gian}
-{fig:ch2-ris-star-ris}[0.94\linewidth]
-\figuresource{Tác giả xây dựng dựa trên \cite{Xu2021STARRIS,Mu2021STARAided,Wu2021IRSTutorial} (2026)}
+\ThesisFigure{figures/pdf/chapter2_fig02_rsma_transmit_decode.pdf}
+{Quy trình tạo tín hiệu và giải mã luồng chung, luồng riêng trong RSMA}
+{fig:ch2-rsma-decode}[0.95\linewidth]
+\figuresource{Tác giả xây dựng dựa trên mô hình RSMA một lớp \cite{Mao2022RSMAFundamentals} (2026)}
 \end{landscape}
 
-Hình~\ref{fig:ch2-ris-star-ris} đối chiếu trực tiếp hai nguyên lý điều khiển môi trường truyền. Ở nửa trái, RIS truyền thống chỉ tạo đường phản xạ nên chủ yếu phục vụ người dùng trong cùng nửa không gian và để lại một miền khuất ở phía sau bề mặt. Ở nửa phải, STAR--RIS đồng thời tạo tia phản xạ và tia truyền qua để phục vụ hai nhóm người dùng ở hai phía. Hai hệ số $\phi_n^T$ và $\phi_n^R$ trong hình nhấn mạnh rằng tỷ lệ công suất $\beta_n^T$ phải được chuyển thành biên độ bằng căn bậc hai, đồng thời thỏa $\beta_n^T+\beta_n^R=1$. Dải ES--MS--TS đặt STAR--RIS trong ba giao thức phổ biến; luận văn lựa chọn ES vì mỗi phần tử đồng thời truyền và phản xạ, phù hợp với không gian hành động liên tục được TD3 tối ưu. Hình là cầu nối giữa khái niệm phủ sóng toàn không gian và mô hình hệ số phức được sử dụng trong các phương trình tiếp theo.
-% FIGURE-INTEGRATED: CH2 END
+Hình~\ref{fig:ch2-rsma-decode} mô tả quá trình chia thông điệp, mã hóa và giải mã. Tất cả người dùng đều giải mã $s_c$. Sau SIC, người dùng $k$ chỉ giải mã luồng riêng $s_k$ và xem các luồng riêng khác như nhiễu.
 
-\section{Bài toán tối ưu phi lồi}
-Kết hợp RSMA và STAR--RIS tạo bài toán tổng quát
-\begin{subequations}
-\label{prob:generic}
+\subsection{Giải mã luồng chung}
+Tín hiệu thu tại người dùng $k$ là
+\begin{equation}
+ y_k=h_k^{\mathrm{eff}}x+n_k.
+\end{equation}
+Khi giải mã luồng chung, tất cả luồng riêng được xem như nhiễu. SINR của luồng chung là
+\begin{equation}
+ \gamma_{c,k}=\frac{G_kp_c}{G_k\sum_{j=1}^{K}p_j+\sigma^2}.
+ \label{eq:common-sinr-ch2}
+\end{equation}
+Tốc độ luồng chung mà người dùng $k$ có thể giải mã là
+\begin{equation}
+ R_{c,k}=\log_2(1+\gamma_{c,k}).
+\end{equation}
+Do mọi người dùng dùng cùng mã của luồng chung, tốc độ chung của hệ thống bị giới hạn bởi người dùng yếu nhất:
+\begin{equation}
+ R_c=\min_{k=1,\ldots,K}R_{c,k}.
+ \label{eq:common-rate-min-ch2}
+\end{equation}
+
+Gọi $\eta_k\ge0$ là tỷ lệ tốc độ chung cấp cho người dùng $k$, với
+\begin{equation}
+ \sum_{k=1}^{K}\eta_k=1.
+ \label{eq:common-simplex-ch2}
+\end{equation}
+Phần tốc độ chung của người dùng là
+\begin{equation}
+ C_k=\eta_kR_c.
+\end{equation}
+
+\subsection{Giải mã luồng riêng}
+Sau khi loại bỏ luồng chung, SINR của luồng riêng $k$ là
+\begin{equation}
+ \gamma_{p,k}=\frac{G_kp_k}{G_k\sum_{j\ne k}p_j+\sigma^2}.
+ \label{eq:private-sinr-ch2}
+\end{equation}
+Tốc độ riêng và tốc độ cuối của người dùng lần lượt là
 \begin{align}
- \max_{\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R}\quad
- &\Rsum \\
- \text{s.t.}\quad
- &p_i\ge0,\quad \sum_{i=0}^{K}p_i\le P_{\max},\\
- &\eta_k\ge0,\quad \sum_{k=1}^{K}\eta_k=1,\\
- &0\le\beta_n^T\le1,\quad \beta_n^R=1-\beta_n^T,\\
- &-\pi\le\theta_n^T,\theta_n^R<\pi,\\
- &R_k\ge R_k^{\min},\quad \forall k.
+ R_{p,k}&=\log_2(1+\gamma_{p,k}),\\
+ R_k&=C_k+R_{p,k}.
+ \label{eq:user-rate-ch2}
+\end{align}
+Tổng tốc độ hệ thống được tính
+\begin{equation}
+ R_{\mathrm{sum}}=\sum_{k=1}^{K}R_k.
+ \label{eq:sum-rate-ch2}
+\end{equation}
+
+\section{Chỉ số QoS}
+Luận văn sử dụng ba chỉ số để mô tả tính khả thi dịch vụ. Với ngưỡng $R_{\min}=0{,}5$ bit/s/Hz, tỷ lệ người dùng đạt QoS trong một kịch bản là
+\begin{equation}
+ q_{\mathrm{frac}}=\frac{1}{K}\sum_{k=1}^{K}\mathbb{I}(R_k\ge R_{\min}).
+ \label{eq:qos-fraction-ch2}
+\end{equation}
+Chỉ báo toàn bộ người dùng đạt QoS là
+\begin{equation}
+ q_{\mathrm{all}}=\mathbb{I}\!\left(\min_k R_k\ge R_{\min}\right).
+ \label{eq:all-qos-ch2}
+\end{equation}
+Mức vi phạm liên tục được tính
+\begin{equation}
+ V=\sum_{k=1}^{K}\max(R_{\min}-R_k,0).
+ \label{eq:violation-ch2}
+\end{equation}
+Ba chỉ số bổ sung cho nhau. $q_{\mathrm{frac}}$ cho biết tỷ lệ người dùng đạt yêu cầu; $q_{\mathrm{all}}$ nhạy với bất kỳ người dùng vi phạm nào; $V$ phân biệt vi phạm nhẹ và vi phạm nghiêm trọng.
+
+\section{Biến tối ưu và ràng buộc}
+Tập biến quyết định gồm
+\begin{equation}
+ \mathcal{A}=\{\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R\},
+\end{equation}
+trong đó
+\begin{align}
+ \bm p&=[p_c,p_1,\ldots,p_K]^T,\\
+ \bm\eta&=[\eta_1,\ldots,\eta_K]^T,\\
+ \bm\beta^T&=[\beta_1^T,\ldots,\beta_N^T]^T,\\
+ \bm\theta^T&=[\theta_1^T,\ldots,\theta_N^T]^T,\\
+ \bm\theta^R&=[\theta_1^R,\ldots,\theta_N^R]^T.
+\end{align}
+
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter2_fig03_optimization_variables_constraints.pdf}
+{Các nhóm biến quyết định, mục tiêu và ràng buộc của bài toán}
+{fig:ch2-variables-constraints}[0.94\linewidth]
+\figuresource{Tác giả xây dựng từ bài toán tối ưu của luận văn (2026)}
+\end{landscape}
+
+Hình~\ref{fig:ch2-variables-constraints} nhóm các biến theo ý nghĩa vật lý. Công suất và tỷ lệ tốc độ nằm trên simplex; hệ số chia năng lượng bị chặn trong $[0,1]$; hai vector pha nằm trong miền tuần hoàn; tốc độ của mỗi người dùng phải đạt ngưỡng QoS.
+
+Trong implementation, vector công suất được chiếu lên simplex có tổng đúng bằng $P_{\max}$. Vì vậy, policy luôn sử dụng toàn bộ ngân sách công suất. Cách tham số hóa này thu hẹp bài toán tổng quát từ bất đẳng thức \eqref{eq:power-budget-ch2} xuống biên $\sum_i p_i=P_{\max}$.
+
+\section{Phát biểu bài toán tối ưu}
+Với một mẫu kênh $\mathcal{H}=\{\bm h_d,\bm g,\bm H_r,\bm u\}$, bài toán được phát biểu
+\begin{subequations}
+\label{prob:resource-allocation}
+\begin{align}
+ \max_{\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R}
+ &\quad R_{\mathrm{sum}}(\mathcal{H},\mathcal{A})\\
+ \text{s.t.}
+ &\quad \bm p\ge\bm0,\quad \mathbf{1}^T\bm p=P_{\max},\\
+ &\quad \bm\eta\ge\bm0,\quad \mathbf{1}^T\bm\eta=1,\\
+ &\quad 0\le\beta_n^T\le1,\quad n=1,\ldots,N,\\
+ &\quad -\pi\le\theta_n^T,\theta_n^R<\pi,\quad n=1,\ldots,N,\\
+ &\quad R_k\ge R_{\min},\quad k=1,\ldots,K.
 \end{align}
 \end{subequations}
-Bài toán phi lồi do tích giữa hệ số kênh và pha phức, tỷ số SINR, hàm log, minimum của common rate và tương tác giữa các khối biến. Với $K$ cố định, số biến tăng theo $3N$ chỉ riêng STAR--RIS. Tìm nghiệm toàn cục cho mọi hiện thực kênh là không thực tế trong phạm vi luận văn.
 
-\section{Học tăng cường và quá trình quyết định}
-\subsection{Thành phần của MDP}
-Một MDP được định nghĩa bởi $(\mathcal S,\mathcal A,P,r,\gamma)$, trong đó $\mathcal S$ là không gian trạng thái, $\mathcal A$ là không gian hành động, $P$ là động lực chuyển trạng thái, $r$ là reward và $\gamma$ là hệ số chiết khấu. Tại bước $t$, tác tử quan sát $s_t$, chọn $a_t\sim\pi(\cdot|s_t)$, nhận reward $r_t$ và trạng thái mới $s_{t+1}$.
+Trong một số kịch bản, miền QoS có thể khó đạt đối với một phương pháp nhất định. Vì vậy, quá trình huấn luyện và các baseline dùng hàm merit mềm
+\begin{equation}
+ f=R_{\mathrm{sum}}-\lambda_1V-\lambda_2\sum_{k=1}^{K}\max(R_{\min}-R_k,0)^2.
+ \label{eq:merit-ch2}
+\end{equation}
+Các bảng kết quả vẫn báo cáo riêng tổng tốc độ và QoS; reward hoặc merit không được dùng thay thế chỉ số vật lý.
 
-Mục tiêu là tối đa hóa kỳ vọng return
-\begin{equation}
- J(\pi)=\E_{\pi}\left[\sum_{t=0}^{\infty}\gamma^tr_t\right].
- \label{eq:return}
-\end{equation}
-Hàm giá trị hành động là
-\begin{equation}
- Q^{\pi}(s,a)=\E_{\pi}\left[\sum_{i=0}^{\infty}\gamma^ir_{t+i}\mid s_t=s,a_t=a\right].
- \label{eq:q-function}
-\end{equation}
-Trong môi trường luận văn, kênh mới được lấy mẫu độc lập theo ScenarioBank và không bị tác động bởi action. Do đó, transition không thể hiện động lực điều khiển dài hạn. TD3 được sử dụng chủ yếu để học bộ tối ưu theo ngữ cảnh, còn replay/target network đóng vai trò ổn định xấp xỉ hàm.
+\section{Phân tích tính phi lồi}
+Bài toán \eqref{prob:resource-allocation} khó giải do các nguyên nhân chính:
+\begin{enumerate}[label=\arabic*)]
+  \item kênh hiệu dụng chứa tổng các số phức có pha điều khiển, sau đó được lấy trị tuyệt đối bình phương;
+  \item SINR là tỷ số phi tuyến của công suất và độ lợi kênh;
+  \item tốc độ chung dùng phép lấy giá trị nhỏ nhất trên người dùng;
+  \item các biến công suất, chia năng lượng và pha tác động đồng thời lên nhiều tốc độ;
+  \item ràng buộc QoS tạo miền khả thi không lồi và pha là biến tuần hoàn;
+  \item số biến tăng theo $2K+1+3N$, nên không gian tìm kiếm mở rộng nhanh khi $N$ tăng.
+\end{enumerate}
 
-\subsection{Actor--critic xác định}
-Một chính sách xác định được tham số hóa bởi actor $a=\mu_{\phi}(s)$. Critic $Q_{\psi}(s,a)$ đánh giá chất lượng action. Actor được cập nhật theo deterministic policy gradient
-\begin{equation}
- \nabla_{\phi}J\approx\E_{s\sim\mathcal D}\left[
- \nabla_aQ_{\psi}(s,a)|_{a=\mu_{\phi}(s)}\nabla_{\phi}\mu_{\phi}(s)
- \right].
- \label{eq:dpg}
-\end{equation}
-Replay buffer $\mathcal D$ cho phép tái sử dụng transition, cải thiện hiệu suất mẫu. Target networks $\mu_{\phi'}$ và $Q_{\psi'}$ được cập nhật chậm để giảm dao động.
+Đánh giá một action cần tính kênh hiệu dụng cho $K$ người dùng, có độ phức tạp chủ yếu $O(KN)$. Một solver dựa trên sai phân hữu hạn phải lặp lại phép đánh giá này nhiều lần cho từng tọa độ, trong khi Actor đã huấn luyện chỉ cần một lần truyền thẳng và một lần tính metric.
 
-\section{DDPG}
-DDPG sử dụng một actor, một critic và các target tương ứng \cite{Lillicrap2015DDPG}. Target TD là
-\begin{equation}
- y=r+\gamma(1-d)Q_{\psi'}(s',\mu_{\phi'}(s')).
- \label{eq:ddpg-target}
-\end{equation}
-Critic tối thiểu hóa
-\begin{equation}
- L_Q=\E_{\mathcal D}\left[(Q_{\psi}(s,a)-y)^2\right],
- \label{eq:ddpg-critic-loss}
-\end{equation}
-trong khi actor tối đa hóa $Q_{\psi}(s,\mu_{\phi}(s))$. Nhược điểm lớn là nếu critic overestimate một vùng action, actor sẽ bị kéo về vùng đó và sai lệch có thể tự khuếch đại.
-
-\section{Twin Delayed Deep Deterministic Policy Gradient}
-\subsection{Hai critic và clipped double Q}
-TD3 duy trì hai critic $Q_{\psi_1}$, $Q_{\psi_2}$. Target sử dụng giá trị nhỏ hơn
-\begin{equation}
- y=r+\gamma(1-d)\min_{i\in\{1,2\}}Q_{\psi_i'}(s',\tilde a').
- \label{eq:td3-target}
-\end{equation}
-Lấy minimum tạo thiên lệch thận trọng, giảm khả năng actor khai thác lỗi overestimation \cite{Fujimoto2018TD3}.
-
-\subsection{Target-policy smoothing}
-Hành động đích được làm trơn
-\begin{equation}
- \tilde a'=\operatorname{clip}\left(
- \mu_{\phi'}(s')+\operatorname{clip}(\epsilon,-c,c),-1,1
- \right),
- \label{eq:target-smoothing}
-\end{equation}
-trong đó $\epsilon\sim\mathcal N(0,\sigma_{\mathrm{target}}^2I)$. Cơ chế này buộc critic học giá trị ổn định trong lân cận action, thay vì tạo các đỉnh hẹp mà actor có thể khai thác.
-
-\subsection{Cập nhật chính sách trễ}
-Critic được cập nhật ở mọi mini-batch, còn actor và target network chỉ cập nhật mỗi $d$ bước. Khi critic chưa theo kịp actor, cập nhật actor liên tục dễ gây dao động. Trong cấu hình luận văn, $d=2$.
-
-\subsection{Soft target update}
-Target parameters được cập nhật
-\begin{equation}
- \psi_i'\leftarrow\tau\psi_i+(1-\tau)\psi_i',\qquad
- \phi'\leftarrow\tau\phi+(1-\tau)\phi'.
- \label{eq:soft-update}
-\end{equation}
-Với $\tau=0{,}005$, target thay đổi chậm và giảm tương quan giữa target và mạng đang học.
-
-\subsection{Huber loss và gradient clipping}
-Khi reward có outlier do vi phạm QoS lớn, MSE có gradient tăng tuyến tính theo sai số và có thể gây bất ổn. Huber loss chuyển từ bình phương sang tuyến tính ngoài một ngưỡng:
-\begin{equation}
- \ell_{\delta}(e)=
- \begin{cases}
- \frac12e^2,&|e|\le\delta,\\
- \delta(|e|-\frac12\delta),&|e|>\delta.
- \end{cases}
- \label{eq:huber}
-\end{equation}
-Cấu hình cuối sử dụng Huber và clip chuẩn gradient ở 10. Đây là biện pháp ổn định số, không thay đổi miền nghiệm vật lý.
-
-\section{Ràng buộc QoS trong học tăng cường}
-\subsection{Reward phạt cố định}
-Đặt deficit của người dùng
-\begin{equation}
- \delta_k=\max(R_k^{\min}-R_k,0).
- \label{eq:deficit}
-\end{equation}
-Tổng vi phạm và vi phạm bình phương là
-\begin{align}
- V&=\sum_{k=1}^{K}\delta_k,\\
- V_2&=\sum_{k=1}^{K}\delta_k^2.
-\end{align}
-Reward môi trường có dạng
-\begin{equation}
- r_{\mathrm{env}}=\Rsum-\lambda_1V-\lambda_2V_2.
- \label{eq:env-reward}
-\end{equation}
-Thành phần tuyến tính tạo áp lực đồng đều, còn thành phần bình phương phạt mạnh trường hợp deficit lớn.
-
-\subsection{Dual ascent chiếu}
-Một hệ số phạt cố định có thể phù hợp với $N$ nhỏ nhưng quá yếu hoặc quá mạnh khi $N$ thay đổi. Cấu hình cuối sử dụng multiplier động $\lambda_t$:
-\begin{equation}
- r_t=R_{\mathrm{sum},t}-\lambda_tV_t-\lambda_2V_{2,t}.
- \label{eq:dual-reward}
-\end{equation}
-Vi phạm được làm trơn bằng EMA
-\begin{equation}
- \bar V_t=\rho\bar V_{t-1}+(1-\rho)V_t.
- \label{eq:violation-ema}
-\end{equation}
-Sau một số bước định trước, multiplier cập nhật
-\begin{equation}
- \lambda_{t+1}=\Pi_{[\lambda_{\min},\lambda_{\max}]}
- \left(\lambda_t+\eta_{\lambda}(\bar V_t-V^{\star})\right).
- \label{eq:dual-update}
-\end{equation}
-Nếu vi phạm cao hơn mục tiêu, $\lambda$ tăng; nếu thấp hơn, $\lambda$ giảm nhưng không ra ngoài khoảng khai báo. Cơ chế này không bảo đảm hội tụ của constrained RL theo nghĩa lý thuyết đầy đủ, song cung cấp một điều khiển thực dụng và có thể kiểm toán.
-
-\section{Phép chiếu lên miền hành động khả thi}
-\subsection{Simplex công suất}
-Vector công suất nằm trên simplex
-\begin{equation}
- \Delta_P=\{\bm p\in\R_+^{K+1}:\mathbf1^T\bm p=P_{\max}\}.
-\end{equation}
-Phép chiếu Euclid giải
-\begin{equation}
- \Pi_{\Delta_P}(\bm v)=\arg\min_{\bm p\in\Delta_P}\|\bm p-\bm v\|_2^2.
- \label{eq:simplex-projection}
-\end{equation}
-Thuật toán sắp xếp được dùng để tìm ngưỡng $\theta$, sau đó $p_i=\max(v_i-\theta,0)$. Cách này bảo đảm không âm và tổng chính xác.
-
-\subsection{Simplex common fractions}
-Tương tự, $\bm\eta$ được chiếu lên simplex đơn vị. Nhờ đó actor không cần học ràng buộc tổng bằng một qua penalty.
-
-\subsection{Ánh xạ beta và pha}
-Với đầu ra actor $z\in[-1,1]$, mapping vật lý là
-\begin{align}
- \beta_n^T&=\frac{z_{\beta,n}+1}{2},\\
- \theta_n^T&=\operatorname{wrap}(\pi z_{T,n}),\\
- \theta_n^R&=\operatorname{wrap}(\pi z_{R,n}).
- \label{eq:physical-map}
-\end{align}
-Wrap phase đưa góc về $[-\pi,\pi)$. Toàn bộ miền vật lý có thể được tiếp cận mà không áp dụng thêm sigmoid hoặc tanh làm co hẹp biên.
-
-\section{Thống kê đánh giá thuật toán}
-\subsection{Trung bình và khoảng tin cậy}
-Với các quan sát $x_1,\ldots,x_m$, trung bình và độ lệch chuẩn mẫu là
-\begin{align}
- \bar x&=\frac1m\sum_{i=1}^{m}x_i,\\
- s&=\sqrt{\frac1{m-1}\sum_{i=1}^{m}(x_i-\bar x)^2}.
-\end{align}
-Khoảng tin cậy Student-$t$ 95\% là
-\begin{equation}
- \bar x\pm t_{0.975,m-1}\frac{s}{\sqrt m}.
- \label{eq:t-ci}
-\end{equation}
-Với metric bị chặn trong $[0,1]$ như QoS fraction, khoảng $t$ có thể vượt biên. Luận văn giữ raw values và xem xét clipping khi hiển thị, đồng thời ghi rõ hạn chế.
-
-\subsection{Kiểm định ghép cặp}
-Khi hai phương pháp được đánh giá trên cùng scenario, chênh lệch $d_i=x_i-y_i$ tạo thiết kế ghép cặp. Paired $t$-test kiểm tra trung bình $d_i$, còn Wilcoxon signed-rank kiểm tra phân bố chênh lệch theo thứ hạng mà không giả định chuẩn. Nhiều so sánh làm tăng false positive, vì vậy $p$-value được điều chỉnh bằng Holm. Kết quả khác nhau giữa hai kiểm định phải được báo cáo thay vì chọn một kiểm định có lợi.
+\section{Giới hạn của mô hình}
+\begin{table}[H]
+\caption{Các giả định chính và phạm vi diễn giải}
+\label{tab:model-assumptions}
+\begin{tabularx}{\textwidth}{p{4.1cm}Y Y}
+\toprule
+\textbf{Giả định} & \textbf{Mục đích} & \textbf{Giới hạn}\
+\midrule
+BS và người dùng SISO & Tập trung vào phân bổ công suất và STAR--RIS & Không phản ánh beamforming nhiều anten\\
+Kênh Gaussian độc lập & Tạo ScenarioBank lớn và tái lập & Không mô hình vị trí, suy hao, LoS hoặc tương quan\\
+CSI hoàn hảo & Đánh giá năng lực tối ưu của policy & Chưa chứng minh độ bền với sai số ước lượng\\
+Pha truyền/phản xạ độc lập & Giữ action liên tục và dễ tham số hóa & Có thể không khả thi trên một số phần cứng thụ động\\
+SIC lý tưởng & Dùng mô hình RSMA chuẩn & Không xét lỗi giải mã hoặc nhiễu dư\\
+Kênh kế tiếp độc lập action & Tối ưu từng kịch bản & Gần bài toán theo ngữ cảnh hơn điều khiển dài hạn\\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả xây dựng (2026)}
+\end{table}
 
 \section{Kết luận chương}
-Chương 2 đã trình bày chuỗi công thức từ tín hiệu RSMA đến tốc độ người dùng, mô hình hệ số STAR--RIS energy-splitting, nguyên lý actor--critic và ba cơ chế cốt lõi của TD3. Bên cạnh đó, chương giải thích reward phạt QoS, dual ascent, projection và công cụ thống kê. Các thành phần này tạo nền tảng để Chương 3 xây dựng mô hình hệ thống cụ thể và bài toán tối ưu bám sát source code.
+Chương 2 đã xây dựng mô hình SISO STAR--RIS hỗ trợ RSMA, mô tả kênh trực tiếp và kênh ghép tầng, xác định tốc độ chung, tốc độ riêng, các chỉ số QoS và tập biến tối ưu. Bài toán có nhiều biến liên tục, ràng buộc phi lồi và số chiều tăng tuyến tính theo $N$. Chương 3 trình bày cách chuyển bài toán này thành một bộ tối ưu TD3 có hành động luôn hợp lệ về mặt hình học.
