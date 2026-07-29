@@ -66,8 +66,8 @@ jobs:
             local status
             status=$(KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" kaggle kernels status "$ref" 2>&1 || true)
             echo "$ref: $status"
-            if echo "$status" | grep -Eqi "ERROR|CANCELLED|CANCELED|FAILED"; then
-              echo "Kernel failed: $ref" >&2
+            if echo "$status" | grep -Eqi "Permission .* denied|Cannot access kernel|ERROR|CANCELLED|CANCELED|FAILED"; then
+              echo "Kernel inaccessible or failed: $ref" >&2
               exit 1
             fi
             if ! echo "$status" | grep -Eqi "COMPLETE"; then
@@ -86,12 +86,12 @@ jobs:
               all_ready=false
             fi
           done <<EOF
-          ${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1|collected/drl/td3_low_n
-          ${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1|collected/drl/td3_high_n
-          ${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-sixmethod-low-n-v1|collected/drl/ddpg_low_n
-          ${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-sixmethod-high-n-v1|collected/drl/ddpg_high_n
-          ${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1|collected/drl/ppo_low_n
-          ${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1|collected/drl/ppo_high_n
+          ${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64|collected/drl/td3_low_n
+          ${TD3_USER}|${TD3_KEY}|thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128|collected/drl/td3_high_n
+          ${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64|collected/drl/ddpg_low_n
+          ${DDPG_USER}|${DDPG_KEY}|ronganminh/star-ris-ddpg-six-method-benchmark-96-128|collected/drl/ddpg_high_n
+          ${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64|collected/drl/ppo_low_n
+          ${PPO_USER}|${PPO_KEY}|duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128|collected/drl/ppo_high_n
           EOF
 
           if [[ "$all_ready" != true ]]; then
@@ -199,17 +199,16 @@ jobs:
                 echo "Expected one seed-0 checkpoint for ${method} N=${n}, found ${#checkpoints[@]}" >&2
                 exit 1
               fi
-              output="collected/latency/${method}_N${n}.csv"
               python scripts/benchmark_latency.py \
                 --method "$method" --config "$config" --bank "$bank" \
                 --checkpoint "${checkpoints[0]}" --seed 0 --warmup 10 --count 100 \
-                --output "$output"
+                --output "collected/latency/${method}_N${n}.csv"
             done
             for method in ao_sca ao_grid analytical_ris; do
-              output="collected/latency/${method}_N${n}.csv"
               python scripts/benchmark_latency.py \
                 --method "$method" --config "$config" --bank "$bank" \
-                --seed 0 --warmup 10 --count 100 --output "$output"
+                --seed 0 --warmup 10 --count 100 \
+                --output "collected/latency/${method}_N${n}.csv"
             done
           done
           python - <<'PY'
@@ -241,9 +240,9 @@ jobs:
           mkdir -p "$report/convergence" "$report/raw/convergence"
           python - <<'PY'
           import json
+          import os
           import shutil
           from pathlib import Path
-          import os
 
           report = Path(os.environ["RUNNER_TEMP"]) / "six_method_v1"
           for manifest_path in Path("collected/drl").rglob("STAGE_MANIFEST.json"):
@@ -254,10 +253,9 @@ jobs:
               for figure in (manifest_path.parent / "figures").glob("*"):
                   if figure.is_file():
                       shutil.copy2(figure, report / "convergence" / f"{stage_id}_{figure.name}")
-              for raw in manifest_path.parent.glob("*_TRAINING_RAW.csv"):
-                  shutil.copy2(raw, report / "raw" / "convergence" / f"{stage_id}_{raw.name}")
-              for raw in manifest_path.parent.glob("*_VALIDATION_RAW.csv"):
-                  shutil.copy2(raw, report / "raw" / "convergence" / f"{stage_id}_{raw.name}")
+              for pattern in ("*_TRAINING_RAW.csv", "*_VALIDATION_RAW.csv"):
+                  for raw in manifest_path.parent.glob(pattern):
+                      shutil.copy2(raw, report / "raw" / "convergence" / f"{stage_id}_{raw.name}")
           PY
           test "$(python -c 'import json,os; print(json.load(open(os.path.join(os.environ["RUNNER_TEMP"],"six_method_v1","SIX_METHOD_AUDIT.json")))["verdict"])')" = PASS
 
