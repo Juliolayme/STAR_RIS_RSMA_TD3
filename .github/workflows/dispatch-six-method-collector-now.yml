@@ -1,0 +1,22 @@
+name: Dispatch six-method collector now
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - experiments/six_method/DISPATCH_COLLECTOR_NOW
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Dispatch corrected collector
+        run: gh workflow run collect-six-method-results.yml --ref main
