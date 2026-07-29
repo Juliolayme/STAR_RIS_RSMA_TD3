@@ -1,121 +1,102 @@
-\chapter{TỔNG QUAN NGHIÊN CỨU VÀ KHOẢNG TRỐNG}
-\label{chap:related-work}
+\chapter{CƠ SỞ LÝ THUYẾT VÀ CÁC CÔNG NGHỆ NỀN TẢNG}
+\label{chap:theory}
 
-\section{Bối cảnh quản lý tài nguyên trong mạng vô tuyến thế hệ mới}
-Các hệ thống thông tin vô tuyến hiện đại phải giải quyết đồng thời nhiều mục tiêu vốn có tính cạnh tranh. Tăng tổng tốc độ thường khuyến khích phân bổ nhiều tài nguyên cho người dùng có kênh tốt, trong khi bảo đảm QoS lại yêu cầu duy trì tốc độ tối thiểu cho cả người dùng yếu. Giảm độ trễ xử lý đòi hỏi quyết định nhanh, nhưng các bài toán tối ưu phi lồi thường cần nhiều vòng lặp. Khi số phần tử điều khiển tăng, chẳng hạn một STAR--RIS có hàng chục hoặc hàng trăm phần tử, số biến tối ưu tăng nhanh và không gian tìm kiếm trở nên khó xử lý theo thời gian thực.
+\section{Phân bổ tài nguyên và nhiễu trong mạng vô tuyến}
+Trong một mạng truyền xuống nhiều người dùng, trạm gốc phải quyết định cách chia công suất, thời gian, tần số hoặc các bậc tự do khác cho từng người dùng. Mục tiêu tăng tổng tốc độ thường ưu tiên người dùng có kênh tốt, trong khi yêu cầu QoS buộc hệ thống duy trì tốc độ tối thiểu cho cả người dùng có kênh yếu. Hai mục tiêu này có thể xung đột.
 
-Trong mạng truyền xuống nhiều người dùng, nhiễu liên người dùng là một nguyên nhân chính làm giảm hiệu năng. Các kỹ thuật đa truy cập truyền thống thường lựa chọn một chiến lược xử lý nhiễu tương đối cứng. OMA tách người dùng theo thời gian, tần số hoặc mã, nhờ đó giảm nhiễu nhưng hy sinh mức độ tái sử dụng tài nguyên. SDMA sử dụng phân tách không gian và beamforming, phù hợp khi trạm gốc có nhiều anten và CSI đủ chính xác. NOMA miền công suất xếp chồng tín hiệu và sử dụng SIC, nhưng hiệu quả phụ thuộc vào chênh lệch kênh, thứ tự giải mã và khả năng thực hiện SIC. Các phân tích phê bình cho thấy không nên xem một kỹ thuật đa truy cập là tối ưu phổ quát; lựa chọn phải phụ thuộc mô hình kênh, tải hệ thống và kiến trúc thu phát \cite{Clerckx2021NOMACritical}.
+Nhiễu liên người dùng xuất hiện khi nhiều tín hiệu được truyền trên cùng tài nguyên. Một hệ thống có thể tránh nhiễu bằng cách tách người dùng, triệt nhiễu bằng xử lý không gian, giải mã một phần nhiễu hoặc chấp nhận nhiễu như tạp âm. Mỗi lựa chọn tạo ra một mức cân bằng khác nhau giữa hiệu quả phổ, độ phức tạp của bộ thu và yêu cầu về CSI.
 
-RSMA cung cấp một lớp linh hoạt hơn bằng cách chia một phần thông điệp thành luồng chung mà nhiều người dùng cùng giải mã, phần còn lại được truyền qua các luồng riêng. Mức độ ``chung'' có thể thay đổi theo trạng thái kênh và mục tiêu tối ưu. Khi phần chung bằng không, mô hình tiến gần SDMA; khi một phần nhiễu được giải mã, mô hình có thể tái hiện một số hành vi của NOMA. Nhờ đó, RSMA được xem như cầu nối giữa chiến lược coi nhiễu là tạp âm và chiến lược giải mã nhiễu \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals}.
+Trong luận văn, tài nguyên được hiểu theo nghĩa rộng, gồm công suất của các luồng RSMA, tỷ lệ tốc độ chung và cấu hình STAR--RIS. Bài toán không chỉ là ``chia công suất'', mà là phối hợp nhiều nhóm biến để cải thiện kênh hiệu dụng và đồng thời bảo đảm QoS.
 
-Ở phía môi trường truyền sóng, RIS và STAR--RIS bổ sung khả năng điều khiển kênh thông qua bề mặt gồm nhiều phần tử có thể lập trình. Thay vì chỉ thích nghi tại máy phát và máy thu, hệ thống còn điều chỉnh đường truyền gián tiếp. Tuy nhiên, khả năng này không tạo ra năng lượng mới và không loại bỏ các giới hạn vật lý. Các nghiên cứu về ``myths'' của RIS nhấn mạnh rằng lợi ích mảng, suy hao đường truyền và chi phí điều khiển phải được diễn giải thận trọng, đặc biệt khi so sánh với relay hoặc massive MIMO \cite{Bjornson2020RISMyths}. Vì vậy, luận văn sử dụng mô hình truyền thông đơn giản để nghiên cứu thuật toán, đồng thời ghi rõ các giả định chưa phản ánh đầy đủ phần cứng thực.
+\section{Các kỹ thuật đa truy cập}
+\subsection{OMA, SDMA và NOMA}
+Đa truy cập trực giao (Orthogonal Multiple Access, OMA) tách người dùng theo thời gian, tần số hoặc mã. Cách này dễ triển khai và hạn chế nhiễu, nhưng mức tái sử dụng tài nguyên thấp vì mỗi phần tài nguyên thường chỉ phục vụ một nhóm người dùng.
 
-% FIGURE-INTEGRATED: CH1 START
+Đa truy cập phân chia theo không gian (Space-Division Multiple Access, SDMA) sử dụng nhiều anten để tạo các búp sóng hướng đến những người dùng khác nhau. SDMA phù hợp với hệ nhiều đầu vào, một đầu ra (Multiple-Input Single-Output, MISO), nhưng hiệu năng phụ thuộc vào khả năng phân tách không gian và chất lượng CSI.
+
+Đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) miền công suất chồng nhiều tín hiệu trên cùng tài nguyên. Người dùng có kênh mạnh thực hiện SIC theo một thứ tự giải mã. NOMA có thể cải thiện hiệu quả phổ trong một số cấu hình, nhưng phụ thuộc vào chênh lệch kênh, phân bổ công suất và độ chính xác của SIC \cite{Clerckx2021NOMACritical}.
+
 \begin{landscape}
-\ThesisFigure{figures/chapter1_rsma_vs_conventional.pdf}
-{So sánh nguyên lý phân bổ tài nguyên và xử lý nhiễu của OMA, SDMA, NOMA và RSMA}
-{fig:ch1-rsma-comparison}[0.96\linewidth]
+\ThesisFigure{figures/pdf/chapter1_fig01_oma_sdma_noma_rsma.pdf}
+{So sánh nguyên lý hoạt động của OMA, SDMA, NOMA và RSMA}
+{fig:ch1-access-comparison}[0.96\linewidth]
 \figuresource{Tác giả xây dựng dựa trên \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals,Clerckx2021NOMACritical} (2026)}
 \end{landscape}
 
-Hình~\ref{fig:ch1-rsma-comparison} sử dụng biểu tượng trạm gốc và ba người dùng để minh họa cách từng kỹ thuật tổ chức tài nguyên và xử lý nhiễu. Trong phần OMA, các đường nét đứt biểu diễn việc cấp tài nguyên thời gian hoặc tần số trực giao; các ô tài nguyên chỉ mang tính minh họa và không ánh xạ bắt buộc theo tỷ lệ một--một với số người dùng. Trong phần SDMA, các mũi tên bản rộng biểu diễn các búp sóng không gian tách biệt trong một hệ đa anten; đây là minh họa khái niệm và không phải kiến trúc SISO được mô phỏng trong luận văn. Trong phần NOMA, các mũi tên có độ dày khác nhau biểu diễn các lớp công suất được chồng trên cùng tài nguyên thời gian--tần số, còn biểu tượng SIC tại người dùng mạnh thể hiện quá trình giải mã liên tiếp; chúng không phải ba búp sóng độc lập. Trong phần RSMA, luồng màu tím là luồng chung $s_c$ được mọi người dùng giải mã trước, còn các đường màu riêng là các luồng riêng $s_k$; sau SIC, mỗi người dùng tiếp tục giải mã luồng riêng tương ứng. Ba người dùng trong hình chỉ dùng để trình bày trực quan, trong khi cấu hình thực nghiệm của luận văn sử dụng $K=4$ người dùng. Hình vì vậy làm rõ lý do RSMA có thể dung hòa giữa giải mã một phần nhiễu và xem phần nhiễu còn lại như tạp âm.
-% FIGURE-INTEGRATED: CH1 END
+Hình~\ref{fig:ch1-access-comparison} minh họa sự khác nhau giữa bốn kỹ thuật. OMA cấp tài nguyên trực giao riêng; SDMA tách người dùng bằng búp sóng; NOMA truyền một tín hiệu chồng công suất và giải mã theo thứ tự; RSMA truyền một luồng chung cùng nhiều luồng riêng. Ba người dùng trong hình chỉ dùng để minh họa, trong khi mô phỏng của luận văn sử dụng bốn người dùng.
 
-\section{Tổng quan RSMA}
-\subsection{Nguyên lý phân tách thông điệp}
-Trong RSMA một lớp, thông điệp $W_k$ của người dùng $k$ được chia thành phần chung $W_{c,k}$ và phần riêng $W_{p,k}$. Các phần chung của nhiều người dùng được ghép thành một thông điệp chung $W_c$, mã hóa thành ký hiệu $s_c$. Phần riêng được mã hóa thành $s_k$. Máy phát truyền đồng thời luồng chung và các luồng riêng. Mỗi người dùng giải mã $s_c$ trước khi dùng SIC để loại bỏ nó, sau đó giải mã $s_k$ trong sự hiện diện của các luồng riêng còn lại.
+\subsection{Ý tưởng của RSMA}
+Trong RSMA một lớp, thông điệp của người dùng được chia thành phần chung và phần riêng. Các phần chung được ghép thành một thông điệp chung, mã hóa thành luồng $s_c$. Phần riêng của người dùng $k$ được mã hóa thành luồng $s_k$. Tín hiệu phát SISO có dạng đơn giản
+\begin{equation}
+ x=\sqrt{p_c}s_c+\sum_{k=1}^{K}\sqrt{p_k}s_k,
+ \label{eq:ch1-rsma-signal}
+\end{equation}
+trong đó $p_c$ là công suất luồng chung và $p_k$ là công suất luồng riêng.
 
-Cấu trúc này tạo ra hai tầng phân bổ tài nguyên. Tầng thứ nhất là phân bổ công suất cho luồng chung và từng luồng riêng. Tầng thứ hai là phân bổ tốc độ chung $C_k$ cho từng người dùng, với tổng $\sum_k C_k$ không vượt tốc độ chung mà tất cả người dùng có thể giải mã. Tốc độ cuối của người dùng là tổng của phần tốc độ chung được cấp và tốc độ riêng. Nền tảng này được tổng hợp đầy đủ trong khảo sát của Mao và cộng sự \cite{Mao2022RSMAFundamentals}.
+Mỗi người dùng thực hiện ba bước: giải mã luồng chung, loại bỏ luồng chung bằng SIC, rồi giải mã luồng riêng của mình. Tốc độ luồng chung phải đủ thấp để mọi người dùng đều giải mã được; vì vậy người dùng yếu nhất tạo thành điểm nghẽn. Sau khi xác định tốc độ chung, hệ thống phân bổ một phần tốc độ này cho từng người dùng để hỗ trợ QoS.
 
-\subsection{Lợi ích và giới hạn}
-Lợi ích của RSMA xuất phát từ khả năng điều chỉnh lượng nhiễu được giải mã. Khi CSI không hoàn hảo, beamforming không thể triệt tiêu hoàn toàn nhiễu; một phần nhiễu có thể được chuyển sang luồng chung để nhiều người dùng giải mã. Joudeh và Clerckx đã nghiên cứu tối đa hóa tổng tốc độ trong hệ MISO với CSIT không hoàn hảo và cho thấy rate-splitting có thể cải thiện bậc tự do và độ bền đối với sai số CSI \cite{Joudeh2016RSMASumRate}. Các công trình về triển khai thực tế cũng thảo luận lựa chọn luồng, thứ tự giải mã và độ phức tạp của bộ thu \cite{Li2020RSPractical}.
+RSMA linh hoạt hơn cách phân loại cứng giữa SDMA và NOMA. Khi không dùng luồng chung, hệ thống gần với chiến lược chỉ truyền các luồng riêng và xem nhiễu là tạp âm. Khi tăng phần chung, nhiều người dùng cùng giải mã một phần nhiễu. Khả năng điều chỉnh liên tục này là lý do RSMA phù hợp với bài toán tối ưu tài nguyên \cite{Mao2018RSMABridging,Mao2022RSMAFundamentals}.
 
-Dù vậy, RSMA không loại bỏ nhu cầu tối ưu. Tốc độ chung phụ thuộc vào người dùng có khả năng giải mã kém nhất, vì vậy tăng công suất luồng chung có thể làm giảm công suất cho các luồng riêng mà chưa chắc tăng tổng tốc độ. Tỷ lệ phân bổ tốc độ chung ảnh hưởng trực tiếp đến QoS của từng người dùng. Trong mô hình SISO của luận văn, không có beamforming chủ động tại BS; vì vậy bậc tự do chủ yếu đến từ phân bổ công suất, phân bổ tốc độ chung và điều khiển STAR--RIS. Điều này khác với phần lớn nghiên cứu RSMA MISO và phải được nêu rõ khi so sánh kết quả.
+RSMA không tự động tạo ra nghiệm tốt. Công suất luồng chung quá lớn có thể làm giảm công suất luồng riêng; công suất luồng chung quá nhỏ có thể khiến người dùng yếu không đạt QoS. Do đó, các biến công suất và tỷ lệ tốc độ chung phải được tối ưu theo trạng thái kênh.
 
-\section{Tổng quan RIS và STAR--RIS}
+\section{RIS và STAR--RIS}
 \subsection{RIS phản xạ truyền thống}
-RIS gồm nhiều phần tử có thể điều chỉnh đáp ứng điện từ, thường được mô hình hóa bằng hệ số phức $\alpha_n e^{j\theta_n}$. Mô hình truyền thông lý tưởng coi RIS là phần tử gần thụ động, tiêu thụ ít công suất cho phản xạ nhưng vẫn cần mạch điều khiển. Wu và Zhang đã xây dựng bài toán tối ưu kết hợp beamforming chủ động tại BS và beamforming thụ động tại RIS, sử dụng tối ưu luân phiên để xử lý biến liên tục và ràng buộc modulus \cite{Wu2019IRSBeamforming}. Huang và cộng sự nghiên cứu hiệu quả năng lượng, qua đó nhấn mạnh rằng lợi ích phổ tần phải được cân bằng với công suất phần cứng \cite{Huang2019RISEnergyEfficiency}.
+RIS là một bề mặt gồm nhiều phần tử có thể điều chỉnh đáp ứng pha hoặc biên độ. Sóng từ trạm gốc tới RIS được phản xạ theo cấu hình đã chọn để tăng cường hoặc giảm bớt tín hiệu tại các vị trí mong muốn. RIS không tạo ra dữ liệu mới và trong mô hình thụ động không khuếch đại như relay; nó điều khiển đường truyền gián tiếp \cite{Wu2019IRSBeamforming,DiRenzo2020SmartRadio}.
 
-Các bài tổng quan ban đầu mô tả RIS như công cụ tạo môi trường vô tuyến thông minh, nhưng đồng thời chỉ ra các vấn đề về mô hình kênh, ước lượng CSI, lượng tử hóa pha, đồng bộ và triển khai \cite{Basar2019RISOverview,DiRenzo2020SmartRadio,Wu2021IRSTutorial}. Đối với luận văn, các công trình này đóng vai trò ``guardrail'': mô hình mô phỏng chỉ là một lớp trừu tượng để đánh giá thuật toán, không phải bằng chứng trực tiếp về mức tăng hiệu năng trong một hệ thống phần cứng cụ thể.
+Lợi ích của RIS phụ thuộc vào mô hình suy hao, diện tích bề mặt, CSI và phần cứng. Vì vậy, không nên diễn giải số phần tử lớn hơn như một bảo đảm về mức tăng cố định trong mọi hệ thống thực tế \cite{Bjornson2020RISMyths,Wu2021IRSTutorial}.
 
-\subsection{Khái niệm STAR--RIS}
-RIS phản xạ truyền thống chủ yếu phục vụ người dùng ở cùng phía với nguồn phát so với bề mặt. STAR--RIS mở rộng bằng cách cho phép tín hiệu đồng thời đi qua và phản xạ, từ đó phục vụ người dùng ở hai nửa không gian \cite{Xu2021STARRIS}. Mỗi phần tử có hai hệ số phức: hệ số truyền và hệ số phản xạ. Ba giao thức phổ biến gồm:
+\subsection{STAR--RIS và ba giao thức hoạt động}
+STAR--RIS mở rộng RIS bằng cách tạo đồng thời thành phần phản xạ và truyền qua. Ba giao thức thường được sử dụng gồm:
 \begin{itemize}
-  \item \textbf{Energy splitting (ES):} mỗi phần tử chia năng lượng tới thành phần truyền và phản xạ trong cùng thời điểm.
-  \item \textbf{Mode switching (MS):} mỗi phần tử tại một thời điểm chỉ hoạt động ở chế độ truyền hoặc phản xạ.
-  \item \textbf{Time switching (TS):} toàn bề mặt luân phiên giữa chế độ truyền và phản xạ theo thời gian.
+  \item \textbf{ES:} mỗi phần tử chia năng lượng tới thành phần truyền qua và phản xạ trong cùng thời điểm;
+  \item \textbf{chuyển đổi chế độ (Mode Switching, MS):} mỗi phần tử tại một thời điểm chỉ hoạt động ở chế độ truyền hoặc phản xạ;
+  \item \textbf{chuyển đổi theo thời gian (Time Switching, TS):} toàn bộ bề mặt luân phiên hai chế độ theo thời gian.
 \end{itemize}
-Mu và cộng sự cung cấp một khung tối ưu chung cho các giao thức này và chỉ ra rằng ES có tính linh hoạt cao nhưng số biến liên tục lớn \cite{Mu2021STARAided}. Luận văn lựa chọn ES vì phù hợp với mục tiêu nghiên cứu không gian hành động liên tục của TD3.
 
-\subsection{Mô hình pha độc lập và pha ghép}
-Một giả định thường gặp là pha truyền $\theta_n^T$ và pha phản xạ $\theta_n^R$ có thể điều khiển độc lập. Tuy nhiên, đối với một số kiến trúc STAR--RIS thụ động, bảo toàn năng lượng và tính đối xứng phần cứng dẫn đến quan hệ ghép giữa hai pha. Liu và cộng sự xây dựng mô hình coupled phase-shift và cho thấy không phải mọi cặp pha đều khả thi \cite{Liu2021STARCoupledPhase}. Wang và cộng sự phát triển khung tối ưu tổng quát cho mô hình ghép và hướng tới điểm dừng KKT \cite{Wang2022STAROptimization}.
-
-Source code của luận văn sử dụng hệ số biên độ $\sqrt{\beta_n^T}$ và $\sqrt{1-\beta_n^T}$ nhưng cho phép hai pha độc lập. Đây là giả định lý tưởng hóa có chủ đích để tách trọng tâm thuật toán khỏi ràng buộc phần cứng phức tạp. Luận văn vì vậy không suy rộng kết quả sang mọi kiến trúc STAR--RIS thực tế và đề xuất mô hình pha ghép như hướng phát triển.
-
-\section{Tổng quan tối ưu tài nguyên trong RIS--RSMA}
-\subsection{Tối ưu luân phiên và SCA}
-Bài toán RIS--RSMA thường có nhiều khối biến: beamforming hoặc công suất tại BS, phân bổ tốc độ chung và hệ số RIS. AO cố định các khối còn lại rồi tối ưu một khối, lặp cho đến khi hội tụ. SCA thay thế phần phi lồi bằng xấp xỉ cục bộ dễ xử lý hơn, thường có proximal term để kiểm soát bước cập nhật. Khung lý thuyết SCA cho bài toán phi lồi được thảo luận bởi Scutari và cộng sự \cite{Scutari2017SCA}. Khi các surrogate thỏa điều kiện thích hợp, dãy lặp có thể hướng tới điểm dừng; tuy nhiên, nghiệm vẫn phụ thuộc khởi tạo và không phải tối ưu toàn cục.
-
-Trong repository, AO--SCA được hiện thực dưới dạng hai khối trên biến vật lý khả thi. Gradient được ước lượng bằng sai phân hữu hạn, sau đó tối đa hóa surrogate tuyến tính--proximal và dùng backtracking để chỉ chấp nhận bước không làm giảm merit chính xác. Cách hiện thực này ưu tiên tính minh bạch và khả năng kiểm tra, nhưng số lần đánh giá hàm mục tiêu tăng theo số chiều. Do đó AO--SCA có thể đạt nghiệm tốt hơn nhưng độ trễ cao.
-
-\subsection{Tìm kiếm codebook và căn chỉnh pha phân tích}
-AO--Grid sử dụng tập giá trị hữu hạn cho từng tọa độ. Ưu điểm là xác định, dễ tái lập và không phụ thuộc gradient; nhược điểm là chất lượng phụ thuộc độ mịn của codebook và chi phí tăng khi số biến lớn. AnalyticalRIS căn chỉnh pha theo kênh ghép tầng tổng hợp và sử dụng phân bổ đều. Phương pháp này rất nhanh nhưng không tối ưu đầy đủ công suất, tỷ lệ common rate và hệ số energy splitting, vì vậy phù hợp như tham chiếu đơn giản chứ không phải analytical optimum.
-
-\section{Tổng quan học tăng cường sâu cho phân bổ tài nguyên}
-\subsection{DDPG và TD3}
-DDPG kết hợp actor xác định với critic $Q(s,a)$ để xử lý hành động liên tục. Actor được cập nhật theo gradient của critic, còn critic học từ replay buffer và target network \cite{Lillicrap2015DDPG}. Phương pháp này hiệu quả nhưng dễ chịu sai lệch overestimation khi critic xấp xỉ sai. TD3 giải quyết ba nguồn bất ổn bằng cách: dùng hai critic và lấy giá trị nhỏ hơn; thêm nhiễu bị cắt vào hành động đích; và cập nhật actor chậm hơn critic \cite{Fujimoto2018TD3}. Ba cơ chế này đặc biệt phù hợp khi hàm reward có gradient phức tạp và không gian hành động lớn.
-
-Trong bài toán STAR--RIS--RSMA, actor không trực tiếp điều khiển một động lực vật lý dài hạn mà ánh xạ trạng thái kênh hiện tại sang quyết định tài nguyên. Vì kênh tiếp theo được lấy mẫu độc lập, bài toán gần với contextual bandit hoặc contextual decision process hơn MDP điều khiển cổ điển. TD3 vẫn có thể được dùng như phương pháp tối ưu amortized, nhưng diễn giải về ``chiến lược dài hạn'' phải thận trọng.
-
-\subsection{PPO và học tăng cường lai}
-PPO là thuật toán on-policy sử dụng mục tiêu clipped để hạn chế thay đổi chính sách quá lớn. Một nghiên cứu trực tiếp của Meng và cộng sự đã áp dụng PPO cho tối đa hóa tổng tốc độ trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}. PPO có ưu điểm ổn định, nhưng cần dữ liệu on-policy và thường có hiệu suất mẫu thấp hơn off-policy. Repository có cài đặt PPO để làm baseline, song bundle kết quả cuối được kiểm toán hiện tập trung vào TD3 và các baseline tối ưu truyền thống.
-
-Zhong và cộng sự đề xuất hybrid reinforcement learning cho STAR--RIS với mô hình pha ghép, kết hợp quyết định liên tục và rời rạc \cite{Zhong2022HybridRLSTAR}. Công trình này cho thấy khi mô hình phần cứng phức tạp, một thuật toán thuần liên tục có thể không đủ. Đây là hướng mở rộng quan trọng cho nghiên cứu sau luận văn.
-
-\section{Các nghiên cứu trực tiếp về STAR--RIS và RSMA}
-Bảng~\ref{tab:related-work} tổng hợp các công trình gần với chủ đề. Bảng không nhằm xếp hạng mà làm rõ khác biệt về hệ anten, giao thức, mục tiêu và phương pháp. Những khác biệt này giải thích vì sao luận văn không sao chép nguyên mô hình từ một bài báo đơn lẻ.
+Luận văn sử dụng ES. Với phần tử thứ $n$, tỷ lệ công suất truyền qua và phản xạ thỏa
+\begin{equation}
+ \beta_n^T+\beta_n^R=1.
+ \label{eq:ch1-es}
+\end{equation}
+Biên độ tác động lên tín hiệu tương ứng là $\sqrt{\beta_n^T}$ và $\sqrt{\beta_n^R}$, vì $\beta$ biểu diễn tỷ lệ công suất chứ không phải biên độ.
 
 \begin{landscape}
-\fontsize{11.5}{14}\selectfont
-\begin{longtable}{p{3.2cm}p{3.5cm}p{3.5cm}p{4.3cm}p{7.1cm}}
-\caption{Tổng hợp một số nghiên cứu liên quan trực tiếp đến STAR--RIS, RSMA và tối ưu tài nguyên}\label{tab:related-work}\\
-\toprule
-\textbf{Công trình} & \textbf{Mô hình} & \textbf{STAR--RIS} & \textbf{Phương pháp} & \textbf{Liên hệ với luận văn}\\
-\midrule
-\endfirsthead
-\toprule
-\textbf{Công trình} & \textbf{Mô hình} & \textbf{STAR--RIS} & \textbf{Phương pháp} & \textbf{Liên hệ với luận văn}\\
-\midrule
-\endhead
-Mao và cs. \cite{Mao2022RSMAFundamentals} & Tổng quan RSMA & Không bắt buộc & Phân loại lý thuyết & Nền tảng common/private stream, SIC và QoS\\
-Li và cs. \cite{Li2022RSMARISInterplay} & RSMA kết hợp RIS & RIS/STAR--RIS tổng quát & Tổng quan, thảo luận & Cầu nối giữa quản lý nhiễu RSMA và điều khiển môi trường\\
-Mu và cs. \cite{Mu2021STARAided} & Downlink đa người dùng & ES/MS/TS & AO và tối ưu chung & Cơ sở cho energy-splitting và ràng buộc bảo toàn năng lượng\\
-Liu và cs. \cite{Liu2021STARCoupledPhase} & STAR--RIS thụ động & Pha ghép & Mô hình phần cứng & Chỉ ra giới hạn của giả định pha độc lập\\
-Zhong và cs. \cite{Zhong2022HybridRLSTAR} & STAR--RIS beamforming & Pha ghép & Hybrid RL & Tiền lệ DRL cho quyết định hỗn hợp liên tục/rời rạc\\
-Meng và cs. \cite{Meng2024PPOSTARRSMA} & STAR--RIS--RSMA & ES & PPO & Comparator trực tiếp về state/action/reward, nhưng khác mô hình và giao thức đánh giá\\
-Ge và cs. \cite{Ge2024RSMAMassiveMIMO} & Massive MIMO & ES/MS & Tối ưu chung & Chứng minh tiềm năng RS trong STAR--RIS; không thể dùng trực tiếp cho SISO\\
-Liu và Zhou \cite{Liu2024DiscretePhaseRSMARate} & RSMA với pha rời rạc & Pha lượng tử & Phân tích ergodic rate & Gợi ý mở rộng sang phase quantization\\
-Chang và cs. \cite{Chang2024CovertSTARRSMA} & Truyền thông bí mật & STAR--RIS & AO, penalty-SCA & Tiền lệ tối ưu chung và QoS, nhưng mục tiêu an ninh khác\\
-Maghrebi và cs. \cite{Maghrebi2024CooperativeActiveSTAR} & Active STAR--RIS & Chủ động, hợp tác & Tối ưu tài nguyên & Ranh giới tương lai; không phản ánh mô hình thụ động hiện tại\\
-Hashempour và Berardinelli \cite{Hashempour2024SecureSTARRS} & MISO an toàn & STAR--RIS & AO/SCA & Ví dụ baseline tối ưu truyền thống gần chủ đề\\
-Liu và cs. \cite{Liu2025STARRSMAISAC} & ISAC với RSMA & STAR--RIS & SDR, MM, rank-one & Hướng phát triển sang cảm nhận--truyền thông tích hợp\\
-\bottomrule
-\end{longtable}
-\tablesource{Tác giả tổng hợp từ thư viện tài liệu của đề tài (2026)}
+\ThesisFigure{figures/pdf/chapter1_fig02_ris_vs_star_ris.pdf}
+{So sánh phạm vi điều khiển tín hiệu của RIS và STAR--RIS}
+{fig:ch1-ris-star}[0.96\linewidth]
+\figuresource{Tác giả xây dựng dựa trên \cite{Xu2021STARRIS,Mu2021STARAided,Khalid2022STARDesign} (2026)}
 \end{landscape}
 
-\section{Khoảng trống và hướng tiếp cận của luận văn}
-Từ tổng quan trên, luận văn xác định năm khoảng trống thực hành nghiên cứu.
+Trong Hình~\ref{fig:ch1-ris-star}, RIS truyền thống chỉ tạo tia phản xạ và chủ yếu phục vụ một nửa không gian. STAR--RIS được vẽ nghiêng theo phối cảnh, với miền phản xạ ở bên trái và miền truyền qua ở bên phải. Tia tới được chia thành hai nhánh, giúp hệ thống phục vụ người dùng ở hai phía trong cùng tài nguyên thời gian--tần số.
 
-Thứ nhất là \textbf{tính nhất quán mô hình}. Nhiều so sánh thuật toán trở nên thiếu công bằng khi mỗi phương pháp sử dụng một phương trình kênh, cách chuẩn hóa hoặc cách xử lý ràng buộc khác nhau. Luận văn buộc tất cả phương pháp dùng chung mô-đun môi trường và vật lý.
+Mô hình của luận văn cho phép pha truyền và pha phản xạ độc lập. Một số phần cứng STAR--RIS thụ động có thể yêu cầu quan hệ ghép giữa hai pha \cite{Liu2021STARCoupledPhase,Wang2022STAROptimization}. Vì vậy, đây là giả định lý tưởng hóa và được xem là giới hạn của nghiên cứu.
 
-Thứ hai là \textbf{tính khả thi của hành động}. Một actor có đầu ra không bị ràng buộc có thể tạo công suất âm, tổng công suất vượt giới hạn hoặc hệ số energy splitting không bảo toàn năng lượng. Luận văn sử dụng phép chiếu simplex, ánh xạ hộp và wrap phase để mọi action sau giải mã nằm trong miền vật lý.
+\section{Học tăng cường sâu cho tối ưu tài nguyên}
+\subsection{Vòng lặp trạng thái--hành động--phần thưởng}
+Trong học tăng cường (Reinforcement Learning, RL), tác tử nhận trạng thái, chọn hành động và nhận phần thưởng từ môi trường. Khi dùng mạng nơ-ron để biểu diễn chính sách hoặc hàm giá trị, phương pháp được gọi là DRL.
 
-Thứ ba là \textbf{tách biệt train/validation/test}. Nếu test được dùng để chọn checkpoint, kết quả không còn phản ánh khả năng khái quát. ScenarioBank được tạo bằng seed khác nhau, kiểm tra trùng lặp và lưu checksum.
+Trong luận văn, trạng thái chứa CSI hiện tại; hành động chứa các biến công suất, tốc độ chung và STAR--RIS; phần thưởng khuyến khích tổng tốc độ nhưng trừ điểm khi vi phạm QoS. Sau huấn luyện, Actor thực hiện một lần truyền thẳng để tạo quyết định. Vì kênh kế tiếp được lấy mẫu độc lập và không phụ thuộc hành động hiện tại, TD3 được diễn giải như một bộ tối ưu học được theo ngữ cảnh hơn là một bộ điều khiển động lực dài hạn.
 
-Thứ tư là \textbf{đánh giá đa chiều}. Một phương pháp có sum-rate cao nhưng vi phạm QoS hoặc có độ trễ quá lớn có thể không phù hợp. Luận văn báo cáo đồng thời chất lượng, độ tin cậy, vi phạm và thời gian.
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter1_fig03_drl_control_loop.pdf}
+{Vòng lặp DRL và vai trò của TD3 trong bài toán phân bổ tài nguyên}
+{fig:ch1-drl-loop}[0.94\linewidth]
+\figuresource{Tác giả xây dựng dựa trên \cite{Lillicrap2015DDPG,Fujimoto2018TD3,Meng2024PPOSTARRSMA} (2026)}
+\end{landscape}
 
-Thứ năm là \textbf{diễn giải thống kê}. Khi số seed hữu hạn, kiểm định tham số và phi tham số có thể cho kết luận khác nhau. Luận văn báo cáo cả paired $t$-test và Wilcoxon sau hiệu chỉnh Holm thay vì chỉ lựa chọn kiểm định có lợi.
+Hình~\ref{fig:ch1-drl-loop} cho thấy môi trường cung cấp trạng thái kênh cho TD3. Actor tạo hành động phân bổ tài nguyên; môi trường tính tổng tốc độ và mức vi phạm QoS để tạo phần thưởng. Vòng lặp này được lặp lại trên nhiều kịch bản trong giai đoạn huấn luyện.
+
+\subsection{DDPG, PPO và TD3}
+DDPG dùng một Actor xác định và một Critic để xử lý hành động liên tục \cite{Lillicrap2015DDPG}. Nhược điểm quan trọng là sai số của Critic có thể làm giá trị hành động bị đánh giá quá cao.
+
+PPO dùng chính sách ngẫu nhiên và hàm mục tiêu bị cắt để hạn chế thay đổi chính sách quá lớn. PPO thường ổn định nhưng là phương pháp on-policy, nghĩa là dữ liệu cũ không được tái sử dụng theo cách của Replay Buffer. PPO đã được áp dụng trực tiếp cho bài toán STAR--RIS hỗ trợ RSMA trong nghiên cứu trước \cite{Meng2024PPOSTARRSMA}.
+
+TD3 phát triển từ DDPG với ba thay đổi: dùng hai Critic và lấy giá trị nhỏ hơn; thêm nhiễu nhỏ vào hành động đích; cập nhật Actor chậm hơn Critic \cite{Fujimoto2018TD3}. Các cơ chế này làm TD3 phù hợp với không gian hành động lớn và hàm thưởng phức tạp. Tuy nhiên, việc lựa chọn TD3 trong luận văn được kiểm chứng bằng thực nghiệm, không phải giả định trước rằng TD3 luôn tốt hơn mọi cấu hình DDPG hoặc PPO.
+
+\section{Tối ưu truyền thống và bộ tối ưu học được}
+AO chia bài toán thành các khối biến và tối ưu lần lượt. SCA thay phần phi lồi bằng xấp xỉ cục bộ dễ xử lý hơn, rồi lặp đến khi hội tụ hoặc đạt ngưỡng dừng \cite{Scutari2017SCA}. Ưu điểm là mỗi kịch bản được tối ưu trực tiếp; nhược điểm là phải thực hiện nhiều vòng lặp khi kênh thay đổi.
+
+Bộ tối ưu học được thực hiện phần lớn chi phí ở giai đoạn huấn luyện. Sau đó, mạng nơ-ron ánh xạ trực tiếp CSI sang hành động. Cách tiếp cận này có thể giảm mạnh độ trễ nhưng thường tồn tại khoảng cách chất lượng so với solver tối ưu trực tiếp từng kịch bản. Do đó, luận văn đánh giá đồng thời tổng tốc độ, QoS và độ trễ thay vì chỉ chọn một chỉ số.
 
 \section{Kết luận chương}
-Chương này đã hệ thống hóa nền tảng RSMA, RIS, STAR--RIS, tối ưu tài nguyên và học tăng cường sâu. Tổng quan cho thấy đã có nhiều công trình mạnh về từng thành phần và một số nghiên cứu kết hợp trực tiếp STAR--RIS--RSMA. Tuy nhiên, sự khác biệt lớn về hệ anten, mô hình pha, mục tiêu và giao thức đánh giá tạo ra nhu cầu về một nghiên cứu bám sát source code và báo cáo đầy đủ trade-off chất lượng--độ trễ. Chương tiếp theo trình bày chi tiết cơ sở lý thuyết cần thiết để xây dựng mô hình và thuật toán.
+Chương này đã giải thích trực quan các công nghệ nền tảng của luận văn. RSMA cung cấp cơ chế chia thông điệp thành luồng chung và riêng; STAR--RIS điều khiển đồng thời đường truyền qua và phản xạ; TD3 học ánh xạ từ trạng thái kênh sang quyết định tài nguyên liên tục. Chương tiếp theo xây dựng mô hình toán học cụ thể và phát biểu bài toán tối ưu thống nhất với source code.
