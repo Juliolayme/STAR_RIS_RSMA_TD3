@@ -15,12 +15,12 @@ METHOD_LABELS = {
     "td3": "TD3",
     "ddpg": "DDPG",
     "ppo": "PPO",
-    "ao_sca": "AO-SCA",
-    "ao_grid": "AO-Grid",
+    "ao_sca": "AO--SCA",
+    "ao_grid": "AO--Grid",
     "analytical_ris": "AnalyticalRIS",
 }
 METHOD_ORDER = ["td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris"]
-ROW_END = r" \\\\"
+ROW_END = r" \\"
 
 
 def fmt(value: float, digits: int = 4) -> str:
@@ -33,16 +33,14 @@ def fmt_violation(value: float) -> str:
         return "0,0000"
     if abs(value) < 1e-5:
         mantissa, exponent = f"{value:.2e}".split("e")
-        exponent_int = int(exponent)
-        return rf"${mantissa.replace('.', ',')}\times 10^{{{exponent_int}}}$"
-    return fmt(value, 4)
+        return rf"${mantissa.replace('.', ',')}\times 10^{{{int(exponent)}}}$"
+    return fmt(value)
 
 
 def ordered(frame: pd.DataFrame) -> pd.DataFrame:
-    result = frame.copy()
-    order = {name: index for index, name in enumerate(METHOD_ORDER)}
-    result["_order"] = result["method"].map(order)
-    return result.sort_values(["n_ris", "_order"])
+    frame = frame.copy()
+    frame["_order"] = frame["method"].map({m: i for i, m in enumerate(METHOD_ORDER)})
+    return frame.sort_values(["n_ris", "_order"])
 
 
 def write_performance(frame: pd.DataFrame, output: Path) -> None:
@@ -51,20 +49,20 @@ def write_performance(frame: pd.DataFrame, output: Path) -> None:
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r r r r}",
         r"\caption{Hiệu năng của sáu phương pháp trên tập kiểm thử khóa.}",
-        r"\label{tab:six-method-performance}\\",
+        r"\label{tab:six-method-performance}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \\",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \",
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\\",
+        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \\",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số seed} & \textbf{Tổng tốc độ} & \textbf{Tỷ lệ QoS} & \textbf{Toàn bộ UE đạt QoS} & \textbf{Mức vi phạm} \",
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
         r"\endlastfoot",
     ]
-    previous_n = None
+    previous_n: int | None = None
     for row in ordered(frame).itertuples(index=False):
         n_ris = int(row.n_ris)
         if previous_n is not None and n_ris != previous_n:
@@ -80,7 +78,12 @@ def write_performance(frame: pd.DataFrame, output: Path) -> None:
         ]
         lines.append(" & ".join(cells) + ROW_END)
         previous_n = n_ris
-    lines += [r"\end{longtable}", r"\end{landscape}"]
+    lines += [
+        r"\end{longtable}",
+        r"\end{landscape}",
+        "",
+        r"\noindent\textit{Cách đọc bảng:} Đối với TD3, DDPG và PPO, giá trị được tổng hợp theo tám seed, mỗi seed đánh giá trên 1.000 kịch bản kiểm thử khóa. Đối với AO--SCA, AO--Grid và AnalyticalRIS, độ biến thiên chủ yếu đến từ các kịch bản kênh. Vì hai nhóm có đơn vị bất định khác nhau, không so sánh trực tiếp độ rộng khoảng tin cậy như thể chúng có cùng nguồn biến thiên.",
+    ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -90,20 +93,20 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r r r r}",
         r"\caption{Độ trễ ra quyết định của sáu phương pháp trên cùng một CPU runner.}",
-        r"\label{tab:six-method-latency}\\",
+        r"\label{tab:six-method-latency}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \\",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \",
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\\",
+        r"\multicolumn{7}{c}{\tablename\ \thetable\ -- tiếp theo}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \\",
+        r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} \",
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
         r"\endlastfoot",
     ]
-    previous_n = None
+    previous_n: int | None = None
     for row in ordered(frame).itertuples(index=False):
         n_ris = int(row.n_ris)
         if previous_n is not None and n_ris != previous_n:
@@ -119,7 +122,12 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
         ]
         lines.append(" & ".join(cells) + ROW_END)
         previous_n = n_ris
-    lines += [r"\end{longtable}", r"\end{landscape}"]
+    lines += [
+        r"\end{longtable}",
+        r"\end{landscape}",
+        "",
+        r"\noindent\textit{Lưu ý:} Các số đo được thực hiện đơn luồng trên cùng một CPU runner. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đã công bố và phải được diễn giải cùng chất lượng nghiệm và QoS.",
+    ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -138,32 +146,33 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
                 "w_sig": bool(item["wilcoxon_holm_significant_0_05"]),
             }
         )
-    comparator_order = {name: index for index, name in enumerate(METHOD_ORDER[1:])}
-    rows.sort(key=lambda item: (item["n_ris"], comparator_order[item["comparator"]]))
+    comparator_order = {m: i for i, m in enumerate(METHOD_ORDER[1:])}
+    rows.sort(key=lambda item: (int(item["n_ris"]), comparator_order[str(item["comparator"])]))
     lines = [
         "% Generated from TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv. Do not edit manually.",
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r c c}",
         r"\caption{So sánh ghép cặp tổng tốc độ giữa TD3 và năm phương pháp còn lại sau hiệu chỉnh Holm.}",
-        r"\label{tab:td3-paired-tests-holm}\\",
+        r"\label{tab:td3-paired-tests-holm}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \\",
+        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \",
         r"\midrule",
         r"\endfirsthead",
-        r"\multicolumn{6}{c}{\tablename\ \thetable\ -- tiếp theo}\\",
+        r"\multicolumn{6}{c}{\tablename\ \thetable\ -- tiếp theo}\",
         r"\toprule",
-        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \\",
+        r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \",
         r"\midrule",
         r"\endhead",
         r"\bottomrule",
         r"\endlastfoot",
     ]
-    previous_n = None
+    previous_n: int | None = None
     for item in rows:
-        if previous_n is not None and item["n_ris"] != previous_n:
+        n_ris = int(item["n_ris"])
+        if previous_n is not None and n_ris != previous_n:
             lines.append(r"\addlinespace")
         cells = [
-            str(item["n_ris"]),
+            str(n_ris),
             METHOD_LABELS[str(item["comparator"])],
             fmt(float(item["difference"])),
             fmt(float(item["effect"])),
@@ -171,8 +180,13 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
             "Có" if item["w_sig"] else "Không",
         ]
         lines.append(" & ".join(cells) + ROW_END)
-        previous_n = item["n_ris"]
-    lines += [r"\end{longtable}", r"\end{landscape}"]
+        previous_n = n_ris
+    lines += [
+        r"\end{longtable}",
+        r"\end{landscape}",
+        "",
+        r"\noindent Trong bảng, ``Có'' nghĩa là bác bỏ giả thuyết không ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm. Dấu âm khi so với AO--SCA cho thấy AO--SCA có tổng tốc độ trung bình cao hơn TD3; dấu dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu.",
+    ]
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -209,8 +223,7 @@ def main() -> None:
         ],
     }
     (args.output / "six_method_assets_manifest.json").write_text(
-        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
+        json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     print(json.dumps(manifest, indent=2, ensure_ascii=False))
 
