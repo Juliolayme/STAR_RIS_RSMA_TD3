@@ -59,10 +59,10 @@ jobs:
           PY
           )
           test "$verdict" = PASS
-          test -f "$report_dir/TABLE_SIX_METHOD_PERFORMANCE.csv"
-          test -f "$report_dir/TABLE_SIX_METHOD_CPU_LATENCY.csv"
-          test -f "$report_dir/fig01_six_method_sum_rate.png"
-          test -f "$report_dir/fig06_six_method_quality_latency.png"
+          test -f "$report_dir/tables/TABLE_SIX_METHOD_PERFORMANCE.csv"
+          test -f "$report_dir/tables/TABLE_SIX_METHOD_CPU_LATENCY.csv"
+          test -f "$report_dir/figures/fig01_six_method_sum_rate.png"
+          test -f "$report_dir/figures/fig06_six_method_quality_latency.png"
           echo "report_dir=$report_dir" >> "$GITHUB_OUTPUT"
 
       - name: Publish report to experiment branch
