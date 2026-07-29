@@ -1,4 +1,5 @@
 $pdf_mode = 5;
 $xelatex = 'xelatex -synctex=1 -interaction=nonstopmode -file-line-error %O %S';
+$xdvipdfmx = 'xdvipdfmx -E -V 7 -o %D %O %S';
 $biber = 'biber %O %B';
 $clean_ext = 'acn acr alg glg glo gls ist run.xml bbl bcf blg';
