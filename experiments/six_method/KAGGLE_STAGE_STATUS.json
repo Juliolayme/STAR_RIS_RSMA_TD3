@@ -1,42 +1,42 @@
 {
-  "checked_utc": "2026-07-29T02:38:33.661596+00:00",
-  "all_complete": false,
+  "checked_utc": "2026-07-29T02:58:48.710549+00:00",
+  "all_complete": true,
   "any_failed": false,
   "stages": {
     "td3_low_n": {
-      "kernel": "thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1",
-      "raw_status": "Cannot access kernel 'thanhnguyen1423/star-ris-td3-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64",
+      "raw_status": "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     },
     "td3_high_n": {
-      "kernel": "thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1",
-      "raw_status": "Cannot access kernel 'thanhnguyen1423/star-ris-td3-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128",
+      "raw_status": "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     },
     "ddpg_low_n": {
-      "kernel": "ronganminh/star-ris-ddpg-sixmethod-low-n-v1",
-      "raw_status": "Cannot access kernel 'ronganminh/star-ris-ddpg-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64",
+      "raw_status": "ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     },
     "ddpg_high_n": {
-      "kernel": "ronganminh/star-ris-ddpg-sixmethod-high-n-v1",
-      "raw_status": "Cannot access kernel 'ronganminh/star-ris-ddpg-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "ronganminh/star-ris-ddpg-six-method-benchmark-96-128",
+      "raw_status": "ronganminh/star-ris-ddpg-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     },
     "ppo_low_n": {
-      "kernel": "duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1",
-      "raw_status": "Cannot access kernel 'duythanhb1909984/star-ris-ppo-sixmethod-low-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64",
+      "raw_status": "duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     },
     "ppo_high_n": {
-      "kernel": "duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1",
-      "raw_status": "Cannot access kernel 'duythanhb1909984/star-ris-ppo-sixmethod-high-n-v1' (Permission 'kernels.get' was denied). The most likely cause is a wrong kernel slug. The benchmark_task_slug returned by get_benchmark_leaderboard differs from the actual kernel slug \u2014 use the slug from the notebook URL (kaggle.com/code/owner/KERNEL-SLUG), not from the leaderboard. It can also occur if the notebook is private.",
-      "complete": false,
+      "kernel": "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128",
+      "raw_status": "duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128 has status \"KernelWorkerStatus.COMPLETE\"",
+      "complete": true,
       "failed": false
     }
   }
