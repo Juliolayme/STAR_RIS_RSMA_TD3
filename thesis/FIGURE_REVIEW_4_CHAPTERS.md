@@ -4,7 +4,10 @@
 
 **Công cụ:** draw.io desktop CLI 31.0.2 · skill `drawio-skill` 2.1.0 · `validate.py` (lint cấu trúc) · vision self-check từng hình.
 
-**Kết luận chung: 11/12 hình ĐẠT. Hình 4.2 đạt về kỹ thuật nhưng cần đọc kèm lưu ý ở §5.**
+**Kết luận chung: 12/12 hình ĐẠT.** Hình 4.2 phải chèn trên **trang ngang** (xem §5.3).
+
+> **Bản 2 — đã sửa 3 lỗi review.** Xem §9 để biết chi tiết ba lỗi và cách xử lý:
+> cỡ chữ Chương 4, trộn protocol ở Hình 4.3, và nội dung Hình 4.1.
 
 ---
 
@@ -173,21 +176,98 @@ Vision self-check bắt được các lỗi mà `validate.py` không thấy:
   \label{fig:system-model}
 \end{figure}
 
-% Hình Chương 4 — nên đặt kín trang để đọc được chữ trên trục
+% Hình 4.2 — BAT BUOC trang ngang (can \usepackage{pdflscape})
+\begin{landscape}
 \begin{figure}[p]
   \centering
-  \includegraphics[width=\textwidth]{figures/pdf/chapter4_fig02_six_method_comparison.pdf}
+  \includegraphics[width=0.95\linewidth]{figures/pdf/chapter4_fig02_six_method_comparison.pdf}
   \caption{So sánh sáu phương pháp trên cùng tập kiểm thử khóa.}
   \label{fig:six-method}
 \end{figure}
+\end{landscape}
 ```
+
+Trong `landscape`, `\linewidth` là chiều dài trang (~25 cm sau lề), nên `0.95\linewidth`
+cho khoảng 24 cm — đúng khổ mà Hình 4.2 được thiết kế cho.
 
 Trong hình **không có caption** (đúng §2.6) — caption viết ở phía LaTeX.
 
 ---
 
+## 9. Bản 2 — ba lỗi review và cách sửa
+
+### Lỗi 1 — chữ trong biểu đồ Chương 4 quá nhỏ
+
+**Đã sửa.**
+
+| Hình | Trước | Sau |
+|---|---|---|
+| 4.2 | 27,9 × 33,5 cm (dọc) → chèn 16 cm, nhãn **6,7 pt**, mỗi biểu đồ 7,6 cm | **43,2 × 28,7 cm (ngang)** → chèn 25 cm trang ngang, nhãn **10,4 pt**, mỗi biểu đồ **10,9 cm**; cao 16,6 cm vừa đúng một trang ngang |
+| 4.1, 4.3 | 2 biểu đồ trên bị co từ 20 cm xuống 7,6 cm | Panel được **vẽ đúng cỡ in** (`figsize` bằng kích thước in dự kiến) nên chữ không bị co |
+
+Không cần tách thành 4.2a/4.2b. Bảng đo lại ở §1 và §9.4.
+
+### Lỗi 2 — Hình 4.3 trộn hai bộ kết quả
+
+**Đã sửa. Đây là lỗi provenance thật.** Bản 1 dùng `fig11_td3_speedup` của bundle **bốn** phương pháp cũ đặt cạnh `fig05`/`fig06` của benchmark **sáu** phương pháp mới.
+
+Bản 2 bỏ hoàn toàn bundle cũ. Cả ba panel của Hình 4.3 được tính từ **hai bảng đã kiểm toán của cùng bộ `six_method_v1`**:
+
+| Panel | Nguồn | Phép tính |
+|---|---|---|
+| Độ trễ CPU sáu phương pháp | `tables/TABLE_SIX_METHOD_CPU_LATENCY.csv` | vẽ trực tiếp cột `solve_ms_mean` |
+| Tỷ lệ độ trễ so với TD3 | cùng file | `solve_ms_mean(phương pháp) / solve_ms_mean(TD3)` |
+| Không gian chất lượng–độ trễ | + `tables/TABLE_SIX_METHOD_PERFORMANCE.csv` | x = `solve_ms_mean`, y = `sum_rate_mean` |
+
+Dùng cột `solve_ms_mean` (không phải `solve_ms_median`) vì đó là cột `SIX_METHOD_REVIEW.md` dùng — panel tái hiện **đúng** con số của audit:
+
+| N | 16 | 32 | 64 | 96 | 128 |
+|---|---|---|---|---|---|
+| AO-SCA / TD3 (audit) | 880 | 1438 | 2121 | 2860 | 3038 |
+| AO-SCA / TD3 (panel) | **880** | **1438** | **2121** | **2860** | **3038** |
+
+Panel tỷ lệ có thêm đường mốc "Bằng TD3" để thấy **AnalyticalRIS nằm dưới mốc** — tức TD3 *không* phải phương pháp nhanh nhất, đúng guardrail của audit.
+
+### Lỗi 3 — Hình 4.1 dùng đường huấn luyện TD3 của bundle cũ
+
+**Đã sửa.** Đổi từ "chỉ TD3, bundle cũ" sang **so sánh hội tụ TD3 / DDPG / PPO** tính từ `results/six_method_v1/raw/convergence/*_VALIDATION_RAW.csv`, trung bình trên 8 seed với dải ±1 độ lệch chuẩn.
+
+Bố cục đúng đề xuất: panel trái = sum-rate xác thực tại **N = 32**, panel phải = **N = 128**, panel dưới = xác suất toàn bộ UE thỏa QoS tại **N = 128**.
+
+Ba kết luận hiện ra ngay và khớp `SIX_METHOD_REVIEW.md`:
+
+| Quan sát trên hình | Số của audit |
+|---|---|
+| TD3 ổn định ở cả N thấp và N cao, QoS gần 1 | all-user QoS 0,9798–0,9985 |
+| DDPG dải lệch chuẩn giữa seed bung rộng, sụt mạnh tại N = 128 | all-user QoS 0,0040; std sum-rate 5,0875 |
+| PPO nằm ở mức thấp suốt quá trình | sum-rate ~2,10–2,16; QoS 0,61–0,66 |
+
+### 9.4. Hệ quả: Chương 4 giờ không còn nhúng ảnh PNG audit
+
+Bản 1 nhúng PNG từ `results/.../figures`. Bản 2 **vẽ lại panel từ CSV/bảng đã kiểm toán** cho Hình 4.1 và 4.3 (Hình 4.2 vẫn nhúng 4 PNG audit).
+
+Đây là bước đi xa hơn một chút so với yêu cầu review — review chỉ yêu cầu tạo lại panel speedup. Tôi mở rộng sang cả panel độ trễ và panel chất lượng–độ trễ vì nếu chỉ thay một panel thì **hai panel cạnh nhau lệch hẳn cỡ chữ** (panel tự vẽ to gấp đôi panel audit bị co), trông như lỗi. Làm cả ba thì Hình 4.3 đồng bộ về cỡ chữ, cùng một nguồn, và nhãn trục **chuyển hết sang tiếng Việt** — trước đó nhãn trục là tiếng Anh (`Mean sum-rate`, `Median CPU decision latency`), vi phạm §2.1.
+
+Đánh đổi cần biết:
+
+- **Được:** chữ đọc được, một protocol duy nhất, nhãn tiếng Việt, panel tái hiện đúng số của audit.
+- **Mất:** hình không còn là ảnh bit-đối-bit của artifact audit. Nguồn và phép tính đã ghi rõ trên hình và trong bảng ở §9 nên vẫn tái lập được.
+- Nếu bạn muốn giữ đúng ảnh audit gốc, nói tôi đổi lại — nhưng khi đó chữ trục sẽ nhỏ và là tiếng Anh.
+
+Riêng **Hình 4.2 vẫn nhúng 4 PNG audit** (không vẽ lại), nên nhãn trục của 4 biểu đồ đó vẫn là tiếng Anh. Muốn tiếng Việt hoàn toàn thì phải vẽ lại từ `TABLE_SIX_METHOD_PERFORMANCE.csv` — bảng này có đủ `sum_rate_mean`, `qos_fraction_mean`, `all_qos_mean`, `violation_mean` cùng khoảng tin cậy.
+
+### 9.5. Cỡ chữ sau khi sửa
+
+| Hình | Khổ PDF | Nhãn 18 pt khi chèn 16 cm | Cao khi chèn 16 cm |
+|---|---|---|---|
+| 1.1 – 3.3, 4.1, 4.3 | 27,9 cm rộng | **10,3 pt** | 15,7 – 23,0 cm |
+| 4.2 | 43,2 × 28,7 cm | 6,7 pt ✗ — **phải dùng trang ngang** → 25 cm cho **10,4 pt** | 16,6 cm ở khổ 25 cm |
+
+---
+
 ## 8. Việc còn lại
 
-- [ ] Đặt Hình 4.2 kín một trang, hoặc tách 4 hình con nếu cần đọc số trên trục (§5.3).
-- [ ] Nếu chỉnh sửa hình: mở file trong `thesis/figures/drawio/`, sửa, rồi xuất lại đủ 4 định dạng (`-e` cho svg/pdf/png, chạy `repair_png.py` sau khi xuất PNG có `-e`).
-- [ ] Giữ canvas ≤ 1100 đơn vị khi thêm nội dung, nếu không cỡ chữ in A4 sẽ hụt trở lại.
+- [ ] **Bắt buộc:** chèn Hình 4.2 trên **trang ngang** (xem đoạn LaTeX ở §7). Nếu chèn dọc 16 cm thì nhãn chỉ còn 6,7 pt.
+- [ ] Tùy chọn: vẽ lại 4 biểu đồ của Hình 4.2 từ `TABLE_SIX_METHOD_PERFORMANCE.csv` để nhãn trục sang tiếng Việt và cho phép đưa 4.2 về khổ dọc (§9.4).
+- [ ] Nếu chỉnh sửa hình: mở file trong `thesis/figures/drawio/`, sửa, rồi xuất lại `.pdf`, `.svg`, `.png`.
+- [ ] Giữ canvas ≤ 1100 đơn vị cho hình dọc (≤ 1750 cho hình trang ngang), nếu không cỡ chữ in A4 sẽ hụt trở lại.
