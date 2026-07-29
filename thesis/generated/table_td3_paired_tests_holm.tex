@@ -1,0 +1,51 @@
+% Generated from results/six_method_v1/tables/TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv
+% This main-text table keeps comparisons involving TD3 only.
+
+\begin{landscape}
+\begin{longtable}{r l r r c c}
+  \caption{So sánh ghép cặp tổng tốc độ giữa TD3 và năm phương pháp còn lại sau hiệu chỉnh Holm.}
+  \label{tab:td3-paired-tests-holm}\\
+  \toprule
+  $N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \\
+  \midrule
+  \endfirsthead
+  \multicolumn{6}{c}{\tablename\ \thetable\ -- tiếp theo}\\
+  \toprule
+  $N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} \\
+  \midrule
+  \endhead
+  \bottomrule
+  \endlastfoot
+  16 & DDPG & 2,6705 & 2,7947 & Có & Có \\
+  16 & PPO & 8,6445 & 11,0447 & Có & Có \\
+  16 & AO-SCA & -4,4476 & -3,3293 & Có & Có \\
+  16 & AO-Grid & 6,7848 & 8,6171 & Có & Có \\
+  16 & AnalyticalRIS & 8,7850 & 11,1545 & Có & Có \\
+  \addlinespace
+  32 & DDPG & 0,4865 & 0,5200 & Có & Có \\
+  32 & PPO & 8,5722 & 11,0515 & Có & Có \\
+  32 & AO-SCA & -5,7364 & -4,6764 & Có & Có \\
+  32 & AO-Grid & 6,7341 & 8,6654 & Có & Có \\
+  32 & AnalyticalRIS & 8,7340 & 11,2389 & Có & Có \\
+  \addlinespace
+  64 & DDPG & 2,4137 & 2,4572 & Có & Có \\
+  64 & PPO & 9,5444 & 13,0135 & Có & Có \\
+  64 & AO-SCA & -6,1035 & -7,3130 & Có & Có \\
+  64 & AO-Grid & 7,7204 & 10,5073 & Có & Có \\
+  64 & AnalyticalRIS & 9,7204 & 13,2292 & Có & Có \\
+  \addlinespace
+  96 & DDPG & 4,5268 & 3,9426 & Có & Có \\
+  96 & PPO & 9,9645 & 14,2997 & Có & Có \\
+  96 & AO-SCA & -6,8164 & -9,4261 & Có & Có \\
+  96 & AO-Grid & 8,0816 & 11,5764 & Có & Có \\
+  96 & AnalyticalRIS & 10,0815 & 14,4413 & Có & Có \\
+  \addlinespace
+  128 & DDPG & 7,4458 & 8,0778 & Có & Có \\
+  128 & PPO & 10,2824 & 14,0223 & Có & Có \\
+  128 & AO-SCA & -7,2246 & -9,8404 & Có & Có \\
+  128 & AO-Grid & 8,4296 & 11,4925 & Có & Có \\
+  128 & AnalyticalRIS & 10,4296 & 14,2192 & Có & Có \\
+\end{longtable}
+\end{landscape}
+
+\noindent Trong bảng, ``Có'' nghĩa là giả thuyết không bị bác bỏ ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm trong cột tương ứng. Dấu của $\Delta$ và $d_z$ phải được đọc cùng nhau: giá trị âm khi so với AO-SCA cho thấy AO-SCA có tổng tốc độ trung bình cao hơn TD3; giá trị dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu. Tại $N=32$, DDPG vẫn có QoS và độ trễ nhỉnh hơn TD3 trên một số chỉ số, vì vậy kết quả tổng tốc độ này không đồng nghĩa TD3 thống trị DDPG trên mọi tiêu chí.
