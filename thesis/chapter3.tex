@@ -1,270 +1,238 @@
-\chapter{MÔ HÌNH HỆ THỐNG VÀ BÀI TOÁN TỐI ƯU}
-\label{chap:system-model}
+\chapter{XÂY DỰNG THUẬT TOÁN TD3 CHO BÀI TOÁN PHÂN BỔ TÀI NGUYÊN}
+\label{chap:method}
 
-\section{Kiến trúc hệ thống}
-Luận văn xét đường xuống của một tế bào đơn gồm một trạm gốc SISO, một STAR--RIS có $N$ phần tử và $K$ người dùng SISO. Một nửa người dùng được đặt ở phía phản xạ, nửa còn lại ở phía truyền theo chỉ báo cố định. Trong source code, chỉ báo phía người dùng được gán luân phiên $u_k=k\bmod 2$, do đó với $K=4$ có hai người dùng phía phản xạ và hai người dùng phía truyền. Mô hình không xét beamforming chủ động nhiều anten, phối hợp đa BS hoặc relay khuếch đại.
-
-BS truyền một luồng chung và $K$ luồng riêng theo RSMA. Tín hiệu đến người dùng qua hai thành phần: đường trực tiếp BS--user và đường ghép tầng BS--STAR--RIS--user. STAR--RIS hoạt động ở chế độ energy splitting, trong đó mỗi phần tử chia công suất tín hiệu tới thành thành phần truyền và phản xạ. Tập biến điều khiển của hệ thống gồm công suất, phân bổ common rate, hệ số beta và hai vector pha.
-
-% FIGURE-INTEGRATED: CH3 START
-\begin{landscape}
-\ThesisFigure{figures/chapter3_system_model.pdf}
-{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA được sử dụng trong luận văn}
-{fig:ch3-system-model}[0.94\linewidth]
-\figuresource{Tác giả xây dựng từ mô hình vật lý và cấu hình trong repository (2026)}
-\end{landscape}
-
-Hình~\ref{fig:ch3-system-model} mô tả đúng kiến trúc được cài đặt: một trạm gốc SISO phát một luồng chung $s_c$ và bốn luồng riêng $s_1,\ldots,s_4$ tới bốn người dùng SISO. Người dùng 1 và 3 nằm ở miền phản xạ, còn người dùng 2 và 4 nằm ở miền truyền qua, phù hợp với cách source gán chỉ báo miền luân phiên. Đường xám nét đứt là kênh trực tiếp BS--user; đường xanh dương nối BS với STAR--RIS và các đường xanh lá/cam tạo đường ghép tầng phản xạ hoặc truyền qua. Do đó, hình không giả định liên kết trực tiếp bị chặn hoàn toàn. Công thức cạnh STAR--RIS thể hiện hệ số biên độ--pha theo energy splitting, trong khi hai dải phía dưới nối trực tiếp mô hình vật lý với vector hành động và observation của tác tử. Cách trình bày này làm rõ TD3 không điều khiển một beamformer nhiều anten mà tối ưu công suất RSMA, tỷ lệ tốc độ chung, hệ số chia năng lượng và hai vector pha.
-% FIGURE-INTEGRATED: CH3 END
-
-\section{Mô hình kênh}
-\subsection{Kênh trực tiếp và kênh ghép tầng}
-Với người dùng $k$, source sinh
-\begin{align}
- h_{d,k}&\sim\mathcal{CN}(0,0{,}35^2),\\
- g_n&\sim\mathcal{CN}(0,1^2),\\
- h_{r,k,n}&\sim\mathcal{CN}(0,0{,}75^2),
-\end{align}
-độc lập giữa các hệ số và scenario. Việc sử dụng các hệ số scale khác nhau tạo độ lớn tương đối cho đường trực tiếp, BS--RIS và RIS--user, nhưng không tương đương một mô hình geometry-based có path loss. Không có tọa độ, khoảng cách, shadowing, Rician factor hoặc tương quan không gian.
-
-Một mẫu kênh được ký hiệu
+\section{Hướng tiếp cận}
+Mỗi mẫu kênh trong Chương~\ref{chap:system-model} tạo ra một bài toán tối ưu riêng. Solver truyền thống giải lại bài toán khi CSI thay đổi. Luận văn xây dựng TD3 như một bộ tối ưu học được:
 \begin{equation}
- \mathcal H=\{\bm h_d,\bm g,\bm H_r,\bm u\},
+ \mu_{\phi}:\mathcal{H}\longmapsto
+ (\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R).
+ \label{eq:learned-optimizer}
 \end{equation}
-trong đó $\bm h_d\in\C^K$, $\bm g\in\C^N$, $\bm H_r\in\C^{K\times N}$ và $\bm u\in\{0,1\}^K$.
+Chi phí huấn luyện được thực hiện trước; khi kiểm thử, Actor chỉ cần một lần truyền thẳng để tạo action.
 
-\subsection{Kênh hiệu dụng}
-Đặt
-\begin{align}
- \bm\phi_T&=\sqrt{\bm\beta^T}\odot e^{j\bm\theta^T},\\
- \bm\phi_R&=\sqrt{\bm1-\bm\beta^T}\odot e^{j\bm\theta^R},
-\end{align}
-trong đó căn bậc hai và hàm mũ được áp dụng theo phần tử. Kênh hiệu dụng của người dùng $k$ là
-\begin{equation}
- h_k^{\mathrm{eff}}
- =h_{d,k}+\sum_{n=1}^{N}h_{r,k,n}^{*}\phi_{s(k),n}g_n,
- \label{eq:effective-channel-expanded}
-\end{equation}
-trong đó $s(k)=T$ nếu $u_k=1$, và $s(k)=R$ nếu $u_k=0$. Dấu liên hợp trên $h_{r,k,n}$ bám sát phép tính trong source. Độ lợi công suất là
-\begin{equation}
- G_k=|h_k^{\mathrm{eff}}|^2.
-\end{equation}
+Về hình thức, framework sử dụng quá trình quyết định Markov (Markov Decision Process, MDP). Tuy nhiên, kênh kế tiếp được lấy mẫu độc lập và không phụ thuộc action hiện tại. Do đó, bài toán gần với tối ưu theo ngữ cảnh hơn điều khiển động lực dài hạn. Hệ số chiết khấu vẫn được giữ theo thuật toán chuẩn, nhưng kết quả không được diễn giải như chiến lược điều khiển kênh theo thời gian.
 
-\section{Mô hình tín hiệu RSMA}
-Tín hiệu phát được viết lại dưới dạng vector công suất
+\section{Biểu diễn trạng thái}
+\subsection{Cấu trúc vector trạng thái}
+Trạng thái chứa phần thực, phần ảo của ba nhóm kênh và chỉ báo phía người dùng:
 \begin{equation}
- \bm p=[p_c,p_1,\ldots,p_K]^T.
+\begin{split}
+ \bm s=[&\Re\{\bm h_d\},\Im\{\bm h_d\},
+ \Re\{\bm g\},\Im\{\bm g\},\\
+ &\operatorname{vec}(\Re\{\bm H_r\}),
+ \operatorname{vec}(\Im\{\bm H_r\}),\widetilde{\bm u}]^T.
+\end{split}
+ \label{eq:state-vector-ch3}
 \end{equation}
-Source sử dụng tổng công suất chính xác bằng $P_{\max}$ sau projection simplex. Điều này tương đương giả định tối ưu luôn sử dụng hết ngân sách công suất trong miền tham số hóa. Trong bài toán toán học tổng quát có thể dùng bất đẳng thức $\sum p_i\le P_{\max}$, nhưng implementation giải mã actor lên biên simplex $\sum p_i=P_{\max}$.
-
-Tại người dùng $k$, common SINR, private SINR và tốc độ được tính đúng theo các phương trình ở Chương~\ref{chap:theory}. Việc tất cả luồng riêng cùng đi qua cùng $G_k$ là hệ quả của mô hình SISO không có precoder theo luồng. Nhiễu private đối với người dùng $k$ bằng
-\begin{equation}
- I_{p,k}=G_k\sum_{j\ne k}p_j.
-\end{equation}
-Tốc độ common phân bổ được chuẩn hóa bằng vector $\bm\eta$:
-\begin{equation}
- \bm C=R_c\bm\eta.
-\end{equation}
-
-\section{Chỉ số QoS}
-\subsection{Tỷ lệ người dùng thỏa QoS}
-Với ngưỡng $R_{\min}$ chung cho mọi người dùng, tỷ lệ QoS trong một scenario là
-\begin{equation}
- q_{\mathrm{frac}}=\frac1K\sum_{k=1}^{K}\mathbb I(R_k\ge R_{\min}).
- \label{eq:qos-fraction}
-\end{equation}
-Metric này phân biệt trường hợp 3/4 người dùng thỏa với 4/4 người dùng thỏa, nhưng hai scenario có cùng tỷ lệ có thể có mức deficit khác nhau.
-
-\subsection{Xác suất toàn bộ người dùng thỏa QoS}
-Biến chỉ báo
-\begin{equation}
- q_{\mathrm{all}}=\mathbb I\left(\min_kR_k\ge R_{\min}\right)
- \label{eq:all-qos}
-\end{equation}
-được lấy trung bình trên test bank để ước lượng xác suất tất cả người dùng cùng thỏa QoS. Đây là metric nghiêm ngặt hơn $q_{\mathrm{frac}}$.
-
-\subsection{Mức vi phạm QoS}
-Deficit tổng
-\begin{equation}
- V=\sum_{k=1}^{K}\max(R_{\min}-R_k,0)
- \label{eq:violation-ch3}
-\end{equation}
-đo khoảng cách liên tục đến miền khả thi. Khi $q_{\mathrm{all}}=0$, $V$ cho biết vi phạm nhẹ hay nghiêm trọng. Luận văn báo cáo cả ba chỉ số để tránh mất thông tin.
-
-\section{Vector trạng thái}
-\subsection{Cấu trúc observation}
-Observation chứa phần thực và phần ảo của toàn bộ kênh cùng chỉ báo phía người dùng:
-\begin{equation}
- \bm s=
- [\Re\{\bm h_d\},\Im\{\bm h_d\},
- \Re\{\bm g\},\Im\{\bm g\},
- \operatorname{vec}(\Re\{\bm H_r\}),
- \operatorname{vec}(\Im\{\bm H_r\}),
- \tilde{\bm u}]^T.
- \label{eq:state-vector}
-\end{equation}
-Với normalization phiên bản cuối, $\tilde u_k=2u_k-1\in\{-1,1\}$. Số chiều là
+Trong đó $\widetilde u_k=2u_k-1\in\{-1,1\}$. Số chiều trạng thái là
 \begin{equation}
  d_s=2(K+N+KN)+K.
- \label{eq:state-dim}
+ \label{eq:state-dimension-ch3}
 \end{equation}
-Với $K=4$, $d_s=8N+12$. Cụ thể, $d_s=140$ tại $N=16$, $268$ tại $N=32$ và $1036$ tại $N=128$.
+Với $K=4$, $d_s=8N+12$, tương ứng 140 chiều tại $N=16$ và 1.036 chiều tại $N=128$.
 
 \subsection{Chuẩn hóa theo khối}
-Global $\ell_2$ normalization có thể làm mỗi hệ số nhỏ dần khi $N$ tăng, vì chuẩn toàn vector tăng theo căn số chiều. Phiên bản cuối sử dụng blockwise normalization:
-\begin{align}
- \Re(h_{d,k}),\Im(h_{d,k})&\leftarrow \frac{\cdot}{0{,}35},\\
- \Re(g_n),\Im(g_n)&\leftarrow \frac{\cdot}{1{,}0},\\
- \Re(h_{r,k,n}),\Im(h_{r,k,n})&\leftarrow \frac{\cdot}{0{,}75}.
-\end{align}
-Sau đó giá trị được clip trong $[-8,8]$. Mục tiêu là giữ phân bố input xấp xỉ ổn định khi $N$ thay đổi, giúp cùng kiến trúc hidden layer hoạt động trên nhiều kích thước.
+Nếu chuẩn hóa toàn bộ vector bằng một chuẩn chung, độ lớn mỗi phần tử có thể giảm khi $N$ tăng. Phiên bản cuối sử dụng \texttt{blockwise\_v2}: kênh trực tiếp được chia cho 0,35; kênh BS--STAR--RIS chia cho 1; kênh STAR--RIS--người dùng chia cho 0,75; sau đó clip trong $[-8,8]$. Cách này giữ phân bố đầu vào ổn định hơn giữa các kích thước.
 
-\section{Vector hành động}
-\subsection{Cấu trúc action thô}
-Actor xuất vector
+\section{Biểu diễn và giải mã hành động}
+\subsection{Vector hành động thô}
+Actor xuất vector chuẩn hóa
 \begin{equation}
- \bm z=[\bm z_p,\bm z_{\eta},\bm z_{\beta},\bm z_T,\bm z_R]^T\in[-1,1]^{d_a},
+ \bm z=[\bm z_p,\bm z_{\eta},\bm z_{\beta},\bm z_T,\bm z_R]^T
+ \in[-1,1]^{d_a},
 \end{equation}
 trong đó
-\begin{align}
- \bm z_p&\in\R^{K+1},&
- \bm z_{\eta}&\in\R^K,\\
- \bm z_{\beta}&\in\R^N,&
- \bm z_T,\bm z_R&\in\R^N.
-\end{align}
-Số chiều action là
 \begin{equation}
  d_a=(K+1)+K+3N=2K+1+3N.
- \label{eq:action-dim}
+ \label{eq:action-dimension-ch3}
 \end{equation}
-Với $K=4$, $d_a=3N+9$, tương ứng 57, 105 và 393 khi $N=16,32,128$.
+Với $K=4$, action có 57 chiều tại $N=16$ và 393 chiều tại $N=128$.
 
-\subsection{Giải mã action vật lý}
-Đặt
+\subsection{Tham số hóa vật lý}
+Đầu ra của Actor không được đưa trực tiếp vào môi trường. Bộ giải mã \texttt{physical\_v3} thực hiện
 \begin{align}
- \tilde{\bm p}&=\frac12(\bm z_p+\bm1)P_{\max},\\
- \bm p&=\Pi_{\Delta_{P_{\max}}}(\tilde{\bm p}),\\
- \tilde{\bm\eta}&=\frac12(\bm z_{\eta}+\bm1),\\
- \bm\eta&=\Pi_{\Delta_1}(\tilde{\bm\eta}),\\
- \bm\beta^T&=\frac12(\bm z_{\beta}+\bm1),\\
- \bm\theta^T&=\operatorname{wrap}(\pi\bm z_T),\\
- \bm\theta^R&=\operatorname{wrap}(\pi\bm z_R).
- \label{eq:action-decoder}
+ \widetilde{\bm p}&=\tfrac12(\bm z_p+\mathbf{1})P_{\max},
+ &\bm p&=\Pi_{\Delta_{P_{\max}}}(\widetilde{\bm p}),\\
+ \widetilde{\bm\eta}&=\tfrac12(\bm z_{\eta}+\mathbf{1}),
+ &\bm\eta&=\Pi_{\Delta_1}(\widetilde{\bm\eta}),\\
+ \bm\beta^T&=\tfrac12(\bm z_{\beta}+\mathbf{1}),\\
+ \bm\theta^T&=\operatorname{wrap}(\pi\bm z_T),
+ &\bm\theta^R&=\operatorname{wrap}(\pi\bm z_R).
+ \label{eq:action-decoder-ch3}
 \end{align}
-Ánh xạ này làm mọi action khả thi theo các ràng buộc hình học. QoS chưa được bảo đảm cứng; nó được xử lý qua reward và checkpoint selection.
+Ở đây $\Pi_{\Delta_c}$ là phép chiếu lên simplex không âm có tổng bằng $c$. Phép chiếu bảo đảm tổng công suất bằng $P_{\max}$ và tổng tỷ lệ tốc độ chung bằng một. Hệ số beta tự động thuộc $[0,1]$, còn pha được đưa về $[-\pi,\pi)$.
 
-\section{Hàm mục tiêu và reward}
-\subsection{Bài toán tối ưu theo scenario}
-Với một mẫu kênh $\mathcal H$, bài toán lý tưởng là
-\begin{subequations}
-\label{prob:scenario}
-\begin{align}
- \max_{\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R}
- &\quad \Rsum(\mathcal H,\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R)\\
- \text{s.t.}
- &\quad \bm p\in\Delta_{P_{\max}},\\
- &\quad \bm\eta\in\Delta_1,\\
- &\quad \bm\beta^T\in[0,1]^N,\\
- &\quad \bm\theta^T,\bm\theta^R\in[-\pi,\pi)^N,\\
- &\quad R_k\ge R_{\min},\quad k=1,\ldots,K.
-\end{align}
-\end{subequations}
-Nếu miền QoS rỗng với một scenario, ràng buộc cứng không có nghiệm. Reward mềm cho phép thuật toán vẫn chọn action giảm deficit.
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter3_fig02_action_decoder.pdf}
+{Bộ giải mã action chuẩn hóa thành các biến vật lý khả thi}
+{fig:ch3-action-decoder}[0.94\linewidth]
+\figuresource{Tác giả xây dựng từ tham số hóa \texttt{physical\_v3} của source code (2026)}
+\end{landscape}
 
-\subsection{Merit function cho baseline}
-AO--SCA và các baseline sử dụng cùng merit
-\begin{equation}
- f=\Rsum-\lambda_1V-\lambda_2V_2.
- \label{eq:merit}
-\end{equation}
-Điều này bảo đảm solver không tối đa hóa một mục tiêu khác với TD3. Tuy nhiên, trong báo cáo cuối, metric chính vẫn được tách thành sum-rate và QoS thay vì chỉ báo reward tổng hợp.
+Hình~\ref{fig:ch3-action-decoder} cho thấy năm nhánh của action. Nhờ tham số hóa này, Actor không cần học lại các ràng buộc hình học cơ bản. QoS chưa được bảo đảm cứng mà được xử lý bằng reward, bộ điều khiển đối ngẫu và lựa chọn checkpoint.
 
-\subsection{Reward huấn luyện có dual multiplier}
-TD3 phiên bản cuối dùng
+\section{Thiết kế phần thưởng và điều khiển QoS}
+\subsection{Hàm phần thưởng}
+Tại bước $t$, phần thưởng là
 \begin{equation}
  r_t=R_{\mathrm{sum},t}-\lambda_tV_t-\lambda_2V_{2,t},
+ \label{eq:reward-ch3}
 \end{equation}
-trong đó $\lambda_t$ được cập nhật theo vi phạm EMA. Các tham số khai báo gồm $\lambda_0=8$, $\lambda_{\min}=4$, $\lambda_{\max}=64$, learning rate dual 20, mục tiêu vi phạm $10^{-3}$ và chu kỳ cập nhật 1000 bước. Penalty bình phương cố định là 8.
-
-\section{Cấu trúc quá trình quyết định}
-\subsection{Transition và episode}
-Mỗi episode có 32 bước. Ở mỗi bước, môi trường đánh giá action trên kênh hiện tại, sau đó lấy mẫu một kênh mới từ training bank nếu episode chưa kết thúc. Action không ảnh hưởng kênh tiếp theo. Do đó
+trong đó
 \begin{equation}
- P(s_{t+1}|s_t,a_t)=P(s_{t+1})
+ V_{2,t}=\sum_{k=1}^{K}\max(R_{\min}-R_{k,t},0)^2.
 \end{equation}
-trong giới hạn sampler độc lập. Hệ số chiết khấu $\gamma=0{,}99$ vẫn được giữ theo TD3 chuẩn, nhưng return nhiều bước không phản ánh một động lực tài nguyên tích lũy.
+Thành phần tổng tốc độ khuyến khích chất lượng nghiệm; $V_t$ và $V_{2,t}$ phạt vi phạm QoS. Các metric vật lý vẫn được lưu riêng, vì hai policy có reward gần nhau có thể có cấu trúc sum-rate và QoS khác nhau.
 
-\subsection{Diễn giải như tối ưu amortized}
-Có thể xem mỗi scenario là một bài toán tối ưu riêng. Solver truyền thống giải lại từ đầu; TD3 học hàm
+\subsection{Bộ điều khiển đối ngẫu}
+Trọng số $\lambda_t$ được điều chỉnh bằng trung bình trượt hàm mũ (Exponential Moving Average, EMA) của vi phạm. Sau giai đoạn warm-up, cứ 1.000 bước:
 \begin{equation}
- \mu_{\phi}:\mathcal H\mapsto
- (\bm p,\bm\eta,\bm\beta^T,\bm\theta^T,\bm\theta^R).
- \label{eq:amortized-optimizer}
+ \lambda_{t+1}=\operatorname{clip}
+ \left(\lambda_t+20(\overline V_t-10^{-3}),4,64\right).
+ \label{eq:dual-update-ch3}
 \end{equation}
-Chi phí huấn luyện được amortize trên nhiều lần suy luận. Đây là cơ sở của lợi thế latency, đồng thời giải thích vì sao chất lượng có thể thấp hơn solver lặp tối ưu trực tiếp từng scenario.
+EMA dùng hệ số 0,95; $\lambda_0=8$ và $\lambda_2=8$. Cơ chế này là heuristic huấn luyện có ràng buộc, không phải chứng minh hội tụ primal--dual. Giá trị của nó nằm ở khả năng tự tăng mức phạt khi policy vi phạm QoS nhiều.
 
-\section{ScenarioBank}
-\subsection{Mục tiêu}
-ScenarioBank là tập cố định các kênh được lưu dưới dạng NPZ cùng metadata. Mỗi bank chứa các mảng $\bm h_d$, $\bm g$, $\bm H_r$ và $\bm u$ cho toàn bộ scenario. Các lợi ích gồm:
-\begin{itemize}
-  \item mọi phương pháp được đánh giá trên đúng cùng hiện thực kênh;
-  \item có thể ghép cặp kết quả theo scenario;
-  \item tái tạo được bằng seed và checksum;
-  \item phát hiện được trùng lặp giữa train, validation và test.
-\end{itemize}
-
-\subsection{Tách dữ liệu}
-Mỗi $N$ có 10.000 scenario train, 1.000 validation và 1.000 test. Các seed fallback 11001, 22001 và 33001 được sử dụng cho ba split. Hàm kiểm tra disjoint tạo fingerprint SHA-256 từ toàn bộ hệ số kênh của từng scenario và báo lỗi nếu trùng.
-
-\subsection{Provenance}
-Manifest lưu config đầy đủ, config hash, checksum bank, seed, thiết bị và Git commit. Raw CSV test lưu method, seed, scenario, metric, checkpoint step, config hash và bank checksum. Thiết kế này cho phép truy ngược mỗi dòng kết quả đến mã và dữ liệu.
-
-\section{Phân tích tính phi lồi và độ phức tạp}
-\subsection{Nguồn phi lồi}
-Bài toán có các nguồn phi lồi sau:
-\begin{enumerate}[label=\arabic*)]
-  \item biểu thức $|h_d+\bm h_r^H\bm\Phi\bm g|^2$ chứa tích và bình phương của biến pha;
-  \item SINR là tỷ số giữa đa thức theo công suất và độ lợi kênh;
-  \item common rate dùng minimum trên người dùng;
-  \item QoS tạo miền khả thi không lồi trong không gian kết hợp;
-  \item pha là biến tuần hoàn, làm miền có nhiều cực trị cục bộ.
-\end{enumerate}
-
-\subsection{Độ phức tạp đánh giá một action}
-Tính kênh hiệu dụng cần $O(KN)$ phép toán phức. Tính tốc độ cần $O(K)$ sau khi có $G_k$. Vì vậy chi phí metric chủ yếu là $O(KN)$. Actor inference với hai hidden layer kích thước $H$ có độ phức tạp
+\section{Kiến trúc TD3}
+\subsection{Actor và hai Critic}
+Actor là mạng truyền thẳng nhiều lớp (Multilayer Perceptron, MLP)
 \begin{equation}
- O(d_sH+H^2+Hd_a).
- \label{eq:actor-complexity}
+ d_s\rightarrow256\rightarrow256\rightarrow d_a.
 \end{equation}
-Khi $K$ cố định và $d_s,d_a=O(N)$, chi phí actor tăng xấp xỉ tuyến tính theo $N$ ngoài phần $H^2$ cố định.
+Hai lớp ẩn sử dụng Layer Normalization và ReLU; đầu ra dùng $\tanh$.
 
-AO--SCA ước lượng gradient theo từng tọa độ bằng sai phân trung tâm, cần khoảng hai lần đánh giá cho mỗi biến trong khối. Nếu có $I$ vòng lặp, chi phí gần
+Mỗi Critic nhận cặp $[s,a]$ và trả về một giá trị vô hướng:
 \begin{equation}
- O\left(I\,d_a\,KN\right)
+ d_s+d_a\rightarrow256\rightarrow256\rightarrow1.
 \end{equation}
-chưa kể backtracking. Đây là nguyên nhân chênh lệch latency lớn khi $N$ tăng.
+Hai Critic được khởi tạo độc lập. Ngoài các mạng online, TD3 còn có Actor đích và hai Critic đích.
 
-\section{Giả định và giới hạn mô hình}
-Bảng~\ref{tab:model-assumptions} liệt kê các giả định cần được đọc cùng kết quả.
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter3_fig01_td3_architecture.pdf}
+{Kiến trúc Actor, hai Critic, các mạng đích và Replay Buffer của TD3}
+{fig:ch3-td3-architecture}[0.95\linewidth]
+\figuresource{Tác giả xây dựng dựa trên TD3 \cite{Fujimoto2018TD3} và implementation của đề tài (2026)}
+\end{landscape}
 
-\begin{table}[H]
-\caption{Các giả định chính của mô hình và ảnh hưởng đến diễn giải}
-\label{tab:model-assumptions}
-\begin{tabularx}{\textwidth}{p{3.8cm}Y Y}
-\toprule
-\textbf{Giả định} & \textbf{Lý do sử dụng} & \textbf{Giới hạn diễn giải}\\
-\midrule
-SISO BS và user & Tách trọng tâm vào RSMA power allocation và STAR--RIS & Không phản ánh beamforming MISO/massive MIMO\\
-Gaussian phức độc lập & Dễ tạo ScenarioBank quy mô lớn và tái lập & Không có geometry, path loss, LoS/Rician hoặc tương quan\\
-CSI hoàn hảo trong observation & Đánh giá năng lực tối ưu của policy & Chưa chứng minh độ bền với lỗi ước lượng\\
-Pha truyền/phản xạ độc lập & Không gian hành động liên tục, dễ kiểm soát & Có thể không khả thi với một số STAR--RIS thụ động\\
-SIC lý tưởng & Mô hình RSMA chuẩn & Không có residual SIC hoặc lỗi giải mã\\
-Action không ảnh hưởng transition & Tối ưu từng hiện thực kênh & Gần contextual bandit hơn điều khiển động\\
-Không xét chi phí huấn luyện online & Tập trung vào latency sau huấn luyện & Cần đánh giá vòng đời mô hình khi kênh phân bố thay đổi\\
-\bottomrule
-\end{tabularx}
-\tablesource{Tác giả xây dựng (2026)}
-\end{table}
+Hình~\ref{fig:ch3-td3-architecture} thể hiện ba cải tiến cốt lõi: lấy giá trị nhỏ hơn của hai Critic, làm trơn action đích và cập nhật Actor trễ. Replay Buffer cho phép tái sử dụng transition, giúp TD3 có hiệu suất mẫu tốt hơn phương pháp on-policy trong cùng ngân sách tương tác.
+
+\subsection{Replay Buffer và khám phá}
+Replay Buffer có dung lượng 200.000 transition. Trong 2.000 bước đầu, action được lấy ngẫu nhiên để tạo dữ liệu ban đầu. Sau đó, action của Actor được cộng nhiễu Gaussian giảm tuyến tính từ 0,12 xuống 0,03.
+
+Khi action có số chiều lớn, tổng năng lượng của vector nhiễu có thể tăng. Source dùng hệ số
+\begin{equation}
+ \kappa_d=\min\left(1,\sqrt{\frac{64}{d_a}}\right)
+ \label{eq:noise-scaling-ch3}
+\end{equation}
+để nhân với độ lệch chuẩn nhiễu. Cách này làm mức nhiễu hiệu dụng giảm khi số chiều action tăng.
+
+\section{Quy tắc cập nhật TD3}
+\subsection{Mục tiêu Critic}
+Với mini-batch kích thước $B=256$, action đích là
+\begin{equation}
+ a'_j=\operatorname{clip}\left(\mu_{\phi'}(s'_j)+\epsilon_j,-1,1\right),
+\end{equation}
+trong đó $\epsilon_j$ có độ lệch chuẩn 0,15, bị clip ở 0,30 và nhân $\kappa_d$. Mục tiêu giá trị là
+\begin{equation}
+ y_j=r_j+\gamma(1-d_j)\min_{i\in\{1,2\}}Q_{\psi_i'}(s'_j,a'_j).
+ \label{eq:td3-target-ch3}
+\end{equation}
+Việc lấy minimum giảm rủi ro đánh giá quá cao.
+
+\subsection{Cập nhật Critic và Actor}
+Hai Critic được cập nhật bằng tổng Huber loss. Learning rate Critic là $3\times10^{-4}$ và gradient được clip ở chuẩn 10. Actor được cập nhật mỗi hai lần cập nhật Critic theo
+\begin{equation}
+ L_{\mu}=-\frac{1}{B}\sum_{j=1}^{B}Q_{\psi_1}(s_j,\mu_{\phi}(s_j)).
+\end{equation}
+Learning rate Actor là $10^{-4}$. Sau cập nhật Actor, các mạng đích được cập nhật mềm với $\tau=0{,}005$.
+
+\section{DDPG và PPO trong framework}
+\subsection{DDPG}
+DDPG sử dụng một Actor xác định, một Critic, một Actor đích và một Critic đích \cite{Lillicrap2015DDPG}. DDPG dùng cùng trạng thái, action decoder, reward, ScenarioBank và ngân sách tương tác với TD3. Implementation dùng sai số bình phương trung bình (Mean Squared Error, MSE), learning rate $3\times10^{-4}$ và không dùng Layer Normalization hoặc gradient clipping riêng.
+
+So sánh TD3--DDPG giúp đánh giá tính ổn định của hai implementation trong cùng protocol, nhưng không hoàn toàn cô lập ba cải tiến của TD3 vì cấu hình mạng và loss cũng khác nhau. Luận văn vì vậy không suy rộng kết quả thành kết luận tuyệt đối cho mọi cấu hình DDPG.
+
+\subsection{PPO}
+PPO dùng Actor Gaussian và một mạng giá trị. Action được lấy mẫu rồi ánh xạ qua $\tanh$. Mỗi rollout dài 2.048 bước, sau đó policy được cập nhật 10 epoch với clip ratio 0,2. PPO dùng ước lượng lợi thế tổng quát (Generalized Advantage Estimation, GAE) với $\lambda_{\mathrm{GAE}}=0{,}95$, hệ số entropy 0,001 và gradient clipping bằng 1.
+
+PPO không dùng Replay Buffer và chỉ học từ dữ liệu on-policy mới thu thập. Điều này có thể làm PPO cần nhiều tương tác hơn để đạt miền QoS khả thi. Tuy nhiên, PPO có ưu điểm giới hạn mức thay đổi policy và đã có tiền lệ trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}.
+
+\section{Các phương pháp tối ưu truyền thống}
+\subsection{AO--SCA}
+AO--SCA chia biến thành khối RSMA $(\bm p,\bm\eta)$ và khối STAR--RIS $(\bm\beta^T,\bm\theta^T,\bm\theta^R)$. Gradient merit được ước lượng bằng sai phân trung tâm. Mỗi bước tối ưu một surrogate tuyến tính--proximal và dùng backtracking để chỉ chấp nhận action không làm giảm merit chính xác. Solver khởi tạo từ AnalyticalRIS, tối đa 20 vòng lặp ngoài và dừng khi mức tăng tương đối nhỏ hơn $10^{-4}$.
+
+AO--SCA là phương pháp cục bộ, phụ thuộc khởi tạo và không phải nghiệm tối ưu toàn cục. Ưu điểm là tối ưu trực tiếp từng kịch bản; nhược điểm là số lần đánh giá hàm tăng nhanh theo số chiều.
+
+\subsection{AO--Grid}
+AO--Grid thử các giá trị trong codebook theo từng tọa độ và giữ ứng viên không làm giảm merit. Phương pháp xác định, dễ tái lập nhưng chất lượng phụ thuộc độ mịn của lưới. Tăng độ mịn có thể cải thiện nghiệm nhưng làm tăng thời gian xử lý.
+
+\subsection{AnalyticalRIS}
+AnalyticalRIS căn chỉnh một vector pha theo kênh ghép tầng tổng hợp, đặt beta bằng 0,5 và chia đều công suất cùng tốc độ chung. Đây là tham chiếu nhanh, không phải nghiệm phân tích tối ưu của bài toán đầy đủ.
+
+\section{Quy trình huấn luyện, xác thực và kiểm thử}
+\subsection{ScenarioBank}
+Mỗi giá trị $N$ có 10.000 kịch bản huấn luyện, 1.000 kịch bản xác thực và 1.000 kịch bản kiểm thử. Ba tập được tạo độc lập, kiểm tra không trùng bằng fingerprint và lưu checksum. Tất cả phương pháp được đánh giá trên cùng tập kiểm thử.
+
+\subsection{Lựa chọn checkpoint}
+Cứ 5.000 bước, policy được đánh giá xác định trên tập xác thực. Checkpoint được ưu tiên theo tính khả thi: tỷ lệ QoS ít nhất 0,99, xác suất toàn bộ người dùng đạt QoS ít nhất 0,95 và mức vi phạm trung bình không vượt 0,001. Trong nhóm checkpoint khả thi, tổng tốc độ cao hơn được ưu tiên.
+
+Tập kiểm thử chỉ được dùng sau khi checkpoint đã khóa. Exploration noise bằng không trong kiểm thử. Quy tắc này ngăn rò rỉ test vào quá trình lựa chọn mô hình.
+
+\begin{landscape}
+\ThesisFigure{figures/pdf/chapter3_fig03_train_validation_test_pipeline.pdf}
+{Quy trình huấn luyện, xác thực, chọn checkpoint và kiểm thử}
+{fig:ch3-training-pipeline}[0.95\linewidth]
+\figuresource{Tác giả xây dựng từ giao thức thực nghiệm đã khóa (2026)}
+\end{landscape}
+
+Hình~\ref{fig:ch3-training-pipeline} trình bày ba tầng dữ liệu, huấn luyện và báo cáo. Tập kiểm thử được khóa và không có đường quay lại huấn luyện. Sau kiểm thử, kết quả được lưu thành CSV thô, bảng, hình, thống kê và benchmark độ trễ.
+
+\section{Giả mã huấn luyện TD3}
+\begin{algorithm}[H]
+\caption{Huấn luyện TD3 với action khả thi và ưu tiên QoS}
+\label{alg:td3-training}
+\begin{algorithmic}[1]
+\Require Cấu hình $\mathcal C$, tập huấn luyện $\mathcal B_{tr}$, tập xác thực $\mathcal B_{val}$, seed
+\Ensure Checkpoint tốt nhất $\phi^{\star}$
+\State Khởi tạo Actor, hai Critic, các mạng đích và Replay Buffer $\mathcal D$
+\State Khởi tạo hệ số phạt $\lambda\leftarrow8$
+\For{$t=1$ đến 100.000}
+  \State Lấy trạng thái $s_t$ từ $\mathcal B_{tr}$
+  \If{$t\le2.000$}
+    \State Lấy action ngẫu nhiên trong $[-1,1]^{d_a}$
+  \Else
+    \State $a_t\leftarrow\operatorname{clip}(\mu_{\phi}(s_t)+\epsilon_t,-1,1)$
+  \EndIf
+  \State Giải mã $a_t$ thành biến vật lý; tính $R_{\mathrm{sum}},V,V_2$
+  \State Tính reward theo \eqref{eq:reward-ch3} và lưu transition vào $\mathcal D$
+  \State Cập nhật EMA và $\lambda$ theo chu kỳ
+  \If{$|\mathcal D|\ge256$}
+    \State Lấy mini-batch; cập nhật hai Critic theo \eqref{eq:td3-target-ch3}
+    \If{đến chu kỳ cập nhật Actor}
+      \State Cập nhật Actor và các mạng đích
+    \EndIf
+  \EndIf
+  \If{$t$ chia hết cho 5.000}
+    \State Đánh giá trên $\mathcal B_{val}$ và cập nhật checkpoint theo ưu tiên khả thi
+  \EndIf
+\EndFor
+\State \Return checkpoint tốt nhất
+\end{algorithmic}
+\end{algorithm}
+
+\section{Cấu hình thực nghiệm}
+\input{generated/table_drl_hyperparameters}
+
+\section{Khả năng tái lập}
+Mỗi stage lưu method, $N$, seed, số tương tác, checksum ScenarioBank, phiên bản Python, phiên bản PyTorch, thiết bị, Git commit và checksum của CSV đầu ra. Scientific commit của benchmark là
+\begin{center}
+\texttt{99318fefa53bef91fa5f105ec71ddae73fc96c39},
+\end{center}
+trong khi commit công bố bundle trên nhánh chính là
+\begin{center}
+\texttt{5dce28bd5b27f2ac8eb59d4045cb8ee88076bdf8}.
+\end{center}
+Bộ audit kiểm tra coverage theo $N$, seed và kịch bản; kiểm tra giá trị hữu hạn, checksum và tính đầy đủ của bảng, hình cùng dữ liệu thô trước khi cho phép dùng trong luận văn.
 
 \section{Kết luận chương}
-Chương 3 đã chuyển cơ sở lý thuyết thành mô hình đúng với implementation: một hệ SISO, STAR--RIS energy-splitting, RSMA một luồng chung và $K$ luồng riêng, observation chứa CSI đầy đủ, action vật lý có số chiều $2K+1+3N$ và reward phạt QoS. Chương cũng làm rõ ScenarioBank, provenance và các giả định giới hạn. Chương tiếp theo mô tả cách TD3 được huấn luyện, lựa chọn checkpoint và so sánh với baseline.
+Chương 3 đã xây dựng đầy đủ TD3 cho bài toán STAR--RIS--RSMA: trạng thái CSI được chuẩn hóa theo khối; action được giải mã thành biến vật lý khả thi; reward kết hợp tổng tốc độ và vi phạm QoS; Actor cùng hai Critic được huấn luyện bằng Replay Buffer và mạng đích. Chương cũng mô tả DDPG, PPO, ba phương pháp truyền thống và quy trình chống rò rỉ tập kiểm thử. Chương 4 sử dụng bundle sáu phương pháp đã kiểm toán để đánh giá kết quả.
