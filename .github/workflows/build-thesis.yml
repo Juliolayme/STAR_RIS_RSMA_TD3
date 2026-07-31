@@ -95,12 +95,38 @@ jobs:
           done
 
       - name: Build thesis
+        id: thesis_build
+        continue-on-error: true
         working-directory: thesis
+        shell: bash
         run: |
-          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex
-          mkdir -p build
-          cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
-          pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+          set -o pipefail
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex 2>&1 | tee latexmk-output.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -eq 0 ]; then
+            mkdir -p build
+            cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+            pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+          fi
+          exit "$status"
+
+      - name: Upload LaTeX diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-latex-diagnostics
+          path: |
+            thesis/latexmk-output.log
+            thesis/main.log
+            thesis/main.blg
+            thesis/main.bcf
+            thesis/main.fls
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop after failed LaTeX build
+        if: steps.thesis_build.outcome == 'failure'
+        run: exit 1
 
       - name: Reject unresolved references and missing figures
         working-directory: thesis
