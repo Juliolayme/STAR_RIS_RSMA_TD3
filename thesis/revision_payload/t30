@@ -1,4 +1,4 @@
-x"; insert_explanations(path,CH3_EXPLANATIONS)
+x"; insert_explanations(path,CH3_EXPLANATIONS[:15])
     text=path.read_text(encoding="utf-8")
     anchor="Chi phí huấn luyện được thực hiện trước; khi kiểm thử, Actor chỉ cần một lần truyền thẳng để tạo action.\n"
     if "Lý do dùng DRL thay cho học có giám sát" not in text: text=text.replace(anchor,anchor+RATIONALE)
