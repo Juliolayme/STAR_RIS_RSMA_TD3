@@ -38,6 +38,15 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
+      - name: Restore official UTH logo
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://raw.githubusercontent.com/Juliolayme/STAR_RIS_RSMA_MADDPG_PAPER_FREEZE_v1/main/latex_thesis/figures/logo_uth.png" \
+            --output thesis/figures/logo_uth.png
+          test -s thesis/figures/logo_uth.png
+          file thesis/figures/logo_uth.png | grep -q 'PNG image data'
+
       - name: Verify four-chapter structure and figure files
         run: |
           set -euo pipefail
@@ -147,21 +156,21 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit normalized sources, generated tables, and built PDF
-        if: github.event_name == 'push'
+      - name: Commit normalized sources, official logo, generated tables, and built PDF
+        if: github.event_name != 'workflow_dispatch'
         shell: bash
         env:
-          SOURCE_BRANCH: ${{ github.ref_name }}
+          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add thesis/chapter1.tex thesis/chapter2.tex thesis/chapter3.tex thesis/chapter4.tex
-          git add thesis/generated
+          git add thesis/figures/logo_uth.png thesis/generated
           git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
           if git diff --cached --quiet; then
-            echo "Normalized sources, generated assets, and PDF unchanged"
+            echo "Normalized sources, generated assets, logo, and PDF unchanged"
             exit 0
           fi
-          git commit -m "Build audited four-chapter thesis PDF [skip ci]"
+          git commit -m "Build revised four-chapter thesis PDF [skip ci]"
           git push origin "HEAD:${SOURCE_BRANCH}"
