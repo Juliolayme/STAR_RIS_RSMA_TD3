@@ -1,0 +1,61 @@
+name: Apply thesis revision on PR
+
+on:
+  pull_request:
+    branches: [thesis/restructure-4chap-v2]
+    paths: ["thesis/**", ".github/workflows/apply-thesis-review-pr.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Apply revisions
+        run: |
+          set -euo pipefail
+          cat thesis/revision_payload/t[0-9][0-9] > thesis/scripts/revise_thesis_transform.py
+          cat thesis/revision_payload/conc[0-9][0-9] > thesis/conclusion.tex
+          cat thesis/revision_payload/appa[0-9][0-9] > thesis/appendixA.tex
+          cat thesis/revision_payload/appb[0-9][0-9] > thesis/appendixB.tex
+          cat thesis/revision_payload/appc[0-9][0-9] > thesis/appendixC.tex
+          python -m py_compile thesis/scripts/revise_thesis_transform.py
+          python thesis/scripts/revise_thesis_transform.py
+          python - <<'PY'
+          from pathlib import Path
+          paths=[Path('thesis/frontmatter.tex'),Path('thesis/introduction.tex'),Path('thesis/chapter1.tex'),Path('thesis/chapter2.tex'),Path('thesis/chapter3.tex'),Path('thesis/chapter4.tex'),Path('thesis/conclusion.tex'),Path('thesis/appendixA.tex'),Path('thesis/appendixB.tex'),Path('thesis/appendixC.tex')]
+          repl={'đã được kiểm tra đối chiếu với repository của đề tài':'đã được kiểm tra đối chiếu với dữ liệu và quy trình thực nghiệm của đề tài','mã nguồn, quy trình mô phỏng':'quy trình mô phỏng','không phụ thuộc tên thư mục, nhánh phát triển hoặc phiên bản mã nguồn cụ thể':'không phụ thuộc cấu trúc lưu trữ hoặc phiên bản triển khai cụ thể','repository':'kho dữ liệu nghiên cứu','source code':'phần mềm triển khai','mã nguồn':'phần mềm triển khai'}
+          for p in paths:
+              t=p.read_text(encoding='utf-8')
+              for a,b in repl.items(): t=t.replace(a,b)
+              p.write_text(t,encoding='utf-8')
+          PY
+          curl -L --fail --retry 3 https://raw.githubusercontent.com/Juliolayme/STAR_RIS_RSMA_MADDPG_PAPER_FREEZE_v1/main/latex_thesis/figures/logo_uth.png -o thesis/figures/logo_uth.png
+          test -s thesis/figures/logo_uth.png
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          files=[Path('thesis/frontmatter.tex'),Path('thesis/introduction.tex'),Path('thesis/chapter1.tex'),Path('thesis/chapter2.tex'),Path('thesis/chapter3.tex'),Path('thesis/chapter4.tex'),Path('thesis/conclusion.tex'),Path('thesis/appendixA.tex'),Path('thesis/appendixB.tex'),Path('thesis/appendixC.tex')]
+          text='\n'.join(p.read_text(encoding='utf-8') for p in files)
+          for x in [r'Câu hỏi nghiên cứu',r'RQ[1-4]',r'scientific commit',r'git commit',r'nhánh phát triển',r'repository',r'results/',r'six_method_v1',r'VALIDATION_RAW',r'physical_v3',r'blockwise_v2',r'source code',r'mã nguồn']:
+              if re.search(x,text,re.I): raise SystemExit(f'forbidden: {x}')
+          pat=re.compile(r'\\begin\{subequations\}.*?\\end\{subequations\}|\\begin\{align\}.*?\\end\{align\}|\\begin\{equation\}.*?\\end\{equation\}',re.S)
+          for p in map(Path,['thesis/chapter1.tex','thesis/chapter2.tex','thesis/chapter3.tex']):
+              t=p.read_text(encoding='utf-8')
+              for i,m in enumerate(pat.finditer(t),1):
+                  s=t[m.end():m.end()+1400]
+                  if 'Trong đó' not in s or ('Công thức' not in s and 'Hệ công thức' not in s): raise SystemExit(f'{p} formula {i} incomplete')
+          PY
+          rm -rf thesis/revision_payload
+          rm -f thesis/TRIGGER_REVIEW_REVISIONS thesis/chapter2_frag_00.tex thesis/chapter2_part1.tex
+          rm -f .github/workflows/apply-thesis-review-revisions.yml .github/workflows/apply-thesis-review-pr.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Revise thesis narrative, formulas, AO methods, and UTH cover"
+          git push origin HEAD:${{ github.head_ref }}
