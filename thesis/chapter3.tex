@@ -56,14 +56,14 @@ Trong đó, năm khối lần lượt điều khiển công suất, tỷ lệ t�
 trong đó
 \begin{equation}
  d_a=(K+1)+K+3N=2K+1+3N.
- \label{eq:hành động-dimension-ch3}
+ \label{eq:action-dimension-ch3}
 \end{equation}
 Trong đó, $K+1$ là số biến công suất, $K$ là số tỷ lệ tốc độ chung và $3N$ gồm một vector beta cùng hai vector pha. Công thức cho thấy trực tiếp nguyên nhân không gian hành động tăng nhanh khi số phần tử STAR--RIS lớn.
 
 Với $K=4$, hành động có 57 chiều tại $N=16$ và 393 chiều tại $N=128$.
 
 \subsection{Tham số hóa vật lý}
-Đầu ra của Actor không được đưa trực tiếp vào môi trường. Bộ giải mã bộ giải mã vật lý thực hiện
+Đầu ra của Actor không được đưa trực tiếp vào môi trường. Bộ giải mã vật lý thực hiện
 \begin{align}
  \widetilde{\bm p}&=\tfrac12(\bm z_p+\mathbf{1})P_{\max},
  &\bm p&=\Pi_{\Delta_{P_{\max}}}(\widetilde{\bm p}),\\
@@ -72,18 +72,18 @@ Với $K=4$, hành động có 57 chiều tại $N=16$ và 393 chiều tại $N=
  \bm\beta^T&=\tfrac12(\bm z_{\beta}+\mathbf{1}),\\
  \bm\theta^T&=\operatorname{wrap}(\pi\bm z_T),
  &\bm\theta^R&=\operatorname{wrap}(\pi\bm z_R).
- \label{eq:hành động-decoder-ch3}
+ \label{eq:action-decoder-ch3}
 \end{align}
 Trong đó, $\widetilde{\bm p}$ và $\widetilde{\bm\eta}$ là vector trung gian không âm; $\Pi_{\Delta_c}$ là phép chiếu lên simplex không âm có tổng bằng $c$; $\operatorname{wrap}$ đưa pha về $[-\pi,\pi)$. Công thức bảo đảm mọi hành động sinh ra đều thỏa ràng buộc hình học về công suất, tốc độ chung, beta và pha trước khi tính reward; nhờ đó Actor tập trung học chất lượng thay vì học lại các ràng buộc cơ bản.
 
 Ở đây $\Pi_{\Delta_c}$ là phép chiếu lên simplex không âm có tổng bằng $c$. Phép chiếu bảo đảm tổng công suất bằng $P_{\max}$ và tổng tỷ lệ tốc độ chung bằng một. Hệ số beta tự động thuộc $[0,1]$, còn pha được đưa về $[-\pi,\pi)$.
 
-\ThesisFigure{figures/pdf/chapter3_fig02_hành động_decoder.pdf}
+\ThesisFigure{figures/pdf/chapter3_fig02_action_decoder.pdf}
 {Bộ giải mã hành động chuẩn hóa thành các biến vật lý khả thi}
-{fig:ch3-hành động-decoder}[0.94\linewidth]
+{fig:ch3-action-decoder}[0.94\linewidth]
 \figuresource{Tác giả xây dựng từ tham số hóa bộ giải mã vật lý của mô hình triển khai (2026)}
 
-Hình~\ref{fig:ch3-hành động-decoder} cho thấy năm nhánh của hành động. Nhờ tham số hóa này, Actor không cần học lại các ràng buộc hình học cơ bản. QoS chưa được bảo đảm cứng mà được xử lý bằng reward, bộ điều khiển đối ngẫu và lựa chọn checkpoint.
+Hình~\ref{fig:ch3-action-decoder} cho thấy năm nhánh của hành động. Nhờ tham số hóa này, Actor không cần học lại các ràng buộc hình học cơ bản. QoS chưa được bảo đảm cứng mà được xử lý bằng reward, bộ điều khiển đối ngẫu và lựa chọn checkpoint.
 
 \section{Thiết kế phần thưởng và điều khiển QoS}
 \subsection{Hàm phần thưởng}
@@ -136,7 +136,7 @@ Hai Critic được khởi tạo độc lập. Ngoài các mạng online, TD3 c�
 {fig:ch3-td3-architecture}[0.95\linewidth]
 \figuresource{Tác giả xây dựng dựa trên TD3 \cite{Fujimoto2018TD3} và cấu hình triển khai của đề tài (2026)}
 
-Hình~\ref{fig:ch3-td3-architecture} thể hiện ba cải tiến cốt lõi: lấy giá trị nhỏ hơn của hai Critic, làm trơn hành động đích và cập nhật Actor trễ. Replay Buffer cho phép tái sử dụng transition, giúp TD3 có hiệu suất mẫu tốt hơn phương pháp on-chính sách trong cùng ngân sách tương tác.
+Hình~\ref{fig:ch3-td3-architecture} thể hiện ba cải tiến cốt lõi: lấy giá trị nhỏ hơn của hai Critic, làm trơn hành động đích và cập nhật Actor trễ. Replay Buffer cho phép tái sử dụng transition, giúp TD3 có hiệu suất mẫu tốt hơn phương pháp on-policy trong cùng ngân sách tương tác.
 
 \subsection{Replay Buffer và khám phá}
 Replay Buffer có dung lượng 200.000 transition. Trong 2.000 bước đầu, hành động được lấy ngẫu nhiên để tạo dữ liệu ban đầu. Sau đó, hành động của Actor được cộng nhiễu Gaussian giảm tuyến tính từ 0,12 xuống 0,03.
@@ -185,7 +185,7 @@ So sánh TD3--DDPG giúp đánh giá tính ổn định của hai cấu hình tr
 \subsection{PPO}
 PPO dùng Actor Gaussian và một mạng giá trị. Action được lấy mẫu rồi ánh xạ qua $\tanh$. Mỗi rollout dài 2.048 bước, sau đó chính sách được cập nhật 10 epoch với clip ratio 0,2. PPO dùng ước lượng lợi thế tổng quát (Generalized Advantage Estimation, GAE) với $\lambda_{\mathrm{GAE}}=0{,}95$, hệ số entropy 0,001 và gradient clipping bằng 1.
 
-PPO không dùng Replay Buffer và chỉ học từ dữ liệu on-chính sách mới thu thập. Điều này có thể làm PPO cần nhiều tương tác hơn để đạt miền QoS khả thi. Tuy nhiên, PPO có ưu điểm giới hạn mức thay đổi chính sách và đã có tiền lệ trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}.
+PPO không dùng Replay Buffer và chỉ học từ dữ liệu on-policy mới thu thập. Điều này có thể làm PPO cần nhiều tương tác hơn để đạt miền QoS khả thi. Tuy nhiên, PPO có ưu điểm giới hạn mức thay đổi chính sách và đã có tiền lệ trong STAR--RIS--RSMA \cite{Meng2024PPOSTARRSMA}.
 
 \section{Các phương pháp tối ưu truyền thống}
 \subsection{AO--SCA}
