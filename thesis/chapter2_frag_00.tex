@@ -1,0 +1,23 @@
+\chapter{MÔ HÌNH HỆ THỐNG VÀ BÀI TOÁN TỐI ƯU}
+\label{chap:system-model}
+
+\section{Kiến trúc hệ thống}
+Luận văn xét đường xuống của một tế bào đơn gồm một trạm gốc (Base Station, BS) SISO, một STAR--RIS thụ động có $N$ phần tử và $K=4$ người dùng SISO. Người dùng 1 và 3 nằm ở miền phản xạ; người dùng 2 và 4 nằm ở miền truyền qua. Việc gán phía được cố định trong toàn bộ kịch bản để tập trung đánh giá bài toán phân bổ tài nguyên.
+
+BS phát một luồng chung và bốn luồng riêng theo RSMA. Mỗi người dùng nhận tín hiệu từ đường trực tiếp BS--người dùng và đường ghép tầng BS--STAR--RIS--người dùng. STAR--RIS vận hành theo ES, vì vậy mỗi phần tử đồng thời tạo thành phần truyền qua và phản xạ.
+
+\ThesisFigure{figures/pdf/chapter2_fig01_system_model_3d.pdf}
+{Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}
+{fig:ch2-system-model}[0.95\linewidth]
+\figuresource{Tác giả xây dựng từ mô hình vật lý và cấu hình thực nghiệm của đề tài (2026)}
+
+Hình~\ref{fig:ch2-system-model} thể hiện STAR--RIS dưới dạng tấm nghiêng theo phối cảnh. Miền phản xạ nằm bên trái, miền truyền qua nằm bên phải. Đường xám nét đứt biểu diễn kênh trực tiếp; đường xanh dương từ BS đến STAR--RIS cùng các đường xanh lá hoặc cam tạo thành kênh ghép tầng. Hình cũng cho thấy một luồng chung $s_c$ và bốn luồng riêng $s_1,\ldots,s_4$ được truyền đồng thời.
+
+\section{Các giả định nghiên cứu}
+Các giả định được sử dụng nhất quán trong mô hình và mô phỏng gồm:
+\begin{itemize}
+  \item CSI hoàn hảo được cung cấp cho bộ ra quyết định;
+  \item các hệ số kênh được sinh độc lập theo phân bố Gaussian phức;
+  \item STAR--RIS thụ động, vận hành theo ES và không khuếch đại tín hiệu;
+  \item pha truyền và pha phản xạ được điều khiển độc lập;
+  \item SIC lý tưởng, không có nhiễu dư sau khi loại bỏ luồng chung;
