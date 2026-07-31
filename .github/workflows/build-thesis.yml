@@ -42,7 +42,7 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --location --retry 3 --retry-delay 2 \
-            "https://raw.githubusercontent.com/Juliolayme/STAR_RIS_RSMA_MADDPG_PAPER_FREEZE_v1/main/latex_thesis/figures/logo_uth.png" \
+            "https://upload.wikimedia.org/wikipedia/commons/f/f3/Logo_UTH.png" \
             --output thesis/figures/logo_uth.png
           test -s thesis/figures/logo_uth.png
           file thesis/figures/logo_uth.png | grep -q 'PNG image data'
