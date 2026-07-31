@@ -1,0 +1,13 @@
+from pathlib import Path
+import re
+
+ROOT=Path(__file__).resolve().parents[2]
+THESIS=ROOT/"thesis"
+MARKER="% FORMULA_EXPLANATIONS_REVIEW_V1"
+
+CH2_EXPLANATIONS=['Trong đó, $\\mathcal{CN}(0,\\nu^2)$ ký hiệu phân bố Gaussian phức tròn có trung bình bằng không '
+ 'và phương sai $\\nu^2$; $g_n$ là hệ số BS--STAR--RIS tại phần tử $n$; $h_{r,k,n}$ là hệ số từ '
+ 'phần tử $n$ đến người dùng $k$. Công thức xác định quy luật sinh các trạng thái kênh và tỷ lệ '
+ 'tương đối giữa đường trực tiếp với hai đoạn của đường ghép tầng; các hệ số này tạo đầu vào cho '
+ 'mọi phương pháp đánh giá.',
+ 'Trong đó, $n_k$ là mẫu nhiễu tại người dùng $k$ và $\\sigma^2$ là

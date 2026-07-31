@@ -1,0 +1,9 @@
+ốc độ chung.',
+ 'Trong đó, $\\eta_k$ là phần tỷ lệ dành cho người dùng $k$. Công thức đặt vector $\\bm\\eta$ trên '
+ 'simplex đơn vị, bảo đảm toàn bộ tốc độ chung được phân bổ mà không tạo thêm tốc độ ngoài $R_c$.',
+ 'Trong đó, $C_k$ là tốc độ chung được ghi nhận cho người dùng $k$. Công thức biến tỷ lệ $\\eta_k$ '
+ 'thành đóng góp tốc độ thực và cho phép dùng luồng chung để hỗ trợ người dùng có tốc độ riêng '
+ 'thấp.',
+ 'Trong đó, $\\gamma_{p,k}$ là SINR của luồng riêng người dùng $k$; tử số là công suất mong muốn; '
+ 'mẫu số gồm nhiễu từ các luồng riêng khác và AWGN. Công thức lượng hóa phần nhiễu còn lại sau SIC '
+ 'và quyết định tốc độ ri

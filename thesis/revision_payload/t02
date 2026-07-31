@@ -1,0 +1,8 @@
+uất thành biên độ bằng căn bậc hai và ghép biên độ với pha; đây là cầu nối '
+ 'trực tiếp từ biến điều khiển STAR--RIS đến kênh hiệu dụng.',
+ 'Trong đó, $\\operatorname{diag}(\\cdot)$ tạo ma trận đường chéo; $\\bm\\Phi_T$ và $\\bm\\Phi_R$ '
+ 'lần lượt mô tả đáp ứng truyền qua và phản xạ của $N$ phần tử. Công thức giúp biểu diễn gọn tác '
+ 'động đồng thời của toàn bộ STAR--RIS khi nhân với vector kênh.',
+ 'Trong đó, $u_k$ chọn đúng ma trận truyền hoặc phản xạ cho người dùng $k$. Công thức hợp nhất hai '
+ 'miền người dùng trong một biểu thức duy nhất và tránh phải viết hai mô hình kênh riêng biệt.',
+ 'Trong đó, $(\\cdot)^H$ là chuyển vị liên hợp

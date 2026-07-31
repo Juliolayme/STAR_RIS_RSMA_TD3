@@ -1,0 +1,13 @@
+ gần như không cải thiện. Xu hướng này chỉ áp dụng cho bộ sinh kênh và cấu hình đã sử dụng.\n\n'
+
+DISPLAY_RE=re.compile(r"\\begin\{subequations\}.*?\\end\{subequations\}|\\begin\{align\}.*?\\end\{align\}|\\begin\{equation\}.*?\\end\{equation\}",re.S)
+
+def insert_explanations(path, explanations):
+    text=path.read_text(encoding="utf-8")
+    if MARKER in text: return
+    matches=list(DISPLAY_RE.finditer(text))
+    if len(matches)!=len(explanations):
+        raise RuntimeError(f"{path.name}: expected {len(explanations)} formulas, found {len(matches)}")
+    out=[]; pos=0
+    for m,e in zip(matches,explanations):
+        out.extend([text[pos:m.en

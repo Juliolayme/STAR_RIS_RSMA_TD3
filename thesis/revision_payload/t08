@@ -1,0 +1,9 @@
+ười dùng.',
+ 'Trong đó, $q_{\\mathrm{all}}$ bằng một chỉ khi người dùng yếu nhất vẫn đạt ngưỡng. Công thức tạo '
+ 'tiêu chí khả thi nghiêm ngặt ở cấp kịch bản và nhạy với bất kỳ người dùng nào bị vi phạm.',
+ 'Trong đó, $V$ là tổng phần thiếu hụt tốc độ so với ngưỡng; toán tử $\\max(\\cdot,0)$ loại bỏ '
+ 'người dùng đã đạt QoS. Công thức phân biệt vi phạm nhẹ với vi phạm nghiêm trọng và được dùng '
+ 'trong hàm thưởng cùng hàm merit.',
+ 'Trong đó, $\\mathcal A$ là toàn bộ hành động vật lý; $\\bm p$ là vector công suất; $\\bm\\eta$ '
+ 'là vector phân bổ tốc độ chung; $\\bm\\beta^T$ là vector chia năng lượng; $\\bm\\theta^T$ và '
+ '$\\bm\\theta^R

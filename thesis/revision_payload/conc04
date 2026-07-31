@@ -1,0 +1,5 @@
+hất lượng nghiệm, độ tin cậy QoS và độ trễ, đặc biệt trong các kịch bản cần quyết định nhanh sau huấn luyện. AO--SCA phù hợp hơn khi ưu tiên chất lượng và có đủ thời gian giải; AnalyticalRIS phù hợp khi chỉ ưu tiên chi phí tính toán cực thấp nhưng không có yêu cầu QoS nghiêm ngặt.
+
+\section*{2. Hạn chế}
+\addcontentsline{toc}{section}{2. Hạn chế}
+Thứ nhất, mô hình dùng kênh Gaussian tổng hợp, chưa có vị trí hình học, path loss, LoS/NLoS, Rician fading hoặc tương quan thời gian. Thứ hai, CSI hoàn hảo được cung cấp trực tiếp cho chính sách. Thứ ba, hệ thống là SISO, chưa có precoder chủ động nhiều anten. Thứ tư, pha truyền và pha phản xạ được điều khiển độc lập, trong khi phần cứng thụ động có 

@@ -1,0 +1,8 @@
+và tổng quát giữa nhiều $N$.
+  \item \textbf{Tối ưu baseline học:} thực hiện tìm kiếm siêu tham số có ngân sách bằng nhau, bổ sung Soft Actor--Critic và imitation learning từ nghiệm AO--SCA.
+  \item \textbf{Phân tích bất định phân cấp:} dùng hierarchical bootstrap hoặc mixed-effects model để tách biến thiên giữa seed và kịch bản.
+  \item \textbf{Triển khai hệ thống:} đo độ trễ trên edge CPU/GPU, tính cả overhead CSI, lượng tử hóa và thời gian điều khiển phần cứng.
+  \item \textbf{Mở rộng ứng dụng:} nghiên cứu active STAR--RIS, bảo mật vật lý, truyền thông--cảm nhận tích hợp, UAV và đa ô.
+\end{enumerate}
+
+Tóm lại, luận văn đã tạo được chuỗi nhất quán từ lý thuyết, mô hình toán học, thiết kế t

@@ -1,0 +1,9 @@
+thể yêu cầu pha ghép. Thứ năm, SIC được giả định lý tưởng và chưa xét overhead báo hiệu.
+
+Thứ sáu, kênh kế tiếp không phụ thuộc hành động, nên bài toán gần tối ưu theo ngữ cảnh hơn điều khiển dài hạn. Thứ bảy, ba thuật toán DRL dùng cùng ngân sách tương tác nhưng chưa có tìm kiếm siêu tham số với ngân sách bằng nhau. Thứ tám, tám seed là mức hợp lý cho luận văn nhưng chưa đủ để mô hình hóa đầy đủ bất định huấn luyện. Cuối cùng, độ trễ chỉ được đo trên một CPU một luồng và chưa bao gồm ước lượng CSI hoặc truyền lệnh tới STAR--RIS.
+
+\section*{3. Hướng phát triển}
+\addcontentsline{toc}{section}{3. Hướng phát triển}
+Các hướng phát triển chính gồm:
+\begin{enumerate}[label=\arabic*)]
+  \item \text

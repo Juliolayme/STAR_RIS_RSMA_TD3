@@ -1,0 +1,6 @@
+ lý. Đối với AO--SCA hoặc AO--Grid, độ trễ bao gồm nhiều lần đánh giá hàm trong các vòng lặp. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đo đã khai báo và phải được diễn giải cùng chất lượng nghiệm.
+
+\section{Đọc kiểm định ghép cặp}
+Các phương pháp được so sánh trên cùng kịch bản kênh, do đó chênh lệch tổng tốc độ được tính theo từng cặp. Kiểm định $t$ ghép cặp đánh giá trung bình chênh lệch dưới giả định tham số; Wilcoxon ghép cặp đánh giá thứ hạng chênh lệch và ít phụ thuộc phân bố chuẩn hơn. Hiệu chỉnh Holm kiểm soát sai số khi thực hiện nhiều phép so sánh. Ý nghĩa thống kê không thay thế kích thước ảnh hưởng: một chênh lệch nhỏ vẫn có thể có $p$-value thấp khi số cặp lớn.
+
+\section{Giớ

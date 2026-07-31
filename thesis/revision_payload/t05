@@ -1,0 +1,9 @@
+ luồng chung '
+ 'sau kênh; mẫu số gồm tổng công suất các luồng riêng sau kênh và nhiễu. Công thức đo khả năng mỗi '
+ 'người dùng giải mã luồng chung và làm cơ sở cho ràng buộc ``mọi người dùng đều phải giải mã '
+ "được''.",
+ 'Trong đó, $R_{c,k}$ là tốc độ khả dụng của luồng chung tại người dùng $k$, đơn vị bit/s/Hz. Công '
+ 'thức Shannon chuyển SINR thành tốc độ và cung cấp giới hạn giải mã riêng của từng người dùng.',
+ 'Trong đó, $R_c$ là tốc độ chung có thể được tất cả người dùng giải mã. Phép lấy nhỏ nhất tạo nút '
+ 'thắt RSMA; công thức này khiến bài toán không trơn tại điểm đổi người dùng yếu nhất và ảnh hưởng '
+ 'trực tiếp đến phân bổ t

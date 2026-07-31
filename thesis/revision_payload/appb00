@@ -1,0 +1,11 @@
+\chapter{QUY TRÌNH TÁI LẬP VÀ KIỂM TRA KẾT QUẢ}
+\label{app:reproducibility}
+
+\section{Nguyên tắc tách dữ liệu}
+Mỗi kích thước STAR--RIS sử dụng ba tập kịch bản độc lập cho huấn luyện, xác thực và kiểm thử. Tập huấn luyện dùng để cập nhật tham số mạng; tập xác thực dùng để lựa chọn checkpoint; tập kiểm thử chỉ được mở sau khi mô hình đã khóa. Tất cả phương pháp được đánh giá trên cùng các kịch bản kiểm thử để tạo so sánh ghép cặp.
+
+\section{Thông tin cần lưu cho mỗi lần chạy}
+Mỗi kết quả cuối cần lưu tối thiểu:
+\begin{enumerate}[label=\arabic*)]
+  \item tên phương pháp, số phần tử STAR--RIS, seed và số bước huấn luyện;
+  \item thông tin nhận diện tập kịch bản và xác nhận ba tập không trùng nh

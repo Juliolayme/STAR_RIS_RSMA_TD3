@@ -1,0 +1,9 @@
+$3N$ gồm một vector beta '
+ 'cùng hai vector pha. Công thức cho thấy trực tiếp nguyên nhân không gian hành động tăng nhanh '
+ 'khi số phần tử STAR--RIS lớn.',
+ 'Trong đó, $\\widetilde{\\bm p}$ và $\\widetilde{\\bm\\eta}$ là vector trung gian không âm; '
+ '$\\Pi_{\\Delta_c}$ là phép chiếu lên simplex không âm có tổng bằng $c$; $\\operatorname{wrap}$ '
+ 'đưa pha về $[-\\pi,\\pi)$. Công thức bảo đảm mọi hành động sinh ra đều thỏa ràng buộc hình học '
+ 'về công suất, tốc độ chung, beta và pha trước khi tính reward; nhờ đó Actor tập trung học chất '
+ 'lượng thay vì học lại các ràng buộc cơ bản.',
+ 'Trong đó, $r_t$ là phần thưởng; $R_{\\mathrm{sum}

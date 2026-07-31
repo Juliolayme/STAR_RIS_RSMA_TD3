@@ -1,0 +1,16 @@
+ luận xác định trên tập kiểm thử. Thứ tư, chạy các baseline truyền thống trên cùng tập kiểm thử, ghép dữ liệu theo chỉ số kịch bản và sinh lại bảng, hình cùng kiểm định thống kê.
+
+\section{Checklist trước khi sử dụng kết quả}
+\begin{longtable}{p{1.0cm}p{11.5cm}p{1.7cm}}
+\caption{Checklist tích hợp kết quả vào luận văn}\label{tab:integration-checklist}\\
+\toprule
+\textbf{STT} & \textbf{Điều kiện} & \textbf{Trạng thái}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{STT} & \textbf{Điều kiện} & \textbf{Trạng thái}\\
+\midrule
+\endhead
+1 & Ba tập kịch bản tách biệt và có kích thước đúng & Bắt buộc\\
+2 & Checkpoint chỉ được chọn bằng tập xác thực & Bắt buộc\\
+3 & Kiểm thử xác định và không có nhiễu khám

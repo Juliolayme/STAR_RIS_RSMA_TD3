@@ -1,0 +1,9 @@
+êng.',
+ 'Trong đó, $R_{p,k}$ là tốc độ riêng và $R_k$ là tổng tốc độ phục vụ người dùng $k$. Công thức '
+ 'cộng phần tốc độ chung được phân bổ với tốc độ riêng; $R_k$ là đại lượng trực tiếp dùng trong '
+ 'mục tiêu tổng tốc độ và các ràng buộc QoS.',
+ 'Trong đó, $R_{\\mathrm{sum}}$ là tổng tốc độ phổ của toàn bộ người dùng. Công thức là hàm mục '
+ 'tiêu chất lượng chính mà các phương pháp tối ưu cố gắng cực đại hóa.',
+ 'Trong đó, $\\mathbb{I}(\\cdot)$ là hàm chỉ báo; $q_{\\mathrm{frac}}\\in[0,1]$ là tỷ lệ người '
+ 'dùng đạt ngưỡng. Công thức đo mức bao phủ QoS trung bình trong từng kịch bản và cho biết phương '
+ 'pháp phục vụ được bao nhiêu ng

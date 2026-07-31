@@ -1,0 +1,9 @@
+ công suất nhiễu, bằng '
+ '$0{,}001$ trong mô phỏng. Công thức đưa ảnh hưởng của nhiễu nhiệt vào mô hình thu và tạo thành '
+ 'phần nền trong mẫu số của các biểu thức SINR.',
+ 'Trong đó, $\\beta_n^T$ và $\\beta_n^R$ là tỷ lệ công suất truyền qua và phản xạ. Công thức bảo '
+ 'đảm tổng năng lượng đầu ra của phần tử thụ động bằng năng lượng tới theo mô hình ES; trong bài '
+ 'toán tối ưu, chỉ cần điều khiển $\\beta_n^T$ vì $\\beta_n^R$ được suy ra trực tiếp.',
+ 'Trong đó, $\\phi_n^T$ và $\\phi_n^R$ là hệ số phức truyền và phản xạ; '
+ '$\\theta_n^T,\\theta_n^R\\in[-\\pi,\\pi)$ là các pha điều khiển; $j=\\sqrt{-1}$. Công thức '
+ 'chuyển tỷ lệ công s

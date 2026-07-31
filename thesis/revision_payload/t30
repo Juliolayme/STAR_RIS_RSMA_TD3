@@ -1,0 +1,5 @@
+x"; insert_explanations(path,CH3_EXPLANATIONS)
+    text=path.read_text(encoding="utf-8")
+    anchor="Chi phí huấn luyện được thực hiện trước; khi kiểm thử, Actor chỉ cần một lần truyền thẳng để tạo action.\n"
+    if "Lý do dùng DRL thay cho học có giám sát" not in text: text=text.replace(anchor,anchor+RATIONALE)
+    for old,new in {r"\texttt{blockwise\_v2}":"cơ chế chuẩn hóa theo khối",r"\texttt{physical\_v3}":"bộ giải mã vật lý","Source dùng":"Phương pháp sử dụng","source code":"mô hình triển khai","implementation":"cấu hình triển khai","action decoder":"bộ giải mã hành động","action":"hành động","policy":"chính sách","metric":"chỉ số"}.item

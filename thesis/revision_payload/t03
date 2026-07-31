@@ -1,0 +1,8 @@
+; $\\bm h_{r,k}^{H}\\bm\\Phi_{u_k}\\bm g$ là tổng '
+ 'đóng góp của đường BS--STAR--RIS--người dùng. Công thức xác định kênh thực sự mà tín hiệu RSMA '
+ 'nhìn thấy và là nơi các biến beta, pha cùng CSI tương tác phi tuyến.',
+ 'Trong đó, $G_k$ là độ lợi công suất vô hướng của người dùng $k$ và $|\\cdot|$ là mô-đun số phức. '
+ 'Công thức chuyển kênh hiệu dụng phức thành đại lượng dùng trong SINR, qua đó liên kết cấu hình '
+ 'STAR--RIS với tốc độ truyền.',
+ 'Trong đó, $s_c$ là ký hiệu luồng chung; $s_k$ là ký hiệu luồng riêng của người dùng $k$; $p_c$ '
+ 'và $p_k$ là công suất tương ứng; các ký hiệu dữ liệu độc lập và có công suất trung bình bằng

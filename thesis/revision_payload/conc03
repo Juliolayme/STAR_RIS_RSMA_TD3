@@ -1,0 +1,5 @@
+--1.553 lần trên nền tảng CPU được sử dụng. DDPG nhanh hơn TD3 một lượng nhỏ, còn PPO chậm hơn TD3 nhưng vẫn dưới một mili giây.
+
+Các kiểm định ghép cặp liên quan trực tiếp đến TD3 cho thấy cả kiểm định $t$ và Wilcoxon sau hiệu chỉnh Holm đều có ý nghĩa ở 25/25 trường hợp. Hướng của chênh lệch nhất quán: TD3 cao hơn DDPG, PPO, AO--Grid và AnalyticalRIS về tổng tốc độ, nhưng thấp hơn AO--SCA. Tuy nhiên, kết quả thống kê chỉ áp dụng cho các chính sách, kịch bản và giao thức đã đánh giá; chưa phải mô hình phân cấp đầy đủ cho mọi seed và mọi phân bố kênh.
+
+Từ các kết quả trên, luận văn không kết luận TD3 là phương pháp tốt nhất tuyệt đối. Kết luận phù hợp là TD3 tạo một điểm cân bằng mạnh giữa c

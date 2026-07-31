@@ -1,0 +1,8 @@
+\chapter*{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+\addcontentsline{toc}{chapter}{KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN}
+
+\section*{1. Kết luận}
+\addcontentsline{toc}{section}{1. Kết luận}
+Luận văn đã xây dựng một quy trình hoàn chỉnh cho bài toán phân bổ tài nguyên trong mạng SISO STAR--RIS hỗ trợ RSMA. Mô hình gồm một luồng chung, bốn luồng riêng, đường trực tiếp và đường ghép tầng qua STAR--RIS vận hành theo ES. Các biến tối ưu bao gồm công suất, tỷ lệ phân bổ tốc độ chung, hệ số chia năng lượng, pha truyền và pha phản xạ. Bài toán có tính phi lồi và số chiều hành động tăng theo $2K+1+3N$.
+
+TD3 được xây dựng như một bộ tối ưu học được. Ngoài ba cơ chế chuẩn gồm hai Critic, làm trơn hành động đích và cập nhật

@@ -1,0 +1,21 @@
+m}Y}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị}\\
+\midrule
+Ngân sách tương tác & 100.000 bước cho mỗi seed và mỗi $N$\\
+Kích thước mini-batch & 256\\
+Dung lượng Replay Buffer & 200.000 transition\\
+Số bước hành động ngẫu nhiên ban đầu & 2.000\\
+Learning rate Actor / Critic & $10^{-4}$ / $3\times10^{-4}$\\
+Hệ số chiết khấu $\gamma$ & 0,99\\
+Hệ số cập nhật mềm $\tau$ & 0,005\\
+Chu kỳ cập nhật Actor & 2 lần cập nhật Critic\\
+Nhiễu hành động đích / giới hạn nhiễu & 0,15 / 0,30\\
+Khoảng đánh giá xác thực & 5.000 bước\\
+Số kịch bản train / validation / test & 10.000 / 1.000 / 1.000\\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu hình thực nghiệm (2026)}
+\end{table}
+
+\section{Qu

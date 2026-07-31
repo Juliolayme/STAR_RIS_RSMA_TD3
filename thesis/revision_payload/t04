@@ -1,0 +1,9 @@
+ '
+ 'một. Công thức mô tả cách RSMA chồng luồng chung với các luồng riêng, đồng thời xác định các '
+ 'biến công suất mà thuật toán phải phân bổ.',
+ 'Trong đó, $P_{\\max}$ là ngân sách công suất tối đa của BS. Công thức giới hạn tổng năng lượng '
+ 'của tất cả luồng và tạo miền khả thi cơ bản cho khối phân bổ công suất.',
+ 'Trong đó, $y_k$ là tín hiệu thu, $h_k^{\\mathrm{eff}}x$ là thành phần tín hiệu sau kênh hiệu '
+ 'dụng và $n_k$ là nhiễu. Công thức là mô hình đầu vào của bộ giải mã và là điểm xuất phát để suy '
+ 'ra SINR của luồng chung lẫn luồng riêng.',
+ 'Trong đó, $\\gamma_{c,k}$ là SINR luồng chung tại người dùng $k$; tử số là công suất
