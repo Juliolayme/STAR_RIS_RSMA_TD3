@@ -1,7 +1,7 @@
 s(): text=text.replace(old,new)
-    text,count=re.subn(r"\subsection\{AO--SCA\}.*?(?=\subsection\{AnalyticalRIS\})",lambda _: AO_BLOCK,text,flags=re.S)
+    text,count=re.subn(r"\\subsection\{AO--SCA\}.*?(?=\\subsection\{AnalyticalRIS\})",lambda _: AO_BLOCK,text,flags=re.S)
     if count!=1: raise RuntimeError(f"AO block count={count}")
-    text,count=re.subn(r"\section\{Khả năng tái lập\}.*?(?=\section\{Kết luận chương\})",lambda _: REPRO_BLOCK,text,flags=re.S)
+    text,count=re.subn(r"\\section\{Khả năng tái lập\}.*?(?=\\section\{Kết luận chương\})",lambda _: REPRO_BLOCK,text,flags=re.S)
     if count!=1: raise RuntimeError(f"repro block count={count}")
     path.write_text(text,encoding="utf-8")
 
