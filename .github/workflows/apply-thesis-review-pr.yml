@@ -35,8 +35,9 @@ jobs:
               for a,b in repl.items(): t=t.replace(a,b)
               p.write_text(t,encoding='utf-8')
           PY
-          curl -L --fail --retry 3 https://raw.githubusercontent.com/Juliolayme/STAR_RIS_RSMA_MADDPG_PAPER_FREEZE_v1/main/latex_thesis/figures/logo_uth.png -o thesis/figures/logo_uth.png
+          cat thesis/revision_payload/logo_[0-9][0-9] | base64 -d > thesis/figures/logo_uth.png
           test -s thesis/figures/logo_uth.png
+          file thesis/figures/logo_uth.png | grep -q 'PNG image data'
           python - <<'PY'
           from pathlib import Path
           import re
