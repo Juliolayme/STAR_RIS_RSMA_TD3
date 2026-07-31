@@ -38,6 +38,15 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           fetch-depth: 0
 
+      - name: Restore official UTH logo
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://upload.wikimedia.org/wikipedia/commons/f/f3/Logo_UTH.png" \
+            --output thesis/figures/logo_uth.png
+          test -s thesis/figures/logo_uth.png
+          file thesis/figures/logo_uth.png | grep -q 'PNG image data'
+
       - name: Verify four-chapter structure and figure files
         run: |
           set -euo pipefail
@@ -95,12 +104,38 @@ jobs:
           done
 
       - name: Build thesis
+        id: thesis_build
+        continue-on-error: true
         working-directory: thesis
+        shell: bash
         run: |
-          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex
-          mkdir -p build
-          cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
-          pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+          set -o pipefail
+          latexmk -xelatex -interaction=nonstopmode -halt-on-error -file-line-error main.tex 2>&1 | tee latexmk-output.log
+          status=${PIPESTATUS[0]}
+          if [ "$status" -eq 0 ]; then
+            mkdir -p build
+            cp main.pdf build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+            pdfinfo build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
+          fi
+          exit "$status"
+
+      - name: Upload LaTeX diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thesis-latex-diagnostics
+          path: |
+            thesis/latexmk-output.log
+            thesis/main.log
+            thesis/main.blg
+            thesis/main.bcf
+            thesis/main.fls
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Stop after failed LaTeX build
+        if: steps.thesis_build.outcome == 'failure'
+        run: exit 1
 
       - name: Reject unresolved references and missing figures
         working-directory: thesis
@@ -121,21 +156,21 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit normalized sources, generated tables, and built PDF
-        if: github.event_name == 'push'
+      - name: Commit normalized sources, official logo, generated tables, and built PDF
+        if: github.event_name != 'workflow_dispatch'
         shell: bash
         env:
-          SOURCE_BRANCH: ${{ github.ref_name }}
+          SOURCE_BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add thesis/chapter1.tex thesis/chapter2.tex thesis/chapter3.tex thesis/chapter4.tex
-          git add thesis/generated
+          git add thesis/figures/logo_uth.png thesis/generated
           git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
           if git diff --cached --quiet; then
-            echo "Normalized sources, generated assets, and PDF unchanged"
+            echo "Normalized sources, generated assets, logo, and PDF unchanged"
             exit 0
           fi
-          git commit -m "Build audited four-chapter thesis PDF [skip ci]"
+          git commit -m "Build revised four-chapter thesis PDF [skip ci]"
           git push origin "HEAD:${SOURCE_BRANCH}"

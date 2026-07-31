@@ -1,39 +1,14 @@
-\chapter{ĐẶC TẢ BẢNG, HÌNH VÀ NỘI DUNG CẦN CẬP NHẬT}
-\label{app:pending-assets}
+\chapter{HƯỚNG DẪN ĐỌC KẾT QUẢ VÀ KIỂM ĐỊNH THỐNG KÊ}
+\label{app:statistics-guide}
 
-\section{Tệp hình Draw.io dự kiến}
-Mỗi hình minh họa có một tên tệp PDF cố định. LaTeX tự hiển thị placeholder nếu chưa có file, vì vậy CI vẫn build được. Khi tạo bằng Draw.io, xuất cả SVG và PDF vào thư mục \texttt{thesis/figures/}.
+\section{Đọc đồng thời chất lượng và tính khả thi}
+Tổng tốc độ cao không tự động đồng nghĩa với một nghiệm tốt nếu một số người dùng không đạt QoS. Vì vậy, mỗi phương pháp cần được đọc cùng bốn đại lượng: tổng tốc độ, tỷ lệ người dùng đạt QoS, xác suất toàn bộ người dùng đạt QoS và mức vi phạm liên tục. Một phương pháp bảo thủ có thể đạt QoS hoàn hảo nhưng tổng tốc độ thấp; ngược lại, một phương pháp tối đa hóa tổng tốc độ có thể hy sinh người dùng yếu.
 
-\begin{table}[H]
-\caption{Danh sách hình minh họa cần tạo bằng Draw.io}
-\label{tab:drawio-assets}
-\begin{tabularx}{\textwidth}{p{1.0cm}>{\raggedright\arraybackslash\fontsize{10.5}{13}\selectfont}p{6.6cm}Y}
-\toprule
-\textbf{Ch.} & \textbf{Tệp PDF} & \textbf{Mục đích}\\
-\midrule
-1 & \path{chapter1_research_landscape.pdf} & Bản đồ tài liệu, phương pháp và khoảng trống\\
-2 & \path{chapter2_conceptual_foundation.pdf} & Liên kết RSMA--STAR--RIS--TD3\\
-3 & \path{chapter3_system_model.pdf} & Sơ đồ BS, STAR--RIS, user truyền/phản xạ và đường kênh\\
-4 & \path{chapter4_td3_pipeline.pdf} & Pipeline ScenarioBank, train, validation, test và audit\\
-5 & \path{chapter5_quality_latency_tradeoff.pdf} & Sơ đồ Pareto định tính giữa quality, QoS và latency\\
-\bottomrule
-\end{tabularx}
-\tablesource{Tác giả xây dựng (2026)}
-\end{table}
+\section{Đọc độ trễ}
+Độ trễ được đo trên cùng nền tảng và cùng số lần lặp. Đối với phương pháp DRL, độ trễ chủ yếu là một lần truyền thẳng và tính chỉ số vật lý. Đối với AO--SCA hoặc AO--Grid, độ trễ bao gồm nhiều lần đánh giá hàm trong các vòng lặp. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đo đã khai báo và phải được diễn giải cùng chất lượng nghiệm.
 
-\section{Các bảng kết quả nên thay bằng raw bundle khi chốt bản nộp}
-Bản luận văn hiện sử dụng các giá trị đã được xác nhận trong reviewer summary và không phát sinh giá trị trung gian. Trước bản nộp cuối, nên tự động sinh các bảng sau từ raw CSV:
-\begin{enumerate}[label=\arabic*)]
-  \item mean, standard deviation và 95\% CI của sum-rate theo method và $N$;
-  \item QoS fraction, all-QoS và violation theo $N$;
-  \item mean/median/p95 latency;
-  \item paired differences, effect size và adjusted $p$-value;
-  \item ablation theo $N$;
-  \item convergence và best checkpoint step theo seed.
-\end{enumerate}
+\section{Đọc kiểm định ghép cặp}
+Các phương pháp được so sánh trên cùng kịch bản kênh, do đó chênh lệch tổng tốc độ được tính theo từng cặp. Kiểm định $t$ ghép cặp đánh giá trung bình chênh lệch dưới giả định tham số; Wilcoxon ghép cặp đánh giá thứ hạng chênh lệch và ít phụ thuộc phân bố chuẩn hơn. Hiệu chỉnh Holm kiểm soát sai số khi thực hiện nhiều phép so sánh. Ý nghĩa thống kê không thay thế kích thước ảnh hưởng: một chênh lệch nhỏ vẫn có thể có $p$-value thấp khi số cặp lớn.
 
-\section{Quy tắc không tạo số liệu}
-Không được nội suy giá trị cho $N=32,64,96$ từ hai endpoint $N=16$ và $N=128$. Không được chuyển range thành thứ tự theo $N$ nếu raw table chưa xác nhận. Không được báo DDPG/PPO là đã chạy đầy đủ nếu thiếu manifest. Mọi bảng mới phải chứa nguồn ``Tác giả tổng hợp từ raw evidence'' và lưu script sinh bảng.
-
-\section{Thông tin bìa cần xác nhận}
-Các macro ở đầu \texttt{main.tex} hiện sử dụng thông tin từ đề cương: tác giả Nguyễn Duy Thanh, mã học viên 2480101831, lớp KM2402, ngành Khoa học máy tính, mã ngành 8480101, hai người hướng dẫn và năm 2026. Trước khi in, cần xác nhận cách gọi chính thức ``Luận văn thạc sĩ'' hay ``Đề án tốt nghiệp thạc sĩ'', tháng nộp, logo chuẩn và cách viết tên người hướng dẫn.
+\section{Giới hạn diễn giải}
+Các kết quả chỉ áp dụng cho mô hình SISO, kênh Gaussian độc lập, CSI hoàn hảo, pha truyền--phản xạ độc lập và các cấu hình huấn luyện đã nêu. Không được nội suy thành tuyên bố về phần cứng thực, kênh di động, MISO hoặc CSI không hoàn hảo khi chưa có thí nghiệm bổ sung.
