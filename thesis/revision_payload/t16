@@ -1,8 +1,0 @@
-số chiều tham chiếu. Công thức giữ nguyên mức '
- 'nhiễu ở không gian nhỏ nhưng giảm độ lệch chuẩn hiệu dụng khi hành động quá lớn, tránh để năng '
- 'lượng khám phá tăng không kiểm soát theo $N$.',
- "Trong đó, $s'_j$ là trạng thái kế tiếp của mẫu $j$; $\\mu_{\\phi'}$ là Actor đích; $\\epsilon_j$ "
- "là nhiễu làm trơn; $a'_j$ là hành động đích đã chặn. Công thức làm trơn vùng lân cận của hành "
- 'động đích để Critic không khai thác các đỉnh giá trị hẹp do sai số xấp xỉ.',
- 'Trong đó, $r_j$ là reward; $\\gamma$ là hệ số chiết khấu; $d_j$ là chỉ báo kết thúc; '
- "$Q_{\\psi_i'}$ là Critic đích thứ $i$; $y_j$ là mục tiêu huấn luyện. Công thức dùng 

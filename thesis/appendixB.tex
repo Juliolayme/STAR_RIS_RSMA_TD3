@@ -1,60 +1,24 @@
-\chapter{KHẢ NĂNG TÁI LẬP VÀ TRUY XUẤT BẰNG CHỨNG}
+\chapter{QUY TRÌNH TÁI LẬP VÀ KIỂM TRA KẾT QUẢ}
 \label{app:reproducibility}
 
-\section{Cấu trúc repository}
-Các nguồn sự thật được phân tách như sau:
-\begin{itemize}
-  \item \texttt{src/star\_ris\_rsma/}: mô hình vật lý, môi trường, agent, replay và ScenarioBank;
-  \item \texttt{scripts/}: entrypoint train, evaluate, solver, latency, merge, statistics và plot;
-  \item \texttt{configs/}: cấu hình theo $N$;
-  \item \texttt{references/}: BibTeX, danh sách 30 tài liệu và 27 PDF open-access;
-  \item \texttt{kaggle\_runs/}: source/output đã lưu của các phiên Kaggle;
-  \item \texttt{results/}: raw evidence, bảng, hình, audit và reviewer report;
-  \item \texttt{thesis/}: mã LaTeX của luận văn.
-\end{itemize}
+\section{Nguyên tắc tách dữ liệu}
+Mỗi kích thước STAR--RIS sử dụng ba tập kịch bản độc lập cho huấn luyện, xác thực và kiểm thử. Tập huấn luyện dùng để cập nhật tham số mạng; tập xác thực dùng để lựa chọn checkpoint; tập kiểm thử chỉ được mở sau khi mô hình đã khóa. Tất cả phương pháp được đánh giá trên cùng các kịch bản kiểm thử để tạo so sánh ghép cặp.
 
-\section{Quy trình tái tạo ScenarioBank}
-\begin{lstlisting}[style=thesispython,caption={Lệnh tạo ScenarioBank khóa},label={lst:create-bank}]
-python scripts/create_scenario_banks.py \
-  --config configs/v3/constrained_action_n32.yaml \
-  --output-dir artifacts/scenario_banks \
-  --train-count 10000 \
-  --validation-count 1000 \
-  --test-count 1000
-\end{lstlisting}
-Sau khi tạo, cần kiểm tra shape, finite value, metadata và tính disjoint. Không thay test seed giữa các phương pháp.
-
-\section{Quy trình huấn luyện và đánh giá}
-\begin{lstlisting}[style=thesispython,caption={Huấn luyện TD3 cho một seed},label={lst:train-td3}]
-python scripts/run_train_v2.py \
-  --config configs/v3/constrained_action_n32.yaml \
-  --seed 0 \
-  --output results/train/td3/N32/seed_0
-\end{lstlisting}
-
-\begin{lstlisting}[style=thesispython,caption={Đánh giá checkpoint trên test bank},label={lst:test-td3}]
-python scripts/run_evaluate.py \
-  --method td3 \
-  --config configs/v3/constrained_action_n32.yaml \
-  --checkpoint results/train/td3/N32/seed_0/best.pt \
-  --bank artifacts/scenario_banks/N32_test.npz \
-  --seed 0 \
-  --output results/test/td3/N32/seed_0.csv
-\end{lstlisting}
-
-\section{Provenance tối thiểu}
-Mỗi kết quả cuối phải có:
+\section{Thông tin cần lưu cho mỗi lần chạy}
+Mỗi kết quả cuối cần lưu tối thiểu:
 \begin{enumerate}[label=\arabic*)]
-  \item method, seed, scenario và split;
-  \item config hash;
-  \item ScenarioBank checksum;
-  \item checkpoint step đối với learned method;
-  \item Git commit;
-  \item metric raw không làm tròn;
-  \item solve/inference time và metadata solver nếu áp dụng.
+  \item tên phương pháp, số phần tử STAR--RIS, seed và số bước huấn luyện;
+  \item thông tin nhận diện tập kịch bản và xác nhận ba tập không trùng nhau;
+  \item bước checkpoint và tiêu chí lựa chọn đối với phương pháp học;
+  \item tổng tốc độ, tốc độ từng người dùng, các chỉ số QoS và thời gian giải ở mức từng kịch bản;
+  \item phiên bản môi trường phần mềm và thông tin phần cứng dùng để đo độ trễ;
+  \item trạng thái hoàn thành, lỗi số học và các cảnh báo nếu có.
 \end{enumerate}
 
-\section{Checklist trước khi cập nhật luận văn}
+\section{Quy trình tái tạo kết quả}
+Quy trình tái tạo gồm bốn giai đoạn. Thứ nhất, tạo lại các tập kịch bản từ cấu hình và seed đã khai báo, sau đó kiểm tra kích thước, giá trị hữu hạn và tính tách biệt. Thứ hai, huấn luyện từng thuật toán DRL trên tập huấn luyện và đánh giá định kỳ trên tập xác thực. Thứ ba, khóa checkpoint theo quy tắc ưu tiên QoS rồi chạy suy luận xác định trên tập kiểm thử. Thứ tư, chạy các baseline truyền thống trên cùng tập kiểm thử, ghép dữ liệu theo chỉ số kịch bản và sinh lại bảng, hình cùng kiểm định thống kê.
+
+\section{Checklist trước khi sử dụng kết quả}
 \begin{longtable}{p{1.0cm}p{11.5cm}p{1.7cm}}
 \caption{Checklist tích hợp kết quả vào luận văn}\label{tab:integration-checklist}\\
 \toprule
@@ -65,17 +29,17 @@ Mỗi kết quả cuối phải có:
 \textbf{STT} & \textbf{Điều kiện} & \textbf{Trạng thái}\\
 \midrule
 \endhead
-1 & Test suite pass trên commit dùng để chạy full & Bắt buộc\\
-2 & Train/validation/test bank disjoint và checksum khớp & Bắt buộc\\
-3 & Best checkpoint không đọc test & Bắt buộc\\
-4 & Evaluation deterministic và exploration-free & Bắt buộc\\
-5 & AO--SCA exact merit không giảm trong tolerance & Bắt buộc\\
-6 & AO--Grid không có random perturbation & Bắt buộc\\
-7 & Merge không có duplicate method/seed/scenario & Bắt buộc\\
-8 & Raw CSV, bảng, hình và manifest cùng commit & Bắt buộc\\
-9 & Không dùng kết quả MADDPG cũ & Bắt buộc\\
-10 & Báo cáo quality gap của AO--SCA & Bắt buộc\\
-11 & Báo cáo cả $t$-Holm và Wilcoxon-Holm & Bắt buộc\\
-12 & Không gọi AnalyticalRIS là full analytical optimum & Bắt buộc\\
+1 & Ba tập kịch bản tách biệt và có kích thước đúng & Bắt buộc\\
+2 & Checkpoint chỉ được chọn bằng tập xác thực & Bắt buộc\\
+3 & Kiểm thử xác định và không có nhiễu khám phá & Bắt buộc\\
+4 & Mọi phương pháp dùng cùng tập kiểm thử & Bắt buộc\\
+5 & Không có giá trị NaN, vô hạn hoặc hàng trùng & Bắt buộc\\
+6 & Bảng và hình khớp với dữ liệu thô chưa làm tròn & Bắt buộc\\
+7 & AO--SCA không được mô tả là nghiệm tối ưu toàn cục & Bắt buộc\\
+8 & AnalyticalRIS không được mô tả là nghiệm phân tích tối ưu đầy đủ & Bắt buộc\\
+9 & Báo cáo đồng thời tổng tốc độ, QoS và độ trễ & Bắt buộc\\
+10 & Báo cáo cả kiểm định tham số và phi tham số sau hiệu chỉnh Holm & Bắt buộc\\
+11 & Nêu rõ số seed và giới hạn của so sánh DRL & Bắt buộc\\
+12 & Ghi rõ các giả định SISO, CSI hoàn hảo và kênh tổng hợp & Bắt buộc\\
 \bottomrule
 \end{longtable}

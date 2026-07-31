@@ -1,8 +1,0 @@
-hi vi phạm kéo dài và giảm áp lực phạt khi chính sách đã gần khả thi; đây '
- 'là heuristic điều khiển QoS, không phải chứng minh hội tụ primal--dual.',
- 'Trong đó, $d_s$ và $d_a$ là kích thước đầu vào, đầu ra; hai số 256 là số nút của hai lớp ẩn. '
- 'Công thức mô tả cấu trúc Actor dùng để xấp xỉ ánh xạ từ trạng thái kênh sang hành động liên tục.',
- 'Trong đó, $d_s+d_a$ là kích thước của trạng thái ghép hành động và đầu ra 1 là giá trị $Q$. Công '
- 'thức mô tả bộ xấp xỉ giá trị dùng để đánh giá chất lượng dài hạn của hành động; hai Critic độc '
- 'lập giúp TD3 giảm thiên lệch đánh giá quá cao.',
- 'Trong đó, $d_a$ là số chiều hành động và 64 là 

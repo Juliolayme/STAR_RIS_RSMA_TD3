@@ -1,6 +1,0 @@
-bf{Mô hình kênh thực tế hơn:} bổ sung vị trí, path loss, Rician fading, blockage và tương quan không gian.
-  \item \textbf{CSI không hoàn hảo:} huấn luyện với sai số, độ trễ CSI và distribution shift.
-  \item \textbf{MISO hoặc massive MIMO:} tối ưu đồng thời precoder chủ động, STAR--RIS và nhiều cấu trúc common stream.
-  \item \textbf{Pha ghép và pha rời rạc:} thay bộ giải mã hành động bằng tham số hóa đúng với ràng buộc phần cứng.
-  \item \textbf{TD3 lai AO--SCA:} dùng Actor làm điểm khởi tạo, sau đó tinh chỉnh bằng một số ít vòng lặp để giảm khoảng cách chất lượng.
-  \item \textbf{Kiến trúc có cấu trúc:} sử dụng attention, graph network hoặc set network để chia sẻ tham số giữa các phần tử 

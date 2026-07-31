@@ -1,5 +1,0 @@
- Actor trễ, cấu hình còn sử dụng chuẩn hóa trạng thái theo khối, bộ giải mã hành động vật lý, nhiễu khám phá thích nghi theo số chiều, Huber loss, giới hạn gradient, bộ điều khiển đối ngẫu QoS và quy tắc chọn checkpoint ưu tiên tính khả thi.
-
-Luận văn đồng thời xây dựng quy trình thực nghiệm có khả năng tái lập. Các tập kịch bản huấn luyện, xác thực và kiểm thử được tách biệt; checkpoint chỉ được chọn trên tập xác thực; kiểm thử được chạy xác định; dữ liệu thô lưu phương pháp, seed, kịch bản, cấu hình và các chỉ số chưa làm tròn. Sáu phương pháp TD3, DDPG, PPO, AO--SCA, AO--Grid và AnalyticalRIS được đánh giá trên cùng mô hình vật lý và cùng tập kiểm thử khóa.
-
-Kết quả trên $N\in\{16,32,64,9

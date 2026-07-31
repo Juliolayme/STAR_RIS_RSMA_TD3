@@ -1,9 +1,0 @@
- đó, $f$ là hàm merit ở \\eqref{eq:merit-ch2}; $\\widehat{\\nabla f}$ là gradient ước lượng '
- 'bằng sai phân trung tâm; $\\rho$ là hệ số proximal; $\\bm z^{(t)}$ là nghiệm hiện tại. Công thức '
- 'tạo hướng tăng cục bộ nhưng hạn chế bước đi quá xa, giúp mỗi bài toán con dễ xử lý hơn bài toán '
- 'phi lồi ban đầu.',
- 'Trong đó, $\\Pi_{\\mathcal Z}$ là phép chiếu lên miền khả thi của khối; $\\alpha_t\\in(0,1]$ là '
- 'kích thước bước do backtracking chọn. Công thức đưa nghiệm surrogate về ràng buộc vật lý và điều '
- 'chỉnh mức cập nhật; nếu merit thật giảm, $\\alpha_t$ được thu nhỏ rồi thử lại.']
-
-RATIONALE='\n\\subsection{Lý do dùng DRL thay cho

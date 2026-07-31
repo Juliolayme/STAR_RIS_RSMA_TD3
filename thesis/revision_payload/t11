@@ -1,8 +1,0 @@
-S=['Trong đó, $\\mathcal H$ là trạng thái kênh; $\\mu_{\\phi}$ là Actor có tham số $\\phi$; vế phải '
- 'là toàn bộ biến phân bổ tài nguyên. Công thức mô tả mục tiêu học một ánh xạ trực tiếp từ CSI '
- 'sang hành động vật lý, qua đó chuyển chi phí tối ưu lặp từ giai đoạn suy luận sang giai đoạn '
- 'huấn luyện.',
- 'Trong đó, $\\bm h_d$ gom các kênh trực tiếp; $\\bm g$ là kênh BS--STAR--RIS; $\\bm H_r$ gom các '
- 'kênh STAR--RIS--người dùng; $\\operatorname{vec}(\\cdot)$ trải ma trận thành vector; '
- '$\\widetilde u_k=2u_k-1\\in\\{-1,1\\}$. Công thức tạo đầu vào thực cho mạng nơ-ron từ các hệ số '
- 'kênh phức và giữ thông tin người dùng thuộc miề

@@ -1,8 +1,0 @@
-\chapter{HƯỚNG DẪN ĐỌC KẾT QUẢ VÀ KIỂM ĐỊNH THỐNG KÊ}
-\label{app:statistics-guide}
-
-\section{Đọc đồng thời chất lượng và tính khả thi}
-Tổng tốc độ cao không tự động đồng nghĩa với một nghiệm tốt nếu một số người dùng không đạt QoS. Vì vậy, mỗi phương pháp cần được đọc cùng bốn đại lượng: tổng tốc độ, tỷ lệ người dùng đạt QoS, xác suất toàn bộ người dùng đạt QoS và mức vi phạm liên tục. Một phương pháp bảo thủ có thể đạt QoS hoàn hảo nhưng tổng tốc độ thấp; ngược lại, một phương pháp tối đa hóa tổng tốc độ có thể hy sinh người dùng yếu.
-
-\section{Đọc độ trễ}
-Độ trễ được đo trên cùng nền tảng và cùng số lần lặp. Đối với phương pháp DRL, độ trễ chủ yếu là một lần truyền thẳng và tính chỉ số vật

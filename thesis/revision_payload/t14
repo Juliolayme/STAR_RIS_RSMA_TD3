@@ -1,9 +1,0 @@
-,t}$ là tổng tốc độ; $V_t$ là vi phạm tuyến '
- 'tính; $V_{2,t}$ là vi phạm bậc hai; $\\lambda_t$ và $\\lambda_2$ là trọng số phạt. Công thức tạo '
- 'tín hiệu học cân bằng giữa tăng chất lượng phổ và giảm vi phạm QoS.',
- 'Trong đó, $R_{k,t}$ là tốc độ người dùng $k$ tại bước $t$. Công thức phạt mạnh hơn các vi phạm '
- 'lớn so với vi phạm nhỏ, giúp chính sách tránh hy sinh nghiêm trọng một người dùng để tăng tổng '
- 'tốc độ.',
- 'Trong đó, $\\overline V_t$ là EMA của vi phạm; $10^{-3}$ là mức vi phạm mục tiêu; hệ số 20 là '
- 'tốc độ cập nhật; $\\operatorname{clip}(\\cdot,4,64)$ chặn trọng số trong khoảng ổn định. Công '
- 'thức tự tăng mức phạt k

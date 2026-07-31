@@ -1,8 +1,0 @@
-$ là hai vector pha. Công thức xác định chính xác không gian quyết định chung mà '
- 'TD3 và các baseline phải tìm kiếm.',
- 'Trong đó, ký hiệu $(\\cdot)^T$ là chuyển vị; số phần tử của $\\bm p$ là $K+1$, của $\\bm\\eta$ '
- 'là $K$, và của mỗi vector STAR--RIS là $N$. Công thức làm rõ cấu trúc và số chiều của từng khối, '
- 'từ đó giải thích vì sao không gian hành động tăng theo $N$.',
- 'Trong đó, $\\mathcal H$ chứa toàn bộ CSI và chỉ báo phía người dùng; $\\mathbf 1$ là vector toàn '
- 'một; các bất đẳng thức vector được hiểu theo từng phần tử. Dòng đầu cực đại hóa tổng tốc độ; hai '
- 'dòng tiếp theo bảo đảm simplex công suất và tốc độ chung; cá

@@ -1,6 +1,0 @@
-df}{%\n  \\includegraphics[width=4.1cm]{figures/uth-logo.pdf}\\par\n}{%\n  \\fbox{\\parbox[c][2.4cm][c]{4.3cm}{\\centering\\bfseries LOGO UTH}}\\par\n}"
-    new="\\IfFileExists{figures/logo_uth.png}{%\n  \\includegraphics[width=8.0cm]{figures/logo_uth.png}\\par\n}{%\n  \\fbox{\\parbox[c][2.4cm][c]{8.0cm}{\\centering\\bfseries LOGO UTH}}\\par\n}"
-    if text.count(old)!=2: raise RuntimeError(f"logo blocks={text.count(old)}")
-    path.write_text(text.replace(old,new),encoding="utf-8")
-    path=THESIS/"uththesis.sty"; text=path.read_text(encoding="utf-8")
-    text=text.replace(r"\newenvironment{researchquestion}{\begin{quote}\itshape}{\end{quote

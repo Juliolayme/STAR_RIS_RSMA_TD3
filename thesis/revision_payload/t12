@@ -1,8 +1,0 @@
-n truyền hay phản xạ.',
- 'Trong đó, hệ số 2 biểu diễn phần thực và phần ảo; các thành phần $K$, $N$, $KN$ lần lượt đến từ '
- '$\\bm h_d$, $\\bm g$, $\\bm H_r$; số hạng cuối $K$ là chỉ báo phía. Công thức định lượng mức '
- 'tăng kích thước đầu vào theo $N$ và dùng để thiết kế lớp đầu của Actor, Critic.',
- 'Trong đó, năm khối lần lượt điều khiển công suất, tỷ lệ tốc độ chung, chia năng lượng, pha '
- 'truyền và pha phản xạ; $d_a$ là số chiều hành động. Công thức xác định giao diện chuẩn hóa giữa '
- 'Actor và bộ giải mã vật lý, giúp đầu ra mạng luôn nằm trong miền hữu hạn.',
- 'Trong đó, $K+1$ là số biến công suất, $K$ là số tỷ lệ tốc độ chung và 

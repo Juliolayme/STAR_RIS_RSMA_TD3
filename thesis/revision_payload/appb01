@@ -1,9 +1,0 @@
-au;
-  \item bước checkpoint và tiêu chí lựa chọn đối với phương pháp học;
-  \item tổng tốc độ, tốc độ từng người dùng, các chỉ số QoS và thời gian giải ở mức từng kịch bản;
-  \item phiên bản môi trường phần mềm và thông tin phần cứng dùng để đo độ trễ;
-  \item trạng thái hoàn thành, lỗi số học và các cảnh báo nếu có.
-\end{enumerate}
-
-\section{Quy trình tái tạo kết quả}
-Quy trình tái tạo gồm bốn giai đoạn. Thứ nhất, tạo lại các tập kịch bản từ cấu hình và seed đã khai báo, sau đó kiểm tra kích thước, giá trị hữu hạn và tính tách biệt. Thứ hai, huấn luyện từng thuật toán DRL trên tập huấn luyện và đánh giá định kỳ trên tập xác thực. Thứ ba, khóa checkpoint theo quy tắc ưu tiên QoS rồi chạy suy
