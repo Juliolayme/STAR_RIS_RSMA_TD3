@@ -1,6 +1,6 @@
 )}","bảng hiệu năng đã kiểm toán":"bảng hiệu năng đã được kiểm tra","mô hình đã công bố":"mô hình đã sử dụng","implementation DRL":"cấu hình DRL","audit provenance":"quy trình kiểm tra tính nhất quán"}
     for old,new in reps.items(): text=text.replace(old,new)
-    text,count=re.subn(r"\section\{Trả lời các câu hỏi nghiên cứu\}.*?(?=\section\{Hàm ý thực tiễn\})",SUMMARY_BLOCK,text,flags=re.S)
+    text,count=re.subn(r"\section\{Trả lời các câu hỏi nghiên cứu\}.*?(?=\section\{Hàm ý thực tiễn\})",lambda _: SUMMARY_BLOCK,text,flags=re.S)
     if count!=1: raise RuntimeError(f"RQ block count={count}")
     path.write_text(text,encoding="utf-8")
 
