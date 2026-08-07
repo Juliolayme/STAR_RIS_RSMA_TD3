@@ -75,7 +75,7 @@ PDF Chương 4 lớn (1–3 MB) vì **nhúng ảnh kết quả thật** ở 300 
 | Mục | Kết quả |
 |---|---|
 | Không có MADDPG hoặc CTDE | ✔ Chỉ dùng TD3, DDPG, PPO, AO-SCA, AO-Grid, AnalyticalRIS |
-| Mô hình thực nghiệm là SISO (trừ vùng SDMA giải thích khái niệm) | ✔ Hình 2.1 ghi rõ "một anten (SISO)"; vùng SDMA ở Hình 1.1 ghi *"Minh họa khái niệm MISO"* — xem lưu ý ở §10 |
+| Mô hình thực nghiệm là SISO (trừ vùng SDMA giải thích khái niệm) | ✔ Hình 2.1 ghi rõ "một anten (SISO)"; vùng SDMA ở Hình 1.1 ghi *"Minh họa khái niệm MISO — mô hình luận văn là SISO"* |
 | STAR-RIS có cả phản xạ và truyền qua | ✔ Hình 1.2, 2.1 |
 | Miền phản xạ bên trái, miền truyền qua bên phải | ✔ Hình 1.2, 2.1 — có dải nền và nhãn miền |
 | STAR-RIS nghiêng 3D | ✔ Đo được: 26,6° (RIS 1.2), **30,1°** (STAR-RIS 1.2), **29,7°** (2.1) — đều trong 25–35° |
@@ -293,17 +293,22 @@ bao = (tâm.x − nửa_rộng, tâm.y − |AB|/2, 2·nửa_rộng, |AB|)
 
 Đáy nón dừng ở 78% quãng đường tới điện thoại để không đè lên icon.
 
-### 10.1. Một điểm cần bạn quyết
+### 10.1. Hình 2.3 cũng vẽ lại theo ảnh mẫu
 
-Ảnh mẫu ghi vùng SDMA là **"Minh họa khái niệm MISO"**. Cách ghi này chính xác hơn "hệ nhiều anten" (MISO = nhiều anten phát, một anten thu).
+Hình 2.3 được vẽ lại theo một ảnh mẫu thứ hai: tiêu đề trên cùng, hộp hệ thống ở giữa, năm badge biến nối bằng đường cong mảnh (ba trái, hai phải), dải ràng buộc có pill tiêu đề và bốn mục.
 
-Tuy nhiên checklist §3 của prompt yêu cầu *"Không làm người xem hiểu đây là mô hình SISO của luận văn"* — bản 2 ghi thẳng *"mô hình luận văn là SISO"*, bản 3 theo mẫu thì không còn câu đó. Câu "Minh họa khái niệm MISO" đã hàm ý đây là minh họa khái niệm, nhưng không nói rõ mô hình luận văn là SISO.
+Icon dựng từ hình cơ bản để render được ở mọi cỡ: thanh công suất có mũi tên · biểu đồ cột có điểm nhấn cam · β với hai mũi tên xoè · vòng tròn θ kèm mũi tên cong · pin với `mxgraph.basic.flash` · cân thăng bằng · đồng hồ · khiên (chữ nhật + tam giác hướng xuống + dấu kiểm).
 
-Nếu muốn chặt chẽ tuyệt đối, đổi dòng thứ hai của vùng SDMA thành:
+**Khổ:** 27,9 × 15,0 cm — chèn rộng 16 cm chỉ cao **8,6 cm**. Cỡ chữ in: tiêu đề 11,5 pt · hộp trung tâm 10,9 pt · nhãn biến 9,2 pt · chữ ràng buộc 8,6 pt.
 
-> `Minh họa khái niệm MISO — mô hình luận văn là SISO`
+**Font:** giữ Times New Roman theo §2.2, dù hai ảnh mẫu đều dùng sans-serif — đổi riêng hai hình sẽ lệch với mười hình còn lại.
 
-Chỉ cần sửa một dòng. Nói tôi làm nếu bạn muốn.
+### 10.2. Hai chỗ đã sửa sau khi rà lại câu chữ
+
+| Hình | Trước | Sau | Lý do |
+|---|---|---|---|
+| 1.1 (SDMA) | `Minh họa khái niệm MISO` | `Minh họa khái niệm MISO — mô hình luận văn là SISO` | Checklist §3 yêu cầu *"Không làm người xem hiểu đây là mô hình SISO của luận văn"*. Câu theo ảnh mẫu hàm ý là minh họa khái niệm nhưng không nói rõ mô hình luận văn là SISO. |
+| 2.3 (tiêu đề) | `Bài toán tối ưu toàn cục: hàm mục tiêu phi lồi và không gian biến số khổng lồ` | `Bài toán tối ưu: hàm mục tiêu phi lồi và không gian biến số lớn` | Bỏ chữ "toàn cục" để không đọc nhầm thành khẳng định có nghiệm tối ưu toàn cục — liên quan guardrail *"AO-SCA không được gọi là nghiệm tối ưu toàn cục"*. Đồng thời tránh lặp nghĩa ("phi lồi" = "không lồi"). |
 
 ---
 

@@ -6,7 +6,7 @@
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
 
-        <mxCell id="title" value="Bài toán tối ưu toàn cục: hàm mục tiêu phi lồi và không gian biến số khổng lồ" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;fontColor=#1A1A1A;fontStyle=1;" vertex="1" parent="1">
+        <mxCell id="title" value="Bài toán tối ưu: hàm mục tiêu phi lồi và không gian biến số lớn" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=20;fontColor=#1A1A1A;fontStyle=1;" vertex="1" parent="1">
           <mxGeometry x="28" y="14" width="1044" height="32" as="geometry" />
         </mxCell>
         <mxCell id="sys" value="Hệ thống&#xa;STAR-RIS–RSMA" style="rounded=1;arcSize=12;html=1;whiteSpace=wrap;fillColor=#E8F4FB;strokeColor=#1F6FB2;strokeWidth=3;fontFamily=Times New Roman;fontSize=19;fontColor=#114A78;fontStyle=1;" vertex="1" parent="1">

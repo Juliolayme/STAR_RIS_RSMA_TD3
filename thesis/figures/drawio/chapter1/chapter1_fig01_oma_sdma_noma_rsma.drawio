@@ -174,7 +174,7 @@
         <mxCell id="s_n1" value="Tách theo không gian" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#595959;" vertex="1" parent="1">
           <mxGeometry x="570" y="420" width="510" height="24" as="geometry" />
         </mxCell>
-        <mxCell id="s_n2" value="Minh họa khái niệm MISO" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#595959;" vertex="1" parent="1">
+        <mxCell id="s_n2" value="Minh họa khái niệm MISO — mô hình luận văn là SISO" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontFamily=Times New Roman;fontSize=17;fontColor=#595959;" vertex="1" parent="1">
           <mxGeometry x="570" y="444" width="510" height="24" as="geometry" />
         </mxCell>
         <mxCell id="bs3" value="" style="html=1;verticalAlign=top;verticalLabelPosition=bottom;labelPosition=center;align=center;outlineConnect=0;fillColor=none;strokeColor=#2E75B6;gradientColor=none;strokeWidth=2;shape=mxgraph.networks.radio_tower;" vertex="1" parent="1">
