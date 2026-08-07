@@ -75,7 +75,7 @@ PDF Chương 4 lớn (1–3 MB) vì **nhúng ảnh kết quả thật** ở 300 
 | Mục | Kết quả |
 |---|---|
 | Không có MADDPG hoặc CTDE | ✔ Chỉ dùng TD3, DDPG, PPO, AO-SCA, AO-Grid, AnalyticalRIS |
-| Mô hình thực nghiệm là SISO (trừ vùng SDMA giải thích khái niệm) | ✔ Hình 2.1 ghi rõ "một anten (SISO)"; vùng SDMA ở Hình 1.1 có ghi chú in nghiêng *"Chỉ minh họa khái niệm nhiều anten — mô hình luận văn là SISO"* |
+| Mô hình thực nghiệm là SISO (trừ vùng SDMA giải thích khái niệm) | ✔ Hình 2.1 ghi rõ "một anten (SISO)"; vùng SDMA ở Hình 1.1 ghi *"Minh họa khái niệm MISO"* — xem lưu ý ở §10 |
 | STAR-RIS có cả phản xạ và truyền qua | ✔ Hình 1.2, 2.1 |
 | Miền phản xạ bên trái, miền truyền qua bên phải | ✔ Hình 1.2, 2.1 — có dải nền và nhãn miền |
 | STAR-RIS nghiêng 3D | ✔ Đo được: 26,6° (RIS 1.2), **30,1°** (STAR-RIS 1.2), **29,7°** (2.1) — đều trong 25–35° |
@@ -262,6 +262,48 @@ Riêng **Hình 4.2 vẫn nhúng 4 PNG audit** (không vẽ lại), nên nhãn tr
 |---|---|---|---|
 | 1.1 – 3.3, 4.1, 4.3 | 27,9 cm rộng | **10,3 pt** | 15,7 – 23,0 cm |
 | 4.2 | 43,2 × 28,7 cm | 6,7 pt ✗ — **phải dùng trang ngang** → 25 cm cho **10,4 pt** | 16,6 cm ở khổ 25 cm |
+
+---
+
+## 10. Bản 3 — Hình 1.1 vẽ lại theo ảnh mẫu
+
+Hình 1.1 được vẽ lại bám theo một ảnh mẫu do người dùng cung cấp. Mức bám sát khoảng **90–95%** — không thể 100% vì ảnh mẫu là bản render, không có file nguồn.
+
+**Thay đổi so với bản 2:**
+
+| | Bản 2 | Bản 3 (theo mẫu) |
+|---|---|---|
+| Khung | 4 hộp bo góc có nền | 4 ô chia bằng đường kẻ mảnh hình chữ thập |
+| Nhãn vùng | ở trên mỗi hộp | ở **dưới** mỗi ô, kèm 2 dòng mô tả |
+| Người dùng | icon người cầm điện thoại | icon **điện thoại viền** |
+| SDMA | 3 tia bản rộng phẳng | anten 3 phần tử + **3 búp sóng hình nón** |
+| NOMA | 3 thanh công suất phẳng | **khối công suất 3D** có mặt trên nghiêng + hộp "Giải mã SIC" riêng |
+| RSMA | tia màu + nhãn (s_k) | tia màu + chuỗi **[s_c] → [×] → [s_k]** dưới mỗi UE |
+| OMA | 3 hộp tài nguyên | 3 hộp có **icon đồng hồ bấm giờ**, nối qua thanh bus ngang |
+| Khổ | 27,9 × 39,6 cm | **27,9 × 27,4 cm** — chèn 16 cm chỉ cao 15,7 cm |
+
+**Cỡ chữ khi chèn rộng 16 cm:** tên vùng 12,0 pt · nhãn UE và mô tả 9,7 pt · chữ trong hộp 8,6 pt · nhãn lớp công suất 8,0 pt. Đều trên ngưỡng đọc được khi in.
+
+**Kỹ thuật đáng ghi:** búp sóng hình nón được dựng bằng tam giác `direction=north` có **góc xoay tính toán**. drawio xoay theo chiều kim đồng hồ quanh tâm ô, nên với đỉnh tại A (trạm gốc) và tâm đáy tại B (người dùng):
+
+```
+θ = atan2(Ax − Bx, −(Ay − By))   (độ)
+bao = (tâm.x − nửa_rộng, tâm.y − |AB|/2, 2·nửa_rộng, |AB|)
+```
+
+Đáy nón dừng ở 78% quãng đường tới điện thoại để không đè lên icon.
+
+### 10.1. Một điểm cần bạn quyết
+
+Ảnh mẫu ghi vùng SDMA là **"Minh họa khái niệm MISO"**. Cách ghi này chính xác hơn "hệ nhiều anten" (MISO = nhiều anten phát, một anten thu).
+
+Tuy nhiên checklist §3 của prompt yêu cầu *"Không làm người xem hiểu đây là mô hình SISO của luận văn"* — bản 2 ghi thẳng *"mô hình luận văn là SISO"*, bản 3 theo mẫu thì không còn câu đó. Câu "Minh họa khái niệm MISO" đã hàm ý đây là minh họa khái niệm, nhưng không nói rõ mô hình luận văn là SISO.
+
+Nếu muốn chặt chẽ tuyệt đối, đổi dòng thứ hai của vùng SDMA thành:
+
+> `Minh họa khái niệm MISO — mô hình luận văn là SISO`
+
+Chỉ cần sửa một dòng. Nói tôi làm nếu bạn muốn.
 
 ---
 
