@@ -1,11 +1,19 @@
 from __future__ import annotations
 
-"""Generate thesis-ready LaTeX tables from the audited six-method bundle."""
+"""Generate thesis-ready LaTeX tables from the audited six-method bundle.
+
+The raw benchmark keeps a broader all-pairs statistical table. For the thesis,
+the central inferential family is pre-specified as TD3 versus the five other
+methods across the five tested RIS sizes (25 paired hypotheses). Holm correction
+is recomputed here from the unadjusted p-values for that exact family so the
+reported methodology and the generated table are identical.
+"""
 
 import argparse
 import json
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -22,6 +30,7 @@ METHOD_LABELS = {
 METHOD_ORDER = ["td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris"]
 LB = r"\\"
 ROW_END = " " + LB
+P_VALUE_FLOOR = 1e-300
 
 
 def fmt(value: float, digits: int = 4) -> str:
@@ -42,6 +51,43 @@ def ordered(frame: pd.DataFrame) -> pd.DataFrame:
     result = frame.copy()
     result["_order"] = result["method"].map({m: i for i, m in enumerate(METHOD_ORDER)})
     return result.sort_values(["n_ris", "_order"])
+
+
+def holm_adjust(p_values: list[float]) -> list[float]:
+    """Holm step-down adjustment for one pre-specified hypothesis family."""
+    clean = [max(float(value), P_VALUE_FLOOR) for value in p_values]
+    order = np.argsort(clean)
+    adjusted = np.empty(len(clean), dtype=float)
+    running = 0.0
+    total = len(clean)
+    for rank, index in enumerate(order):
+        value = min(1.0, (total - rank) * clean[index])
+        running = max(running, value)
+        adjusted[index] = running
+    return adjusted.tolist()
+
+
+def td3_holm_family(frame: pd.DataFrame) -> pd.DataFrame:
+    """Return the 25 TD3-focused paired comparisons with thesis Holm correction."""
+    subset = frame[(frame["method_a"] == "td3") | (frame["method_b"] == "td3")].copy()
+    if len(subset) != 25:
+        raise RuntimeError(f"Expected 25 TD3-focused comparisons, got {len(subset)}")
+    expected_n = {16, 32, 64, 96, 128}
+    expected_comparators = {"ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris"}
+    if set(subset["n_ris"].astype(int)) != expected_n:
+        raise RuntimeError("TD3 Holm family does not cover all five N values")
+
+    comparators: set[str] = set()
+    for row in subset.itertuples(index=False):
+        comparators.add(str(row.method_b if row.method_a == "td3" else row.method_a))
+    if comparators != expected_comparators:
+        raise RuntimeError(f"Unexpected TD3 comparators: {sorted(comparators)}")
+
+    subset["thesis_paired_t_holm_p"] = holm_adjust(subset["paired_t_p"].astype(float).tolist())
+    subset["thesis_wilcoxon_holm_p"] = holm_adjust(subset["wilcoxon_p"].astype(float).tolist())
+    subset["thesis_paired_t_holm_significant_0_05"] = subset["thesis_paired_t_holm_p"] < 0.05
+    subset["thesis_wilcoxon_holm_significant_0_05"] = subset["thesis_wilcoxon_holm_p"] < 0.05
+    return subset
 
 
 def write_performance(frame: pd.DataFrame, output: Path) -> None:
@@ -95,7 +141,7 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
         "% Generated from TABLE_SIX_METHOD_CPU_LATENCY.csv. Do not edit manually.",
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r r r r}",
-        r"\caption{Độ trễ ra quyết định của sáu phương pháp trên cùng một CPU runner.}",
+        r"\caption{Độ trễ ra quyết định của sáu phương pháp trên cùng một CPU một luồng.}",
         r"\label{tab:six-method-latency}" + LB,
         r"\toprule",
         r"$N$ & \textbf{Phương pháp} & \textbf{Số mẫu} & \textbf{Trung bình (ms)} & \textbf{Độ lệch chuẩn} & \textbf{Trung vị (ms)} & \textbf{Khoảng min--max (ms)} " + LB,
@@ -130,14 +176,14 @@ def write_latency(frame: pd.DataFrame, output: Path) -> None:
             r"\end{longtable}",
             r"\end{landscape}",
             "",
-            r"\noindent\textit{Lưu ý:} Các số đo được thực hiện đơn luồng trên cùng một CPU runner. Tỷ lệ tăng tốc chỉ có ý nghĩa trong nền tảng đã công bố và phải được diễn giải cùng chất lượng nghiệm và QoS.",
+            r"\noindent\textit{Lưu ý:} Các số đo được thực hiện đơn luồng trên cùng một CPU. Đây là độ trễ ra quyết định của thuật toán trong cấu hình đo đã sử dụng, chưa phải độ trễ đầu-cuối của một hệ thống vô tuyến hoàn chỉnh.",
         ]
     )
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
-    subset = frame[(frame["method_a"] == "td3") | (frame["method_b"] == "td3")]
+    subset = td3_holm_family(frame)
     rows: list[dict[str, object]] = []
     for item in subset.to_dict("records"):
         td3_is_a = item["method_a"] == "td3"
@@ -147,17 +193,18 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
                 "comparator": item["method_b"] if td3_is_a else item["method_a"],
                 "difference": float(item["mean_difference_a_minus_b"]) * (1.0 if td3_is_a else -1.0),
                 "effect": float(item["cohen_dz"]) * (1.0 if td3_is_a else -1.0),
-                "t_sig": bool(item["paired_t_holm_significant_0_05"]),
-                "w_sig": bool(item["wilcoxon_holm_significant_0_05"]),
+                "t_sig": bool(item["thesis_paired_t_holm_significant_0_05"]),
+                "w_sig": bool(item["thesis_wilcoxon_holm_significant_0_05"]),
             }
         )
     comparator_order = {m: i for i, m in enumerate(METHOD_ORDER[1:])}
     rows.sort(key=lambda item: (int(item["n_ris"]), comparator_order[str(item["comparator"])]))
     lines = [
-        "% Generated from TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv. Do not edit manually.",
+        "% Generated from the unadjusted p-values in TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv.",
+        "% Thesis correction family: 5 comparators x 5 N values = 25 TD3-focused hypotheses.",
         r"\begin{landscape}",
         r"\begin{longtable}{r l r r c c}",
-        r"\caption{So sánh ghép cặp tổng tốc độ giữa TD3 và năm phương pháp còn lại sau hiệu chỉnh Holm.}",
+        r"\caption{So sánh ghép cặp tổng tốc độ giữa TD3 và năm phương pháp còn lại sau hiệu chỉnh Holm trên họ 25 giả thuyết.}",
         r"\label{tab:td3-paired-tests-holm}" + LB,
         r"\toprule",
         r"$N$ & \textbf{Phương pháp đối chiếu} & $\Delta=\overline{R}_{\mathrm{TD3}}-\overline{R}_{b}$ & \textbf{Cohen's $d_z$} & \textbf{$t$-Holm} & \textbf{Wilcoxon-Holm} " + LB,
@@ -191,7 +238,7 @@ def write_td3_tests(frame: pd.DataFrame, output: Path) -> None:
             r"\end{longtable}",
             r"\end{landscape}",
             "",
-            r"\noindent Trong bảng, ``Có'' nghĩa là bác bỏ giả thuyết không ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm. Dấu âm khi so với AO--SCA cho thấy AO--SCA có tổng tốc độ trung bình cao hơn TD3; dấu dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu.",
+            r"\noindent Trong bảng, ``Có'' nghĩa là bác bỏ giả thuyết không ở mức ý nghĩa $\alpha=0{,}05$ sau hiệu chỉnh Holm. Mỗi phép kiểm định sử dụng một họ 25 giả thuyết TD3--đối chiếu gồm năm phương pháp và năm giá trị $N$. Các $p$-value thô bị lưu thành 0 do tràn dưới số học được chặn bảo thủ ở $10^{-300}$ trước khi hiệu chỉnh; việc này không làm thay đổi quyết định ý nghĩa thống kê. Dấu âm khi so với AO--SCA cho thấy AO--SCA có tổng tốc độ trung bình cao hơn TD3; dấu dương trong các so sánh còn lại cho thấy TD3 có tổng tốc độ trung bình cao hơn phương pháp đối chiếu.",
         ]
     )
     output.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -221,8 +268,10 @@ def main() -> None:
 
     manifest = {
         "audit_verdict": audit["verdict"],
-        "scientific_commit": audit.get("drl_repository_commit"),
         "source_directory": str(table_dir),
+        "td3_holm_family_size": 25,
+        "td3_holm_scope": "five comparators across five N values, corrected separately for paired t and Wilcoxon tests",
+        "p_value_floor_for_underflow": P_VALUE_FLOOR,
         "generated_files": [
             "table_six_method_performance.tex",
             "table_six_method_latency.tex",
