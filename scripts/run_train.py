@@ -17,4 +17,22 @@ parser.add_argument("--output", required=True)
 args = parser.parse_args()
 
 config = ExperimentConfig.from_yaml(args.config)
+
+# The generic entrypoint is intentionally restricted to the thesis protocol so
+# legacy YAML files cannot silently reproduce a different state/action/reward
+# definition under the same command name. Historical runs remain available via
+# their explicitly versioned scripts.
+required = {
+    "observation_normalization": "blockwise_v2",
+    "action_parameterization": "physical_v3",
+    "qos_dual_enabled": True,
+}
+for field, expected in required.items():
+    observed = getattr(config, field)
+    if observed != expected:
+        raise SystemExit(
+            f"{field}={observed!r} is not the thesis v3 protocol; expected {expected!r}. "
+            "Use a v3 constrained-action configuration."
+        )
+
 train_drl_v3(args.method, config, args.seed, Path(args.output))
