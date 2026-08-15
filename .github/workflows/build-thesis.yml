@@ -75,9 +75,10 @@ jobs:
       - name: Apply final code-theory consistency pass
         run: python thesis/scripts/apply_final_consistency_pass.py
 
-      - name: Regenerate thesis tables and normalize figure layouts
+      - name: Regenerate thesis tables and normalize layouts
         run: |
           python thesis/scripts/generate_six_method_thesis_assets.py
+          python thesis/scripts/compact_statistical_table.py
           python thesis/scripts/normalize_figure_layouts.py
 
       - name: Verify final consistency guardrails
@@ -91,6 +92,7 @@ jobs:
           ! grep -q 'chiều trạng thái tăng từ 140 lên 1.036' thesis/chapter4.tex
           ! grep -q '0,9893' thesis/chapter4.tex
           grep -q 'họ 25 giả thuyết' thesis/generated/table_td3_paired_tests_holm.tex
+          grep -q '\\renewcommand{\\arraystretch}{0.92}' thesis/generated/table_td3_paired_tests_holm.tex
           grep -q 'td3_holm_family_size' thesis/generated/six_method_assets_manifest.json
 
       - name: Install XeLaTeX and PDF toolchain
