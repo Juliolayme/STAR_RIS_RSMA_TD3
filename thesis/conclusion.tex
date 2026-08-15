@@ -9,7 +9,7 @@ TD3 được xây dựng như một bộ tối ưu học được. Ngoài ba cơ
 
 Luận văn đồng thời xây dựng quy trình thực nghiệm có khả năng tái lập. Các tập kịch bản huấn luyện, xác thực và kiểm thử được tách biệt; checkpoint chỉ được chọn trên tập xác thực; kiểm thử được chạy xác định; dữ liệu thô lưu phương pháp, seed, kịch bản, cấu hình và các chỉ số chưa làm tròn. Sáu phương pháp TD3, DDPG, PPO, AO--SCA, AO--Grid và AnalyticalRIS được đánh giá trên cùng mô hình vật lý và cùng tập kiểm thử khóa.
 
-Kết quả trên $N\in\{16,32,64,96,128\}$ cho thấy TD3 đạt tổng tốc độ từ 10,7661 đến 12,4117 bit/s/Hz, tỷ lệ người dùng đạt QoS từ 0,9893 đến 0,9994 và xác suất toàn bộ người dùng đạt QoS từ 0,9798 đến 0,9985. Trong nhóm DRL, TD3 có khả năng mở rộng và độ ổn định tốt nhất. DDPG cạnh tranh ở $N=32$ nhưng suy giảm mạnh ở các kích thước lớn; PPO chưa đạt miền QoS khả thi trong ngân sách 100.000 tương tác.
+Kết quả trên $N\in\{16,32,64,96,128\}$ cho thấy TD3 đạt tổng tốc độ từ 10,7661 đến 12,4117 bit/s/Hz, tỷ lệ người dùng đạt QoS từ 0,9892 đến 0,9994 và xác suất toàn bộ người dùng đạt QoS từ 0,9798 đến 0,9985. Trong nhóm DRL, TD3 có khả năng mở rộng và độ ổn định tốt nhất. DDPG cạnh tranh ở $N=32$ nhưng suy giảm mạnh ở các kích thước lớn; PPO chưa đạt miền QoS khả thi trong ngân sách 100.000 tương tác.
 
 Trong nhóm truyền thống, AO--SCA đạt tổng tốc độ cao nhất, từ 15,2137 đến 19,6363 bit/s/Hz. AO--Grid duy trì QoS hoàn hảo nhưng tổng tốc độ chỉ xấp xỉ 3,982 bit/s/Hz. AnalyticalRIS có độ trễ thấp nhất nhưng không đạt QoS. TD3 có độ trễ 0,246--0,342 ms; nhanh hơn AO--SCA khoảng 880--3.038 lần và nhanh hơn AO--Grid khoảng 287--1.553 lần trên nền tảng CPU được sử dụng. DDPG nhanh hơn TD3 một lượng nhỏ, còn PPO chậm hơn TD3 nhưng vẫn dưới một mili giây.
 

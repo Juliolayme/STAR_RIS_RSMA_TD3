@@ -259,12 +259,12 @@ Với một mẫu kênh $\mathcal{H}=\{\bm h_d,\bm g,\bm H_r,\bm u\}$, bài toá
 Trong đó, $\mathcal H$ chứa toàn bộ CSI và chỉ báo phía người dùng; $\mathbf 1$ là vector toàn một; các bất đẳng thức vector được hiểu theo từng phần tử. Dòng đầu cực đại hóa tổng tốc độ; hai dòng tiếp theo bảo đảm simplex công suất và tốc độ chung; các dòng beta và pha bảo đảm tính khả thi của STAR--RIS; dòng cuối áp đặt QoS cho từng người dùng. Hệ công thức này là phát biểu trung tâm của luận văn, thống nhất mục tiêu, biến quyết định và mọi ràng buộc mà các thuật toán phải xử lý.
 
 
-Trong một số kịch bản, miền QoS có thể khó đạt đối với một phương pháp nhất định. Vì vậy, quá trình huấn luyện và các baseline dùng hàm merit mềm
+Trong một số kịch bản, miền QoS có thể khó đạt đối với một phương pháp nhất định. Mọi phương pháp đều đánh giá QoS bằng cùng các đại lượng vi phạm $V$ và $V_2$, nhưng cơ chế sử dụng trọng số phạt khác nhau giữa hai nhóm. Trong huấn luyện DRL, trọng số phạt tuyến tính được điều chỉnh thích nghi theo quá trình học; các solver truyền thống dùng một hàm merit với trọng số cố định. Dạng tổng quát của hàm merit là
 \begin{equation}
  f=R_{\mathrm{sum}}-\lambda_1V-\lambda_2\sum_{k=1}^{K}\max(R_{\min}-R_k,0)^2.
  \label{eq:merit-ch2}
 \end{equation}
-Trong đó, $f$ là giá trị merit; $\lambda_1,\lambda_2\ge0$ là trọng số phạt tuyến tính và bậc hai; $V$ là tổng vi phạm tuyến tính. Công thức cân bằng mục tiêu tổng tốc độ với mức độ vi phạm QoS, tạo tín hiệu tối ưu liên tục ngay cả khi nghiệm hiện tại chưa khả thi. Các bảng kết quả vẫn báo cáo riêng đại lượng vật lý, không dùng merit thay thế tổng tốc độ hoặc QoS.
+Trong đó, $f$ là giá trị merit; $\lambda_1,\lambda_2\ge0$ là trọng số phạt tuyến tính và bậc hai; $V$ là tổng vi phạm tuyến tính. Đối với các solver truyền thống trong thí nghiệm, $\lambda_1=\lambda_2=8$. Đối với TD3, DDPG và PPO, $\lambda_1$ được thay bởi trọng số thích nghi $\lambda_t$, còn $\lambda_2=8$. Công thức cân bằng mục tiêu tổng tốc độ với mức độ vi phạm QoS và tạo tín hiệu liên tục ngay cả khi nghiệm hiện tại chưa khả thi. Các bảng kết quả vẫn báo cáo riêng đại lượng vật lý, không dùng reward hoặc merit thay thế tổng tốc độ hay QoS.
 
 Các bảng kết quả vẫn báo cáo riêng tổng tốc độ và QoS; reward hoặc merit không được dùng thay thế chỉ số vật lý.
 

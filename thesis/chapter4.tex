@@ -36,7 +36,7 @@ Kiểm thử & Hành động xác định, không có nhiễu khám phá\\
 \tablesource{Tác giả tổng hợp từ cấu hình thực nghiệm của luận văn (2026)}
 \end{table}
 
-TD3, DDPG và PPO dùng cùng trạng thái, action decoder, reward QoS, ngân sách tương tác và tập dữ liệu. Tuy nhiên, như đã trình bày ở Chương~\ref{chap:method}, siêu tham số không được tìm kiếm với ngân sách bằng nhau cho cả ba thuật toán. Do đó, phần so sánh DRL phản ánh ba cấu hình triển khai đã đánh giá.
+TD3, DDPG và PPO dùng cùng trạng thái, bộ giải mã hành động, reward QoS, ngân sách tương tác và tập dữ liệu. Tuy nhiên, như đã trình bày ở Chương~\ref{chap:method}, siêu tham số không được tìm kiếm với ngân sách bằng nhau cho cả ba thuật toán. Do đó, phần so sánh DRL phản ánh ba cấu hình triển khai đã đánh giá.
 
 \section{Diễn biến trên tập xác thực}
 \ThesisFigure{figures/pdf/chapter4_fig01_training_overview.pdf}
@@ -60,7 +60,7 @@ Hình~\ref{fig:ch4-six-method-performance} được vẽ lại trực tiếp t�
 \subsection{Kết quả của TD3}
 Tổng tốc độ trung bình của TD3 tăng từ 10,7661 bit/s/Hz tại $N=16$ lên 12,4117 bit/s/Hz tại $N=128$. Mức tăng tuyệt đối là 1,6456 bit/s/Hz. Xu hướng này cho thấy Actor khai thác được số phần tử tăng để cải thiện kênh hiệu dụng trong mô hình đã sử dụng.
 
-Tỷ lệ người dùng đạt QoS của TD3 lần lượt là 0,9893; 0,9962; 0,9970; 0,9994 và 0,9991 khi $N$ tăng từ 16 đến 128. Xác suất toàn bộ người dùng đạt QoS nằm từ 0,9798 đến 0,9985. Mức vi phạm trung bình thấp hơn 0,0083 ở mọi cấu hình và giảm xuống khoảng $5,3\times10^{-4}$ tại $N=96$.
+Tỷ lệ người dùng đạt QoS của TD3 lần lượt là 0,9892; 0,9962; 0,9970; 0,9994 và 0,9991 khi $N$ tăng từ 16 đến 128. Xác suất toàn bộ người dùng đạt QoS nằm từ 0,9798 đến 0,9985. Mức vi phạm trung bình thấp hơn 0,0083 ở mọi cấu hình và giảm xuống khoảng $5,3\times10^{-4}$ tại $N=96$.
 
 Không nên diễn giải xu hướng này thành định luật tăng trưởng điện từ. Bộ sinh kênh không mô hình diện tích bề mặt, path loss theo khoảng cách hoặc aperture. Kết luận phù hợp là TD3 có khả năng mở rộng đến $N=128$ trong môi trường Gaussian và tham số hóa đã sử dụng \cite{Bjornson2020RISMyths,DiRenzo2020SmartRadio}.
 
@@ -69,12 +69,12 @@ DDPG đạt tổng tốc độ 8,0956 tại $N=16$, tăng lên 10,2295 tại $N=
 
 Tại $N=32$, DDPG đạt tỷ lệ QoS 0,9985 và xác suất toàn bộ người dùng đạt QoS 0,9964, nhỉnh hơn TD3 tương ứng 0,9962 và 0,9944. DDPG cũng có độ trễ thấp hơn TD3 một lượng nhỏ. Vì vậy, không được kết luận TD3 thống trị DDPG trên mọi chỉ số.
 
-Từ $N=64$ trở lên, DDPG suy giảm rõ: xác suất toàn bộ người dùng đạt QoS giảm từ 0,6234 xuống 0,1376 và 0,0040. Tại $N=128$, mức vi phạm trung bình đạt 0,5512. Trong khi đó TD3 giữ xác suất toàn bộ người dùng đạt QoS 0,9984. Kết quả cho thấy TD3 có khả năng mở rộng và ổn định tốt hơn trong ba cấu hình DRL được đánh giá.
+Từ $N=64$ trở lên, cấu hình DDPG được đánh giá suy giảm rõ: xác suất toàn bộ người dùng đạt QoS giảm từ 0,6234 xuống 0,1376 và 0,0040. Tại $N=128$, mức vi phạm trung bình đạt 0,5512. Trong khi đó TD3 giữ xác suất toàn bộ người dùng đạt QoS 0,9984. Trong phạm vi $N\le128$, kết quả quan sát cho thấy cấu hình TD3 ổn định hơn khi kích thước bài toán tăng. Đây là mối liên hệ thực nghiệm; do TD3 và DDPG còn khác về Critic, loss, Layer Normalization, gradient clipping, learning rate và lịch cập nhật, không thể quy sự suy giảm của DDPG chỉ cho số chiều hành động.
 
 \subsection{TD3 so với PPO}
-PPO đạt tổng tốc độ khoảng 2,10--2,16 bit/s/Hz trên toàn bộ năm kích thước. Tỷ lệ người dùng đạt QoS nằm khoảng 0,61--0,66 và xác suất toàn bộ người dùng đạt QoS chỉ khoảng 0,04--0,09. PPO vì vậy chưa học được policy khả thi trong ngân sách 100.000 tương tác.
+PPO đạt tổng tốc độ khoảng 2,10--2,16 bit/s/Hz trên toàn bộ năm kích thước. Tỷ lệ người dùng đạt QoS nằm khoảng 0,61--0,66 và xác suất toàn bộ người dùng đạt QoS chỉ khoảng 0,04--0,09. PPO vì vậy chưa học được chính sách khả thi trong ngân sách 100.000 tương tác.
 
-Một nguyên nhân hợp lý là PPO là phương pháp on-policy và phải học trên action có số chiều từ 57 đến 393. Tuy nhiên, kết quả không chứng minh PPO về bản chất không phù hợp với STAR--RIS--RSMA. Nghiên cứu trước đã cho thấy PPO có thể hoạt động trong một mô hình khác \cite{Meng2024PPOSTARRSMA}. Cần ngân sách tương tác, kiến trúc và tuning riêng để đánh giá giới hạn thực sự của PPO.
+Một nguyên nhân hợp lý là PPO là phương pháp on-policy và phải học trên hành động có số chiều từ 57 đến 393. Tuy nhiên, kết quả không chứng minh PPO về bản chất không phù hợp với STAR--RIS--RSMA. Nghiên cứu trước đã cho thấy PPO có thể hoạt động trong một mô hình khác \cite{Meng2024PPOSTARRSMA}. Cần ngân sách tương tác, kiến trúc và tuning riêng để đánh giá giới hạn thực sự của PPO.
 
 \subsection{TD3 so với AO--SCA}
 AO--SCA đạt tổng tốc độ 15,2137 tại $N=16$ và tăng lên 19,6363 tại $N=128$, cao nhất trong sáu phương pháp. Chênh lệch AO--SCA so với TD3 tăng từ 4,4476 lên 7,2246 bit/s/Hz. AO--SCA cũng duy trì QoS rất cao: tại $N\ge64$, tỷ lệ QoS và xác suất toàn bộ người dùng đạt QoS đều bằng một trong dữ liệu tổng hợp.
@@ -102,24 +102,24 @@ TD3 vượt AnalyticalRIS hơn 8,78 bit/s/Hz tại $N=16$ và hơn 10,43 bit/s/H
 \figuresource{Tác giả tổng hợp từ \texttt{TABLE\_SIX\_METHOD\_CPU\_LATENCY.csv} và \texttt{TABLE\_SIX\_METHOD\_PERFORMANCE.csv} (2026)}
 
 \subsection{Độ trễ của nhóm DRL}
-Độ trễ trung bình của TD3 tăng từ 0,246 ms tại $N=16$ lên 0,342 ms tại $N=128$. DDPG nhanh hơn TD3 một lượng nhỏ, từ 0,220 đến 0,307 ms, do chỉ có một Actor tương tự về kích thước và không có khác biệt lớn trong suy luận. PPO chậm hơn, từ 0,382 đến 0,521 ms, nhưng vẫn ở dưới một mili giây.
+Độ trễ trung bình của TD3 tăng từ 0,246 ms tại $N=16$ lên 0,342 ms tại $N=128$. DDPG nhanh hơn TD3 một lượng nhỏ, từ 0,220 đến 0,307 ms; PPO chậm hơn, từ 0,382 đến 0,521 ms, nhưng vẫn ở dưới một mili giây. Phép đo kiểm thử của TD3 và DDPG chủ yếu chạy Actor rồi tính các chỉ số vật lý; hai Critic của TD3 không nằm trên đường suy luận. Vì vậy, chênh lệch nhỏ giữa TD3 và DDPG nên được xem là hệ quả của kiến trúc Actor và overhead triển khai, không phải do TD3 phải chạy hai Critic khi kiểm thử.
 
 Như vậy, TD3 không phải thuật toán DRL nhanh nhất theo số đo này; DDPG có latency thấp hơn. Lợi thế của TD3 là giữ chất lượng và QoS khi $N$ tăng.
 
 \subsection{TD3 so với solver lặp}
 AO--Grid có độ trễ từ 70,60 đến 531,25 ms, tương ứng chậm hơn TD3 khoảng 287 đến 1.553 lần. AO--SCA có độ trễ từ 216,44 đến 1.039,04 ms, chậm hơn TD3 khoảng 880; 1.438; 2.121; 2.860 và 3.038 lần tại năm giá trị $N$.
 
-Khoảng cách tăng theo $N$ vì AO--SCA phải ước lượng gradient theo nhiều tọa độ và lặp lại phép tính kênh; AO--Grid phải đánh giá nhiều ứng viên. Actor TD3 tăng gần tuyến tính theo kích thước input/output và không thực hiện vòng lặp tối ưu online.
+Khoảng cách tăng theo $N$ vì AO--SCA phải ước lượng gradient theo nhiều tọa độ và lặp lại phép tính kênh; AO--Grid phải đánh giá nhiều ứng viên. Actor TD3 tăng gần tuyến tính theo kích thước đầu vào/đầu ra và không thực hiện vòng lặp tối ưu online.
 
 \subsection{AnalyticalRIS và đường biên đánh đổi}
 AnalyticalRIS có độ trễ nhỏ nhất, từ 0,122 đến 0,150 ms, nhanh hơn TD3 khoảng hai lần. Tuy nhiên, phương pháp này không đạt QoS trong thí nghiệm. Hình~\ref{fig:ch4-quality-latency} vì vậy thể hiện ba vùng: AnalyticalRIS rất nhanh nhưng chất lượng thấp; AO--SCA chất lượng cao nhưng chậm; TD3 nằm giữa, giữ QoS cao với độ trễ dưới một mili giây.
 
-Các tỷ lệ chỉ áp dụng cho CPU runner và implementation đã công bố. Chúng không phải cam kết latency trên mọi phần cứng hoặc khi tích hợp đầy đủ quy trình ước lượng CSI và báo hiệu.
+Các tỷ lệ chỉ áp dụng cho nền tảng CPU một luồng và cấu hình đo đã sử dụng. Chúng không phải cam kết độ trễ đầu-cuối trên mọi phần cứng và chưa bao gồm ước lượng CSI, truyền báo hiệu hoặc thời gian điều khiển phần cứng STAR--RIS.
 
 \section{Phân tích thống kê}
 \input{generated/table_td3_paired_tests_holm}
 
-Bảng~\ref{tab:td3-paired-tests-holm} thực hiện 25 so sánh liên quan trực tiếp đến TD3: năm phương pháp đối chiếu tại năm giá trị $N$. Cả kiểm định $t$ ghép cặp và Wilcoxon ghép cặp sau hiệu chỉnh Holm đều bác bỏ giả thuyết không ở mức $\alpha=0{,}05$ cho 25/25 trường hợp.
+Bảng~\ref{tab:td3-paired-tests-holm} xác định trước một họ 25 giả thuyết liên quan trực tiếp đến TD3, gồm năm phương pháp đối chiếu tại năm giá trị $N$. Đối với kiểm định $t$ ghép cặp, Holm được áp dụng một lần trên toàn bộ 25 $p$-value của họ này; Wilcoxon cũng được hiệu chỉnh độc lập trên đúng 25 $p$-value tương ứng. Sau hiệu chỉnh, cả hai kiểm định đều bác bỏ giả thuyết không ở mức $\alpha=0{,}05$ cho 25/25 trường hợp.
 
 Dấu của chênh lệch phải được đọc cùng kết quả. TD3 có tổng tốc độ cao hơn DDPG, PPO, AO--Grid và AnalyticalRIS tại mọi $N$, nhưng thấp hơn AO--SCA tại mọi $N$. Tại $N=32$, chênh lệch TD3--DDPG chỉ 0,4865 bit/s/Hz và Cohen's $d_z=0,5200$, nhỏ hơn nhiều so với các so sánh khác, dù vẫn có ý nghĩa do 1.000 cặp kịch bản.
 
@@ -128,13 +128,13 @@ Một số giá trị $p$ bị phần mềm lưu thành 0 vì nhỏ hơn giới 
 \input{generated/statistical_limitations}
 
 \section{Khả năng mở rộng}
-Khi $N$ tăng từ 16 lên 128, chiều trạng thái tăng từ 140 lên 1.036 và chiều action tăng từ 57 lên 393. TD3 vẫn duy trì QoS gần một và tổng tốc độ tăng. DDPG lại suy giảm khi action lớn, trong khi PPO giữ hiệu năng thấp.
+Khi $N$ tăng từ 16 lên 128, chiều trạng thái tăng từ 172 lên 1.292 và chiều hành động tăng từ 57 lên 393. TD3 vẫn duy trì QoS gần một và tổng tốc độ tăng trong phạm vi khảo sát. Cấu hình DDPG được đánh giá suy giảm khi kích thước bài toán tăng, trong khi PPO giữ hiệu năng thấp; các xu hướng này là quan sát thực nghiệm trên $N\le128$, không phải bằng chứng nhân quả riêng cho số chiều hành động.
 
 MLP hiện tại cần huấn luyện riêng cho từng $N$ và không khai thác tính hoán vị của các phần tử STAR--RIS. Kiến trúc attention, set network hoặc graph network có thể chia sẻ tham số và tổng quát giữa nhiều kích thước. Đây là hướng phát triển cần thiết khi $N$ lớn hơn 128.
 
 \section{Tổng hợp các phát hiện chính}
 \subsection{Tính khả thi và QoS của TD3}
-TD3 tạo hành động luôn thỏa các ràng buộc hình học nhờ bộ giải mã vật lý. Trên tập kiểm thử khóa, tỷ lệ người dùng đạt QoS từ 0,9893 đến 0,9994 và xác suất toàn bộ người dùng đạt QoS từ 0,9798 đến 0,9985. Kết quả cho thấy cơ chế phần thưởng, điều khiển đối ngẫu và lựa chọn checkpoint duy trì QoS ổn định trong phạm vi mô hình đã xét.
+TD3 tạo hành động luôn thỏa các ràng buộc hình học nhờ bộ giải mã vật lý. Trên tập kiểm thử khóa, tỷ lệ người dùng đạt QoS từ 0,9892 đến 0,9994 và xác suất toàn bộ người dùng đạt QoS từ 0,9798 đến 0,9985. Kết quả cho thấy cơ chế phần thưởng, điều khiển đối ngẫu và lựa chọn checkpoint duy trì QoS ổn định trong phạm vi mô hình đã xét.
 
 \subsection{So sánh giữa các phương pháp DRL}
 TD3 có tổng tốc độ cao hơn DDPG và PPO tại mọi $N$. DDPG cạnh tranh ở $N=32$ và có độ trễ thấp hơn TD3, nhưng mất ổn định khi $N$ tăng. PPO ổn định ở mức hiệu năng thấp nhưng chưa đạt QoS. Vì vậy, TD3 là cấu hình DRL có khả năng mở rộng tốt nhất trong ba phương pháp được đánh giá, không phải bằng chứng rằng TD3 luôn vượt mọi cấu hình DDPG hoặc PPO.
@@ -148,7 +148,7 @@ Tổng tốc độ TD3 tăng 1,6456 bit/s/Hz giữa $N=16$ và $N=128$, trong kh
 \section{Hàm ý thực tiễn}
 TD3 phù hợp khi hệ thống có thể huấn luyện offline và cần tạo quyết định nhanh cho nhiều hiện thực kênh. Trong tối ưu offline hoặc khi có thời gian giải dài, AO--SCA có thể được ưu tiên. Một hướng triển khai thực tế là dùng Actor TD3 làm điểm khởi tạo nhanh, sau đó chạy một số ít vòng AO--SCA khi ngân sách thời gian cho phép. Cách lai này có thể giảm khoảng cách chất lượng mà vẫn tận dụng ưu thế latency.
 
-Khi phân bố kênh thay đổi, cần phát hiện drift và huấn luyện lại. Khi xét CSI không hoàn hảo hoặc phần cứng ghép pha, trạng thái và action decoder phải được thay đổi thay vì chỉ thêm nhiễu vào mô hình hiện tại.
+Khi phân bố kênh thay đổi, cần phát hiện drift và huấn luyện lại. Khi xét CSI không hoàn hảo hoặc phần cứng ghép pha, trạng thái và bộ giải mã hành động phải được thay đổi thay vì chỉ thêm nhiễu vào mô hình hiện tại.
 
 \section{Kết luận chương}
 Benchmark sáu phương pháp cho thấy AO--SCA đạt tổng tốc độ cao nhất, AnalyticalRIS đạt độ trễ thấp nhất, còn TD3 là phương pháp DRL ổn định nhất và duy trì QoS gần một đến $N=128$. TD3 không tốt nhất trên mọi chỉ số, nhưng tạo sự cân bằng rõ giữa chất lượng nghiệm, độ tin cậy QoS và thời gian ra quyết định. Kết luận này được hỗ trợ bởi bảng dữ liệu thô, kiểm định ghép cặp và quy trình kiểm tra tính nhất quán, đồng thời bị giới hạn bởi mô hình SISO, CSI hoàn hảo, kênh tổng hợp và số seed hữu hạn.

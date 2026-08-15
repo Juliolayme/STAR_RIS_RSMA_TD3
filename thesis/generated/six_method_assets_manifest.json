@@ -1,7 +1,9 @@
 {
   "audit_verdict": "PASS",
-  "scientific_commit": "99318fefa53bef91fa5f105ec71ddae73fc96c39",
   "source_directory": "/home/runner/work/STAR_RIS_RSMA_TD3/STAR_RIS_RSMA_TD3/results/six_method_v1/tables",
+  "td3_holm_family_size": 25,
+  "td3_holm_scope": "five comparators across five N values, corrected separately for paired t and Wilcoxon tests",
+  "p_value_floor_for_underflow": 1e-300,
   "generated_files": [
     "table_six_method_performance.tex",
     "table_six_method_latency.tex",

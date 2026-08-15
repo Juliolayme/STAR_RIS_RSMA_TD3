@@ -47,11 +47,11 @@ Mọi cấu hình giữ $K=4$ và thay đổi $N$. Bảng~\ref{tab:dimension-by-
 \toprule
 $N$ & $d_s=2(K+N+KN)+K$ & $d_a=2K+1+3N$ & Tổng biến beta/pha\\
 \midrule
-16 & 140 & 57 & 48\\
-32 & 268 & 105 & 96\\
-64 & 524 & 201 & 192\\
-96 & 780 & 297 & 288\\
-128 & 1036 & 393 & 384\\
+16 & 172 & 57 & 48\\
+32 & 332 & 105 & 96\\
+64 & 652 & 201 & 192\\
+96 & 972 & 297 & 288\\
+128 & 1292 & 393 & 384\\
 \bottomrule
 \end{tabular}
 \tablesource{Tác giả tính từ các công thức ở Chương 3 (2026)}
@@ -69,6 +69,7 @@ Ngân sách tương tác & 100.000 bước cho mỗi seed và mỗi $N$\\
 Kích thước mini-batch & 256\\
 Dung lượng Replay Buffer & 200.000 transition\\
 Số bước hành động ngẫu nhiên ban đầu & 2.000\\
+Độ dài episode kỹ thuật & 32 bước; dùng để tạo cờ kết thúc và ngắt bootstrap, không mô tả coherence time của kênh\\
 Learning rate Actor / Critic & $10^{-4}$ / $3\times10^{-4}$\\
 Hệ số chiết khấu $\gamma$ & 0,99\\
 Hệ số cập nhật mềm $\tau$ & 0,005\\
