@@ -15,6 +15,8 @@ Code-only research repository for:
 
 All methods share one SISO STAR-RIS energy-splitting environment, one RSMA rate calculator and one locked train/validation/test ScenarioBank protocol.
 
+> **Protocol note.** Thesis and six-method reproduction commands must use the constrained v3 configurations under `configs/v3/constrained_action_n*.yaml`. The older `configs/siso_n*.yaml` files are retained only for historical/backward-compatible experiments and must not be used to reproduce `results/six_method_v1/`.
+
 ## Install and test
 
 ```bash
@@ -28,21 +30,21 @@ Run this once for each value of `N`:
 
 ```bash
 python scripts/create_scenario_banks.py \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --output-dir artifacts/scenario_banks \
   --train-count 10000 \
   --validation-count 1000 \
   --test-count 1000
 ```
 
-Available scalability configs:
+Available constrained v3 scalability configs:
 
 ```text
-configs/siso_n16.yaml
-configs/siso_n32.yaml
-configs/siso_n64.yaml
-configs/siso_n96.yaml
-configs/siso_n128.yaml
+configs/v3/constrained_action_n16.yaml
+configs/v3/constrained_action_n32.yaml
+configs/v3/constrained_action_n64.yaml
+configs/v3/constrained_action_n96.yaml
+configs/v3/constrained_action_n128.yaml
 ```
 
 ## 2. Train and select checkpoints using validation only
@@ -50,18 +52,20 @@ configs/siso_n128.yaml
 ```bash
 python scripts/run_train.py \
   --method td3 \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --seed 0 \
   --output results/train/td3/N32/seed_0
 ```
 
+`run_train.py` delegates to the constrained v3 training protocol and rejects non-v3 configs for TD3/DDPG/PPO thesis reproduction.
+
 The output contains:
 
-- `best.pt`: checkpoint selected only on the validation bank;
+- `best.pt`: checkpoint selected only on the validation bank using the feasibility-first rule;
 - `latest.pt`: final training checkpoint;
 - `training.csv`;
-- `validation_raw.csv` with one row per validation scenario and evaluation step;
-- `manifest.json` with config hash, Git commit and ScenarioBank checksums.
+- validation summaries/raw metrics;
+- `manifest.json` with config hash and ScenarioBank checksums.
 
 Use the same command with `--method ddpg` or `--method ppo`.
 
@@ -70,7 +74,7 @@ Use the same command with `--method ddpg` or `--method ppo`.
 ```bash
 python scripts/run_evaluate.py \
   --method td3 \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --checkpoint results/train/td3/N32/seed_0/best.pt \
   --bank artifacts/scenario_banks/N32_test.npz \
   --seed 0 \
@@ -82,15 +86,15 @@ Evaluation is exploration-free and writes raw per-scenario CSV.
 ## 4. Conventional methods
 
 ```bash
-python scripts/run_solver.py --method ao_sca --config configs/siso_n32.yaml \
+python scripts/run_solver.py --method ao_sca --config configs/v3/constrained_action_n32.yaml \
   --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
   --output results/solvers/N32/ao_sca_0_100.csv
 
-python scripts/run_solver.py --method ao_grid --config configs/siso_n32.yaml \
+python scripts/run_solver.py --method ao_grid --config configs/v3/constrained_action_n32.yaml \
   --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
   --output results/solvers/N32/ao_grid_0_100.csv
 
-python scripts/run_solver.py --method analytical_ris --config configs/siso_n32.yaml \
+python scripts/run_solver.py --method analytical_ris --config configs/v3/constrained_action_n32.yaml \
   --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
   --output results/solvers/N32/analytical_ris_0_100.csv
 ```
@@ -102,7 +106,7 @@ AO-SCA is a local proximal first-order solver, never a global optimum or upper b
 ```bash
 python scripts/run_ablation.py \
   --method td3 \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --checkpoint results/train/td3/N32/seed_0/best.pt \
   --bank artifacts/scenario_banks/N32_test.npz \
   --seed 0 \
@@ -116,19 +120,23 @@ Definitions:
 - `random_ris`: sample once per scenario using a reproducible scenario seed;
 - `equal_power`: override all stream powers equally while retaining the learned RIS/common allocation.
 
-## 6. CPU single-thread latency
+## 6. CPU single-thread decision latency
+
+The **frozen `results/six_method_v1/` latency table used by the thesis contains exactly 100 latency samples for every method/N pair**. To reproduce the published/frozen latency protocol, use `--count 100`:
 
 ```bash
 python scripts/benchmark_latency.py \
   --method td3 \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --checkpoint results/train/td3/N32/seed_0/best.pt \
   --bank artifacts/scenario_banks/N32_test.npz \
-  --warmup 20 --count 500 \
+  --warmup 20 --count 100 \
   --output results/latency/td3_N32_seed0.csv
 ```
 
-The script forces one Torch/OMP/MKL CPU thread and records inference, metric-evaluation and end-to-end solve latency.
+The script forces one Torch/OMP/MKL CPU thread and records algorithmic decision/inference timing. This is **not** end-to-end radio-system latency because CSI estimation, signaling and STAR-RIS hardware control are outside the measured path.
+
+A larger value such as `--count 500` may be used for an additional latency study to reduce Monte Carlo uncertainty, but such a rerun is a **new experiment** and must not be mixed with or presented as the frozen `six_method_v1` result. The thesis numbers and `TABLE_SIX_METHOD_CPU_LATENCY.csv` are based on 100 samples per method/N.
 
 ## 7. Merge, statistics and plots
 
@@ -143,13 +151,13 @@ python scripts/plot_results.py --inputs results/merged/N32_all.csv \
   --output results/figures/N32_sum_rate.png
 ```
 
-The analysis produces mean, standard deviation, 95% confidence intervals, paired t-tests, Wilcoxon tests, paired effect size and Holm-adjusted p-values. Repeated DRL seeds are averaged per method/scenario before pairing.
+The thesis statistical analysis uses scenario-paired comparisons: the eight DRL seeds are averaged within each scenario first, yielding `n=1000` paired scenarios. For the TD3-focused thesis table, Holm correction is applied over the pre-specified family of 25 comparisons (five comparators × five values of `N`) separately for paired t-tests and Wilcoxon tests.
 
 ## Kaggle sharding
 
 ```bash
 python scripts/make_kaggle_jobs.py \
-  --config configs/siso_n32.yaml \
+  --config configs/v3/constrained_action_n32.yaml \
   --seeds 0 1 2 3 4 5 6 7 \
   --scenario-count 1000 \
   --scenario-shard-size 100 \
@@ -158,4 +166,4 @@ python scripts/make_kaggle_jobs.py \
 
 Each Kaggle GPU session should run one learned seed. Conventional methods can run in CPU sessions and are sharded by non-overlapping scenario ranges.
 
-Read [`CODEX_EXECUTION_PLAN.md`](CODEX_EXECUTION_PLAN.md) before running the full experiment or editing the thesis.
+Read [`experiments/six_method/README.md`](experiments/six_method/README.md) for the locked six-method publication protocol before reproducing thesis results.
