@@ -35,4 +35,10 @@ for field, expected in required.items():
             "Use a v3 constrained-action configuration."
         )
 
+for field in ("train_bank_path", "validation_bank_path", "test_bank_path"):
+    if not getattr(config, field):
+        raise SystemExit(
+            f"{field} must point to a locked ScenarioBank for the thesis v3 protocol."
+        )
+
 train_drl_v3(args.method, config, args.seed, Path(args.output))
