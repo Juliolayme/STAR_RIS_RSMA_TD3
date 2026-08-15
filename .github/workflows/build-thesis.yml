@@ -70,12 +70,28 @@ jobs:
           grep -q '"verdict".*"PASS"' results/six_method_v1/SIX_METHOD_AUDIT.json
 
       - name: Set up Python table generator
-        run: python -m pip install --disable-pip-version-check pandas
+        run: python -m pip install --disable-pip-version-check pandas numpy
 
-      - name: Regenerate audited tables and normalize figure layouts
+      - name: Apply final code-theory consistency pass
+        run: python thesis/scripts/apply_final_consistency_pass.py
+
+      - name: Regenerate thesis tables and normalize figure layouts
         run: |
           python thesis/scripts/generate_six_method_thesis_assets.py
           python thesis/scripts/normalize_figure_layouts.py
+
+      - name: Verify final consistency guardrails
+        run: |
+          set -euo pipefail
+          grep -q 'd_s=10N+12' thesis/chapter3.tex
+          grep -q 'chiều trạng thái tăng từ 172 lên 1.292' thesis/chapter4.tex
+          grep -q '16 & 172 & 57 & 48' thesis/appendixA.tex
+          grep -q '128 & 1292 & 393 & 384' thesis/appendixA.tex
+          ! grep -q 'd_s=8N+12' thesis/chapter3.tex
+          ! grep -q 'chiều trạng thái tăng từ 140 lên 1.036' thesis/chapter4.tex
+          ! grep -q '0,9893' thesis/chapter4.tex
+          grep -q 'họ 25 giả thuyết' thesis/generated/table_td3_paired_tests_holm.tex
+          grep -q 'td3_holm_family_size' thesis/generated/six_method_assets_manifest.json
 
       - name: Install XeLaTeX and PDF toolchain
         run: |
@@ -156,7 +172,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-      - name: Commit normalized sources, official logo, generated tables, and built PDF
+      - name: Commit normalized sources, generated tables, and built PDF
         if: github.event_name != 'workflow_dispatch'
         shell: bash
         env:
@@ -166,11 +182,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add thesis/chapter1.tex thesis/chapter2.tex thesis/chapter3.tex thesis/chapter4.tex
+          git add thesis/appendixA.tex thesis/conclusion.tex
           git add thesis/figures/logo_uth.png thesis/generated
           git add -f thesis/build/Nguyen_Duy_Thanh_STAR_RIS_RSMA_TD3_Thesis_4CH.pdf
           if git diff --cached --quiet; then
-            echo "Normalized sources, generated assets, logo, and PDF unchanged"
+            echo "Normalized sources, generated assets, and PDF unchanged"
             exit 0
           fi
-          git commit -m "Build revised four-chapter thesis PDF [skip ci]"
+          git commit -m "Build final consistency-reviewed thesis PDF [skip ci]"
           git push origin "HEAD:${SOURCE_BRANCH}"
