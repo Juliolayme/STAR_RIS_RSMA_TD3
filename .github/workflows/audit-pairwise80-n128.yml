@@ -1,4 +1,4 @@
-name: Audit Pairwise corrected N128 max_iter 80
+name: Pilot corrected AO v2 stationarity
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     branches:
       - audit/ao-baseline-full-n128
     paths:
-      - '.github/workflows/audit-pairwise80-n128.yml'
+      - .github/workflows/audit-pairwise80-n128.yml
 
 permissions:
   contents: read
@@ -14,37 +14,50 @@ permissions:
 env:
   PYTHONUNBUFFERED: '1'
   PYTHONPATH: src
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+
+concurrency:
+  group: corrected-ao-v2-stationarity-pilot
+  cancel-in-progress: false
 
 jobs:
-  run-chunks:
-    name: pairwise80 ${{ matrix.chunk }}
+  preflight:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and test dependency
+        run: pip install -e . pytest
+      - name: Test corrected AO stopping criterion
+        run: pytest -q tests/test_ao_corrected.py
+
+  pilot:
+    needs: preflight
+    name: AO-v2 N${{ matrix.n }} ${{ matrix.chunk }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       max-parallel: 20
       matrix:
+        n: [16, 32]
         chunk:
-          - '0000-0050'
-          - '0050-0100'
-          - '0100-0150'
-          - '0150-0200'
-          - '0200-0250'
-          - '0250-0300'
-          - '0300-0350'
-          - '0350-0400'
-          - '0400-0450'
-          - '0450-0500'
-          - '0500-0550'
-          - '0550-0600'
-          - '0600-0650'
-          - '0650-0700'
-          - '0700-0750'
-          - '0750-0800'
-          - '0800-0850'
-          - '0850-0900'
-          - '0900-0950'
-          - '0950-1000'
+          - '0000-0100'
+          - '0100-0200'
+          - '0200-0300'
+          - '0300-0400'
+          - '0400-0500'
+          - '0500-0600'
+          - '0600-0700'
+          - '0700-0800'
+          - '0800-0900'
+          - '0900-1000'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -52,33 +65,31 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: Install package
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
-      - name: Run locked N128 pairwise80 chunk
+        run: pip install -e .
+      - name: Run locked AO-v2 pilot chunk
         env:
+          N_RIS: ${{ matrix.n }}
           CHUNK: ${{ matrix.chunk }}
         run: |
+          set -euo pipefail
           START=$((10#${CHUNK%-*}))
           END=$((10#${CHUNK#*-}))
-          mkdir -p audit_chunk
-          python scripts/audit_pairwise80_n128.py run \
-            --repo . \
-            --start "$START" \
-            --end "$END" \
-            --output "audit_chunk/pairwise80_${CHUNK}.csv"
+          mkdir -p pilot_chunk
+          python scripts/run_corrected_baseline.py \
+            --method ao_sca --n-ris "$N_RIS" \
+            --start "$START" --end "$END" \
+            --output "pilot_chunk/ao_sca_v2_N${N_RIS}_${CHUNK}.csv"
       - uses: actions/upload-artifact@v4
         with:
-          name: pairwise80-${{ matrix.chunk }}
-          path: audit_chunk/*.csv
+          name: ao-v2-pilot-N${{ matrix.n }}-${{ matrix.chunk }}
+          path: pilot_chunk/*.csv
           retention-days: 14
           if-no-files-found: error
 
-  summarize:
-    name: Merge and summarize pairwise80
-    needs: run-chunks
+  validate:
+    needs: pilot
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -86,22 +97,21 @@ jobs:
           python-version: '3.11'
           cache: pip
       - name: Install package
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
+        run: pip install -e .
       - uses: actions/download-artifact@v4
         with:
-          pattern: pairwise80-*
-          path: downloaded_chunks
+          pattern: ao-v2-pilot-*
+          path: collected
           merge-multiple: true
-      - name: Validate and summarize
+      - name: Validate 2,000 stationarity results
         run: |
-          python scripts/audit_pairwise80_n128.py summarize \
-            --input-dir downloaded_chunks \
-            --output-dir final_pairwise80
+          python scripts/validate_ao_stationarity_pilot.py \
+            --input-root collected \
+            --output pilot_audit/AO_V2_STATIONARITY_AUDIT.json
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: PAIRWISE80_N128_1000_FINAL
-          path: final_pairwise80/*
+          name: AO_V2_STATIONARITY_PILOT
+          path: pilot_audit/**
           retention-days: 30
           if-no-files-found: error
