@@ -1,0 +1,57 @@
+{
+  "ao_freeze": "corrected_pairwise_ao_v2:max_iter=80:pairwise_probe=1e-4:stationarity_tol=1e-6:post_ris_simplex_polish=40",
+  "ao_grid_freeze": "corrected_ao_grid_v1:rounds=2:zero_level:bidirectional_ris",
+  "drl_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "drl_source": "frozen results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv",
+  "latency_protocol": "single-thread same GitHub Actions runner; warmup=10; count=100",
+  "methods": [
+    "td3",
+    "ddpg",
+    "ppo",
+    "ao_sca",
+    "ao_grid",
+    "analytical_ris"
+  ],
+  "n_values": [
+    16,
+    32,
+    64,
+    96,
+    128
+  ],
+  "paired_test_family": "15 pairwise comparisons per N; Holm adjusted separately for paired t and Wilcoxon",
+  "published_figures": [
+    "fig01_six_method_sum_rate.png",
+    "fig02_six_method_qos_fraction.png",
+    "fig03_six_method_all_qos.png",
+    "fig04_six_method_violation.png",
+    "fig05_six_method_cpu_latency.png",
+    "fig06_six_method_quality_latency.png"
+  ],
+  "published_tables": [
+    "TABLE_SIX_METHOD_CPU_LATENCY.csv",
+    "TABLE_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
+    "TABLE_SIX_METHOD_PERFORMANCE.csv",
+    "TABLE_SIX_METHOD_SLIDE_METRICS.csv",
+    "TABLE_TD3_VS_OTHERS_HOLM.csv"
+  ],
+  "scenario_bank_checksums": {
+    "128": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+    "16": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+    "32": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+    "64": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+    "96": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+  },
+  "shared_scenario_banks": true,
+  "test_scenarios_per_n": 1000,
+  "verdict": "PASS"
+}
