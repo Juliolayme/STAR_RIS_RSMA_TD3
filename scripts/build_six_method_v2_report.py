@@ -22,7 +22,7 @@ from build_six_method_report import (
     plot_quality_latency,
 )
 
-AO_FREEZE = "corrected_pairwise_ao_v2:max_iter=80:stationarity_tol=1e-6:post_ris_simplex_polish=40"
+AO_FREEZE = "corrected_pairwise_ao_v2:max_iter=80:pairwise_probe=1e-4:stationarity_tol=1e-6:post_ris_simplex_polish=40"
 GRID_FREEZE = "corrected_ao_grid_v1:rounds=2:zero_level:bidirectional_ris"
 
 

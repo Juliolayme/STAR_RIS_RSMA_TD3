@@ -7,6 +7,12 @@ import numpy as np
 from star_ris_rsma.baselines import ao_corrected
 
 
+def test_optimizer_probe_covers_stationarity_probe() -> None:
+    assert ao_corrected.FROZEN_PAIRWISE_PROBE <= (
+        ao_corrected.FROZEN_STATIONARITY_PROBE
+    )
+
+
 def test_small_objective_change_does_not_stop_with_open_simplex_gap(monkeypatch) -> None:
     """A RIS-reopened simplex direction is polished before outer stopping."""
 

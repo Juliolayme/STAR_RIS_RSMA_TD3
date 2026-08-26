@@ -14,6 +14,7 @@ from star_ris_rsma.baselines.analytical_ris import solve as solve_analytical
 from star_ris_rsma.baselines.ao_corrected import (
     ALGORITHM_VERSION as AO_VERSION,
     FROZEN_MAX_ITER,
+    FROZEN_PAIRWISE_PROBE,
     FROZEN_STATIONARITY_TOL,
     solve as solve_ao,
 )
@@ -140,6 +141,7 @@ def main() -> None:
                 "bank_checksum": checksum,
                 "freeze": (
                     f"{AO_VERSION}:max_iter={FROZEN_MAX_ITER}:"
+                    f"pairwise_probe={FROZEN_PAIRWISE_PROBE}:"
                     f"stationarity_tol={FROZEN_STATIONARITY_TOL}:"
                     "post_ris_simplex_polish=40"
                     if args.method == "ao_sca"

@@ -65,7 +65,7 @@ def main() -> None:
     audit = {
         "verdict": verdict,
         "algorithm_version": ALGORITHM_VERSION,
-        "criterion": "post-RIS simplex polish, then relative objective change < 1e-4 AND power/common gaps < 1e-6; max_iter=80",
+        "criterion": "pairwise_probe=1e-4; post-RIS simplex polish, then relative objective change < 1e-4 AND power/common gaps < 1e-6; max_iter=80",
         "results": rows,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

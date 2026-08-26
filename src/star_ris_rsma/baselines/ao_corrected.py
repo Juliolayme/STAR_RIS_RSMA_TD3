@@ -15,7 +15,8 @@ FROZEN_TOL = 1e-4
 FROZEN_STATIONARITY_TOL = 1e-6
 FROZEN_SIMPLEX_POLISH_MAX_SWEEPS = 40
 FROZEN_GRADIENT_EPS = 1e-3
-FROZEN_PAIRWISE_PROBE = 1e-3
+FROZEN_PAIRWISE_PROBE = 1e-4
+FROZEN_STATIONARITY_PROBE = 1e-4
 FROZEN_PAIRWISE_MAX_STEPS = 12
 FROZEN_LINE_POINTS = 12
 
@@ -105,7 +106,13 @@ def _pairwise_simplex_ascent(
     return current, evaluations, accepted
 
 
-def _stationarity_gap(env, current, sl: slice, total: float, eps: float = 1e-4):
+def _stationarity_gap(
+    env,
+    current,
+    sl: slice,
+    total: float,
+    eps: float = FROZEN_STATIONARITY_PROBE,
+):
     """Largest feasible one-sided pairwise improvement at the returned point."""
 
     best = 0.0
