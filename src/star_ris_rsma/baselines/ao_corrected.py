@@ -10,9 +10,10 @@ from .common import physical_slices, state_from_action, state_from_vector
 
 # Candidate v2 freeze; must pass the locked N16/N32 stationarity pilot.
 ALGORITHM_VERSION = "corrected_pairwise_ao_v2"
-FROZEN_MAX_ITER = 160
+FROZEN_MAX_ITER = 80
 FROZEN_TOL = 1e-4
 FROZEN_STATIONARITY_TOL = 1e-6
+FROZEN_SIMPLEX_POLISH_MAX_SWEEPS = 40
 FROZEN_GRADIENT_EPS = 1e-3
 FROZEN_PAIRWISE_PROBE = 1e-3
 FROZEN_PAIRWISE_MAX_STEPS = 12
@@ -127,12 +128,72 @@ def _stationarity_gap(env, current, sl: slice, total: float, eps: float = 1e-4):
     return best, evaluations
 
 
+def _polish_simplex_stationarity(
+    env,
+    current,
+    slices,
+    p_max: float,
+    *,
+    stationarity_tol: float,
+    max_sweeps: int,
+):
+    """Re-optimize both simplex blocks after RIS until both gaps are closed."""
+
+    evaluations = 0
+    accepted_steps = 0
+    power_gap = np.inf
+    common_gap = np.inf
+
+    for sweep in range(1, max_sweeps + 1):
+        current, used, accepted = _pairwise_simplex_ascent(
+            env, current, slices["powers"], p_max
+        )
+        evaluations += used
+        accepted_steps += accepted
+
+        current, used, accepted = _pairwise_simplex_ascent(
+            env, current, slices["common"], 1.0
+        )
+        evaluations += used
+        accepted_steps += accepted
+
+        power_gap, used = _stationarity_gap(
+            env, current, slices["powers"], p_max
+        )
+        evaluations += used
+        common_gap, used = _stationarity_gap(
+            env, current, slices["common"], 1.0
+        )
+        evaluations += used
+        if power_gap < stationarity_tol and common_gap < stationarity_tol:
+            return (
+                current,
+                evaluations,
+                accepted_steps,
+                sweep,
+                power_gap,
+                common_gap,
+                True,
+            )
+
+    return (
+        current,
+        evaluations,
+        accepted_steps,
+        max_sweeps,
+        power_gap,
+        common_gap,
+        False,
+    )
+
+
 def solve(
     env,
     *,
     max_iter: int = FROZEN_MAX_ITER,
     tol: float = FROZEN_TOL,
     stationarity_tol: float = FROZEN_STATIONARITY_TOL,
+    simplex_polish_max_sweeps: int = FROZEN_SIMPLEX_POLISH_MAX_SWEEPS,
     gradient_eps: float = FROZEN_GRADIENT_EPS,
     initial_rho: float = 1.0,
     rho_growth: float = 2.0,
@@ -159,12 +220,12 @@ def solve(
     accepted_steps = 0
     power_gap = np.inf
     common_gap = np.inf
-    gaps_match_current = False
+    simplex_stationary = False
+    simplex_polish_sweeps = 0
     termination_reason = "max_iter"
 
     for _ in range(max_iter):
         previous = float(current.score)
-        gaps_match_current = False
 
         current, used, accepted = _pairwise_simplex_ascent(
             env, current, slices["powers"], cfg.p_max
@@ -200,22 +261,33 @@ def solve(
                     break
                 rho *= rho_growth
 
-        history.append(float(current.score))
-        if abs(current.score - previous) / max(1.0, abs(previous)) < tol:
-            power_gap, used = _stationarity_gap(
-                env, current, slices["powers"], cfg.p_max
-            )
-            evaluations += used
-            common_gap, used = _stationarity_gap(
-                env, current, slices["common"], 1.0
-            )
-            evaluations += used
-            gaps_match_current = True
-            if power_gap < stationarity_tol and common_gap < stationarity_tol:
-                termination_reason = "objective_and_simplex_stationarity"
-                break
+        (
+            current,
+            used,
+            accepted,
+            polish_sweeps,
+            power_gap,
+            common_gap,
+            simplex_stationary,
+        ) = _polish_simplex_stationarity(
+            env,
+            current,
+            slices,
+            cfg.p_max,
+            stationarity_tol=stationarity_tol,
+            max_sweeps=simplex_polish_max_sweeps,
+        )
+        evaluations += used
+        accepted_steps += accepted
+        simplex_polish_sweeps += polish_sweeps
 
-    if not gaps_match_current:
+        history.append(float(current.score))
+        relative_change = abs(current.score - previous) / max(1.0, abs(previous))
+        if relative_change < tol and simplex_stationary:
+            termination_reason = "objective_and_simplex_stationarity"
+            break
+
+    if not np.isfinite(power_gap) or not np.isfinite(common_gap):
         power_gap, used = _stationarity_gap(env, current, slices["powers"], cfg.p_max)
         evaluations += used
         common_gap, used = _stationarity_gap(env, current, slices["common"], 1.0)
@@ -228,6 +300,8 @@ def solve(
         max_iter=int(max_iter),
         objective_tolerance=float(tol),
         stationarity_tolerance=float(stationarity_tol),
+        simplex_polish_max_sweeps=int(simplex_polish_max_sweeps),
+        simplex_polish_sweeps=int(simplex_polish_sweeps),
         termination_reason=termination_reason,
         iterations=len(history) - 1,
         evaluations=int(evaluations),

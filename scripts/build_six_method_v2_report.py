@@ -22,7 +22,7 @@ from build_six_method_report import (
     plot_quality_latency,
 )
 
-AO_FREEZE = "corrected_pairwise_ao_v2:max_iter=160:stationarity_tol=1e-6"
+AO_FREEZE = "corrected_pairwise_ao_v2:max_iter=80:stationarity_tol=1e-6:post_ris_simplex_polish=40"
 GRID_FREEZE = "corrected_ao_grid_v1:rounds=2:zero_level:bidirectional_ris"
 
 
@@ -119,8 +119,8 @@ def load_corrected_baselines(root: Path, drl: pd.DataFrame) -> pd.DataFrame:
         raise RuntimeError(f"Unexpected corrected AO versions: {ao_versions}")
     if grid_versions != {"corrected_ao_grid_v1"}:
         raise RuntimeError(f"Unexpected corrected AO-Grid versions: {grid_versions}")
-    if set(raw[raw.method == "ao_sca"].max_iter.astype(int)) != {160}:
-        raise RuntimeError("Corrected AO is not uniformly frozen at max_iter=160")
+    if set(raw[raw.method == "ao_sca"].max_iter.astype(int)) != {80}:
+        raise RuntimeError("Corrected AO is not uniformly frozen at max_iter=80")
     return raw
 
 

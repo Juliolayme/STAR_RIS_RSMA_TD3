@@ -8,7 +8,7 @@ from star_ris_rsma.baselines import ao_corrected
 
 
 def test_small_objective_change_does_not_stop_with_open_simplex_gap(monkeypatch) -> None:
-    """A RIS sweep with a reopened simplex direction must get another AO cycle."""
+    """A RIS-reopened simplex direction is polished before outer stopping."""
 
     state = SimpleNamespace(
         score=1.0,
@@ -55,7 +55,8 @@ def test_small_objective_change_does_not_stop_with_open_simplex_gap(monkeypatch)
 
     _, metrics = ao_corrected.solve(env, max_iter=5)
 
-    assert metrics["iterations"] == 2
+    assert metrics["iterations"] == 1
+    assert metrics["simplex_polish_sweeps"] == 2
     assert metrics["termination_reason"] == "objective_and_simplex_stationarity"
     assert metrics["power_stationarity_gap"] == 0.0
     assert metrics["common_stationarity_gap"] == 0.0
@@ -105,8 +106,11 @@ def test_corrected_ao_v2_reports_max_iter_when_not_stationary(monkeypatch) -> No
         lambda *_args, **_kwargs: np.zeros(1, dtype=float),
     )
 
-    _, metrics = ao_corrected.solve(env, max_iter=2)
+    _, metrics = ao_corrected.solve(
+        env, max_iter=2, simplex_polish_max_sweeps=2
+    )
 
     assert metrics["iterations"] == 2
     assert metrics["termination_reason"] == "max_iter"
     assert metrics["algorithm_version"] == "corrected_pairwise_ao_v2"
+    assert metrics["simplex_polish_sweeps"] == 4

@@ -115,6 +115,9 @@ def main() -> None:
                     metrics.get("stationarity_tolerance", np.nan)
                 ),
                 "termination_reason": str(metrics.get("termination_reason", "")),
+                "simplex_polish_sweeps": int(
+                    metrics.get("simplex_polish_sweeps", 0)
+                ),
                 "rounds": int(metrics.get("rounds", 0)),
                 "initialization": str(metrics.get("initialization", "unknown")),
                 "selected_ris_sweep": str(metrics.get("selected_ris_sweep", "")),
@@ -137,7 +140,8 @@ def main() -> None:
                 "bank_checksum": checksum,
                 "freeze": (
                     f"{AO_VERSION}:max_iter={FROZEN_MAX_ITER}:"
-                    f"stationarity_tol={FROZEN_STATIONARITY_TOL}"
+                    f"stationarity_tol={FROZEN_STATIONARITY_TOL}:"
+                    "post_ris_simplex_polish=40"
                     if args.method == "ao_sca"
                     else f"{GRID_VERSION}:rounds={FROZEN_ROUNDS}"
                     if args.method == "ao_grid"
