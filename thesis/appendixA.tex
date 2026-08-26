@@ -1,4 +1,4 @@
-\chapter{THAM SỐ, KÝ HIỆU VÀ CẤU HÌNH THỰC NGHIỆM}
+\chapter{KÝ HIỆU VÀ CẤU HÌNH THỰC NGHIỆM}
 \label{app:config}
 
 \section{Danh mục ký hiệu toán học}
@@ -14,84 +14,73 @@
 \endhead
 $K$ & Số người dùng\\
 $N$ & Số phần tử STAR--RIS\\
-$h_{d,k}$ & Kênh trực tiếp BS--user $k$\\
+$h_{d,k}$ & Kênh trực tiếp BS--người dùng $k$\\
 $\bm g$ & Kênh BS--STAR--RIS\\
-$\bm h_{r,k}$ & Kênh STAR--RIS--user $k$\\
-$u_k$ & Chỉ báo phía user: 0 phản xạ, 1 truyền\\
-$\beta_n^T,\beta_n^R$ & Tỷ lệ công suất truyền và phản xạ của phần tử $n$\\
-$\theta_n^T,\theta_n^R$ & Pha truyền và phản xạ\\
-$\phi_n^T,\phi_n^R$ & Hệ số phức truyền và phản xạ\\
-$h_k^{\mathrm{eff}}$ & Kênh hiệu dụng của user $k$\\
+$\bm h_{r,k}$ & Kênh STAR--RIS--người dùng $k$\\
+$u_k$ & Chỉ báo phía người dùng: 0 phản xạ, 1 truyền qua\\
+$\beta_n^T,\beta_n^R$ & Tỷ lệ công suất truyền qua và phản xạ của phần tử $n$\\
+$\theta_n^T,\theta_n^R$ & Pha truyền qua và phản xạ\\
+$\phi_n^T,\phi_n^R$ & Hệ số phức truyền qua và phản xạ\\
+$h_k^{\mathrm{eff}}$ & Kênh hiệu dụng của người dùng $k$\\
 $p_c,p_k$ & Công suất luồng chung và luồng riêng $k$\\
-$\eta_k$ & Tỷ lệ common rate cấp cho user $k$\\
-$R_c$ & Common rate mà mọi user có thể giải mã\\
-$R_{p,k}$ & Private rate của user $k$\\
-$R_k$ & Tổng tốc độ user $k$\\
+$\eta_k$ & Tỷ lệ tốc độ chung cấp cho người dùng $k$\\
+$R_c$ & Tốc độ chung mà mọi người dùng có thể giải mã\\
+$R_{p,k}$ & Tốc độ riêng của người dùng $k$\\
+$R_k$ & Tổng tốc độ của người dùng $k$\\
 $R_{\min}$ & Ngưỡng QoS tối thiểu\\
-$V,V_2$ & Tổng deficit và deficit bình phương\\
-$\lambda_t$ & Dual multiplier cho QoS\\
-$d_s,d_a$ & Số chiều state và action\\
-$\gamma$ & Discount factor\\
-$\tau$ & Hệ số soft target update\\
+$V,V_2$ & Vi phạm QoS tuyến tính và bậc hai\\
+$\lambda_t$ & Trọng số phạt QoS thích nghi\\
+$d_s,d_a$ & Số chiều trạng thái và hành động\\
+$\gamma$ & Hệ số chiết khấu\\
+$\tau$ & Hệ số cập nhật mềm mạng đích\\
 \bottomrule
 \end{longtable}
 
-\section{Cấu hình theo kích thước STAR--RIS}
-Các tệp cấu hình phiên bản cuối nằm trong \texttt{configs/v3/}. Mọi cấu hình giữ $K=4$ và thay đổi $N$. Bảng~\ref{tab:dimension-by-n} trình bày số chiều theo công thức source.
+\section{Số chiều theo kích thước STAR--RIS}
+Mọi cấu hình giữ $K=4$ và thay đổi $N$. Bảng~\ref{tab:dimension-by-n} trình bày số chiều trạng thái và hành động.
 
 \begin{table}[H]
-\caption{Số chiều observation và action theo $N$}
+\caption{Số chiều trạng thái và hành động theo $N$}
 \label{tab:dimension-by-n}
 \centering
 \begin{tabular}{rrrr}
 \toprule
 $N$ & $d_s=2(K+N+KN)+K$ & $d_a=2K+1+3N$ & Tổng biến beta/pha\\
 \midrule
-16 & 140 & 57 & 48\\
-32 & 268 & 105 & 96\\
-64 & 524 & 201 & 192\\
-96 & 780 & 297 & 288\\
-128 & 1036 & 393 & 384\\
+16 & 172 & 57 & 48\\
+32 & 332 & 105 & 96\\
+64 & 652 & 201 & 192\\
+96 & 972 & 297 & 288\\
+128 & 1292 & 393 & 384\\
 \bottomrule
 \end{tabular}
-\tablesource{Tác giả tính từ implementation (2026)}
+\tablesource{Tác giả tính từ các công thức ở Chương 3 (2026)}
 \end{table}
 
-\section{Tệp cấu hình mẫu}
-Đoạn dưới là cấu hình $N=32$ được rút gọn để người đọc đối chiếu với Chương~\ref{chap:method}.
-\begin{lstlisting}[style=thesispython,caption={Cấu hình TD3 constrained cho $N=32$},label={lst:config-n32}]
-n_ris: 32
-n_users: 4
-p_max: 1.0
-noise_power: 0.001
-qos_min: 0.5
-episode_length: 32
-gamma: 0.99
-tau: 0.005
-hidden_dim: 256
-batch_size: 256
-replay_size: 200000
-warmup_steps: 2000
-train_steps: 100000
-validation_interval: 5000
-validation_scenarios: 1000
-exploration_noise: 0.12
-exploration_noise_final: 0.03
-observation_normalization: blockwise_v2
-action_parameterization: physical_v3
-qos_penalty_linear: 8.0
-qos_penalty_quadratic: 8.0
-qos_dual_enabled: true
-td3_actor_lr: 0.0001
-td3_critic_lr: 0.0003
-td3_policy_delay: 2
-td3_target_noise: 0.15
-td3_noise_clip: 0.30
-td3_gradient_clip_norm: 10.0
-td3_noise_reference_dim: 64
-td3_critic_loss: huber
-td3_layer_norm: true
-\end{lstlisting}
+\section{Cấu hình huấn luyện tham chiếu}
+\begin{table}[H]
+\caption{Các tham số huấn luyện TD3 chính}
+\label{tab:appendix-training-config}
+\begin{tabularx}{\textwidth}{p{6.0cm}Y}
+\toprule
+\textbf{Tham số} & \textbf{Giá trị}\\
+\midrule
+Ngân sách tương tác & 100.000 bước cho mỗi seed và mỗi $N$\\
+Kích thước mini-batch & 256\\
+Dung lượng Replay Buffer & 200.000 transition\\
+Số bước hành động ngẫu nhiên ban đầu & 2.000\\
+Độ dài episode kỹ thuật & 32 bước; dùng để tạo cờ kết thúc và ngắt bootstrap, không mô tả coherence time của kênh\\
+Learning rate Actor / Critic & $10^{-4}$ / $3\times10^{-4}$\\
+Hệ số chiết khấu $\gamma$ & 0,99\\
+Hệ số cập nhật mềm $\tau$ & 0,005\\
+Chu kỳ cập nhật Actor & 2 lần cập nhật Critic\\
+Nhiễu hành động đích / giới hạn nhiễu & 0,15 / 0,30\\
+Khoảng đánh giá xác thực & 5.000 bước\\
+Số kịch bản train / validation / test & 10.000 / 1.000 / 1.000\\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu hình thực nghiệm (2026)}
+\end{table}
 
 \section{Quy tắc số và đơn vị}
-Trong nội dung tiếng Việt, số thập phân được trình bày bằng dấu phẩy và nhóm ba chữ số bằng dấu chấm theo hướng dẫn của trường. Trong tệp cấu hình và mã nguồn, dấu chấm vẫn được dùng vì là cú pháp số thực của Python/YAML. Đơn vị tốc độ phổ là bit/s/Hz; latency dùng ms hoặc $\mu$s tùy bảng raw.
+Trong nội dung tiếng Việt, số thập phân được trình bày bằng dấu phẩy và nhóm ba chữ số bằng dấu chấm. Đơn vị tốc độ phổ là bit/s/Hz; độ trễ dùng ms. Các giá trị trong bảng được làm tròn để trình bày, trong khi kiểm định thống kê sử dụng dữ liệu thô chưa làm tròn.

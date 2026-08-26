@@ -1,0 +1,372 @@
+name: Recover canonical TD3 checkpoints
+
+on:
+  push:
+    branches:
+      - thesis/revision-review-v1
+    paths:
+      - .github/workflows/recover-td3-checkpoints.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: recover-canonical-td3-checkpoints
+  cancel-in-progress: false
+
+env:
+  TD3_USER: thanhnguyen1423
+  TD3_LOW_KERNEL: thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64
+  TD3_HIGH_KERNEL: thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128
+  EXPECTED_SCIENTIFIC_COMMIT: 99318fefa53bef91fa5f105ec71ddae73fc96c39
+  RELEASE_TAG: td3-checkpoints-six-method-v1
+
+jobs:
+  recover:
+    name: Recover 40 TD3 best.pt checkpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout thesis branch
+        uses: actions/checkout@v4
+        with:
+          ref: thesis/revision-review-v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install "kaggle>=1.8.4,<3"
+
+      - name: Download the two canonical TD3 Kaggle outputs
+        env:
+          KAGGLE_USERNAME: ${{ env.TD3_USER }}
+          KAGGLE_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -z "${KAGGLE_KEY:-}" ]]; then
+            echo "Missing repository secret KAGGLE_TD3_KEY" >&2
+            exit 1
+          fi
+
+          rm -rf kaggle_td3_outputs
+          mkdir -p kaggle_td3_outputs/low kaggle_td3_outputs/high
+
+          download_kernel() {
+            local ref="$1"
+            local destination="$2"
+            local status
+            status="$(kaggle kernels status "$ref" 2>&1)"
+            echo "$ref: $status"
+            echo "$status" | grep -Eqi "COMPLETE" || {
+              echo "Kernel is not complete: $ref" >&2
+              exit 1
+            }
+            kaggle kernels files "$ref" -v --page-size 500 \
+              > "$destination/_remote_files.csv"
+            kaggle kernels output "$ref" \
+              --path "$destination" \
+              --force
+          }
+
+          download_kernel "$TD3_LOW_KERNEL" kaggle_td3_outputs/low
+          download_kernel "$TD3_HIGH_KERNEL" kaggle_td3_outputs/high
+
+      - name: Extract, identify, and hash all 40 checkpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf td3_checkpoint_release
+          mkdir -p td3_checkpoint_release/checkpoints
+
+          python - <<'PY'
+          from __future__ import annotations
+
+          import csv
+          import hashlib
+          import json
+          import re
+          import shutil
+          import zipfile
+          from collections import defaultdict
+          from pathlib import Path
+
+          root = Path("kaggle_td3_outputs")
+          out = Path("td3_checkpoint_release")
+          checkpoints_root = out / "checkpoints"
+          expected_n = [16, 32, 64, 96, 128]
+          expected_pairs = {(n, seed) for n in expected_n for seed in range(8)}
+
+          # Some Kaggle notebooks save a compact ZIP instead of exposing every file.
+          # Extract recursively so recovery works for either output layout.
+          seen_archives: set[Path] = set()
+          for _ in range(4):
+              archives = [p for p in root.rglob("*.zip") if p not in seen_archives]
+              if not archives:
+                  break
+              for archive in archives:
+                  seen_archives.add(archive)
+                  target = archive.parent / (archive.stem + "__extracted")
+                  target.mkdir(parents=True, exist_ok=True)
+                  try:
+                      with zipfile.ZipFile(archive) as zf:
+                          zf.extractall(target)
+                  except zipfile.BadZipFile:
+                      print(f"Skipping invalid ZIP: {archive}")
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for block in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          def parse_pair(path: Path):
+              text = path.as_posix()
+              n_match = re.search(r"(?:^|[/_-])N?(16|32|64|96|128)(?=[/_-]|$)", text, re.I)
+              if not n_match:
+                  n_match = re.search(r"n(?:_?ris)?[_-]?(16|32|64|96|128)", text, re.I)
+              seed_match = re.search(r"seed[_-]?([0-7])(?=[/_-]|$)", text, re.I)
+              if not n_match or not seed_match:
+                  return None
+              return int(n_match.group(1)), int(seed_match.group(1))
+
+          candidates = defaultdict(list)
+          all_pt = sorted(root.rglob("best.pt"))
+          for path in all_pt:
+              pair = parse_pair(path)
+              if pair in expected_pairs:
+                  candidates[pair].append(path)
+
+          missing = sorted(expected_pairs - set(candidates))
+          if missing:
+              sample = [p.as_posix() for p in all_pt[:40]]
+              raise SystemExit(
+                  "Could not identify all 40 TD3 checkpoints. "
+                  f"Missing pairs: {missing}. Found best.pt sample: {sample}"
+              )
+
+          rows = []
+          duplicate_report = []
+          for n, seed in sorted(expected_pairs):
+              paths = candidates[(n, seed)]
+              by_hash = defaultdict(list)
+              for path in paths:
+                  by_hash[sha256(path)].append(path)
+              if len(by_hash) != 1:
+                  detail = {h: [p.as_posix() for p in ps] for h, ps in by_hash.items()}
+                  raise SystemExit(
+                      f"Conflicting checkpoint copies for N={n}, seed={seed}: {detail}"
+                  )
+
+              digest, identical_paths = next(iter(by_hash.items()))
+              # Prefer the shortest path: normally the direct Kaggle output rather than a ZIP duplicate.
+              src = sorted(identical_paths, key=lambda p: (len(p.parts), len(p.as_posix())))[0]
+              dest_dir = checkpoints_root / f"N{n}" / f"seed_{seed}"
+              dest_dir.mkdir(parents=True, exist_ok=True)
+              dest = dest_dir / "best.pt"
+              shutil.copy2(src, dest)
+
+              # Copy useful lightweight run metadata near the checkpoint when available.
+              search_dirs = [src.parent, src.parent.parent, src.parent.parent.parent]
+              copied = set()
+              for directory in search_dirs:
+                  for name in (
+                      "best_validation.json",
+                      "manifest.json",
+                      "training.csv",
+                      "validation_raw.csv",
+                      "test.csv",
+                  ):
+                      candidate = directory / name
+                      if candidate.is_file() and name not in copied:
+                          shutil.copy2(candidate, dest_dir / name)
+                          copied.add(name)
+
+              origin = "low" if "kaggle_td3_outputs/low/" in src.as_posix() else "high"
+              kernel = (
+                  "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64"
+                  if origin == "low"
+                  else "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128"
+              )
+              rows.append({
+                  "n_ris": n,
+                  "seed": seed,
+                  "relative_path": dest.relative_to(out).as_posix(),
+                  "size_bytes": dest.stat().st_size,
+                  "sha256": digest,
+                  "kaggle_kernel": kernel,
+                  "kaggle_output_path": src.relative_to(root).as_posix(),
+              })
+              if len(identical_paths) > 1:
+                  duplicate_report.append({
+                      "n_ris": n,
+                      "seed": seed,
+                      "sha256": digest,
+                      "identical_copies": [p.relative_to(root).as_posix() for p in identical_paths],
+                  })
+
+          if len(rows) != 40:
+              raise SystemExit(f"Expected 40 recovered checkpoints, got {len(rows)}")
+
+          inventory = out / "TD3_CHECKPOINT_INVENTORY.csv"
+          with inventory.open("w", newline="", encoding="utf-8") as handle:
+              writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+              writer.writeheader()
+              writer.writerows(rows)
+
+          with (out / "SHA256SUMS.txt").open("w", encoding="utf-8") as handle:
+              for row in rows:
+                  handle.write(f"{row['sha256']}  {row['relative_path']}\n")
+
+          (out / "DUPLICATE_AUDIT.json").write_text(
+              json.dumps(duplicate_report, indent=2), encoding="utf-8"
+          )
+
+          # Archive source-stage manifests and the remote Kaggle file inventories.
+          provenance_dir = out / "provenance"
+          provenance_dir.mkdir(exist_ok=True)
+          for label in ("low", "high"):
+              remote = root / label / "_remote_files.csv"
+              if remote.is_file():
+                  shutil.copy2(remote, provenance_dir / f"{label}_remote_files.csv")
+
+          stage_manifests = list(root.rglob("STAGE_MANIFEST.json"))
+          manifest_records = []
+          for i, path in enumerate(stage_manifests):
+              try:
+                  payload = json.loads(path.read_text(encoding="utf-8"))
+              except Exception:
+                  payload = None
+              dest = provenance_dir / f"stage_{i:02d}_STAGE_MANIFEST.json"
+              shutil.copy2(path, dest)
+              manifest_records.append({
+                  "source": path.relative_to(root).as_posix(),
+                  "archived_as": dest.relative_to(out).as_posix(),
+                  "repository_commit": payload.get("repository_commit") if isinstance(payload, dict) else None,
+                  "method": payload.get("method") if isinstance(payload, dict) else None,
+                  "stage_id": payload.get("stage_id") if isinstance(payload, dict) else None,
+              })
+
+          declared_commits = {
+              item["repository_commit"]
+              for item in manifest_records
+              if item.get("repository_commit")
+          }
+          expected_commit = "99318fefa53bef91fa5f105ec71ddae73fc96c39"
+          if declared_commits and declared_commits != {expected_commit}:
+              raise SystemExit(
+                  f"Unexpected TD3 stage commit(s): {sorted(declared_commits)}; expected {expected_commit}"
+              )
+
+          provenance = {
+              "checkpoint_count": 40,
+              "n_ris_values": expected_n,
+              "seeds_per_n": 8,
+              "kaggle_kernels": [
+                  "thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64",
+                  "thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128",
+              ],
+              "scientific_commit": expected_commit,
+              "canonical_result_source": "results/six_method_v1/PUBLISH_SOURCE.json",
+              "canonical_result_source_run": 30422028560,
+              "purpose": "Persistent archive of the exact TD3 checkpoints behind the six-method thesis benchmark.",
+              "stage_manifests": manifest_records,
+          }
+          (out / "PROVENANCE.json").write_text(
+              json.dumps(provenance, indent=2), encoding="utf-8"
+          )
+
+          readme = """# Canonical TD3 checkpoints — six-method thesis benchmark
+
+          This release contains the 40 `best.pt` TD3 checkpoints for the thesis benchmark:
+
+          - N = 16, 32, 64, 96, 128
+          - 8 independent seeds per N
+          - total = 40 checkpoints
+
+          They are recovered directly from the two saved Kaggle runs used by the canonical six-method collector. `TD3_CHECKPOINT_INVENTORY.csv` and `SHA256SUMS.txt` provide a per-file audit trail. The release also includes the v3 configs and available lightweight run metadata.
+          """
+          (out / "README.md").write_text(
+              "\n".join(line.strip() for line in readme.splitlines()) + "\n",
+              encoding="utf-8",
+          )
+
+          print("Recovered exactly 40 TD3 checkpoints")
+          for n in expected_n:
+              print(f"N={n}: 8/8 seeds")
+          PY
+
+      - name: Include thesis configs and canonical result provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p td3_checkpoint_release/configs td3_checkpoint_release/result_provenance
+          for n in 16 32 64 96 128; do
+            cp "configs/v3/constrained_action_n${n}.yaml" td3_checkpoint_release/configs/
+          done
+          cp results/six_method_v1/PUBLISH_SOURCE.json td3_checkpoint_release/result_provenance/
+          cp results/six_method_v1/SIX_METHOD_AUDIT.json td3_checkpoint_release/result_provenance/
+
+      - name: Build five checkpoint archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          for n in 16 32 64 96 128; do
+            tar -C td3_checkpoint_release -czf "td3-checkpoints-N${n}-8seeds.tar.gz" \
+              "checkpoints/N${n}" configs README.md PROVENANCE.json TD3_CHECKPOINT_INVENTORY.csv SHA256SUMS.txt result_provenance provenance
+            test -s "td3-checkpoints-N${n}-8seeds.tar.gz"
+            ls -lh "td3-checkpoints-N${n}-8seeds.tar.gz"
+          done
+
+      - name: Publish persistent GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes=$(cat <<'EOF'
+          Persistent archive of the 40 canonical TD3 `best.pt` checkpoints used by the six-method thesis benchmark.
+
+          Coverage: N = 16, 32, 64, 96, 128; 8 seeds per N. Checkpoint hashes, Kaggle provenance, v3 configs, and available validation/training metadata are included.
+          EOF
+          )
+
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "thesis/revision-review-v1" \
+              --title "Canonical TD3 checkpoints — six-method v1" \
+              --notes "$notes"
+          fi
+
+          gh release upload "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber \
+            td3-checkpoints-N16-8seeds.tar.gz \
+            td3-checkpoints-N32-8seeds.tar.gz \
+            td3-checkpoints-N64-8seeds.tar.gz \
+            td3-checkpoints-N96-8seeds.tar.gz \
+            td3-checkpoints-N128-8seeds.tar.gz \
+            td3_checkpoint_release/TD3_CHECKPOINT_INVENTORY.csv \
+            td3_checkpoint_release/SHA256SUMS.txt \
+            td3_checkpoint_release/PROVENANCE.json
+
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Canonical TD3 checkpoint recovery"
+            echo
+            echo "- Expected checkpoints: **40**"
+            echo "- N: **16, 32, 64, 96, 128**"
+            echo "- Seeds per N: **8**"
+            echo "- Kaggle source: two canonical TD3 six-method runs"
+            echo "- Release tag: \`${RELEASE_TAG}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
