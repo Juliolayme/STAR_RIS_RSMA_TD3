@@ -1,0 +1,110 @@
+name: Audit AO baselines N128 full 1000
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - audit/ao-baseline-full-n128
+    paths:
+      - '.github/workflows/audit-ao-baselines-n128.yml'
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  PYTHONPATH: src
+
+jobs:
+  run-chunks:
+    name: ${{ matrix.method }} ${{ matrix.chunk }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        method: [legacy, claude, pairwise, hybrid, grid_corrected]
+        chunk:
+          - '0000-0050'
+          - '0050-0100'
+          - '0100-0150'
+          - '0150-0200'
+          - '0200-0250'
+          - '0250-0300'
+          - '0300-0350'
+          - '0350-0400'
+          - '0400-0450'
+          - '0450-0500'
+          - '0500-0550'
+          - '0550-0600'
+          - '0600-0650'
+          - '0650-0700'
+          - '0700-0750'
+          - '0750-0800'
+          - '0800-0850'
+          - '0850-0900'
+          - '0900-0950'
+          - '0950-1000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Run locked N128 chunk
+        env:
+          METHOD: ${{ matrix.method }}
+          CHUNK: ${{ matrix.chunk }}
+        run: |
+          START=$((10#${CHUNK%-*}))
+          END=$((10#${CHUNK#*-}))
+          mkdir -p audit_chunk
+          python scripts/audit_ao_baselines_n128.py run \
+            --repo . \
+            --method "$METHOD" \
+            --start "$START" \
+            --end "$END" \
+            --output "audit_chunk/${METHOD}_${CHUNK}.csv"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ao-${{ matrix.method }}-${{ matrix.chunk }}
+          path: audit_chunk/*.csv
+          retention-days: 14
+          if-no-files-found: error
+
+  summarize:
+    name: Merge and summarize full audit
+    needs: run-chunks
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: ao-*
+          path: downloaded_chunks
+          merge-multiple: true
+      - name: Validate, merge, and calculate paired statistics
+        run: |
+          python scripts/audit_ao_baselines_n128.py summarize \
+            --input-dir downloaded_chunks \
+            --output-dir final_audit
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AO_BASELINE_N128_1000_FINAL_AUDIT
+          path: final_audit/*
+          retention-days: 30
+          if-no-files-found: error
