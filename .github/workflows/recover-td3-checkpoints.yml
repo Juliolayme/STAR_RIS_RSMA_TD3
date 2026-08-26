@@ -1,0 +1,270 @@
+name: Recover canonical TD3 checkpoints
+
+on:
+  push:
+    branches:
+      - thesis/revision-review-v1
+    paths:
+      - .github/workflows/recover-td3-checkpoints.yml
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: recover-canonical-td3-checkpoints
+  cancel-in-progress: false
+
+env:
+  SOURCE_RUN_ID: "30422028560"
+  SOURCE_ARTIFACT_NAME: star-ris-six-method-canonical-evidence
+  SOURCE_ARTIFACT_ID: "8712801218"
+  SOURCE_ARTIFACT_DIGEST: sha256:9bae98f58e98d8c95fed9faea32ba558be741d605e51494f789447a4a5a6658b
+  RELEASE_TAG: td3-checkpoints-six-method-v1
+
+jobs:
+  recover:
+    name: Recover 40 TD3 best.pt checkpoints
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout thesis branch
+        uses: actions/checkout@v4
+        with:
+          ref: thesis/revision-review-v1
+
+      - name: Download canonical evidence artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf canonical_evidence
+          mkdir -p canonical_evidence
+          gh run download "$SOURCE_RUN_ID" \
+            --repo "$GITHUB_REPOSITORY" \
+            --name "$SOURCE_ARTIFACT_NAME" \
+            --dir canonical_evidence
+
+      - name: Extract and audit TD3 checkpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf td3_checkpoint_release
+          mkdir -p td3_checkpoint_release/checkpoints
+
+          python - <<'PY'
+          from __future__ import annotations
+
+          import csv
+          import hashlib
+          import json
+          import re
+          import shutil
+          from collections import Counter
+          from pathlib import Path
+
+          source = Path("canonical_evidence")
+          out = Path("td3_checkpoint_release")
+          checkpoints_root = out / "checkpoints"
+
+          pattern = re.compile(
+              r"final_td3_v3/N(?P<n>16|32|64|96|128)/seed_(?P<seed>[0-7])/train/best\.pt$"
+          )
+
+          matches = []
+          for path in source.rglob("best.pt"):
+              normalized = path.as_posix()
+              match = pattern.search(normalized)
+              if match:
+                  matches.append((path, int(match.group("n")), int(match.group("seed"))))
+
+          if len(matches) != 40:
+              raise SystemExit(f"Expected exactly 40 canonical TD3 best.pt files, found {len(matches)}")
+
+          coverage = Counter(n for _, n, _ in matches)
+          expected_n = [16, 32, 64, 96, 128]
+          for n in expected_n:
+              if coverage[n] != 8:
+                  raise SystemExit(f"N={n}: expected 8 seeds, found {coverage[n]}")
+
+          observed_pairs = {(n, seed) for _, n, seed in matches}
+          expected_pairs = {(n, seed) for n in expected_n for seed in range(8)}
+          if observed_pairs != expected_pairs:
+              missing = sorted(expected_pairs - observed_pairs)
+              extra = sorted(observed_pairs - expected_pairs)
+              raise SystemExit(f"TD3 checkpoint coverage mismatch. missing={missing}, extra={extra}")
+
+          def sha256(path: Path) -> str:
+              digest = hashlib.sha256()
+              with path.open("rb") as handle:
+                  for block in iter(lambda: handle.read(1024 * 1024), b""):
+                      digest.update(block)
+              return digest.hexdigest()
+
+          rows = []
+          for src, n, seed in sorted(matches, key=lambda item: (item[1], item[2])):
+              dest_dir = checkpoints_root / f"N{n}" / f"seed_{seed}"
+              dest_dir.mkdir(parents=True, exist_ok=True)
+              dest = dest_dir / "best.pt"
+              shutil.copy2(src, dest)
+
+              # Keep lightweight checkpoint-selection metadata when present.
+              for candidate in [
+                  src.parent / "best_validation.json",
+                  src.parent.parent / "manifest.json",
+                  src.parent.parent / "best_validation.json",
+              ]:
+                  if candidate.is_file():
+                      shutil.copy2(candidate, dest_dir / candidate.name)
+
+              rows.append({
+                  "n_ris": n,
+                  "seed": seed,
+                  "relative_path": dest.relative_to(out).as_posix(),
+                  "size_bytes": dest.stat().st_size,
+                  "sha256": sha256(dest),
+                  "canonical_source_path": src.relative_to(source).as_posix(),
+              })
+
+          inventory = out / "TD3_CHECKPOINT_INVENTORY.csv"
+          with inventory.open("w", newline="", encoding="utf-8") as handle:
+              writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+              writer.writeheader()
+              writer.writerows(rows)
+
+          with (out / "SHA256SUMS.txt").open("w", encoding="utf-8") as handle:
+              for row in rows:
+                  handle.write(f"{row['sha256']}  {row['relative_path']}\n")
+
+          # Preserve the selected-stage provenance files from the canonical evidence artifact.
+          selected_indexes = list(source.rglob("SELECTED_STAGE_MANIFESTS.json"))
+          if len(selected_indexes) != 1:
+              raise SystemExit(
+                  f"Expected one SELECTED_STAGE_MANIFESTS.json, found {len(selected_indexes)}"
+              )
+          shutil.copy2(selected_indexes[0], out / "SELECTED_STAGE_MANIFESTS.json")
+
+          stage_manifests = []
+          for path in source.rglob("STAGE_MANIFEST.json"):
+              try:
+                  payload = json.loads(path.read_text(encoding="utf-8"))
+              except Exception:
+                  continue
+              stage_id = str(payload.get("stage_id", ""))
+              method = str(payload.get("method", ""))
+              if stage_id.startswith("td3_") or method.lower() == "td3":
+                  stage_manifests.append((path, stage_id or path.parent.name))
+
+          provenance_dir = out / "stage_manifests"
+          provenance_dir.mkdir(exist_ok=True)
+          for path, stage_id in stage_manifests:
+              safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", stage_id)
+              shutil.copy2(path, provenance_dir / f"{safe}_STAGE_MANIFEST.json")
+
+          provenance = {
+              "checkpoint_count": len(rows),
+              "n_ris_values": expected_n,
+              "seeds_per_n": 8,
+              "source_run_id": 30422028560,
+              "source_artifact_id": 8712801218,
+              "source_artifact_name": "star-ris-six-method-canonical-evidence",
+              "source_artifact_digest": "sha256:9bae98f58e98d8c95fed9faea32ba558be741d605e51494f789447a4a5a6658b",
+              "purpose": "Persistent recovery of the exact TD3 checkpoints used by the canonical six-method thesis benchmark.",
+          }
+          (out / "PROVENANCE.json").write_text(
+              json.dumps(provenance, indent=2), encoding="utf-8"
+          )
+
+          readme = f"""# TD3 canonical checkpoints — six-method thesis benchmark
+
+          This package contains the **40 `best.pt` TD3 checkpoints** used by the canonical six-method benchmark:
+
+          - N = 16, 32, 64, 96, 128
+          - 8 independent seeds per N
+          - total: 5 × 8 = 40 checkpoints
+
+          Provenance:
+
+          - GitHub Actions source run: `30422028560`
+          - source artifact: `star-ris-six-method-canonical-evidence` (`8712801218`)
+          - source artifact digest: `sha256:9bae98f58e98d8c95fed9faea32ba558be741d605e51494f789447a4a5a6658b`
+          - repository result publication records the same artifact in `results/six_method_v1/PUBLISH_SOURCE.json`.
+
+          `TD3_CHECKPOINT_INVENTORY.csv` and `SHA256SUMS.txt` provide per-checkpoint hashes.
+          `SELECTED_STAGE_MANIFESTS.json` and the copied TD3 stage manifests preserve the training/evaluation provenance.
+          """
+          (out / "README.md").write_text(
+              "\n".join(line.strip() for line in readme.splitlines()) + "\n",
+              encoding="utf-8",
+          )
+
+          print(f"Recovered {len(rows)} TD3 checkpoints")
+          print(dict(sorted(coverage.items())))
+          PY
+
+      - name: Include thesis configs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p td3_checkpoint_release/configs
+          cp configs/v3/constrained_action_n16.yaml td3_checkpoint_release/configs/
+          cp configs/v3/constrained_action_n32.yaml td3_checkpoint_release/configs/
+          cp configs/v3/constrained_action_n64.yaml td3_checkpoint_release/configs/
+          cp configs/v3/constrained_action_n96.yaml td3_checkpoint_release/configs/
+          cp configs/v3/constrained_action_n128.yaml td3_checkpoint_release/configs/
+
+      - name: Build persistent release archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -C td3_checkpoint_release -czf td3-checkpoints-six-method-v1.tar.gz .
+          ls -lh td3-checkpoints-six-method-v1.tar.gz
+          test -s td3-checkpoints-six-method-v1.tar.gz
+
+      - name: Publish checkpoints as GitHub Release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          notes=$(cat <<'EOF'
+          Persistent archive of the 40 canonical TD3 `best.pt` checkpoints used by the thesis six-method benchmark.
+
+          Coverage: N = 16, 32, 64, 96, 128; 8 seeds per N.
+
+          The files were recovered directly from GitHub Actions canonical evidence artifact 8712801218 from run 30422028560, whose digest is recorded in `results/six_method_v1/PUBLISH_SOURCE.json`.
+          EOF
+          )
+
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "thesis/revision-review-v1" \
+              --title "Canonical TD3 checkpoints — six-method v1" \
+              --notes "$notes"
+          fi
+
+          gh release upload "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber \
+            td3-checkpoints-six-method-v1.tar.gz \
+            td3_checkpoint_release/TD3_CHECKPOINT_INVENTORY.csv \
+            td3_checkpoint_release/SHA256SUMS.txt \
+            td3_checkpoint_release/PROVENANCE.json
+
+      - name: Write summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Canonical TD3 checkpoint recovery"
+            echo
+            echo "- Expected checkpoints: **40**"
+            echo "- N: **16, 32, 64, 96, 128**"
+            echo "- Seeds per N: **8**"
+            echo "- Source artifact ID: \`${SOURCE_ARTIFACT_ID}\`"
+            echo "- Release tag: \`${RELEASE_TAG}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
