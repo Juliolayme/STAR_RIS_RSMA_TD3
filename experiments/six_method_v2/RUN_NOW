@@ -5,3 +5,4 @@ n_values=16,32,64,96,128
 latency=single_thread_same_runner_warmup10_count100
 statistics=paired_t,wilcoxon,holm
 requested=2026-08-26
+latency_fix=cross_runner_float_tolerance_v1
