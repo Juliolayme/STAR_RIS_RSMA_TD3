@@ -14,6 +14,7 @@ from star_ris_rsma.baselines.analytical_ris import solve as solve_analytical
 from star_ris_rsma.baselines.ao_corrected import (
     ALGORITHM_VERSION as AO_VERSION,
     FROZEN_MAX_ITER,
+    FROZEN_STATIONARITY_TOL,
     solve as solve_ao,
 )
 from star_ris_rsma.baselines.ao_grid_corrected import (
@@ -110,6 +111,10 @@ def main() -> None:
                 "solver": str(metrics.get("solver", args.method)),
                 "algorithm_version": algorithm_version,
                 "max_iter": int(metrics.get("max_iter", 0)),
+                "stationarity_tolerance": float(
+                    metrics.get("stationarity_tolerance", np.nan)
+                ),
+                "termination_reason": str(metrics.get("termination_reason", "")),
                 "rounds": int(metrics.get("rounds", 0)),
                 "initialization": str(metrics.get("initialization", "unknown")),
                 "selected_ris_sweep": str(metrics.get("selected_ris_sweep", "")),
@@ -131,7 +136,8 @@ def main() -> None:
                 "git_commit": git_commit,
                 "bank_checksum": checksum,
                 "freeze": (
-                    f"{AO_VERSION}:max_iter={FROZEN_MAX_ITER}"
+                    f"{AO_VERSION}:max_iter={FROZEN_MAX_ITER}:"
+                    f"stationarity_tol={FROZEN_STATIONARITY_TOL}"
                     if args.method == "ao_sca"
                     else f"{GRID_VERSION}:rounds={FROZEN_ROUNDS}"
                     if args.method == "ao_grid"

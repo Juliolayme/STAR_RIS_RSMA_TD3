@@ -8,10 +8,11 @@ from .analytical_ris import analytical_action
 from .ao_sca import _block_gradient, _proximal_surrogate_maximizer
 from .common import physical_slices, state_from_action, state_from_vector
 
-# Scientific freeze selected after the locked N=128 1,000-scenario audit.
-ALGORITHM_VERSION = "corrected_pairwise_ao_v1"
+# Candidate v2 freeze; must pass the locked N16/N32 stationarity pilot.
+ALGORITHM_VERSION = "corrected_pairwise_ao_v2"
 FROZEN_MAX_ITER = 80
 FROZEN_TOL = 1e-4
+FROZEN_STATIONARITY_TOL = 1e-6
 FROZEN_GRADIENT_EPS = 1e-3
 FROZEN_PAIRWISE_PROBE = 1e-3
 FROZEN_PAIRWISE_MAX_STEPS = 12
@@ -131,6 +132,7 @@ def solve(
     *,
     max_iter: int = FROZEN_MAX_ITER,
     tol: float = FROZEN_TOL,
+    stationarity_tol: float = FROZEN_STATIONARITY_TOL,
     gradient_eps: float = FROZEN_GRADIENT_EPS,
     initial_rho: float = 1.0,
     rho_growth: float = 2.0,
@@ -155,9 +157,14 @@ def solve(
     history = [float(current.score)]
     evaluations = 1
     accepted_steps = 0
+    power_gap = np.inf
+    common_gap = np.inf
+    gaps_match_current = False
+    termination_reason = "max_iter"
 
     for _ in range(max_iter):
         previous = float(current.score)
+        gaps_match_current = False
 
         current, used, accepted = _pairwise_simplex_ascent(
             env, current, slices["powers"], cfg.p_max
@@ -195,18 +202,33 @@ def solve(
 
         history.append(float(current.score))
         if abs(current.score - previous) / max(1.0, abs(previous)) < tol:
-            break
+            power_gap, used = _stationarity_gap(
+                env, current, slices["powers"], cfg.p_max
+            )
+            evaluations += used
+            common_gap, used = _stationarity_gap(
+                env, current, slices["common"], 1.0
+            )
+            evaluations += used
+            gaps_match_current = True
+            if power_gap < stationarity_tol and common_gap < stationarity_tol:
+                termination_reason = "objective_and_simplex_stationarity"
+                break
 
-    power_gap, used = _stationarity_gap(env, current, slices["powers"], cfg.p_max)
-    evaluations += used
-    common_gap, used = _stationarity_gap(env, current, slices["common"], 1.0)
-    evaluations += used
+    if not gaps_match_current:
+        power_gap, used = _stationarity_gap(env, current, slices["powers"], cfg.p_max)
+        evaluations += used
+        common_gap, used = _stationarity_gap(env, current, slices["common"], 1.0)
+        evaluations += used
 
     metrics = dict(current.metrics)
     metrics.update(
         solver=ALGORITHM_VERSION,
         algorithm_version=ALGORITHM_VERSION,
         max_iter=int(max_iter),
+        objective_tolerance=float(tol),
+        stationarity_tolerance=float(stationarity_tol),
+        termination_reason=termination_reason,
         iterations=len(history) - 1,
         evaluations=int(evaluations),
         accepted_steps=int(accepted_steps),
