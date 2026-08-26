@@ -1,3 +1,4 @@
+# Recovery workflow for persistent thesis checkpoint archival.
 name: Recover canonical TD3 checkpoints
 
 on:
