@@ -10,7 +10,7 @@ from .common import physical_slices, state_from_action, state_from_vector
 
 # Candidate v2 freeze; must pass the locked N16/N32 stationarity pilot.
 ALGORITHM_VERSION = "corrected_pairwise_ao_v2"
-FROZEN_MAX_ITER = 80
+FROZEN_MAX_ITER = 160
 FROZEN_TOL = 1e-4
 FROZEN_STATIONARITY_TOL = 1e-6
 FROZEN_GRADIENT_EPS = 1e-3

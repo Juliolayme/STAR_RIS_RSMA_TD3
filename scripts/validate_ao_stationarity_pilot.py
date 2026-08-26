@@ -65,7 +65,7 @@ def main() -> None:
     audit = {
         "verdict": verdict,
         "algorithm_version": ALGORITHM_VERSION,
-        "criterion": "relative_objective_change < 1e-4 AND power/common gaps < 1e-6",
+        "criterion": "relative_objective_change < 1e-4 AND power/common gaps < 1e-6; max_iter=160",
         "results": rows,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
