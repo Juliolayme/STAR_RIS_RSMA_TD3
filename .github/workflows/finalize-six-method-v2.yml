@@ -1,0 +1,272 @@
+name: Finalize corrected six-method benchmark v2
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - audit/ao-baseline-full-n128
+    paths:
+      - experiments/six_method_v2/RUN_NOW
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  PYTHONPATH: src
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+
+concurrency:
+  group: corrected-six-method-v2
+  cancel-in-progress: false
+
+jobs:
+  corrected-heavy-baselines:
+    name: ${{ matrix.method }} N${{ matrix.n }} ${{ matrix.chunk }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        method: [ao_sca, ao_grid]
+        n: [16, 32, 64, 96, 128]
+        chunk:
+          - '0000-0100'
+          - '0100-0200'
+          - '0200-0300'
+          - '0300-0400'
+          - '0400-0500'
+          - '0500-0600'
+          - '0600-0700'
+          - '0700-0800'
+          - '0800-0900'
+          - '0900-1000'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Run corrected locked baseline chunk
+        env:
+          METHOD: ${{ matrix.method }}
+          N_RIS: ${{ matrix.n }}
+          CHUNK: ${{ matrix.chunk }}
+        run: |
+          set -euo pipefail
+          START=$((10#${CHUNK%-*}))
+          END=$((10#${CHUNK#*-}))
+          mkdir -p baseline_chunk
+          python scripts/run_corrected_baseline.py \
+            --method "$METHOD" \
+            --n-ris "$N_RIS" \
+            --start "$START" \
+            --end "$END" \
+            --output "baseline_chunk/${METHOD}_N${N_RIS}_${CHUNK}.csv"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2-baseline-${{ matrix.method }}-N${{ matrix.n }}-${{ matrix.chunk }}
+          path: baseline_chunk/*.csv
+          retention-days: 14
+          if-no-files-found: error
+
+  analytical-baseline:
+    name: analytical_ris N${{ matrix.n }} full1000
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        n: [16, 32, 64, 96, 128]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+      - name: Run unchanged AnalyticalRIS on locked bank
+        run: |
+          mkdir -p baseline_chunk
+          python scripts/run_corrected_baseline.py \
+            --method analytical_ris \
+            --n-ris "${{ matrix.n }}" \
+            --start 0 --end 1000 \
+            --output "baseline_chunk/analytical_ris_N${{ matrix.n }}_0000-1000.csv"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2-baseline-analytical_ris-N${{ matrix.n }}-full
+          path: baseline_chunk/*.csv
+          retention-days: 14
+          if-no-files-found: error
+
+  latency:
+    name: Rebenchmark all six methods on one CPU runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      TD3_USER: thanhnguyen1423
+      TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      DDPG_USER: ronganminh
+      DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      PPO_USER: duythanhb1909984
+      PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and Kaggle CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . "kaggle>=1.8.4,<3"
+      - name: Download canonical learned-method outputs
+        run: |
+          set -euo pipefail
+          rm -rf collected_drl
+          mkdir -p collected_drl
+
+          download_kernel() {
+            local user="$1"
+            local key="$2"
+            local ref="$3"
+            local destination="$4"
+            local status
+            status=$(KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" kaggle kernels status "$ref" 2>&1)
+            echo "$ref: $status"
+            echo "$status" | grep -Eqi "COMPLETE" || {
+              echo "Kernel is not complete: $ref" >&2
+              exit 1
+            }
+            mkdir -p "$destination"
+            KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" \
+              kaggle kernels output "$ref" -p "$destination"
+          }
+
+          download_kernel "$TD3_USER" "$TD3_KEY" \
+            thanhnguyen1423/star-ris-td3-six-method-benchmark-16-32-64 \
+            collected_drl/td3_low_n
+          download_kernel "$TD3_USER" "$TD3_KEY" \
+            thanhnguyen1423/star-ris-td3-six-method-benchmark-96-128 \
+            collected_drl/td3_high_n
+          download_kernel "$DDPG_USER" "$DDPG_KEY" \
+            ronganminh/star-ris-ddpg-six-method-benchmark-16-32-64 \
+            collected_drl/ddpg_low_n
+          download_kernel "$DDPG_USER" "$DDPG_KEY" \
+            ronganminh/star-ris-ddpg-six-method-benchmark-96-128 \
+            collected_drl/ddpg_high_n
+          download_kernel "$PPO_USER" "$PPO_KEY" \
+            duythanhb1909984/star-ris-ppo-six-method-benchmark-16-32-64 \
+            collected_drl/ppo_low_n
+          download_kernel "$PPO_USER" "$PPO_KEY" \
+            duythanhb1909984/star-ris-ppo-six-method-benchmark-96-128 \
+            collected_drl/ppo_high_n
+
+          python scripts/select_six_method_stage_outputs.py \
+            --drl-root collected_drl \
+            --selected-root collected_drl_selected \
+            --index collected_drl_selected/SELECTED_STAGE_MANIFESTS.json
+      - name: Benchmark learned and corrected traditional methods
+        run: |
+          set -euo pipefail
+          rm -rf latency_out
+          mkdir -p latency_out
+
+          for n in 16 32 64 96 128; do
+            config="configs/v3/constrained_action_n${n}.yaml"
+            for method in td3 ddpg ppo; do
+              if (( n <= 64 )); then group=low_n; else group=high_n; fi
+              stage_id="${method}_${group}"
+              stage_root=$(python - "$stage_id" <<'PY'
+          import json
+          import sys
+          index = json.load(open("collected_drl_selected/SELECTED_STAGE_MANIFESTS.json"))
+          print(index["selected_stages"][sys.argv[1]]["stage_root"])
+          PY
+              )
+              mapfile -t checkpoints < <(
+                find "$stage_root" -type f \
+                  -path "*/final_${method}_v3/N${n}/seed_0/train/best.pt"
+              )
+              if [[ ${#checkpoints[@]} -ne 1 ]]; then
+                echo "Expected one canonical seed-0 checkpoint for ${method} N=${n}, found ${#checkpoints[@]}" >&2
+                printf '%s\n' "${checkpoints[@]}" >&2
+                exit 1
+              fi
+              python scripts/benchmark_latency_v2.py \
+                --method "$method" \
+                --config "$config" \
+                --checkpoint "${checkpoints[0]}" \
+                --seed 0 --warmup 10 --count 100 --verify-count 5 \
+                --output "latency_out/${method}_N${n}.csv"
+            done
+
+            for method in ao_sca ao_grid analytical_ris; do
+              python scripts/benchmark_latency_v2.py \
+                --method "$method" \
+                --config "$config" \
+                --seed 0 --warmup 10 --count 100 \
+                --output "latency_out/${method}_N${n}.csv"
+            done
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIX_METHOD_V2_LATENCY
+          path: latency_out/*.csv
+          retention-days: 30
+          if-no-files-found: error
+
+  summarize:
+    name: Validate, Holm-correct, and publish v2 artifact
+    needs: [corrected-heavy-baselines, analytical-baseline, latency]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install reporting dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . tabulate
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: v2-baseline-*
+          path: collected/baselines
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          name: SIX_METHOD_V2_LATENCY
+          path: collected/latency
+      - name: Build corrected six-method report
+        run: |
+          set -euo pipefail
+          python scripts/build_six_method_v2_report.py \
+            --drl-raw results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv \
+            --baseline-root collected/baselines \
+            --latency-root collected/latency \
+            --output six_method_v2
+          test "$(python - <<'PY'
+          import json
+          print(json.load(open('six_method_v2/SIX_METHOD_V2_AUDIT.json'))['verdict'])
+          PY
+          )" = PASS
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SIX_METHOD_V2_CORRECTED_FINAL
+          path: six_method_v2/**
+          retention-days: 30
+          if-no-files-found: error
