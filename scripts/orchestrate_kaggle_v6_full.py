@@ -276,6 +276,15 @@ def submit(job: Job, commit: str, submission_root: Path) -> None:
     job.status = "queued"
 
 
+class JobVerificationError(RuntimeError):
+    """A kernel finished but its archive is not acceptable evidence.
+
+    Raised instead of a bare RuntimeError so one unusable archive costs that
+    job a retry rather than aborting the orchestrator and discarding the
+    other twenty-four results along with the manifest.
+    """
+
+
 def verify_learning(bundle: zipfile.ZipFile, archive: Path) -> None:
     """Reject a run whose selected checkpoint is the untrained initialisation.
 
@@ -287,16 +296,16 @@ def verify_learning(bundle: zipfile.ZipFile, archive: Path) -> None:
         name for name in bundle.namelist() if name.endswith("/summary.json")
     ]
     if len(matches) != 1:
-        raise RuntimeError(f"{archive}: expected one summary.json, got {matches}")
+        raise JobVerificationError(f"{archive}: expected one summary.json, got {matches}")
     summary = json.loads(bundle.read(matches[0]))
     checkpoints = summary["checkpoints"]
     if checkpoints["best"] == checkpoints["initial"]:
-        raise RuntimeError(
+        raise JobVerificationError(
             f"{archive}: best checkpoint equals the untrained initialisation "
             "- no validation step was ever selected"
         )
     if float(summary["learning_gain_vs_initial"]) <= 0.0:
-        raise RuntimeError(
+        raise JobVerificationError(
             f"{archive}: learning_gain_vs_initial is "
             f"{summary['learning_gain_vs_initial']}, expected a positive gain"
         )
@@ -305,7 +314,7 @@ def verify_learning(bundle: zipfile.ZipFile, archive: Path) -> None:
 def verify_download(job: Job, output_dir: Path) -> None:
     archive = output_dir / job.archive_name
     if not archive.is_file() or archive.stat().st_size == 0:
-        raise RuntimeError(f"Missing output archive {archive}")
+        raise JobVerificationError(f"Missing output archive {archive}")
     with zipfile.ZipFile(archive) as bundle:
         names = {
             Path(name).name
@@ -314,7 +323,7 @@ def verify_download(job: Job, output_dir: Path) -> None:
         }
         missing = sorted(REQUIRED_ARCHIVE_FILES - names)
         if missing:
-            raise RuntimeError(f"{archive} is missing required files: {missing}")
+            raise JobVerificationError(f"{archive} is missing required files: {missing}")
         verify_learning(bundle, archive)
     job.archive_bytes = archive.stat().st_size
     job.archive_sha256 = hashlib.sha256(archive.read_bytes()).hexdigest()
@@ -399,7 +408,15 @@ def main() -> None:
             job.status_text = status_text
             if state == "complete":
                 print(f"ADOPT COMPLETE {job.ref}", flush=True)
-                download(job, args.output_dir)
+                try:
+                    download(job, args.output_dir)
+                except JobVerificationError as error:
+                    print(f"REJECT ADOPTED {job.ref}: {error}", flush=True)
+                    job.status_text = str(error)
+                else:
+                    continue
+                submit(job, args.commit, args.submission_root)
+                active[account].append(job)
                 continue
             if state in {"running", "queued", "unknown"}:
                 print(f"ADOPT {state.upper()} {job.ref}", flush=True)
@@ -422,8 +439,19 @@ def main() -> None:
                 job.status_text = status_text
                 if state == "complete":
                     print(f"COMPLETE {job.ref}; downloading", flush=True)
-                    download(job, args.output_dir)
-                    active[account].remove(job)
+                    try:
+                        download(job, args.output_dir)
+                    except JobVerificationError as error:
+                        print(f"REJECT {job.ref}: {error}", flush=True)
+                        job.status_text = str(error)
+                        if job.attempts < 2:
+                            print(f"RETRY {job.ref}", flush=True)
+                            submit(job, args.commit, args.submission_root)
+                        else:
+                            job.status = "failed"
+                            active[account].remove(job)
+                    else:
+                        active[account].remove(job)
                 elif state == "failed":
                     if job.attempts < 2:
                         print(f"RETRY {job.ref}", flush=True)
