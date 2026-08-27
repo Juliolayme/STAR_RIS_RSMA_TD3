@@ -1,9 +1,13 @@
-from scripts.prepare_v6_scenario_banks import (
-    CANONICAL_ARTIFACT,
-    FROZEN_TEST_CHECKSUMS,
-    N_VALUES,
-    SPLITS,
-)
+from pathlib import Path
+import runpy
+
+
+ROOT = Path(__file__).resolve().parents[1]
+PROTOCOL = runpy.run_path(ROOT / "scripts" / "prepare_v6_scenario_banks.py")
+CANONICAL_ARTIFACT = PROTOCOL["CANONICAL_ARTIFACT"]
+FROZEN_TEST_CHECKSUMS = PROTOCOL["FROZEN_TEST_CHECKSUMS"]
+N_VALUES = PROTOCOL["N_VALUES"]
+SPLITS = PROTOCOL["SPLITS"]
 
 
 def test_v6_bank_protocol_is_the_frozen_six_method_protocol() -> None:
