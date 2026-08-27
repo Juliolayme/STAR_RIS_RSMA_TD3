@@ -42,6 +42,7 @@ TRAINING_METADATA = (
     "best_validation.json",
     "training.csv",
     "validation_summary.csv",
+    "candidate_checkpoints.json",
     "KAGGLE_JOB_PROVENANCE.json",
     "SCENARIO_BANK_VERIFICATION.json",
 )

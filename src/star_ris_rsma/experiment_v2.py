@@ -125,13 +125,20 @@ def constrained_validation_summary(
     mean_all_qos = float(raw["all_qos"].astype(float).mean())
     mean_violation = float(raw["violation"].mean())
 
+    # Every term is expressed as a multiple of its own constraint budget, so
+    # the aggregate is dimensionless. Summing a violation term already divided
+    # by the tolerance with two raw probability shortfalls let the violation
+    # term dominate by ~1/tolerance and made the tolerance silently reweight
+    # the constraints instead of only moving the threshold.
     qos_gap = max(cfg.validation_qos_fraction_target - mean_qos_fraction, 0.0)
     all_qos_gap = max(cfg.validation_all_qos_target - mean_all_qos, 0.0)
-    violation_gap = max(
-        mean_violation - cfg.validation_violation_tolerance,
-        0.0,
-    ) / max(cfg.validation_violation_tolerance, 1e-12)
-    constraint_gap = float(qos_gap + all_qos_gap + violation_gap)
+    violation_excess = max(mean_violation - cfg.validation_violation_tolerance, 0.0)
+    normalized_qos_gap = qos_gap / max(1.0 - cfg.validation_qos_fraction_target, 1e-12)
+    normalized_all_qos_gap = all_qos_gap / max(1.0 - cfg.validation_all_qos_target, 1e-12)
+    violation_gap = violation_excess / max(cfg.validation_violation_tolerance, 1e-12)
+    constraint_gap = float(
+        normalized_qos_gap + normalized_all_qos_gap + violation_gap
+    )
     feasible = bool(constraint_gap <= 1e-12)
 
     # A checkpoint must first satisfy all predeclared QoS constraints. Among
@@ -154,6 +161,9 @@ def constrained_validation_summary(
         "mean_violation": mean_violation,
         "qos_fraction_gap": qos_gap,
         "all_qos_gap": all_qos_gap,
+        "violation_gap": violation_excess,
+        "normalized_qos_fraction_gap": normalized_qos_gap,
+        "normalized_all_qos_gap": normalized_all_qos_gap,
         "normalized_violation_gap": violation_gap,
         "constraint_gap": constraint_gap,
         "feasible": feasible,

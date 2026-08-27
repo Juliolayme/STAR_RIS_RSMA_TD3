@@ -17,6 +17,10 @@ import zipfile
 
 
 METHODS = ("td3", "ddpg", "ppo")
+# Bumped whenever the training protocol changes. It is part of every kernel
+# slug so a rerun cannot adopt a finished kernel from an earlier protocol and
+# silently mix its results into the new manifest.
+PROTOCOL_REVISION = "r2"
 N_VALUES = (16, 32, 64, 96, 128)
 SEEDS = tuple(range(5))
 MAX_ACTIVE_PER_ACCOUNT = 2
@@ -56,6 +60,7 @@ REQUIRED_ARCHIVE_FILES = {
     "manifest.json",
     "training.csv",
     "validation_summary.csv",
+    "candidate_checkpoints.json",
     "SCENARIO_BANK_VERIFICATION.json",
     "KAGGLE_JOB_PROVENANCE.json",
 }
@@ -67,6 +72,7 @@ class Job:
     n_ris: int
     seed: int
     method: str = "td3"
+    revision: str = PROTOCOL_REVISION
     attempts: int = 0
     status: str = "pending"
     status_text: str = ""
@@ -75,12 +81,14 @@ class Job:
 
     @property
     def name_stem(self) -> str:
-        """TD3 keeps its original names so completed kernels stay adoptable."""
-        return "physical_v6" if self.method == "td3" else f"physical_v6_{self.method}"
+        return f"physical_v6_{self.method}_{self.revision}"
 
     @property
     def slug(self) -> str:
-        return f"star-ris-{self.method}-v6-full-n{self.n_ris}-seed-{self.seed}"
+        return (
+            f"star-ris-{self.method}-v6-full-{self.revision}"
+            f"-n{self.n_ris}-seed-{self.seed}"
+        )
 
     @property
     def ref(self) -> str:
@@ -103,6 +111,7 @@ class Job:
             "account": self.account,
             "username": USERNAMES[self.account],
             "method": self.method,
+            "protocol_revision": self.revision,
             "n_ris": self.n_ris,
             "seed": self.seed,
             "ref": self.ref,
@@ -267,6 +276,32 @@ def submit(job: Job, commit: str, submission_root: Path) -> None:
     job.status = "queued"
 
 
+def verify_learning(bundle: zipfile.ZipFile, archive: Path) -> None:
+    """Reject a run whose selected checkpoint is the untrained initialisation.
+
+    A run can finish cleanly and still hand back its initial policy as `best`
+    when no validation step ever clears the feasibility rule. That reads as a
+    completed job everywhere else, so it is checked here.
+    """
+    matches = [
+        name for name in bundle.namelist() if name.endswith("/summary.json")
+    ]
+    if len(matches) != 1:
+        raise RuntimeError(f"{archive}: expected one summary.json, got {matches}")
+    summary = json.loads(bundle.read(matches[0]))
+    checkpoints = summary["checkpoints"]
+    if checkpoints["best"] == checkpoints["initial"]:
+        raise RuntimeError(
+            f"{archive}: best checkpoint equals the untrained initialisation "
+            "- no validation step was ever selected"
+        )
+    if float(summary["learning_gain_vs_initial"]) <= 0.0:
+        raise RuntimeError(
+            f"{archive}: learning_gain_vs_initial is "
+            f"{summary['learning_gain_vs_initial']}, expected a positive gain"
+        )
+
+
 def verify_download(job: Job, output_dir: Path) -> None:
     archive = output_dir / job.archive_name
     if not archive.is_file() or archive.stat().st_size == 0:
@@ -277,9 +312,10 @@ def verify_download(job: Job, output_dir: Path) -> None:
             for name in bundle.namelist()
             if not name.endswith("/")
         }
-    missing = sorted(REQUIRED_ARCHIVE_FILES - names)
-    if missing:
-        raise RuntimeError(f"{archive} is missing required files: {missing}")
+        missing = sorted(REQUIRED_ARCHIVE_FILES - names)
+        if missing:
+            raise RuntimeError(f"{archive} is missing required files: {missing}")
+        verify_learning(bundle, archive)
     job.archive_bytes = archive.stat().st_size
     job.archive_sha256 = hashlib.sha256(archive.read_bytes()).hexdigest()
     job.status = "complete"
@@ -308,6 +344,7 @@ def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
         "git_commit": commit,
         "protocol": {
             "method": jobs[0].method,
+            "revision": jobs[0].revision,
             "action_parameterization": "physical_v6_soft_anchor",
             "n_values": list(N_VALUES),
             "seeds": list(SEEDS),
@@ -327,6 +364,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--commit", required=True)
     parser.add_argument("--method", choices=METHODS, default="td3")
+    parser.add_argument("--revision", default=PROTOCOL_REVISION)
     parser.add_argument("--output-dir", type=Path, default=Path("collected"))
     parser.add_argument("--submission-root", type=Path, default=Path("kaggle_submit_v6"))
     parser.add_argument("--manifest", type=Path, default=Path("TRAINING_RUN_MANIFEST.json"))
@@ -335,7 +373,7 @@ def main() -> None:
     args = parser.parse_args()
 
     jobs = [
-        Job(account, n_ris, seed, args.method)
+        Job(account, n_ris, seed, args.method, args.revision)
         for account, combinations in ASSIGNMENTS.items()
         for n_ris, seed in combinations
     ]

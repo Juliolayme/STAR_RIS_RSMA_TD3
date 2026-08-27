@@ -29,22 +29,64 @@ def build_agent(method: str, obs_dim: int, action_dim: int, cfg: ExperimentConfi
             small_final_init=cfg.actor_small_final_init,
         )
     if method == "ddpg":
-        return DDPGAgent(obs_dim, action_dim, cfg.hidden_dim, cfg.gamma, cfg.tau, device)
+        return DDPGAgent(
+            obs_dim,
+            action_dim,
+            cfg.hidden_dim,
+            cfg.gamma,
+            cfg.tau,
+            device,
+            actor_lr=cfg.ddpg_actor_lr,
+            critic_lr=cfg.ddpg_critic_lr,
+            gradient_clip_norm=cfg.ddpg_gradient_clip_norm,
+            critic_loss=cfg.ddpg_critic_loss,
+            layer_norm=cfg.ddpg_layer_norm,
+            small_final_init=cfg.actor_small_final_init,
+        )
     if method == "ppo":
-        return PPOAgent(obs_dim, action_dim, cfg.hidden_dim, device)
+        return PPOAgent(
+            obs_dim,
+            action_dim,
+            cfg.hidden_dim,
+            device,
+            lr=cfg.ppo_lr,
+            gradient_clip_norm=cfg.ppo_gradient_clip_norm,
+            layer_norm=cfg.ppo_layer_norm,
+            epochs=cfg.ppo_epochs,
+            minibatch_size=cfg.ppo_minibatch_size,
+            clip_ratio=cfg.ppo_clip_ratio,
+            entropy_coef=cfg.ppo_entropy_coef,
+            value_coef=cfg.ppo_value_coef,
+        )
     raise ValueError(method)
 
 
-def save_checkpoint(path: str | Path, method: str, agent, step: int, score: float, cfg: ExperimentConfig) -> None:
+OPTIMIZER_STATE_KEYS = ("actor_opt", "q_opt", "optimizer")
+
+
+def save_checkpoint(
+    path: str | Path,
+    method: str,
+    agent,
+    step: int,
+    score: float,
+    cfg: ExperimentConfig,
+    include_optimizer: bool = True,
+) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
+    state = agent.checkpoint_state()
+    if not include_optimizer:
+        # load_checkpoint always restores with inference_only=True, so dropping
+        # optimizer state halves the file while staying fully evaluable.
+        state = {k: v for k, v in state.items() if k not in OPTIMIZER_STATE_KEYS}
     torch.save({
         "method": method,
         "step": int(step),
         "validation_score": float(score),
         "config": cfg.to_dict(),
         "config_hash": cfg.config_hash(),
-        "agent": agent.checkpoint_state(),
+        "agent": state,
     }, target)
 
 

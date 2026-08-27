@@ -49,6 +49,22 @@ _POST_V2_FIELDS = (
     "qos_dual_max",
     "validate_at_initialization",
     "actor_small_final_init",
+    # Matched-implementation baseline controls added for the V6 fair
+    # comparison. Excluded here so retained v2 checkpoints stay evaluable.
+    "ddpg_actor_lr",
+    "ddpg_critic_lr",
+    "ddpg_gradient_clip_norm",
+    "ddpg_critic_loss",
+    "ddpg_layer_norm",
+    "ppo_lr",
+    "ppo_gradient_clip_norm",
+    "ppo_layer_norm",
+    "ppo_epochs",
+    "ppo_minibatch_size",
+    "ppo_clip_ratio",
+    "ppo_entropy_coef",
+    "ppo_value_coef",
+    "retained_candidate_checkpoints",
 )
 
 
@@ -117,6 +133,29 @@ class ExperimentConfig:
     td3_critic_loss: str = "mse"
     td3_layer_norm: bool = False
 
+    # DDPG stability controls. Defaults reproduce the original vanilla DDPG,
+    # so historical configs are untouched; the V6 configs opt into the same
+    # settings TD3 uses so the comparison is not confounded by implementation.
+    ddpg_actor_lr: float = 3e-4
+    ddpg_critic_lr: float = 3e-4
+    ddpg_gradient_clip_norm: float = 0.0
+    ddpg_critic_loss: str = "mse"
+    ddpg_layer_norm: bool = False
+
+    # PPO controls. Defaults reproduce the previously hard-coded values.
+    ppo_lr: float = 3e-4
+    ppo_gradient_clip_norm: float = 1.0
+    ppo_layer_norm: bool = False
+    ppo_epochs: int = 10
+    ppo_minibatch_size: int = 0
+    ppo_clip_ratio: float = 0.2
+    ppo_entropy_coef: float = 1e-3
+    ppo_value_coef: float = 0.5
+
+    # Extra validation checkpoints kept so a later change to the selection
+    # criterion can be applied by re-selection instead of retraining.
+    retained_candidate_checkpoints: int = 0
+
     def __post_init__(self) -> None:
         if self.observation_normalization not in {"global_l2", "blockwise_v2"}:
             raise ValueError(
@@ -131,6 +170,16 @@ class ExperimentConfig:
             )
         if self.td3_critic_loss not in {"mse", "huber"}:
             raise ValueError("td3_critic_loss must be 'mse' or 'huber'")
+        if self.ddpg_critic_loss not in {"mse", "huber"}:
+            raise ValueError("ddpg_critic_loss must be 'mse' or 'huber'")
+        if self.ppo_epochs <= 0:
+            raise ValueError("ppo_epochs must be positive")
+        if self.ppo_minibatch_size < 0:
+            raise ValueError("ppo_minibatch_size must be non-negative")
+        if self.ppo_clip_ratio <= 0:
+            raise ValueError("ppo_clip_ratio must be positive")
+        if self.retained_candidate_checkpoints < 0:
+            raise ValueError("retained_candidate_checkpoints must be non-negative")
         if self.qos_penalty_linear < 0 or self.qos_penalty_quadratic < 0:
             raise ValueError("QoS penalties must be non-negative")
         if self.qos_dual_initial < 0 or self.qos_dual_min < 0:

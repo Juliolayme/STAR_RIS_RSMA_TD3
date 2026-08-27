@@ -79,6 +79,75 @@ def _is_better(candidate: dict[str, object], best: dict[str, object] | None) -> 
     return tuple(candidate["selection_key"]) > tuple(best["selection_key"])
 
 
+def _retain_candidate(
+    agent: Any,
+    method: str,
+    cfg: ExperimentConfig,
+    summary: dict[str, object],
+    step: int,
+    output: Path,
+    candidates: list[dict[str, object]],
+) -> None:
+    """Keep the best few QoS-satisfying checkpoints seen during training.
+
+    Only `best.pt` used to survive, so any later change to the selection
+    criterion forced a full retrain. The floor here is QoS satisfaction alone -
+    deliberately independent of `validation_violation_tolerance` - so the knob
+    most likely to be revisited can be re-applied by re-selection.
+    """
+    limit = int(cfg.retained_candidate_checkpoints)
+    if limit <= 0:
+        return
+    if (
+        float(summary["mean_qos_fraction"]) < cfg.validation_qos_fraction_target
+        or float(summary["mean_all_qos"]) < cfg.validation_all_qos_target
+    ):
+        return
+    entry = {
+        "eval_step": int(step),
+        "checkpoint": f"candidate_step{int(step)}.pt",
+        "mean_sum_rate": float(summary["mean_sum_rate"]),
+        "mean_violation": float(summary["mean_violation"]),
+        "mean_qos_fraction": float(summary["mean_qos_fraction"]),
+        "mean_all_qos": float(summary["mean_all_qos"]),
+        "mean_reward": float(summary["mean_reward"]),
+    }
+    candidates.append(entry)
+    candidates.sort(key=lambda item: -float(item["mean_sum_rate"]))
+    evicted = candidates[limit:]
+    del candidates[limit:]
+    if any(item is entry for item in evicted):
+        return
+    save_checkpoint(
+        output / str(entry["checkpoint"]),
+        method,
+        agent,
+        step,
+        float(summary["mean_reward"]),
+        cfg,
+        include_optimizer=False,
+    )
+    for item in evicted:
+        stale = output / str(item["checkpoint"])
+        if stale.exists():
+            stale.unlink()
+
+
+def _write_candidate_index(output: Path, candidates: list[dict[str, object]]) -> None:
+    (output / "candidate_checkpoints.json").write_text(
+        json.dumps(
+            {
+                "selection_floor": "mean_qos_fraction and mean_all_qos meet their targets",
+                "ranked_by": "mean_sum_rate",
+                "count": len(candidates),
+                "candidates": candidates,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
 def _validation_step(
     agent: Any,
     method: str,
@@ -88,6 +157,7 @@ def _validation_step(
     step: int,
     output: Path,
     best: dict[str, object] | None,
+    candidates: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     validation_started = time.perf_counter()
     raw = evaluate_policy_on_bank(
@@ -118,6 +188,9 @@ def _validation_step(
         header=not summary_file.exists(),
         index=False,
     )
+
+    if candidates is not None:
+        _retain_candidate(agent, method, cfg, summary, step, output, candidates)
 
     if _is_better(summary, best):
         save_checkpoint(
@@ -176,9 +249,10 @@ def train_off_policy_v3(
 
     rows: list[dict[str, object]] = []
     best: dict[str, object] | None = None
+    candidates: list[dict[str, object]] = []
     if cfg.validate_at_initialization:
         best = _validation_step(
-            agent, method, cfg, validation_bank, seed, 0, output, best
+            agent, method, cfg, validation_bank, seed, 0, output, best, candidates
         )
         save_checkpoint(
             output / "initial.pt",
@@ -241,6 +315,7 @@ def train_off_policy_v3(
                 step,
                 output,
                 best,
+                candidates,
             )
 
     timing = _timing_metadata(device, training_started, cfg.train_steps)
@@ -257,6 +332,7 @@ def train_off_policy_v3(
         cfg,
     )
     pd.DataFrame(rows).to_csv(output / "training.csv", index=False)
+    _write_candidate_index(output, candidates)
     manifest = _manifest(
         method,
         seed,
@@ -295,10 +371,11 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
     output.mkdir(parents=True, exist_ok=True)
     logs: list[dict[str, object]] = []
     best: dict[str, object] | None = None
+    candidates: list[dict[str, object]] = []
 
     if cfg.validate_at_initialization:
         best = _validation_step(
-            agent, "ppo", cfg, validation_bank, seed, 0, output, best
+            agent, "ppo", cfg, validation_bank, seed, 0, output, best, candidates
         )
         save_checkpoint(
             output / "initial.pt",
@@ -314,6 +391,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
     while global_step < cfg.train_steps:
         observations: list[np.ndarray] = []
         actions: list[np.ndarray] = []
+        pre_actions: list[np.ndarray] = []
         log_probs: list[float] = []
         rewards: list[float] = []
         values: list[float] = []
@@ -322,7 +400,9 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
         rollout = min(cfg.ppo_horizon, cfg.train_steps - global_step)
 
         for _ in range(rollout):
-            action, log_prob, value = agent.act(obs, deterministic=False)
+            action, pre_action, log_prob, value = agent.act(
+                obs, deterministic=False, return_pre=True
+            )
             next_obs, environment_reward, done, info = env.step(action)
             shaped_reward = dual.shaped_reward(info, cfg.qos_penalty_quadratic)
             dual.observe(float(info["violation"]))
@@ -331,6 +411,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
 
             observations.append(obs)
             actions.append(action)
+            pre_actions.append(pre_action)
             log_probs.append(log_prob)
             rewards.append(shaped_reward)
             values.append(value)
@@ -340,7 +421,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
 
         returns = np.zeros(len(rewards), dtype=np.float32)
         advantages = np.zeros(len(rewards), dtype=np.float32)
-        _, _, last_value = agent.act(obs, deterministic=True)
+        _, _, last_value = agent.act(obs, deterministic=True)  # noqa: E501 - 3-tuple form
         gae = 0.0
         for index in reversed(range(len(rewards))):
             nonterminal = 1.0 - float(dones[index])
@@ -360,6 +441,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             np.asarray(log_probs),
             returns,
             advantages,
+            pre_actions=np.asarray(pre_actions),
         )
         elapsed_seconds = time.perf_counter() - training_started
         logs.append(
@@ -395,6 +477,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
                 global_step,
                 output,
                 best,
+                candidates,
             )
 
     timing = _timing_metadata(device, training_started, cfg.train_steps)
@@ -411,6 +494,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
         cfg,
     )
     pd.DataFrame(logs).to_csv(output / "training.csv", index=False)
+    _write_candidate_index(output, candidates)
     manifest = _manifest(
         "ppo",
         seed,

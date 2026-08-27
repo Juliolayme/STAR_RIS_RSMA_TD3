@@ -13,6 +13,7 @@ REQUIRED_ARCHIVE_FILES = ORCHESTRATOR["REQUIRED_ARCHIVE_FILES"]
 SEEDS = ORCHESTRATOR["SEEDS"]
 Job = ORCHESTRATOR["Job"]
 METHODS = ORCHESTRATOR["METHODS"]
+PROTOCOL_REVISION = ORCHESTRATOR["PROTOCOL_REVISION"]
 runner_source = ORCHESTRATOR["runner_source"]
 
 
@@ -44,16 +45,21 @@ def test_orchestrator_requires_reviewer_evidence() -> None:
 def test_generated_kaggle_runner_is_valid_python() -> None:
     source = runner_source(Job("td3", 128, 4), "a" * 40)
     compile(source, "generated_v6_runner.py", "exec")
-    assert "physical_v6_n128_seed4" in source
+    assert f"physical_v6_td3_{PROTOCOL_REVISION}_n128_seed4" in source
     assert '"--n-ris", "128", "--verify-existing"' in source
 
 
-def test_td3_names_are_unchanged_so_finished_kernels_stay_adoptable() -> None:
+def test_protocol_revision_isolates_reruns_from_stale_kernels() -> None:
     job = Job("td3", 128, 4)
-    assert job.slug == "star-ris-td3-v6-full-n128-seed-4"
-    assert job.tag == "physical_v6_n128_100k"
-    assert job.archive_name == "physical_v6_n128_seed4.zip"
-    assert job.output_root == "/kaggle/working/physical_v6_full"
+    assert job.revision == PROTOCOL_REVISION
+    assert PROTOCOL_REVISION in job.slug
+    assert PROTOCOL_REVISION in job.archive_name
+    # A kernel from the previous protocol must not be reachable by this slug,
+    # otherwise the orchestrator adopts it as COMPLETE and mixes protocols.
+    assert job.slug != "star-ris-td3-v6-full-n128-seed-4"
+    older = Job("td3", 128, 4, "td3", "r1")
+    assert older.slug != job.slug
+    assert older.archive_name != job.archive_name
 
 
 def test_comparator_methods_get_disjoint_kernel_and_archive_names() -> None:
@@ -65,8 +71,8 @@ def test_comparator_methods_get_disjoint_kernel_and_archive_names() -> None:
     assert len({job.slug for job in names.values()}) == 3
     assert len({job.archive_name for job in names.values()}) == 3
     assert len({job.output_root for job in names.values()}) == 3
-    assert names["ddpg"].archive_name == "physical_v6_ddpg_n32_seed1.zip"
-    assert names["ppo"].slug == "star-ris-ppo-v6-full-n32-seed-1"
+    assert names["ddpg"].archive_name == f"physical_v6_ddpg_{PROTOCOL_REVISION}_n32_seed1.zip"
+    assert names["ppo"].slug == f"star-ris-ppo-v6-full-{PROTOCOL_REVISION}-n32-seed-1"
 
 
 def test_generated_runner_trains_the_requested_method() -> None:

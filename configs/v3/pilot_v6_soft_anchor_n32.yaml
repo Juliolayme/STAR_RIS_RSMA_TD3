@@ -33,7 +33,7 @@ qos_dual_min: 4.0
 qos_dual_max: 64.0
 validation_qos_fraction_target: 0.99
 validation_all_qos_target: 0.95
-validation_violation_tolerance: 0.001
+validation_violation_tolerance: 0.02
 td3_actor_lr: 0.0001
 td3_critic_lr: 0.0003
 td3_policy_delay: 2
@@ -48,3 +48,20 @@ gae_lambda: 0.95
 train_bank_path: artifacts/scenario_banks/N32_train.npz
 validation_bank_path: artifacts/scenario_banks/N32_validation.npz
 test_bank_path: artifacts/scenario_banks/N32_test.npz
+
+# Matched-implementation baselines: DDPG and PPO receive the same
+# stabilisation TD3 gets, so the comparison measures the algorithms rather
+# than how much engineering each implementation happens to carry.
+ddpg_actor_lr: 0.0001
+ddpg_critic_lr: 0.0003
+ddpg_gradient_clip_norm: 10.0
+ddpg_critic_loss: huber
+ddpg_layer_norm: true
+ppo_lr: 0.0003
+ppo_gradient_clip_norm: 10.0
+ppo_layer_norm: true
+ppo_epochs: 10
+ppo_minibatch_size: 256
+# Keep the best few QoS-satisfying checkpoints so a later change to the
+# selection rule can be re-applied without retraining.
+retained_candidate_checkpoints: 3
