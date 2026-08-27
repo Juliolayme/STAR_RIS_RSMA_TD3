@@ -115,6 +115,15 @@ def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.Data
                 raise RuntimeError(f"Action parameterization mismatch in {archive_path}")
             if verification.get("audit") != "PASS" or not verification["banks"][str(n_ris)]["frozen_test_checksum_match"]:
                 raise RuntimeError(f"ScenarioBank verification failed in {archive_path}")
+            # A run can finish cleanly and still hand back its initialisation as
+            # the selected checkpoint when no validation step clears the
+            # feasibility rule. Fourteen of the r1 jobs did, which is how an
+            # untrained policy reached the published tables.
+            if summary["checkpoints"]["best"] == summary["checkpoints"]["initial"]:
+                raise RuntimeError(
+                    f"{archive_path}: best checkpoint equals the untrained "
+                    "initialisation, so this run must not be published"
+                )
             source_commits.add(str(provenance["git_commit"]))
 
             checkpoint_raw: dict[str, pd.DataFrame] = {}
