@@ -16,13 +16,15 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--n-ris", type=int, default=32)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
 
     rows: list[dict[str, object]] = []
     checksums: set[str] = set()
+    tag = f"v6_soft_anchor_n{args.n_ris}_100k"
     for seed in EXPECTED_SEEDS:
-        summaries = list(args.input.rglob(f"v6_soft_anchor_n32_100k_seed{seed}/summary.json"))
+        summaries = list(args.input.rglob(f"{tag}_seed{seed}/summary.json"))
         if len(summaries) != 1:
             raise RuntimeError(f"seed {seed}: expected one summary, found {len(summaries)}")
         root = summaries[0].parent
@@ -70,6 +72,7 @@ def main() -> None:
     audit = {
         "audit": "PASS",
         "parameterization": EXPECTED_PARAMETERIZATION,
+        "n_ris": args.n_ris,
         "seeds": list(EXPECTED_SEEDS),
         "rows_per_checkpoint": EXPECTED_ROWS,
         "test_bank_checksum": next(iter(checksums)),
@@ -86,7 +89,7 @@ def main() -> None:
     (args.output / "V6_AUDIT.json").write_text(
         json.dumps(audit, indent=2), encoding="utf-8"
     )
-    report = "# Physical V6 soft-anchor N=32 pilot\n\n"
+    report = f"# Physical V6 soft-anchor N={args.n_ris} pilot\n\n"
     report += f"Audit: **PASS**; test bank `{audit['test_bank_checksum']}`.\n\n"
     report += gain_frame.to_markdown(index=False) + "\n"
     (args.output / "V6_REPORT.md").write_text(report, encoding="utf-8")
