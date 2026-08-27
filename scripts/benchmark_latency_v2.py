@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
 from pathlib import Path
+import platform
+import sys
 import time
 
 os.environ.setdefault("OMP_NUM_THREADS", "1")
@@ -19,7 +22,7 @@ from star_ris_rsma.baselines.ao_grid_corrected import FROZEN_ROUNDS, solve as so
 from star_ris_rsma.checkpoints import load_checkpoint
 from star_ris_rsma.config import ExperimentConfig
 from star_ris_rsma.env import StarRisRsmaEnv
-from star_ris_rsma.scenario_bank import generate_bank
+from star_ris_rsma.scenario_bank import ScenarioBank, generate_bank
 
 METHODS = ("td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris")
 LEARNED = {"td3", "ddpg", "ppo"}
@@ -52,6 +55,23 @@ def policy_action(agent, method: str, obs: np.ndarray):
         action, _, _ = agent.act(obs, deterministic=True)
         return action
     return agent.act(obs, noise_std=0.0)
+
+
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def cpu_model() -> str:
+    cpuinfo = Path("/proc/cpuinfo")
+    if cpuinfo.is_file():
+        for line in cpuinfo.read_text(encoding="utf-8", errors="replace").splitlines():
+            if line.lower().startswith("model name") and ":" in line:
+                return line.split(":", 1)[1].strip()
+    return platform.processor() or "unknown"
 
 
 def verify_checkpoint(
@@ -91,11 +111,17 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--method", choices=METHODS, required=True)
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--bank", type=Path)
     parser.add_argument("--checkpoint", type=Path)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--verify-count", type=int, default=5)
+    parser.add_argument(
+        "--protocol-id",
+        default="single_thread_same_runner_warmup10_count100_v2",
+    )
+    parser.add_argument("--repository-commit", default=os.environ.get("GITHUB_SHA", "unknown"))
     parser.add_argument(
         "--reference-drl-raw",
         type=Path,
@@ -108,7 +134,11 @@ def main() -> None:
     torch.set_num_interop_threads(1)
 
     cfg = ExperimentConfig.from_yaml(args.config)
-    bank = generate_bank(cfg, 1000, 33001, "test")
+    bank = (
+        ScenarioBank.load(args.bank, cfg)
+        if args.bank is not None
+        else generate_bank(cfg, 1000, 33001, "test")
+    )
     expected_checksums = pd.read_csv(
         args.reference_drl_raw, usecols=["n_ris", "bank_checksum"]
     )
@@ -123,10 +153,12 @@ def main() -> None:
     env = StarRisRsmaEnv(cfg, args.seed)
     learned = args.method in LEARNED
     agent = None
+    checkpoint_step = -1
+    checkpoint_sha256 = "not_applicable"
     if learned:
         if args.checkpoint is None:
             raise SystemExit("--checkpoint is required for learned methods")
-        agent, _ = load_checkpoint(
+        agent, payload = load_checkpoint(
             args.checkpoint,
             args.method,
             env.observation_dim,
@@ -134,6 +166,8 @@ def main() -> None:
             cfg,
             "cpu",
         )
+        checkpoint_step = int(payload["step"])
+        checkpoint_sha256 = file_sha256(args.checkpoint)
         reference = canonical_reference(
             args.reference_drl_raw, args.method, cfg.n_ris, args.seed
         )
@@ -176,6 +210,7 @@ def main() -> None:
                     "method": args.method,
                     "n_ris": int(cfg.n_ris),
                     "scenario": scenario - args.warmup,
+                    "source_scenario": scenario,
                     "inference_ms": inference_ms,
                     "evaluation_ms": evaluation_ms,
                     "solve_ms": solve_ms,
@@ -183,7 +218,14 @@ def main() -> None:
                     "seed": int(args.seed),
                     "config_hash": cfg.config_hash(),
                     "bank_checksum": bank.checksum(),
-                    "latency_protocol": "single_thread_same_runner_warmup10_count100_v2",
+                    "latency_protocol": args.protocol_id,
+                    "checkpoint_step": checkpoint_step,
+                    "checkpoint_sha256": checkpoint_sha256,
+                    "repository_commit": args.repository_commit,
+                    "runner_os": platform.platform(),
+                    "cpu_model": cpu_model(),
+                    "python_version": sys.version.split()[0],
+                    "torch_version": torch.__version__,
                 }
             )
 
