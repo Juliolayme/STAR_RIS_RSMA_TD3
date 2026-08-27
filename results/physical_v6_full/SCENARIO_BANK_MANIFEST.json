@@ -1,0 +1,141 @@
+{
+  "audit": "PASS",
+  "created_at_utc": "2026-08-27T07:52:43.584269+00:00",
+  "git_commit": "a81fc1292b2ad4ba64ad58ff9acf76555db0465c",
+  "generator": "star_ris_rsma.physics.generate_channel/v1",
+  "bank_origin": {
+    "mode": "verified_existing",
+    "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+    "workflow_run_id": 30422028560,
+    "artifact_id": 8712801218,
+    "artifact_name": "star-ris-six-method-canonical-evidence",
+    "url": "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3/actions/runs/30422028560/artifacts/8712801218"
+  },
+  "banks": {
+    "16": {
+      "config": "configs/v3/pilot_v6_soft_anchor_n16.yaml",
+      "config_hash": "239458cb74d0f578daa64b4bc4b869fbaa93007e63c7f462b672d23aeede1328",
+      "splits": {
+        "train": {
+          "path": "artifacts/scenario_banks/N16_train.npz",
+          "count": 10000,
+          "seed": 11001,
+          "checksum": "b51439f19a262ead64d5beab9d5c0b59986d905a5dbf8cfec27b0e2a89d28934"
+        },
+        "validation": {
+          "path": "artifacts/scenario_banks/N16_validation.npz",
+          "count": 1000,
+          "seed": 22001,
+          "checksum": "ff3bb90b6af684e3b9176db101992400a2cbae2c9bc3359761ba4889db40a1d9"
+        },
+        "test": {
+          "path": "artifacts/scenario_banks/N16_test.npz",
+          "count": 1000,
+          "seed": 33001,
+          "checksum": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7"
+        }
+      },
+      "frozen_test_checksum_match": true
+    },
+    "32": {
+      "config": "configs/v3/pilot_v6_soft_anchor_n32.yaml",
+      "config_hash": "7e3b68943411078c9b1449a8f5722ba7caf90756db149e0a9b085f7b455e9589",
+      "splits": {
+        "train": {
+          "path": "artifacts/scenario_banks/N32_train.npz",
+          "count": 10000,
+          "seed": 11001,
+          "checksum": "644567748ca3bf6d519ae7b74b7812aa5a57f33b77786c27972ac7f78ac30ea5"
+        },
+        "validation": {
+          "path": "artifacts/scenario_banks/N32_validation.npz",
+          "count": 1000,
+          "seed": 22001,
+          "checksum": "5f273747e249ffb92ad14c707fb44da44b02d2e59d07ebc5e051d1d2bba58733"
+        },
+        "test": {
+          "path": "artifacts/scenario_banks/N32_test.npz",
+          "count": 1000,
+          "seed": 33001,
+          "checksum": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef"
+        }
+      },
+      "frozen_test_checksum_match": true
+    },
+    "64": {
+      "config": "configs/v3/pilot_v6_soft_anchor_n64.yaml",
+      "config_hash": "97b65cce0f72ffe40b0575ec4d76bcf34beb5f36eb5188d6c71d7e623f342859",
+      "splits": {
+        "train": {
+          "path": "artifacts/scenario_banks/N64_train.npz",
+          "count": 10000,
+          "seed": 11001,
+          "checksum": "f1bd39b659fe342179a1822520d8548fc7ad31818fdf6454e9dd6f6c55ea035d"
+        },
+        "validation": {
+          "path": "artifacts/scenario_banks/N64_validation.npz",
+          "count": 1000,
+          "seed": 22001,
+          "checksum": "c2d7d0f7f13235ab59dc57de1d740fafa6478103732d384f976eb691a92ba1ac"
+        },
+        "test": {
+          "path": "artifacts/scenario_banks/N64_test.npz",
+          "count": 1000,
+          "seed": 33001,
+          "checksum": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae"
+        }
+      },
+      "frozen_test_checksum_match": true
+    },
+    "96": {
+      "config": "configs/v3/pilot_v6_soft_anchor_n96.yaml",
+      "config_hash": "2e6b01873f8d8c8b3b997d8b8d74d4bc8cf586303abc615a05979a7732faf3c4",
+      "splits": {
+        "train": {
+          "path": "artifacts/scenario_banks/N96_train.npz",
+          "count": 10000,
+          "seed": 11001,
+          "checksum": "d0a6419f23ec4f4c92bf50bf7dd471cb839863e872a511af0d83cb03ee236d11"
+        },
+        "validation": {
+          "path": "artifacts/scenario_banks/N96_validation.npz",
+          "count": 1000,
+          "seed": 22001,
+          "checksum": "135afb5ca4361e7b979798a7e97e11119084197941cac615d311d3305de3049e"
+        },
+        "test": {
+          "path": "artifacts/scenario_banks/N96_test.npz",
+          "count": 1000,
+          "seed": 33001,
+          "checksum": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+        }
+      },
+      "frozen_test_checksum_match": true
+    },
+    "128": {
+      "config": "configs/v3/pilot_v6_soft_anchor_n128.yaml",
+      "config_hash": "4863348591f1e151cbf147f26554a6008d7082aa47d83973b57cf66a461a131b",
+      "splits": {
+        "train": {
+          "path": "artifacts/scenario_banks/N128_train.npz",
+          "count": 10000,
+          "seed": 11001,
+          "checksum": "a0f0b0d1a0239987f88e5e37ca6f40a7ac1d9c87f90e44e07baf54f7d7ac7212"
+        },
+        "validation": {
+          "path": "artifacts/scenario_banks/N128_validation.npz",
+          "count": 1000,
+          "seed": 22001,
+          "checksum": "3310a8420a7846e9bd1aa2685ca55ffac88587e2fcd458f6258d997d9498e319"
+        },
+        "test": {
+          "path": "artifacts/scenario_banks/N128_test.npz",
+          "count": 1000,
+          "seed": 33001,
+          "checksum": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e"
+        }
+      },
+      "frozen_test_checksum_match": true
+    }
+  }
+}

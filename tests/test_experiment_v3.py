@@ -66,15 +66,26 @@ def test_drl_v3_smoke_produces_constrained_checkpoint(method, tmp_path):
     assert manifest["training_protocol"] == "drl_v3_qos_constrained_fair"
     assert manifest["checkpoint_selection"] == "feasibility_first_normalized_gap_then_sum_rate"
     assert manifest["environment_interactions"] == 64
+    assert manifest["timing"]["environment_interactions"] == 64
+    assert manifest["timing"]["training_seconds"] > 0.0
+    assert manifest["timing"]["interactions_per_second"] > 0.0
+    assert manifest["timing"]["device"] in {"cpu", "cuda"}
+    assert manifest["timing"]["python_version"]
+    assert manifest["timing"]["torch_version"]
 
     training = pd.read_csv(output / "training.csv")
     validation = pd.read_csv(output / "validation_summary.csv")
     assert not training.empty
     assert not validation.empty
+    assert {"elapsed_seconds", "interactions_per_second"}.issubset(training.columns)
+    assert (training["elapsed_seconds"] > 0.0).all()
+    assert (training["interactions_per_second"] > 0.0).all()
     assert {
         "mean_sum_rate",
         "mean_qos_fraction",
         "mean_all_qos",
         "mean_violation",
         "feasible",
+        "validation_seconds",
     }.issubset(validation.columns)
+    assert (validation["validation_seconds"] > 0.0).all()

@@ -9,11 +9,15 @@ rate equations; only the learning algorithm changes.
 """
 
 import json
+import platform
 from pathlib import Path
+import sys
+import time
 from typing import Any
 
 import numpy as np
 import pandas as pd
+import torch
 
 from .checkpoints import build_agent, save_checkpoint
 from .config import ExperimentConfig
@@ -37,6 +41,38 @@ from .replay import ReplayBuffer
 SUPPORTED_METHODS = {"td3", "ddpg", "ppo"}
 
 
+def _reset_peak_memory(device: str) -> None:
+    if device == "cuda":
+        torch.cuda.reset_peak_memory_stats()
+
+
+def _timing_metadata(
+    device: str, started: float, interactions: int
+) -> dict[str, object]:
+    elapsed = time.perf_counter() - started
+    cuda = device == "cuda"
+    return {
+        "training_seconds": elapsed,
+        "environment_interactions": interactions,
+        "interactions_per_second": interactions / max(elapsed, 1e-12),
+        "device": device,
+        "device_name": (
+            torch.cuda.get_device_name(0)
+            if cuda
+            else platform.processor() or "CPU"
+        ),
+        "peak_gpu_memory_mb": (
+            torch.cuda.max_memory_allocated() / (1024.0 * 1024.0) if cuda else 0.0
+        ),
+        "python_version": sys.version.split()[0],
+        "torch_version": torch.__version__,
+        "cuda_version": torch.version.cuda,
+        "numpy_version": np.__version__,
+        "pandas_version": pd.__version__,
+        "platform": platform.platform(),
+    }
+
+
 def _is_better(candidate: dict[str, object], best: dict[str, object] | None) -> bool:
     if best is None:
         return True
@@ -53,6 +89,7 @@ def _validation_step(
     output: Path,
     best: dict[str, object] | None,
 ) -> dict[str, object]:
+    validation_started = time.perf_counter()
     raw = evaluate_policy_on_bank(
         agent,
         method,
@@ -71,6 +108,7 @@ def _validation_step(
     )
 
     summary = constrained_validation_summary(raw, cfg, step)
+    summary["validation_seconds"] = time.perf_counter() - validation_started
     summary_row = {k: v for k, v in summary.items() if k != "selection_key"}
     summary_row["selection_key"] = json.dumps(summary["selection_key"])
     summary_file = output / "validation_summary.csv"
@@ -150,6 +188,8 @@ def train_off_policy_v3(
             float(best["mean_reward"]),
             cfg,
         )
+    _reset_peak_memory(device)
+    training_started = time.perf_counter()
     for step in range(1, cfg.train_steps + 1):
         if step <= cfg.warmup_steps:
             action = np.random.uniform(-1.0, 1.0, env.action_dim).astype(np.float32)
@@ -171,9 +211,12 @@ def train_off_policy_v3(
         )
 
         if step == 1 or step % 1000 == 0:
+            elapsed_seconds = time.perf_counter() - training_started
             rows.append(
                 {
                     "step": step,
+                    "elapsed_seconds": elapsed_seconds,
+                    "interactions_per_second": step / max(elapsed_seconds, 1e-12),
                     "reward": training_reward,
                     "environment_reward": environment_reward,
                     "sum_rate": info["sum_rate"],
@@ -200,6 +243,8 @@ def train_off_policy_v3(
                 best,
             )
 
+    timing = _timing_metadata(device, training_started, cfg.train_steps)
+
     if best is None:
         raise RuntimeError("No validation checkpoint was produced")
 
@@ -224,6 +269,7 @@ def train_off_policy_v3(
             "checkpoint_selection": "feasibility_first_normalized_gap_then_sum_rate",
             "qos_dual": dual.state_dict(),
             "environment_interactions": cfg.train_steps,
+            "timing": timing,
             "exploration_schedule": {
                 "start": cfg.exploration_noise,
                 "final": cfg.exploration_noise_final,
@@ -263,6 +309,8 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             cfg,
         )
 
+    _reset_peak_memory(device)
+    training_started = time.perf_counter()
     while global_step < cfg.train_steps:
         observations: list[np.ndarray] = []
         actions: list[np.ndarray] = []
@@ -313,9 +361,12 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             returns,
             advantages,
         )
+        elapsed_seconds = time.perf_counter() - training_started
         logs.append(
             {
                 "step": global_step,
+                "elapsed_seconds": elapsed_seconds,
+                "interactions_per_second": global_step / max(elapsed_seconds, 1e-12),
                 "reward": float(np.mean(rewards)),
                 "environment_reward": float(
                     np.mean([float(item["environment_reward"]) for item in infos])
@@ -346,6 +397,8 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
                 best,
             )
 
+    timing = _timing_metadata(device, training_started, cfg.train_steps)
+
     if best is None:
         raise RuntimeError("No validation checkpoint was produced")
 
@@ -370,6 +423,7 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
             "checkpoint_selection": "feasibility_first_normalized_gap_then_sum_rate",
             "qos_dual": dual.state_dict(),
             "environment_interactions": cfg.train_steps,
+            "timing": timing,
             "ppo_horizon": cfg.ppo_horizon,
         },
     )

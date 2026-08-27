@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import time
 from pathlib import Path
@@ -33,17 +34,34 @@ def main() -> None:
 
     cfg = ExperimentConfig.from_yaml(args.config)
     output = args.output_root / f"{args.tag}_seed{args.seed}"
+    started_at = datetime.now(timezone.utc)
     started = time.perf_counter()
     train_drl_v3(args.method, cfg, args.seed, output)
-    train_seconds = time.perf_counter() - started
+    training_call_seconds = time.perf_counter() - started
 
     bank = ScenarioBank.load(cfg.test_bank_path, cfg)
     checkpoints: dict[str, dict[str, float]] = {}
+    evaluation_seconds: dict[str, float] = {}
     for name in ("initial", "best", "latest"):
         checkpoint = output / f"{name}.pt"
         raw_path = output / f"test_{name}_raw.csv"
+        evaluation_started = time.perf_counter()
         evaluate_checkpoint(args.method, cfg, checkpoint, bank, args.seed, raw_path)
+        evaluation_seconds[name] = time.perf_counter() - evaluation_started
         checkpoints[name] = summarize(pd.read_csv(raw_path))
+
+    manifest = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    finished_at = datetime.now(timezone.utc)
+    timing = {
+        "started_at_utc": started_at.isoformat(),
+        "finished_at_utc": finished_at.isoformat(),
+        "training_call_seconds": training_call_seconds,
+        "training": manifest.get("timing", {}),
+        "test_evaluation_seconds": evaluation_seconds,
+        "test_evaluation_total_seconds": sum(evaluation_seconds.values()),
+        "total_wall_seconds": time.perf_counter() - started,
+    }
+    (output / "timing.json").write_text(json.dumps(timing, indent=2), encoding="utf-8")
 
     summary = {
         "tag": args.tag,
@@ -52,7 +70,8 @@ def main() -> None:
         "parameterization": cfg.action_parameterization,
         "train_steps": cfg.train_steps,
         "test_bank_checksum": bank.checksum(),
-        "train_seconds": train_seconds,
+        "train_seconds": training_call_seconds,
+        "timing": timing,
         "checkpoints": checkpoints,
         "learning_gain_vs_initial": (
             checkpoints["best"]["sum_rate_mean"]

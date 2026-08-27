@@ -1,10 +1,13 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
-.venv/
+.venv*/
+.codex-artifact-inspect/
 *.egg-info/
 artifacts/
-results/
+results/*
+!results/physical_v6_full/
+!results/physical_v6_full/**
 checkpoints/
 *.pt
 *.npz
