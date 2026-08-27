@@ -1,0 +1,8 @@
+launch=physical_v6_soft_anchor_full
+method=td3
+n_values=16,32,64,96,128
+seeds=0,1,2,3,4
+train_steps=100000
+accounts=td3,ddpg,ppo
+max_parallel_per_account=2
+requested_at_utc=2026-08-27T08:15:00Z
