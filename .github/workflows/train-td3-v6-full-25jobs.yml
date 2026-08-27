@@ -1,0 +1,145 @@
+name: Train TD3 V6 full 25 jobs
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  account-td3:
+    name: TD3 account
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - {n_ris: 16, seed: 0}
+          - {n_ris: 16, seed: 3}
+          - {n_ris: 32, seed: 1}
+          - {n_ris: 32, seed: 4}
+          - {n_ris: 64, seed: 2}
+          - {n_ris: 96, seed: 0}
+          - {n_ris: 96, seed: 3}
+          - {n_ris: 128, seed: 1}
+          - {n_ris: 128, seed: 4}
+    uses: ./.github/workflows/_kaggle-v6-single-job.yml
+    with:
+      n_ris: ${{ matrix.n_ris }}
+      seed: ${{ matrix.seed }}
+      kaggle_username: thanhnguyen1423
+      account_label: td3
+    secrets:
+      kaggle_key: ${{ secrets.KAGGLE_TD3_KEY }}
+
+  account-ddpg:
+    name: DDPG account
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - {n_ris: 16, seed: 1}
+          - {n_ris: 16, seed: 4}
+          - {n_ris: 32, seed: 2}
+          - {n_ris: 64, seed: 0}
+          - {n_ris: 64, seed: 3}
+          - {n_ris: 96, seed: 1}
+          - {n_ris: 96, seed: 4}
+          - {n_ris: 128, seed: 2}
+    uses: ./.github/workflows/_kaggle-v6-single-job.yml
+    with:
+      n_ris: ${{ matrix.n_ris }}
+      seed: ${{ matrix.seed }}
+      kaggle_username: ronganminh
+      account_label: ddpg
+    secrets:
+      kaggle_key: ${{ secrets.KAGGLE_DDPG_KEY }}
+
+  account-ppo:
+    name: PPO account
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - {n_ris: 16, seed: 2}
+          - {n_ris: 32, seed: 0}
+          - {n_ris: 32, seed: 3}
+          - {n_ris: 64, seed: 1}
+          - {n_ris: 64, seed: 4}
+          - {n_ris: 96, seed: 2}
+          - {n_ris: 128, seed: 0}
+          - {n_ris: 128, seed: 3}
+    uses: ./.github/workflows/_kaggle-v6-single-job.yml
+    with:
+      n_ris: ${{ matrix.n_ris }}
+      seed: ${{ matrix.seed }}
+      kaggle_username: duythanhb1909984
+      account_label: ppo
+    secrets:
+      kaggle_key: ${{ secrets.KAGGLE_PPO_KEY }}
+
+  audit-outputs:
+    name: Audit all 25 output archives
+    if: ${{ always() }}
+    needs: [account-td3, account-ddpg, account-ppo]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: physical-v6-n*-seed*
+          path: downloaded
+          merge-multiple: true
+      - name: Build completion manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import zipfile
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          expected = {
+              f"physical_v6_n{n_ris}_seed{seed}.zip"
+              for n_ris in (16, 32, 64, 96, 128)
+              for seed in range(5)
+          }
+          archives = {path.name: path for path in Path("downloaded").glob("*.zip")}
+          missing = sorted(expected - set(archives))
+          unexpected = sorted(set(archives) - expected)
+          rows = []
+          for name in sorted(expected & set(archives)):
+              path = archives[name]
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
+              with zipfile.ZipFile(path) as bundle:
+                  members = [item for item in bundle.namelist() if not item.endswith("/")]
+              rows.append({
+                  "archive": name,
+                  "bytes": path.stat().st_size,
+                  "sha256": digest,
+                  "file_count": len(members),
+              })
+          manifest = {
+              "audit": "PASS" if not missing and not unexpected else "FAIL",
+              "created_at_utc": datetime.now(timezone.utc).isoformat(),
+              "expected_jobs": 25,
+              "completed_jobs": len(rows),
+              "missing": missing,
+              "unexpected": unexpected,
+              "archives": rows,
+          }
+          Path("TRAINING_RUN_MANIFEST.json").write_text(
+              json.dumps(manifest, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(manifest, indent=2))
+          if manifest["audit"] != "PASS":
+              raise SystemExit("The 25-job V6 output set is incomplete")
+          PY
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: physical-v6-full-training-manifest
+          path: TRAINING_RUN_MANIFEST.json
+          if-no-files-found: error
+          retention-days: 30

@@ -1,5 +1,7 @@
 from pathlib import Path
 import runpy
+import subprocess
+import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,3 +23,17 @@ def test_v6_bank_protocol_is_the_frozen_six_method_protocol() -> None:
     assert all(len(checksum) == 64 for checksum in FROZEN_TEST_CHECKSUMS.values())
     assert CANONICAL_ARTIFACT["artifact_id"] == 8_712_801_218
     assert CANONICAL_ARTIFACT["workflow_run_id"] == 30_422_028_560
+
+
+def test_v6_bank_preparer_accepts_one_ris_size() -> None:
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "prepare_v6_scenario_banks.py"),
+            "--help",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "--n-ris" in completed.stdout

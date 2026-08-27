@@ -52,6 +52,14 @@ def main() -> None:
         type=Path,
         default=Path("results/physical_v6_full/SCENARIO_BANK_MANIFEST.json"),
     )
+    parser.add_argument(
+        "--n-ris",
+        type=int,
+        nargs="+",
+        choices=N_VALUES,
+        default=list(N_VALUES),
+        help="RIS sizes to generate/verify; defaults to all five frozen sizes.",
+    )
     parser.add_argument("--verify-existing", action="store_true")
     args = parser.parse_args()
 
@@ -67,7 +75,7 @@ def main() -> None:
         ),
         "banks": {},
     }
-    for n_ris in N_VALUES:
+    for n_ris in args.n_ris:
         cfg_path = Path(f"configs/v3/pilot_v6_soft_anchor_n{n_ris}.yaml")
         cfg = ExperimentConfig.from_yaml(cfg_path)
         banks: dict[str, ScenarioBank] = {}
