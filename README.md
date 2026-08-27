@@ -138,6 +138,12 @@ The script forces one Torch/OMP/MKL CPU thread and records algorithmic decision/
 
 A larger value such as `--count 500` may be used for an additional latency study to reduce Monte Carlo uncertainty, but such a rerun is a **new experiment** and must not be mixed with or presented as the frozen `six_method_v1` result. The thesis numbers and `TABLE_SIX_METHOD_CPU_LATENCY.csv` are based on 100 samples per method/N.
 
+The corrected **Six-Method V2** artifact uses a distinct locked protocol:
+`scripts/benchmark_latency_v2.py --warmup 10 --count 100`. Its published
+latencies are in `results/six_method_v2/`; do not substitute the V1 command
+above when reproducing V2. Both protocols use 100 measured samples, but their
+warmup counts intentionally differ (V1: 20, V2: 10).
+
 ## 7. Merge, statistics and plots
 
 ```bash

@@ -21,7 +21,13 @@ def evaluate_ablation(
     if mode not in ABLATION_MODES:
         raise ValueError(mode)
 
-    action = decode_action(raw_action, env.config.n_users, env.config.n_ris, env.config.p_max)
+    action = decode_action(
+        raw_action,
+        env.config.n_users,
+        env.config.n_ris,
+        env.config.p_max,
+        env.config.action_parameterization,
+    )
     if mode == "equal_power":
         action = action.copy_with(
             powers=np.full(env.config.n_users + 1, env.config.p_max / (env.config.n_users + 1))

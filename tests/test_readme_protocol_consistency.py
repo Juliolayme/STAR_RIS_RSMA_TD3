@@ -20,6 +20,8 @@ def test_root_readme_uses_constrained_v3_examples() -> None:
 def test_root_readme_matches_frozen_latency_count() -> None:
     text = (ROOT / "README.md").read_text(encoding="utf-8")
     assert "--warmup 20 --count 100" in text
+    assert "benchmark_latency_v2.py --warmup 10 --count 100" in text
+    assert "V1: 20, V2: 10" in text
     assert "--warmup 20 --count 500" not in text
     assert "exactly 100 latency samples for every method/N pair" in text
 
