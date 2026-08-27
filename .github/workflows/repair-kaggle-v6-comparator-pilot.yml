@@ -2,6 +2,9 @@ name: Repair Kaggle V6 comparator pilot
 
 on:
   workflow_dispatch:
+  push:
+    branches: [audit/ao-baseline-full-n128]
+    paths: [experiments/structure_aware/TRIGGER_REPAIR_V6_COMPARATOR]
 
 permissions:
   contents: read
