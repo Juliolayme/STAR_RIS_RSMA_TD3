@@ -318,5 +318,10 @@ def solve(
         power_stationarity_gap=float(power_gap),
         common_stationarity_gap=float(common_gap),
     )
-    raw = encode_action(current.action, cfg.p_max, cfg.action_parameterization)
+    raw = encode_action(
+        current.action,
+        cfg.p_max,
+        cfg.action_parameterization,
+        channel=getattr(env, "channel", None),
+    )
     return raw, metrics

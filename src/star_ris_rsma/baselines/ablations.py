@@ -27,6 +27,7 @@ def evaluate_ablation(
         env.config.n_ris,
         env.config.p_max,
         env.config.action_parameterization,
+        channel=env.channel,
     )
     if mode == "equal_power":
         action = action.copy_with(

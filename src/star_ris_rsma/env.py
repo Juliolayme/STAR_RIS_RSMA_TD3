@@ -100,6 +100,7 @@ class StarRisRsmaEnv:
             self.config.n_ris,
             self.config.p_max,
             self.config.action_parameterization,
+            channel=self.channel,
         )
         return self.evaluate_decoded_action(action)
 

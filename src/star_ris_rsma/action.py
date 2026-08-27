@@ -6,6 +6,16 @@ import numpy as np
 
 
 _EPS = 1e-9
+STRUCTURED_COMMON_MIN = 0.70
+STRUCTURED_COMMON_MAX = 0.99
+STRUCTURED_SOFTMAX_TEMPERATURE = 10.0
+PHASE_RESIDUAL_SCALE = 0.25
+
+
+def reference_phase(channel) -> np.ndarray:
+    """AnalyticalRIS phase alignment used as the structured-policy anchor."""
+    aggregate = np.sum(channel.h_ru.conj() * channel.g_br[None, :], axis=0)
+    return -np.angle(aggregate)
 
 
 @dataclass(slots=True)
@@ -64,6 +74,7 @@ def decode_action(
     n_ris: int,
     p_max: float,
     parameterization: str = "legacy_v1",
+    channel=None,
 ) -> DecodedAction:
     raw = np.asarray(raw, dtype=float).reshape(-1)
     expected = action_dim(n_users, n_ris)
@@ -99,6 +110,36 @@ def decode_action(
         beta_t = 0.5 * (beta_raw + 1.0)
         theta_t = wrap_phase(np.pi * theta_t_raw)
         theta_r = wrap_phase(np.pi * theta_r_raw)
+    elif parameterization in {"physical_v5_hard", "physical_v5_soft"}:
+        if channel is None:
+            raise ValueError(f"{parameterization} requires a channel for the phase anchor")
+        clipped = np.clip(raw, -1.0, 1.0)
+        i = 0
+        p_raw = clipped[i:i + n_users + 1]; i += n_users + 1
+        c_raw = clipped[i:i + n_users]; i += n_users
+        beta_raw = clipped[i:i + n_ris]; i += n_ris
+        theta_t_raw = clipped[i:i + n_ris]; i += n_ris
+        theta_r_raw = clipped[i:i + n_ris]
+
+        common_share = STRUCTURED_COMMON_MIN + (
+            STRUCTURED_COMMON_MAX - STRUCTURED_COMMON_MIN
+        ) * 0.5 * (p_raw[0] + 1.0)
+        if parameterization == "physical_v5_hard":
+            private_weights = np.zeros(n_users, dtype=float)
+            private_weights[int(np.argmax(p_raw[1:]))] = 1.0
+        else:
+            private_weights = softmax(
+                STRUCTURED_SOFTMAX_TEMPERATURE * p_raw[1:]
+            )
+        powers = np.concatenate((
+            [common_share * p_max],
+            (1.0 - common_share) * p_max * private_weights,
+        ))
+        common_fractions = project_simplex(0.5 * (c_raw + 1.0), 1.0)
+        beta_t = 0.5 * (beta_raw + 1.0)
+        anchor = reference_phase(channel)
+        theta_t = wrap_phase(anchor + PHASE_RESIDUAL_SCALE * np.pi * theta_t_raw)
+        theta_r = wrap_phase(anchor + PHASE_RESIDUAL_SCALE * np.pi * theta_r_raw)
     else:
         raise ValueError(f"Unknown action parameterization: {parameterization}")
 
@@ -109,6 +150,7 @@ def encode_action(
     action: DecodedAction,
     p_max: float,
     parameterization: str = "legacy_v1",
+    channel=None,
 ) -> np.ndarray:
     """Map a feasible physical action back to the bounded actor coordinates."""
     powers = project_simplex(action.powers, p_max)
@@ -133,6 +175,31 @@ def encode_action(
             np.arctanh(theta_t_scaled),
             np.arctanh(theta_r_scaled),
         ]).astype(np.float64)
+
+    if parameterization in {"physical_v5_hard", "physical_v5_soft"}:
+        if channel is None:
+            raise ValueError(f"{parameterization} requires a channel for the phase anchor")
+        share = float(np.clip(powers[0] / p_max, STRUCTURED_COMMON_MIN, STRUCTURED_COMMON_MAX))
+        split = 2.0 * (share - STRUCTURED_COMMON_MIN) / (
+            STRUCTURED_COMMON_MAX - STRUCTURED_COMMON_MIN
+        ) - 1.0
+        private = powers[1:] / max(float(powers[1:].sum()), _EPS)
+        if parameterization == "physical_v5_hard":
+            logits = np.full(private.size, -1.0)
+            logits[int(np.argmax(private))] = 1.0
+        else:
+            logits = np.log(np.clip(private, _EPS, None)) / STRUCTURED_SOFTMAX_TEMPERATURE
+            logits -= 0.5 * (float(logits.max()) + float(logits.min()))
+            logits = np.clip(logits, -1.0, 1.0)
+        anchor = reference_phase(channel)
+        return np.clip(np.concatenate([
+            [split],
+            logits,
+            2.0 * fractions - 1.0,
+            2.0 * beta - 1.0,
+            wrap_phase(theta_t - anchor) / (PHASE_RESIDUAL_SCALE * np.pi),
+            wrap_phase(theta_r - anchor) / (PHASE_RESIDUAL_SCALE * np.pi),
+        ]), -1.0, 1.0).astype(np.float64)
 
     if parameterization == "physical_v3":
         return np.clip(np.concatenate([

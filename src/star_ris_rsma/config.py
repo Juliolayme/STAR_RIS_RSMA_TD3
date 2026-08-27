@@ -47,6 +47,8 @@ _POST_V2_FIELDS = (
     "qos_dual_ema_beta",
     "qos_dual_min",
     "qos_dual_max",
+    "validate_at_initialization",
+    "actor_small_final_init",
 )
 
 
@@ -79,6 +81,8 @@ class ExperimentConfig:
     # the original experiment because these defaults match the old behaviour.
     observation_normalization: str = "global_l2"
     action_parameterization: str = "legacy_v1"
+    validate_at_initialization: bool = False
+    actor_small_final_init: bool = False
     qos_penalty_linear: float = 2.0
     qos_penalty_quadratic: float = 0.0
 
@@ -118,9 +122,11 @@ class ExperimentConfig:
             raise ValueError(
                 "observation_normalization must be 'global_l2' or 'blockwise_v2'"
             )
-        if self.action_parameterization not in {"legacy_v1", "physical_v3"}:
+        if self.action_parameterization not in {
+            "legacy_v1", "physical_v3", "physical_v5_hard", "physical_v5_soft"
+        }:
             raise ValueError(
-                "action_parameterization must be 'legacy_v1' or 'physical_v3'"
+                "unsupported action_parameterization"
             )
         if self.td3_critic_loss not in {"mse", "huber"}:
             raise ValueError("td3_critic_loss must be 'mse' or 'huber'")

@@ -135,5 +135,10 @@ def solve(env, *, rounds: int = FROZEN_ROUNDS, seed: int = 0):
             "phase": np.linspace(-np.pi, np.pi, 8, endpoint=False).tolist(),
         },
     )
-    raw = encode_action(current.action, env.config.p_max, env.config.action_parameterization)
+    raw = encode_action(
+        current.action,
+        env.config.p_max,
+        env.config.action_parameterization,
+        channel=env.channel,
+    )
     return raw, metrics

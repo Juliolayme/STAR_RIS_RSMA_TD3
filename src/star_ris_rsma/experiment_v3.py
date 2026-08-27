@@ -138,6 +138,18 @@ def train_off_policy_v3(
 
     rows: list[dict[str, object]] = []
     best: dict[str, object] | None = None
+    if cfg.validate_at_initialization:
+        best = _validation_step(
+            agent, method, cfg, validation_bank, seed, 0, output, best
+        )
+        save_checkpoint(
+            output / "initial.pt",
+            method,
+            agent,
+            0,
+            float(best["mean_reward"]),
+            cfg,
+        )
     for step in range(1, cfg.train_steps + 1):
         if step <= cfg.warmup_steps:
             action = np.random.uniform(-1.0, 1.0, env.action_dim).astype(np.float32)

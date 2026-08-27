@@ -26,6 +26,7 @@ def build_agent(method: str, obs_dim: int, action_dim: int, cfg: ExperimentConfi
             noise_reference_dim=cfg.td3_noise_reference_dim,
             critic_loss=cfg.td3_critic_loss,
             layer_norm=cfg.td3_layer_norm,
+            small_final_init=cfg.actor_small_final_init,
         )
     if method == "ddpg":
         return DDPGAgent(obs_dim, action_dim, cfg.hidden_dim, cfg.gamma, cfg.tau, device)

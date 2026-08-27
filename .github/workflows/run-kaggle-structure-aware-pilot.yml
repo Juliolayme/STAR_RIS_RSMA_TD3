@@ -1,0 +1,114 @@
+name: Run Kaggle structure-aware TD3 pilot
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    name: Submit ${{ matrix.variant }} seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        variant: [hard, soft]
+        seed: [0, 1]
+
+    env:
+      KAGGLE_USERNAME: thanhnguyen1423
+      KAGGLE_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      VARIANT: ${{ matrix.variant }}
+      SEED: ${{ matrix.seed }}
+      REPO_COMMIT: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install "kaggle>=1.8.4,<3"
+
+      - name: Build immutable pilot kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="kaggle_submit_${VARIANT}_${SEED}"
+          mkdir -p "$stage"
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          variant = os.environ["VARIANT"]
+          seed = int(os.environ["SEED"])
+          commit = os.environ["REPO_COMMIT"]
+          stage = Path(f"kaggle_submit_{variant}_{seed}")
+          slug = f"star-ris-td3-v5-{variant}-n32-s{seed}"
+          config = f"configs/v3/pilot_v5_{variant}_n32.yaml"
+          tag = f"v5_{variant}_n32_100k"
+          runner = f'''from __future__ import annotations
+          import shutil
+          import subprocess
+          import sys
+          from pathlib import Path
+
+          repo = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
+          if repo.exists():
+              shutil.rmtree(repo)
+          subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(repo)], check=True)
+          subprocess.run(["git", "checkout", "--detach", "{commit}"], cwd=repo, check=True)
+          subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(repo)], check=True)
+          subprocess.run([
+              sys.executable, "scripts/create_scenario_banks.py",
+              "--config", "{config}",
+              "--output-dir", "artifacts/scenario_banks",
+              "--train-count", "10000", "--validation-count", "1000", "--test-count", "1000",
+          ], cwd=repo, check=True)
+          subprocess.run([
+              sys.executable, "scripts/pilot_structure_aware_td3.py",
+              "--config", "{config}", "--seed", "{seed}", "--tag", "{tag}",
+              "--output-root", "/kaggle/working/structure_pilot",
+          ], cwd=repo, check=True)
+          shutil.make_archive(
+              f"/kaggle/working/{tag}_seed{seed}",
+              "zip",
+              "/kaggle/working/structure_pilot",
+              f"{tag}_seed{seed}",
+          )
+          '''
+          (stage / "runner.py").write_text(runner, encoding="utf-8")
+          metadata = {
+              "id": f"{os.environ['KAGGLE_USERNAME']}/{slug}",
+              "title": f"STAR-RIS TD3 V5 {variant} N32 seed {seed}",
+              "code_file": "runner.py",
+              "language": "python",
+              "kernel_type": "script",
+              "is_private": True,
+              "enable_gpu": True,
+              "enable_internet": True,
+              "enable_tpu": False,
+              "dataset_sources": [],
+              "kernel_sources": [],
+              "competition_sources": [],
+          }
+          (stage / "kernel-metadata.json").write_text(
+              json.dumps(metadata, indent=2), encoding="utf-8"
+          )
+          print(json.dumps(metadata, indent=2))
+          PY
+
+      - name: Submit Kaggle T4 kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          slug="star-ris-td3-v5-${VARIANT}-n32-s${SEED}"
+          kaggle kernels push -p "kaggle_submit_${VARIANT}_${SEED}" \
+            --accelerator NvidiaTeslaT4 --timeout 43200
+          kaggle kernels status "${KAGGLE_USERNAME}/${slug}" || true

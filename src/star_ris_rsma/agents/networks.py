@@ -30,6 +30,7 @@ class DeterministicActor(nn.Module):
         hidden_dim: int,
         *,
         layer_norm: bool = False,
+        small_final_init: bool = False,
     ):
         super().__init__()
         self.net = mlp(
@@ -37,6 +38,10 @@ class DeterministicActor(nn.Module):
             nn.Tanh(),
             layer_norm=layer_norm,
         )
+        if small_final_init:
+            final = [module for module in self.net if isinstance(module, nn.Linear)][-1]
+            nn.init.uniform_(final.weight, -3e-3, 3e-3)
+            nn.init.uniform_(final.bias, -3e-3, 3e-3)
 
     def forward(self, obs: torch.Tensor) -> torch.Tensor:
         return self.net(obs)
