@@ -1,0 +1,45 @@
+name: Train TD3 V6 full orchestrated
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/physical-v6-full]
+    paths: [experiments/structure_aware/TRIGGER_V6_FULL_ORCHESTRATED]
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    name: Orchestrate six Kaggle GPUs
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      REPO_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "kaggle>=1.8.4,<3"
+      - name: Submit, monitor, and collect all 25 jobs
+        run: |
+          python scripts/orchestrate_kaggle_v6_full.py \
+            --commit "$REPO_COMMIT" \
+            --output-dir collected \
+            --manifest TRAINING_RUN_MANIFEST.json \
+            --timeout-minutes 210
+      - name: Upload complete V6 training evidence
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: physical-v6-full-25jobs
+          path: |
+            TRAINING_RUN_MANIFEST.json
+            collected/*.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

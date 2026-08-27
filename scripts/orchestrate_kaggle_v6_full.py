@@ -1,0 +1,399 @@
+from __future__ import annotations
+
+import argparse
+from collections import deque
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+import textwrap
+import time
+import zipfile
+
+
+N_VALUES = (16, 32, 64, 96, 128)
+SEEDS = tuple(range(5))
+MAX_ACTIVE_PER_ACCOUNT = 2
+ASSIGNMENTS = {
+    "td3": (
+        (16, 0), (16, 3), (32, 1), (32, 4), (64, 2),
+        (96, 0), (96, 3), (128, 1), (128, 4),
+    ),
+    "ddpg": (
+        (16, 1), (16, 4), (32, 2), (64, 0),
+        (64, 3), (96, 1), (96, 4), (128, 2),
+    ),
+    "ppo": (
+        (16, 2), (32, 0), (32, 3), (64, 1),
+        (64, 4), (96, 2), (128, 0), (128, 3),
+    ),
+}
+USERNAMES = {
+    "td3": "thanhnguyen1423",
+    "ddpg": "ronganminh",
+    "ppo": "duythanhb1909984",
+}
+KEY_ENV = {
+    "td3": "KAGGLE_TD3_KEY",
+    "ddpg": "KAGGLE_DDPG_KEY",
+    "ppo": "KAGGLE_PPO_KEY",
+}
+REQUIRED_ARCHIVE_FILES = {
+    "initial.pt",
+    "best.pt",
+    "latest.pt",
+    "summary.json",
+    "timing.json",
+    "test_initial_raw.csv",
+    "test_best_raw.csv",
+    "test_latest_raw.csv",
+    "manifest.json",
+    "training.csv",
+    "validation_summary.csv",
+    "SCENARIO_BANK_VERIFICATION.json",
+    "KAGGLE_JOB_PROVENANCE.json",
+}
+
+
+@dataclass(slots=True)
+class Job:
+    account: str
+    n_ris: int
+    seed: int
+    attempts: int = 0
+    status: str = "pending"
+    status_text: str = ""
+    archive_sha256: str | None = None
+    archive_bytes: int | None = None
+
+    @property
+    def slug(self) -> str:
+        return f"star-ris-td3-v6-full-n{self.n_ris}-seed-{self.seed}"
+
+    @property
+    def ref(self) -> str:
+        return f"{USERNAMES[self.account]}/{self.slug}"
+
+    @property
+    def archive_name(self) -> str:
+        return f"physical_v6_n{self.n_ris}_seed{self.seed}.zip"
+
+    def record(self) -> dict[str, object]:
+        return {
+            "account": self.account,
+            "username": USERNAMES[self.account],
+            "n_ris": self.n_ris,
+            "seed": self.seed,
+            "ref": self.ref,
+            "attempts": self.attempts,
+            "status": self.status,
+            "status_text": self.status_text,
+            "archive": self.archive_name,
+            "archive_sha256": self.archive_sha256,
+            "archive_bytes": self.archive_bytes,
+        }
+
+
+def credential_env(account: str) -> dict[str, str]:
+    key = os.environ.get(KEY_ENV[account], "")
+    if not key:
+        raise RuntimeError(f"Missing secret environment variable {KEY_ENV[account]}")
+    return {
+        **os.environ,
+        "KAGGLE_USERNAME": USERNAMES[account],
+        "KAGGLE_KEY": key,
+    }
+
+
+def run_cli(account: str, arguments: list[str], check: bool = False) -> subprocess.CompletedProcess[str]:
+    completed = subprocess.run(
+        ["kaggle", *arguments],
+        env=credential_env(account),
+        text=True,
+        capture_output=True,
+    )
+    output = "\n".join(part for part in (completed.stdout, completed.stderr) if part)
+    if output:
+        print(output, flush=True)
+    if check and completed.returncode != 0:
+        raise RuntimeError(
+            f"Kaggle CLI failed for {account}: kaggle {' '.join(arguments)}"
+        )
+    return completed
+
+
+def classify_status(job: Job) -> tuple[str, str]:
+    completed = run_cli(job.account, ["kernels", "status", job.ref])
+    text = f"{completed.stdout}\n{completed.stderr}".strip()
+    normalized = text.lower()
+    if completed.returncode != 0 and any(
+        token in normalized for token in ("404", "not found", "does not exist")
+    ):
+        return "missing", text
+    if any(token in normalized for token in ("complete", "success")):
+        return "complete", text
+    if any(token in normalized for token in ("error", "failed", "cancel")):
+        return "failed", text
+    if "running" in normalized:
+        return "running", text
+    if any(token in normalized for token in ("queued", "pending")):
+        return "queued", text
+    if completed.returncode != 0:
+        return "missing", text
+    return "unknown", text
+
+
+def runner_source(job: Job, commit: str) -> str:
+    tag = f"physical_v6_n{job.n_ris}_100k"
+    return textwrap.dedent(
+        f'''\
+        from __future__ import annotations
+        import json
+        import shutil
+        import subprocess
+        import sys
+        from datetime import datetime, timezone
+        from pathlib import Path
+
+        repo = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
+        output_root = Path("/kaggle/working/physical_v6_full")
+        if repo.exists():
+            shutil.rmtree(repo)
+        subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(repo)], check=True)
+        subprocess.run(["git", "checkout", "--detach", "{commit}"], cwd=repo, check=True)
+        subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(repo)], check=True)
+        subprocess.run([
+            sys.executable, "scripts/create_scenario_banks.py",
+            "--config", "configs/v3/pilot_v6_soft_anchor_n{job.n_ris}.yaml",
+            "--output-dir", "artifacts/scenario_banks",
+            "--train-count", "10000", "--validation-count", "1000", "--test-count", "1000",
+        ], cwd=repo, check=True)
+        verification = Path("/kaggle/working/scenario_bank_verification_n{job.n_ris}.json")
+        subprocess.run([
+            sys.executable, "scripts/prepare_v6_scenario_banks.py",
+            "--n-ris", "{job.n_ris}", "--verify-existing", "--manifest", str(verification),
+        ], cwd=repo, check=True)
+        subprocess.run([
+            sys.executable, "scripts/pilot_structure_aware_td3.py",
+            "--method", "td3",
+            "--config", "configs/v3/pilot_v6_soft_anchor_n{job.n_ris}.yaml",
+            "--seed", "{job.seed}", "--tag", "{tag}",
+            "--output-root", str(output_root),
+        ], cwd=repo, check=True)
+        run_dir = output_root / "{tag}_seed{job.seed}"
+        shutil.copy2(verification, run_dir / "SCENARIO_BANK_VERIFICATION.json")
+        provenance = {{
+            "experiment": "physical_v6_soft_anchor_full",
+            "method": "td3",
+            "n_ris": {job.n_ris},
+            "seed": {job.seed},
+            "train_steps": 100000,
+            "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+            "git_commit": "{commit}",
+            "kaggle_account_label": "{job.account}",
+            "finished_at_utc": datetime.now(timezone.utc).isoformat(),
+        }}
+        (run_dir / "KAGGLE_JOB_PROVENANCE.json").write_text(
+            json.dumps(provenance, indent=2), encoding="utf-8"
+        )
+        shutil.make_archive(
+            "/kaggle/working/{job.archive_name.removesuffix('.zip')}",
+            "zip", output_root, run_dir.name,
+        )
+        '''
+    )
+
+
+def build_submission(job: Job, commit: str, root: Path) -> Path:
+    target = root / f"{job.account}_n{job.n_ris}_seed{job.seed}"
+    if target.exists():
+        shutil.rmtree(target)
+    target.mkdir(parents=True)
+    (target / "runner.py").write_text(runner_source(job, commit), encoding="utf-8")
+    metadata = {
+        "id": job.ref,
+        "title": f"STAR-RIS TD3 V6 full N{job.n_ris} seed {job.seed}",
+        "code_file": "runner.py",
+        "language": "python",
+        "kernel_type": "script",
+        "is_private": True,
+        "enable_gpu": True,
+        "enable_internet": True,
+        "enable_tpu": False,
+        "dataset_sources": [],
+        "kernel_sources": [],
+        "competition_sources": [],
+    }
+    (target / "kernel-metadata.json").write_text(
+        json.dumps(metadata, indent=2), encoding="utf-8"
+    )
+    return target
+
+
+def submit(job: Job, commit: str, submission_root: Path) -> None:
+    target = build_submission(job, commit, submission_root)
+    job.attempts += 1
+    job.status = "submitting"
+    print(f"SUBMIT {job.ref} attempt={job.attempts}", flush=True)
+    run_cli(
+        job.account,
+        [
+            "kernels", "push", "-p", str(target),
+            "--accelerator", "NvidiaTeslaT4", "--timeout", "43200",
+        ],
+        check=True,
+    )
+    job.status = "queued"
+
+
+def verify_download(job: Job, output_dir: Path) -> None:
+    archive = output_dir / job.archive_name
+    if not archive.is_file() or archive.stat().st_size == 0:
+        raise RuntimeError(f"Missing output archive {archive}")
+    with zipfile.ZipFile(archive) as bundle:
+        names = {
+            Path(name).name
+            for name in bundle.namelist()
+            if not name.endswith("/")
+        }
+    missing = sorted(REQUIRED_ARCHIVE_FILES - names)
+    if missing:
+        raise RuntimeError(f"{archive} is missing required files: {missing}")
+    job.archive_bytes = archive.stat().st_size
+    job.archive_sha256 = hashlib.sha256(archive.read_bytes()).hexdigest()
+    job.status = "complete"
+
+
+def download(job: Job, output_dir: Path) -> None:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_cli(
+        job.account,
+        ["kernels", "output", job.ref, "-p", str(output_dir)],
+        check=True,
+    )
+    verify_download(job, output_dir)
+
+
+def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
+    completed = [job for job in jobs if job.status == "complete"]
+    failed = [job for job in jobs if job.status == "failed"]
+    manifest = {
+        "audit": (
+            "PASS" if len(completed) == 25 and not failed else
+            "FAIL" if failed else "RUNNING"
+        ),
+        "updated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+        "git_commit": commit,
+        "protocol": {
+            "method": "td3",
+            "action_parameterization": "physical_v6_soft_anchor",
+            "n_values": list(N_VALUES),
+            "seeds": list(SEEDS),
+            "train_steps": 100_000,
+            "expected_jobs": 25,
+            "max_active_per_account": MAX_ACTIVE_PER_ACCOUNT,
+            "max_active_total": 6,
+        },
+        "completed_jobs": len(completed),
+        "failed_jobs": len(failed),
+        "jobs": [job.record() for job in jobs],
+    }
+    path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--commit", required=True)
+    parser.add_argument("--output-dir", type=Path, default=Path("collected"))
+    parser.add_argument("--submission-root", type=Path, default=Path("kaggle_submit_v6"))
+    parser.add_argument("--manifest", type=Path, default=Path("TRAINING_RUN_MANIFEST.json"))
+    parser.add_argument("--poll-seconds", type=int, default=30)
+    parser.add_argument("--timeout-minutes", type=int, default=210)
+    args = parser.parse_args()
+
+    jobs = [
+        Job(account, n_ris, seed)
+        for account, combinations in ASSIGNMENTS.items()
+        for n_ris, seed in combinations
+    ]
+    expected = {(n_ris, seed) for n_ris in N_VALUES for seed in SEEDS}
+    observed = {(job.n_ris, job.seed) for job in jobs}
+    if len(jobs) != 25 or observed != expected:
+        raise RuntimeError("ASSIGNMENTS must contain all 25 unique N/seed jobs")
+
+    pending = {
+        account: deque(job for job in jobs if job.account == account)
+        for account in ASSIGNMENTS
+    }
+    active: dict[str, list[Job]] = {account: [] for account in ASSIGNMENTS}
+    deadline = time.monotonic() + args.timeout_minutes * 60
+
+    def fill(account: str) -> None:
+        while (
+            len(active[account]) < MAX_ACTIVE_PER_ACCOUNT
+            and pending[account]
+        ):
+            job = pending[account].popleft()
+            state, status_text = classify_status(job)
+            job.status_text = status_text
+            if state == "complete":
+                print(f"ADOPT COMPLETE {job.ref}", flush=True)
+                download(job, args.output_dir)
+                continue
+            if state in {"running", "queued", "unknown"}:
+                print(f"ADOPT {state.upper()} {job.ref}", flush=True)
+                job.status = state
+                active[account].append(job)
+                continue
+            submit(job, args.commit, args.submission_root)
+            active[account].append(job)
+
+    for account in ASSIGNMENTS:
+        fill(account)
+    write_manifest(args.manifest, jobs, args.commit)
+
+    while time.monotonic() < deadline:
+        if all(job.status == "complete" for job in jobs):
+            break
+        for account in ASSIGNMENTS:
+            for job in list(active[account]):
+                state, status_text = classify_status(job)
+                job.status_text = status_text
+                if state == "complete":
+                    print(f"COMPLETE {job.ref}; downloading", flush=True)
+                    download(job, args.output_dir)
+                    active[account].remove(job)
+                elif state == "failed":
+                    if job.attempts < 2:
+                        print(f"RETRY {job.ref}", flush=True)
+                        submit(job, args.commit, args.submission_root)
+                    else:
+                        job.status = "failed"
+                        active[account].remove(job)
+                else:
+                    job.status = state
+            fill(account)
+        write_manifest(args.manifest, jobs, args.commit)
+        completed = sum(job.status == "complete" for job in jobs)
+        running = sum(job.status in {"running", "queued", "unknown"} for job in jobs)
+        print(f"PROGRESS completed={completed}/25 active={running}", flush=True)
+        if any(job.status == "failed" for job in jobs):
+            break
+        if completed < 25:
+            time.sleep(args.poll_seconds)
+
+    write_manifest(args.manifest, jobs, args.commit)
+    incomplete = [job.ref for job in jobs if job.status != "complete"]
+    if incomplete:
+        raise SystemExit(f"V6 training incomplete: {incomplete}")
+    print("V6 25-job training audit PASS", flush=True)
+
+
+if __name__ == "__main__":
+    main()
