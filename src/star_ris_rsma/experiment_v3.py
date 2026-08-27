@@ -79,6 +79,28 @@ def _is_better(candidate: dict[str, object], best: dict[str, object] | None) -> 
     return tuple(candidate["selection_key"]) > tuple(best["selection_key"])
 
 
+def _pareto_front(entries: list[dict[str, object]]) -> list[dict[str, object]]:
+    """Entries that can win for some violation tolerance.
+
+    Selection maximises sum-rate among checkpoints whose violation clears the
+    tolerance. As the tolerance sweeps upward the winner therefore traces the
+    lower-violation / higher-sum-rate frontier, so retaining exactly this set
+    is enough to reproduce the choice for any tolerance without retraining.
+    """
+    ordered = sorted(
+        entries,
+        key=lambda item: (float(item["mean_violation"]), -float(item["mean_sum_rate"])),
+    )
+    front: list[dict[str, object]] = []
+    best_rate = float("-inf")
+    for item in ordered:
+        rate = float(item["mean_sum_rate"])
+        if rate > best_rate:
+            front.append(item)
+            best_rate = rate
+    return front
+
+
 def _retain_candidate(
     agent: Any,
     method: str,
@@ -88,12 +110,13 @@ def _retain_candidate(
     output: Path,
     candidates: list[dict[str, object]],
 ) -> None:
-    """Keep the best few QoS-satisfying checkpoints seen during training.
+    """Keep the checkpoints a later re-selection could need.
 
-    Only `best.pt` used to survive, so any later change to the selection
-    criterion forced a full retrain. The floor here is QoS satisfaction alone -
-    deliberately independent of `validation_violation_tolerance` - so the knob
-    most likely to be revisited can be re-applied by re-selection.
+    Only best.pt used to survive a run, so revisiting the selection rule meant
+    retraining. The floor here is QoS satisfaction alone - deliberately
+    independent of validation_violation_tolerance, the knob most likely to be
+    revisited - and what survives above it is the sum-rate / violation
+    frontier.
     """
     limit = int(cfg.retained_candidate_checkpoints)
     if limit <= 0:
@@ -112,33 +135,41 @@ def _retain_candidate(
         "mean_all_qos": float(summary["mean_all_qos"]),
         "mean_reward": float(summary["mean_reward"]),
     }
-    candidates.append(entry)
-    candidates.sort(key=lambda item: -float(item["mean_sum_rate"]))
-    evicted = candidates[limit:]
-    del candidates[limit:]
-    if any(item is entry for item in evicted):
-        return
-    save_checkpoint(
-        output / str(entry["checkpoint"]),
-        method,
-        agent,
-        step,
-        float(summary["mean_reward"]),
-        cfg,
-        include_optimizer=False,
-    )
-    for item in evicted:
-        stale = output / str(item["checkpoint"])
-        if stale.exists():
-            stale.unlink()
+    front = _pareto_front([*candidates, entry])
+    if len(front) > limit:
+        # Keep the highest sum-rate end of the frontier, which is the part a
+        # loosened tolerance reaches.
+        front = sorted(front, key=lambda item: -float(item["mean_sum_rate"]))[:limit]
+    kept = {int(item["eval_step"]) for item in front}
+    for stale in candidates:
+        if int(stale["eval_step"]) not in kept:
+            path = output / str(stale["checkpoint"])
+            if path.exists():
+                path.unlink()
+    candidates[:] = sorted(front, key=lambda item: int(item["eval_step"]))
+    if step in kept:
+        save_checkpoint(
+            output / str(entry["checkpoint"]),
+            method,
+            agent,
+            step,
+            float(summary["mean_reward"]),
+            cfg,
+            state_scope="policy",
+        )
 
 
 def _write_candidate_index(output: Path, candidates: list[dict[str, object]]) -> None:
     (output / "candidate_checkpoints.json").write_text(
         json.dumps(
             {
-                "selection_floor": "mean_qos_fraction and mean_all_qos meet their targets",
-                "ranked_by": "mean_sum_rate",
+                "purpose": (
+                    "re-select the reported checkpoint under a different "
+                    "validation_violation_tolerance without retraining"
+                ),
+                "floor": "mean_qos_fraction and mean_all_qos meet their targets",
+                "retained_set": "pareto front of (low mean_violation, high mean_sum_rate)",
+                "state_scope": "policy",
                 "count": len(candidates),
                 "candidates": candidates,
             },

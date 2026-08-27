@@ -115,30 +115,78 @@ def test_constraint_gap_terms_share_one_scale() -> None:
 
 class _FakeAgent:
     def checkpoint_state(self) -> dict[str, object]:
-        return {"actor": {"w": torch.zeros(2)}, "actor_opt": {"state": {}}}
+        return {
+            "actor": {"w": torch.zeros(2)},
+            "q1": {"w": torch.zeros(2)},
+            "actor_opt": {"state": {}},
+        }
 
 
-def _summary(step: int, sum_rate: float, *, qos: float = 1.0) -> dict[str, object]:
+def _summary(
+    step: int, sum_rate: float, *, violation: float = 0.0, qos: float = 1.0
+) -> dict[str, object]:
     return {
         "eval_step": step,
         "mean_sum_rate": sum_rate,
-        "mean_violation": 0.0,
+        "mean_violation": violation,
         "mean_qos_fraction": qos,
         "mean_all_qos": qos,
         "mean_reward": sum_rate,
     }
 
 
-def test_candidate_retention_keeps_the_best_few_and_evicts_the_rest(tmp_path: Path) -> None:
-    cfg = ExperimentConfig(retained_candidate_checkpoints=3)
+def _retain_all(cfg, steps, tmp_path):
     candidates: list[dict[str, object]] = []
-    for step, rate in [(0, 1.0), (1000, 9.0), (2000, 5.0), (3000, 7.0), (4000, 3.0)]:
+    for step, rate, violation in steps:
         _retain_candidate(
-            _FakeAgent(), "td3", cfg, _summary(step, rate), step, tmp_path, candidates
+            _FakeAgent(),
+            "td3",
+            cfg,
+            _summary(step, rate, violation=violation),
+            step,
+            tmp_path,
+            candidates,
         )
-    assert [item["eval_step"] for item in candidates] == [1000, 3000, 2000]
+    return candidates
+
+
+def test_retention_keeps_every_checkpoint_some_tolerance_could_select(tmp_path: Path) -> None:
+    cfg = ExperimentConfig(retained_candidate_checkpoints=4)
+    # (step, sum_rate, violation): 2000 is dominated by 1000 - lower rate at a
+    # higher violation - so no tolerance could ever select it.
+    candidates = _retain_all(
+        cfg,
+        [(1000, 9.0, 0.001), (2000, 8.0, 0.005), (3000, 12.0, 0.010), (4000, 15.0, 0.030)],
+        tmp_path,
+    )
+    assert [item["eval_step"] for item in candidates] == [1000, 3000, 4000]
     on_disk = sorted(p.name for p in tmp_path.glob("candidate_step*.pt"))
-    assert on_disk == ["candidate_step1000.pt", "candidate_step2000.pt", "candidate_step3000.pt"]
+    assert on_disk == [
+        "candidate_step1000.pt",
+        "candidate_step3000.pt",
+        "candidate_step4000.pt",
+    ]
+
+
+def test_retained_set_reproduces_selection_at_any_tolerance(tmp_path: Path) -> None:
+    cfg = ExperimentConfig(retained_candidate_checkpoints=4)
+    history = [(1000, 9.0, 0.001), (2000, 8.0, 0.005), (3000, 12.0, 0.010), (4000, 15.0, 0.030)]
+    candidates = _retain_all(cfg, history, tmp_path)
+
+    def winner(pool, tolerance):
+        feasible = [item for item in pool if float(item[2] if isinstance(item, tuple) else item["mean_violation"]) <= tolerance]
+        if not feasible:
+            return None
+        key = (lambda item: item[1]) if isinstance(feasible[0], tuple) else (lambda item: item["mean_sum_rate"])
+        return max(feasible, key=key)
+
+    for tolerance in (0.0005, 0.001, 0.005, 0.01, 0.02, 0.03, 0.05):
+        full = winner(history, tolerance)
+        kept = winner(candidates, tolerance)
+        if full is None:
+            assert kept is None
+        else:
+            assert kept is not None and int(kept["eval_step"]) == full[0]
 
 
 def test_candidate_retention_ignores_checkpoints_that_miss_qos(tmp_path: Path) -> None:
@@ -155,14 +203,24 @@ def test_candidate_retention_ignores_checkpoints_that_miss_qos(tmp_path: Path) -
     assert list(tmp_path.glob("candidate_step*.pt")) == []
 
 
-def test_weights_only_checkpoint_drops_optimizer_state(tmp_path: Path) -> None:
+def test_checkpoint_state_scopes_trim_what_evaluation_never_reads(tmp_path: Path) -> None:
     cfg = ExperimentConfig()
-    full, lean = tmp_path / "full.pt", tmp_path / "lean.pt"
-    save_checkpoint(full, "td3", _FakeAgent(), 1, 0.0, cfg)
-    save_checkpoint(lean, "td3", _FakeAgent(), 1, 0.0, cfg, include_optimizer=False)
-    assert "actor_opt" in torch.load(full, weights_only=False)["agent"]
-    assert "actor_opt" not in torch.load(lean, weights_only=False)["agent"]
-    assert "actor" in torch.load(lean, weights_only=False)["agent"]
+    paths = {}
+    for scope in ("full", "no_optimizer", "policy"):
+        paths[scope] = tmp_path / f"{scope}.pt"
+        save_checkpoint(paths[scope], "td3", _FakeAgent(), 1, 0.0, cfg, state_scope=scope)
+    loaded = {
+        scope: set(torch.load(path, weights_only=False)["agent"])
+        for scope, path in paths.items()
+    }
+    assert loaded["full"] == {"actor", "q1", "actor_opt"}
+    assert loaded["no_optimizer"] == {"actor", "q1"}
+    # inference_only=True reads state["actor"] and nothing else.
+    assert loaded["policy"] == {"actor"}
+    assert paths["policy"].stat().st_size < paths["full"].stat().st_size
+
+    with pytest.raises(ValueError, match="state_scope"):
+        save_checkpoint(tmp_path / "bad.pt", "td3", _FakeAgent(), 1, 0.0, cfg, state_scope="nope")
 
 
 def _training_archive(path: Path, best: dict[str, float], initial: dict[str, float]) -> None:

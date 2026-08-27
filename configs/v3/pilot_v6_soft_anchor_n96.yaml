@@ -64,4 +64,4 @@ ppo_epochs: 10
 ppo_minibatch_size: 256
 # Keep the best few QoS-satisfying checkpoints so a later change to the
 # selection rule can be re-applied without retraining.
-retained_candidate_checkpoints: 3
+retained_candidate_checkpoints: 4
