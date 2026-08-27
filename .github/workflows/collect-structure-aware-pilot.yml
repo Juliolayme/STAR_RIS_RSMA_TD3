@@ -36,7 +36,8 @@ jobs:
             mkdir -p "$destination"
             KAGGLE_USERNAME="$user" KAGGLE_KEY="$key" \
               kaggle kernels output "$ref" -p "$destination" --force \
-              --file-pattern '.*\.zip$'
+              --file-pattern 'v5_(hard|soft)_n32_100k_seed[01]\.zip$' \
+              --page-size 200
           }
           download thanhnguyen1423 "$TD3_KEY" \
             thanhnguyen1423/star-ris-td3-v5-hard-n32-seed-0 collected/hard_seed0
