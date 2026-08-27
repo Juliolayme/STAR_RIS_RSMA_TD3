@@ -1,9 +1,0 @@
-{
-  "mean_all_qos": 0.997,
-  "mean_qos_fraction": 0.9975,
-  "mean_sum_rate": 11.551342828759388,
-  "mean_violation": 0.003414715775404587,
-  "rows": 1000,
-  "scenarios": 1000,
-  "seed": 7
-}

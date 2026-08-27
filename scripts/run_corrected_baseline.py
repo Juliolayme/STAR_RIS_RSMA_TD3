@@ -55,7 +55,11 @@ def main() -> None:
     parser.add_argument("--n-ris", type=int, choices=N_VALUES, required=True)
     parser.add_argument("--start", type=int, required=True)
     parser.add_argument("--end", type=int, required=True)
-    parser.add_argument("--drl-raw", type=Path, default=Path("results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv"))
+    parser.add_argument(
+        "--drl-raw",
+        type=Path,
+        default=Path("results/six_method_v2/raw/DRL_TEST_RAW_ALL.csv"),
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 

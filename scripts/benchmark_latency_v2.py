@@ -96,7 +96,11 @@ def main() -> None:
     parser.add_argument("--warmup", type=int, default=10)
     parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--verify-count", type=int, default=5)
-    parser.add_argument("--reference-drl-raw", type=Path, default=Path("results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv"))
+    parser.add_argument(
+        "--reference-drl-raw",
+        type=Path,
+        default=Path("results/six_method_v2/raw/DRL_TEST_RAW_ALL.csv"),
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 

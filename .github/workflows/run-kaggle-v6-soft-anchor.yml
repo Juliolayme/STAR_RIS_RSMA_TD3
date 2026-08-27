@@ -3,7 +3,7 @@ name: Run Kaggle V6 soft-anchor pilot
 on:
   workflow_dispatch:
   push:
-    branches: [audit/ao-baseline-full-n128]
+    branches: [experiment/physical-v6-full]
     paths: [experiments/structure_aware/TRIGGER_V6_SOFT_ANCHOR]
 
 permissions:

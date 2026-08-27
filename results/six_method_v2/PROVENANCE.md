@@ -8,7 +8,9 @@
 - Artifact audit verdict: `PASS`
 - Downloaded and committed: `2026-08-27` (Asia/Saigon)
 
-The files in this directory are an unchanged extraction of the workflow
-artifact, apart from this provenance note. The audit JSON records the frozen
-AO/AO-Grid protocols, ScenarioBank checksums, scenario coverage, statistical
-family, latency protocol, and published file inventory.
+The numerical files in this directory are an unchanged extraction of the
+workflow artifact. `raw/DRL_TEST_RAW_ALL.csv` is the byte-identical frozen DRL
+input formerly duplicated under `results/six_method_v1/`; V2 now points to its
+self-contained copy so the historical V1 directory is not required. The audit
+JSON records the frozen AO/AO-Grid protocols, ScenarioBank checksums, scenario
+coverage, statistical family, latency protocol, and published file inventory.

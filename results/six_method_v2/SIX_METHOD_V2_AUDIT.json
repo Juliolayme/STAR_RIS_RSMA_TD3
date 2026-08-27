@@ -11,7 +11,7 @@
     6,
     7
   ],
-  "drl_source": "frozen results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv",
+  "drl_source": "frozen results/six_method_v2/raw/DRL_TEST_RAW_ALL.csv",
   "latency_protocol": "single-thread same GitHub Actions runner; warmup=10; count=100",
   "methods": [
     "td3",

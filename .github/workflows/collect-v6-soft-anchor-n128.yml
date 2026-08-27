@@ -3,7 +3,7 @@ name: Collect V6 soft-anchor N128 pilot
 on:
   workflow_dispatch:
   push:
-    branches: [audit/ao-baseline-full-n128]
+    branches: [experiment/physical-v6-full]
     paths: [experiments/structure_aware/COLLECT_V6_SOFT_ANCHOR_N128]
 
 permissions:

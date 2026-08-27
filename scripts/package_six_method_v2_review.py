@@ -19,19 +19,17 @@ ROOT_FILES = {
 INCLUDED_PREFIXES = (
     ".github/workflows/",
     "configs/",
-    "experiments/six_method/",
-    "experiments/six_method_v2/",
-    "results/six_method_v1/",
+    "results/physical_v6_full/",
     "results/six_method_v2/",
     "scripts/",
     "src/",
     "tests/",
 )
 REQUIRED_PROVENANCE_FILES = (
-    "results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv",
-    "results/six_method_v1/tables/TABLE_SIX_METHOD_CPU_LATENCY.csv",
-    "experiments/six_method/README.md",
+    "results/six_method_v2/raw/DRL_TEST_RAW_ALL.csv",
+    "results/six_method_v2/tables/TABLE_SIX_METHOD_CPU_LATENCY.csv",
     "results/six_method_v2/SIX_METHOD_V2_AUDIT.json",
+    "results/six_method_v2/PROVENANCE.md",
 )
 
 

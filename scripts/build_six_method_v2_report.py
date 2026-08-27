@@ -255,7 +255,7 @@ def main() -> None:
         "verdict": "PASS",
         "methods": list(METHODS),
         "n_values": list(N_VALUES),
-        "drl_source": "frozen results/six_method_v1/raw/DRL_TEST_RAW_ALL.csv",
+        "drl_source": "frozen results/six_method_v2/raw/DRL_TEST_RAW_ALL.csv",
         "drl_seeds": list(SEEDS),
         "test_scenarios_per_n": 1000,
         "ao_freeze": AO_FREEZE,
