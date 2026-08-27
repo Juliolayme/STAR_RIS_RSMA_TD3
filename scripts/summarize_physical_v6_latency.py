@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -182,6 +183,8 @@ def main() -> None:
         },
         "published_tables": ["TABLE_V6_SIX_METHOD_CPU_LATENCY.csv", "TABLE_V6_TD3_LATENCY_SPEEDUP.csv"],
         "published_figure": "fig04_v6_six_method_cpu_latency.png",
+        "github_run_id": os.environ.get("GITHUB_RUN_ID", "unknown"),
+        "repository_commit": os.environ.get("GITHUB_SHA", "unknown"),
     }
     (args.output / "PHYSICAL_V6_LATENCY_AUDIT.json").write_text(
         json.dumps(audit, indent=2, sort_keys=True), encoding="utf-8"

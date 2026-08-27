@@ -56,12 +56,20 @@ These fields are intended for the thesis runtime table and the review bundle.
 - `tables/TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv`: matched-scenario paired
   tests with Holm correction over all 15 pairs separately within each N;
 - `tables/TABLE_V6_TRAINING_TIME.csv`: measured Tesla T4 training time and
-  throughput.
+  throughput;
+- `tables/TABLE_V6_SIX_METHOD_CPU_LATENCY.csv`: single-thread mean, median,
+  P95, and P99 decision latency for all six methods;
+- `tables/TABLE_V6_TD3_LATENCY_SPEEDUP.csv`: TD3 median-latency ratios against
+  corrected AO-SCA, corrected AO-Grid, and AnalyticalRIS;
+- `raw/CPU_LATENCY_V6_RAW_ALL.csv`: 3,000 timing samples from one GitHub CPU
+  runner (`warmup=10`, `count=100` per method/N).
 
 The source GitHub Actions runs are
 [TD3 33053693666](https://github.com/Juliolayme/STAR_RIS_RSMA_TD3/actions/runs/33053693666)
 and
 [DDPG/PPO 33061462093](https://github.com/Juliolayme/STAR_RIS_RSMA_TD3/actions/runs/33061462093).
+The latency run is
+[33076374485](https://github.com/Juliolayme/STAR_RIS_RSMA_TD3/actions/runs/33076374485).
 The corresponding artifact IDs are recorded in the audit JSON.
 
 Regenerate the tracked report from downloaded artifacts:

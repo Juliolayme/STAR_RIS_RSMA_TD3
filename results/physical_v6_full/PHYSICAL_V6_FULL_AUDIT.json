@@ -21,6 +21,50 @@
     }
   },
   "interactions_per_job": 100000,
+  "latency": {
+    "checkpoint_selection": "fixed seed-0 best-validation checkpoint for latency; quality claims retain five-seed means",
+    "count_per_method_n": 100,
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "cpu_threads": 1,
+    "github_artifact_id": 9649135691,
+    "github_artifact_name": "PHYSICAL_V6_SIX_METHOD_LATENCY",
+    "github_run_id": 33076374485,
+    "methods": [
+      "td3",
+      "ddpg",
+      "ppo",
+      "ao_sca",
+      "ao_grid",
+      "analytical_ris"
+    ],
+    "n_values": [
+      16,
+      32,
+      64,
+      96,
+      128
+    ],
+    "protocol": "single_thread_same_runner_warmup10_count100_v6",
+    "published_figure": "fig04_v6_six_method_cpu_latency.png",
+    "published_tables": [
+      "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+      "TABLE_V6_TD3_LATENCY_SPEEDUP.csv"
+    ],
+    "python_version": "3.11.16",
+    "raw_rows": 3000,
+    "runner_os": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "same_runner": true,
+    "scenario_bank_checksums": {
+      "128": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+      "16": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+      "32": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+      "64": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+      "96": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+    },
+    "torch_version": "2.13.0+cu130",
+    "verdict": "PASS",
+    "warmup": 10
+  },
   "methods": [
     "td3",
     "ddpg",
@@ -74,12 +118,15 @@
   "published_figures": [
     "fig01_v6_six_method_sum_rate.png",
     "fig02_v6_learning_gain.png",
-    "fig03_v6_training_time.png"
+    "fig03_v6_training_time.png",
+    "fig04_v6_six_method_cpu_latency.png"
   ],
   "published_tables": [
     "TABLE_V6_CHECKPOINT_AUDIT.csv",
+    "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
     "TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
     "TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
+    "TABLE_V6_TD3_LATENCY_SPEEDUP.csv",
     "TABLE_V6_TD3_VS_OTHERS_HOLM.csv",
     "TABLE_V6_TRAINING_TIME.csv"
   ],

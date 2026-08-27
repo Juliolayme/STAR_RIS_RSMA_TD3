@@ -351,7 +351,14 @@ def plot_results(performance: pd.DataFrame, checkpoints: pd.DataFrame, timing: p
     plt.close(fig)
 
 
-def write_review(path: Path, performance: pd.DataFrame, checkpoints: pd.DataFrame, td3_tests: pd.DataFrame, timing: pd.DataFrame) -> None:
+def write_review(
+    path: Path,
+    performance: pd.DataFrame,
+    checkpoints: pd.DataFrame,
+    td3_tests: pd.DataFrame,
+    timing: pd.DataFrame,
+    latency: pd.DataFrame | None = None,
+) -> None:
     pivot = performance.pivot(index="n_ris", columns="method", values="sum_rate_mean")
     td3_rows = checkpoints[checkpoints.method == "td3"]
     zero_td3 = int((td3_rows.learning_gain_best_minus_initial <= 1e-9).sum())
@@ -399,6 +406,30 @@ def write_review(path: Path, performance: pd.DataFrame, checkpoints: pd.DataFram
         sca = td3_tests[(td3_tests.n_ris == n_ris) & (td3_tests.method_b == "ao_sca")].iloc[0]
         grid = td3_tests[(td3_tests.n_ris == n_ris) & (td3_tests.method_b == "ao_grid")].iloc[0]
         lines.append(f"| {n_ris} | {sca.mean_difference_a_minus_b:.4f} | {grid.mean_difference_a_minus_b:.4f} | {sca.win_fraction_a_gt_b:.3f} |")
+    if latency is not None:
+        latency_pivot = latency.pivot(index="n_ris", columns="method", values="solve_ms_median")
+        lines += [
+            "",
+            "## Single-thread CPU latency",
+            "",
+            "Latency uses a fixed seed-0 best-validation checkpoint for each learned method, while quality claims retain the full five-seed mean. "
+            "All six methods were measured on one GitHub runner with warmup=10 and count=100 per method/N.",
+            "",
+            "| N | TD3 (ms) | DDPG (ms) | PPO (ms) | AO-SCA (ms) | AO-Grid (ms) | AnalyticalRIS (ms) | AO-SCA / TD3 |",
+            "|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for n_ris in N_VALUES:
+            lines.append(
+                f"| {n_ris} | {latency_pivot.loc[n_ris, 'td3']:.4f} | {latency_pivot.loc[n_ris, 'ddpg']:.4f} | "
+                f"{latency_pivot.loc[n_ris, 'ppo']:.4f} | {latency_pivot.loc[n_ris, 'ao_sca']:.2f} | "
+                f"{latency_pivot.loc[n_ris, 'ao_grid']:.2f} | {latency_pivot.loc[n_ris, 'analytical_ris']:.4f} | "
+                f"{latency_pivot.loc[n_ris, 'ao_sca'] / latency_pivot.loc[n_ris, 'td3']:.1f}x |"
+            )
+        lines += [
+            "",
+            "TD3 is not the absolute fastest method: AnalyticalRIS and DDPG are slightly faster, but they provide much lower or unstable sum-rate. "
+            "The defensible latency claim is that TD3 remains sub-millisecond and is 2,414x-7,539x faster than corrected AO-SCA and 551x-2,524x faster than corrected AO-Grid in median decision time.",
+        ]
     lines += [
         "",
         "## Reporting recommendation",
@@ -462,7 +493,16 @@ def main() -> None:
     td3_tests.to_csv(tables / "TABLE_V6_TD3_VS_OTHERS_HOLM.csv", index=False)
     timing.to_csv(tables / "TABLE_V6_TRAINING_TIME.csv", index=False)
     plot_results(performance, checkpoints, timing, figures)
-    write_review(output / "PHYSICAL_V6_FULL_REVIEW.md", performance, checkpoints, td3_tests, timing)
+    latency_path = tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv"
+    latency = pd.read_csv(latency_path) if latency_path.is_file() else None
+    write_review(
+        output / "PHYSICAL_V6_FULL_REVIEW.md",
+        performance,
+        checkpoints,
+        td3_tests,
+        timing,
+        latency,
+    )
 
     bank_checksums = {
         str(n_ris): drl[drl.n_ris.astype(int) == n_ris].bank_checksum.astype(str).iloc[0]
@@ -504,6 +544,19 @@ def main() -> None:
         "published_tables": sorted(path.name for path in tables.glob("*.csv")),
         "published_figures": sorted(path.name for path in figures.glob("*.png")),
     }
+    latency_audit_path = output / "PHYSICAL_V6_LATENCY_AUDIT.json"
+    if latency_audit_path.is_file():
+        latency_audit = json.loads(latency_audit_path.read_text(encoding="utf-8"))
+        if latency_audit.get("verdict") != "PASS":
+            raise RuntimeError("Tracked V6 latency audit is not PASS")
+        if latency_audit.get("scenario_bank_checksums") != bank_checksums:
+            raise RuntimeError("V6 latency and quality ScenarioBank checksums differ")
+        audit["latency"] = {
+            **latency_audit,
+            "github_run_id": 33076374485,
+            "github_artifact_id": 9649135691,
+            "github_artifact_name": "PHYSICAL_V6_SIX_METHOD_LATENCY",
+        }
     (output / "PHYSICAL_V6_FULL_AUDIT.json").write_text(json.dumps(audit, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(audit, indent=2, sort_keys=True))
 
