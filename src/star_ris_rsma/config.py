@@ -123,7 +123,8 @@ class ExperimentConfig:
                 "observation_normalization must be 'global_l2' or 'blockwise_v2'"
             )
         if self.action_parameterization not in {
-            "legacy_v1", "physical_v3", "physical_v5_hard", "physical_v5_soft"
+            "legacy_v1", "physical_v3", "physical_v5_hard", "physical_v5_soft",
+            "physical_v6_soft_anchor",
         }:
             raise ValueError(
                 "unsupported action_parameterization"

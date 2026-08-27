@@ -3,7 +3,13 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from star_ris_rsma.action import action_dim, decode_action, reference_phase, wrap_phase
+from star_ris_rsma.action import (
+    action_dim,
+    decode_action,
+    reference_phase,
+    weighted_reference_phase,
+    wrap_phase,
+)
 from star_ris_rsma.baselines.ablations import evaluate_ablation
 from star_ris_rsma.checkpoints import build_agent
 from star_ris_rsma.config import ExperimentConfig
@@ -82,3 +88,31 @@ def test_phase_residual_is_bounded() -> None:
     action = decode_action(raw, 4, 8, 1.0, "physical_v5_soft", channel=env.channel)
     offset = np.abs(wrap_phase(action.theta_t - reference_phase(env.channel)))
     assert offset.max() <= 0.25 * np.pi + 1e-12
+
+
+def test_v6_anchor_follows_soft_private_user_selection() -> None:
+    env = make_env("physical_v6_soft_anchor")
+    raw = np.zeros(env.action_dim)
+    raw[1:5] = [-1.0, -1.0, 1.0, -1.0]
+    action = decode_action(
+        raw, 4, 8, 1.0, "physical_v6_soft_anchor", channel=env.channel
+    )
+    private_weights = action.powers[1:] / action.powers[1:].sum()
+    expected = weighted_reference_phase(env.channel, private_weights)
+    assert np.allclose(action.theta_t, expected)
+    assert np.allclose(action.theta_r, expected)
+
+
+def test_v6_anchor_and_decoded_action_are_continuous() -> None:
+    env = make_env("physical_v6_soft_anchor")
+    raw = np.linspace(-0.8, 0.8, env.action_dim)
+    first = decode_action(
+        raw, 4, 8, 1.0, "physical_v6_soft_anchor", channel=env.channel
+    )
+    perturbed = raw.copy()
+    perturbed[2] += 1e-6
+    second = decode_action(
+        perturbed, 4, 8, 1.0, "physical_v6_soft_anchor", channel=env.channel
+    )
+    assert np.linalg.norm(first.powers - second.powers) < 1e-4
+    assert np.linalg.norm(wrap_phase(first.theta_t - second.theta_t)) < 1e-4

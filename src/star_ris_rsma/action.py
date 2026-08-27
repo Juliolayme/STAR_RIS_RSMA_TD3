@@ -18,6 +18,18 @@ def reference_phase(channel) -> np.ndarray:
     return -np.angle(aggregate)
 
 
+def weighted_reference_phase(channel, user_weights: np.ndarray) -> np.ndarray:
+    """Phase anchor aligned with the private-user mixture selected by the actor."""
+    weights = np.asarray(user_weights, dtype=float).reshape(-1)
+    if weights.size != channel.h_ru.shape[0]:
+        raise ValueError("user_weights must contain one value per user")
+    weights = project_simplex(np.maximum(weights, 0.0), 1.0)
+    aggregate = np.sum(
+        weights[:, None] * channel.h_ru.conj() * channel.g_br[None, :], axis=0
+    )
+    return -np.angle(aggregate)
+
+
 @dataclass(slots=True)
 class DecodedAction:
     powers: np.ndarray
@@ -110,7 +122,9 @@ def decode_action(
         beta_t = 0.5 * (beta_raw + 1.0)
         theta_t = wrap_phase(np.pi * theta_t_raw)
         theta_r = wrap_phase(np.pi * theta_r_raw)
-    elif parameterization in {"physical_v5_hard", "physical_v5_soft"}:
+    elif parameterization in {
+        "physical_v5_hard", "physical_v5_soft", "physical_v6_soft_anchor"
+    }:
         if channel is None:
             raise ValueError(f"{parameterization} requires a channel for the phase anchor")
         clipped = np.clip(raw, -1.0, 1.0)
@@ -137,7 +151,11 @@ def decode_action(
         ))
         common_fractions = project_simplex(0.5 * (c_raw + 1.0), 1.0)
         beta_t = 0.5 * (beta_raw + 1.0)
-        anchor = reference_phase(channel)
+        anchor = (
+            weighted_reference_phase(channel, private_weights)
+            if parameterization == "physical_v6_soft_anchor"
+            else reference_phase(channel)
+        )
         theta_t = wrap_phase(anchor + PHASE_RESIDUAL_SCALE * np.pi * theta_t_raw)
         theta_r = wrap_phase(anchor + PHASE_RESIDUAL_SCALE * np.pi * theta_r_raw)
     else:
@@ -176,7 +194,9 @@ def encode_action(
             np.arctanh(theta_r_scaled),
         ]).astype(np.float64)
 
-    if parameterization in {"physical_v5_hard", "physical_v5_soft"}:
+    if parameterization in {
+        "physical_v5_hard", "physical_v5_soft", "physical_v6_soft_anchor"
+    }:
         if channel is None:
             raise ValueError(f"{parameterization} requires a channel for the phase anchor")
         share = float(np.clip(powers[0] / p_max, STRUCTURED_COMMON_MIN, STRUCTURED_COMMON_MAX))
@@ -191,7 +211,11 @@ def encode_action(
             logits = np.log(np.clip(private, _EPS, None)) / STRUCTURED_SOFTMAX_TEMPERATURE
             logits -= 0.5 * (float(logits.max()) + float(logits.min()))
             logits = np.clip(logits, -1.0, 1.0)
-        anchor = reference_phase(channel)
+        anchor = (
+            weighted_reference_phase(channel, private)
+            if parameterization == "physical_v6_soft_anchor"
+            else reference_phase(channel)
+        )
         return np.clip(np.concatenate([
             [split],
             logits,
