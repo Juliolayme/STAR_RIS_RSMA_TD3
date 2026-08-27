@@ -25,7 +25,10 @@ def _device(force_cpu: bool = False) -> str:
 
 
 def _git_commit() -> str:
-    explicit = os.environ.get("GIT_COMMIT") or os.environ.get("KAGGLE_KERNEL_RUN_ID")
+    # KAGGLE_KERNEL_RUN_ID identifies a runtime, not a repository commit.  Older
+    # artifacts accidentally stored it in columns named git_commit.  Preserve
+    # commit provenance by accepting only an explicit commit or git itself.
+    explicit = os.environ.get("GIT_COMMIT")
     if explicit:
         return explicit
     try:
