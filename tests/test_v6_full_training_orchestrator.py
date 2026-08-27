@@ -1,4 +1,7 @@
 from pathlib import Path
+from unittest import mock
+
+import pytest
 import runpy
 
 
@@ -15,6 +18,8 @@ Job = ORCHESTRATOR["Job"]
 METHODS = ORCHESTRATOR["METHODS"]
 PROTOCOL_REVISION = ORCHESTRATOR["PROTOCOL_REVISION"]
 runner_source = ORCHESTRATOR["runner_source"]
+slugify = ORCHESTRATOR["slugify"]
+N_VALUES_ALL = ORCHESTRATOR["N_VALUES"]
 
 
 def test_orchestrator_covers_all_25_jobs_across_three_accounts() -> None:
@@ -82,3 +87,37 @@ def test_generated_runner_trains_the_requested_method() -> None:
         assert f'"--method", "{method}"' in source
         assert f'"method": "{method}"' in source
         assert '"--n-ris", "96", "--verify-existing"' in source
+
+
+def test_every_kernel_title_derives_its_own_slug() -> None:
+    """Kaggle slugifies the title and 409s when the id disagrees.
+
+    The r2 launch failed on its first push for exactly this reason: the slug
+    carried the revision but the title did not, so Kaggle derived the r1 slug
+    and refused the conflict.
+    """
+    for method in METHODS:
+        for n_ris in N_VALUES_ALL:
+            for seed in SEEDS:
+                job = Job("td3", n_ris, seed, method)
+                assert slugify(job.title) == job.slug
+                assert PROTOCOL_REVISION in job.title
+
+
+def test_slugify_matches_kaggle_conventions() -> None:
+    assert slugify("STAR-RIS TD3 V6 full r2 N16 seed 0") == "star-ris-td3-v6-full-r2-n16-seed-0"
+    assert slugify("  spaced   out  ") == "spaced-out"
+    assert slugify("a__b--c") == "a-b-c"
+
+
+def test_submission_refuses_a_title_that_would_be_renamed(tmp_path) -> None:
+    """The mismatch must surface locally, not as a 409 after the run starts."""
+    build_submission = ORCHESTRATOR["build_submission"]
+    job = Job("td3", 16, 0)
+    with mock.patch.object(
+        type(job), "title", property(lambda self: "Completely Different Title")
+    ):
+        with pytest.raises(RuntimeError, match="does not match the id slug"):
+            build_submission(job, "a" * 40, tmp_path)
+    # Restored: the real title still agrees with the slug.
+    assert slugify(job.title) == job.slug

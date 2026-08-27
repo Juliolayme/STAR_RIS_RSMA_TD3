@@ -66,6 +66,16 @@ REQUIRED_ARCHIVE_FILES = {
 }
 
 
+def slugify(title: str) -> str:
+    """Kaggle's own slug derivation, reproduced so titles and ids cannot drift."""
+    lowered = "".join(
+        character if character.isalnum() else "-" for character in title.lower()
+    )
+    while "--" in lowered:
+        lowered = lowered.replace("--", "-")
+    return lowered.strip("-")
+
+
 @dataclass(slots=True)
 class Job:
     account: str
@@ -88,6 +98,15 @@ class Job:
         return (
             f"star-ris-{self.method}-v6-full-{self.revision}"
             f"-n{self.n_ris}-seed-{self.seed}"
+        )
+
+    @property
+    def title(self) -> str:
+        # Kaggle derives a kernel's slug from its title and rejects a push
+        # whose id disagrees, so the revision has to appear in both.
+        return (
+            f"STAR-RIS {self.method.upper()} V6 full {self.revision} "
+            f"N{self.n_ris} seed {self.seed}"
         )
 
     @property
@@ -239,10 +258,15 @@ def build_submission(job: Job, commit: str, root: Path) -> Path:
     if target.exists():
         shutil.rmtree(target)
     target.mkdir(parents=True)
+    if slugify(job.title) != job.slug:
+        raise RuntimeError(
+            f"Kaggle would derive slug {slugify(job.title)!r} from title "
+            f"{job.title!r}, which does not match the id slug {job.slug!r}"
+        )
     (target / "runner.py").write_text(runner_source(job, commit), encoding="utf-8")
     metadata = {
         "id": job.ref,
-        "title": f"STAR-RIS {job.method.upper()} V6 full N{job.n_ris} seed {job.seed}",
+        "title": job.title,
         "code_file": "runner.py",
         "language": "python",
         "kernel_type": "script",
