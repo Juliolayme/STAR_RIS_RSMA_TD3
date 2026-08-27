@@ -1,0 +1,167 @@
+name: Finalize physical V6 six-method latency r2
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - experiment/physical-v6-full
+    paths:
+      - experiments/structure_aware/TRIGGER_V6_LATENCY_R2
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: '1'
+  PYTHONPATH: src
+  OMP_NUM_THREADS: '1'
+  OPENBLAS_NUM_THREADS: '1'
+  MKL_NUM_THREADS: '1'
+
+concurrency:
+  group: physical-v6-six-method-latency-r2
+  cancel-in-progress: false
+
+jobs:
+  latency:
+    name: Benchmark all six methods on one CPU runner
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --no-build-isolation -e .
+
+      - name: Download audited r2 training artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: physical-v6-full-r2-*
+          path: downloaded
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 33088944075
+
+      - name: Place each method under its own root
+        run: |
+          set -euo pipefail
+          for method in td3 ddpg ppo; do
+            test -d "downloaded/physical-v6-full-r2-${method}"
+            mv "downloaded/physical-v6-full-r2-${method}" "downloaded/${method}"
+          done
+          ls -R downloaded | head -40
+
+      - name: Download canonical frozen ScenarioBanks
+        uses: actions/download-artifact@v4
+        with:
+          name: star-ris-six-method-canonical-evidence
+          path: downloaded/canonical
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 30422028560
+
+      - name: Select and verify fixed seed-0 best checkpoints
+        run: |
+          python scripts/prepare_physical_v6_latency_checkpoints.py \
+            --td3-root downloaded/td3 \
+            --ddpg-root downloaded/ddpg \
+            --ppo-root downloaded/ppo \
+            --output selected_checkpoints \
+            --index selected_checkpoints/LATENCY_CHECKPOINT_INDEX.json
+
+      - name: Benchmark learned and corrected traditional methods
+        run: |
+          set -euo pipefail
+          mkdir -p latency_out
+          protocol=single_thread_same_runner_warmup10_count100_v6
+          reference=results/physical_v6_full_r2/raw/DRL_V6_TEST_BEST_RAW_ALL.csv
+
+          for n in 16 32 64 96 128; do
+            config="configs/v3/pilot_v6_soft_anchor_n${n}.yaml"
+            mapfile -t banks < <(find downloaded/canonical -type f -name "N${n}_test.npz")
+            if [[ ${#banks[@]} -lt 1 ]]; then
+              echo "No canonical N${n}_test.npz found" >&2
+              printf '%s\n' "${banks[@]}" >&2
+              exit 1
+            fi
+            echo "Found ${#banks[@]} canonical artifact copies for N${n}; checksum gate selects the first."
+            bank="${banks[0]}"
+            for method in td3 ddpg ppo; do
+              python scripts/benchmark_latency_v2.py \
+                --method "$method" \
+                --config "$config" \
+                --bank "$bank" \
+                --checkpoint "selected_checkpoints/${method}_N${n}_seed0_best.pt" \
+                --seed 0 --warmup 10 --count 100 --verify-count 5 \
+                --protocol-id "$protocol" \
+                --reference-drl-raw "$reference" \
+                --output "latency_out/${method}_N${n}.csv"
+            done
+
+            for method in ao_sca ao_grid analytical_ris; do
+              python scripts/benchmark_latency_v2.py \
+                --method "$method" \
+                --config "$config" \
+                --bank "$bank" \
+                --seed 0 --warmup 10 --count 100 \
+                --protocol-id "$protocol" \
+                --reference-drl-raw "$reference" \
+                --output "latency_out/${method}_N${n}.csv"
+            done
+          done
+
+      - name: Audit and summarize latency
+        run: |
+          python scripts/summarize_physical_v6_latency.py \
+            --input latency_out \
+            --checkpoint-index selected_checkpoints/LATENCY_CHECKPOINT_INDEX.json \
+            --output physical_v6_latency
+          python - <<'PY'
+          import json
+          audit = json.load(open("physical_v6_latency/PHYSICAL_V6_LATENCY_AUDIT.json"))
+          if audit["verdict"] != "PASS" or audit["raw_rows"] != 3000:
+              raise SystemExit(f"Latency audit failed: {audit}")
+          PY
+
+      - name: Retain the exact test banks this benchmark used
+        run: |
+          set -euo pipefail
+          mkdir -p physical_v6_latency/scenario_banks
+          for n in 16 32 64 96 128; do
+            src=$(find downloaded/canonical -type f -name "N${n}_test.npz" | head -1)
+            cp "$src" "physical_v6_latency/scenario_banks/N${n}_test.npz"
+          done
+          python - <<'PY'
+          import hashlib, json
+          from pathlib import Path
+          # The canonical banks artifact has an expiry. Carrying the five test
+          # banks here keeps this benchmark reproducible after it lapses.
+          frozen = json.loads(
+              Path("results/physical_v6_full_r2/PHYSICAL_V6_FULL_AUDIT.json").read_text()
+          )["scenario_bank_checksums"]
+          out = {}
+          for n in (16, 32, 64, 96, 128):
+              path = Path(f"physical_v6_latency/scenario_banks/N{n}_test.npz")
+              out[str(n)] = {
+                  "file_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                  "bank_checksum_expected": frozen[str(n)],
+                  "bytes": path.stat().st_size,
+              }
+          Path("physical_v6_latency/scenario_banks/BANK_PROVENANCE.json").write_text(
+              json.dumps(out, indent=2, sort_keys=True)
+          )
+          print(json.dumps(out, indent=2, sort_keys=True))
+          PY
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PHYSICAL_V6_SIX_METHOD_LATENCY_R2
+          path: physical_v6_latency/**
+          retention-days: 90
+          if-no-files-found: error
