@@ -1,0 +1,103 @@
+{
+  "action_parameterization": "physical_v6_soft_anchor",
+  "best_checkpoint_test_rows": 75000,
+  "checkpoint_selection": "validation-only; feasibility-first normalized gap, then sum-rate",
+  "embedded_identifier_note": "Training CSV git_commit contains KAGGLE_KERNEL_RUN_ID; repository_commit is taken from independent KAGGLE_JOB_PROVENANCE.json.",
+  "github_artifacts": {
+    "ddpg": {
+      "artifact_id": 9643842473,
+      "artifact_name": "physical-v6-full-25jobs-ddpg",
+      "run_id": 33061462093
+    },
+    "ppo": {
+      "artifact_id": 9645121540,
+      "artifact_name": "physical-v6-full-25jobs-ppo",
+      "run_id": 33061462093
+    },
+    "td3": {
+      "artifact_id": 9641030712,
+      "artifact_name": "physical-v6-full-25jobs",
+      "run_id": 33053693666
+    }
+  },
+  "interactions_per_job": 100000,
+  "methods": [
+    "td3",
+    "ddpg",
+    "ppo"
+  ],
+  "mixed_td3_commit_note": "TD3 N16 seeds 2-3 use 0e47904 and the other 23 TD3 jobs use d5c25da; git diff changes orchestration only, with per-archive config hashes and bank checksums validated.",
+  "n_values": [
+    16,
+    32,
+    64,
+    96,
+    128
+  ],
+  "orchestrator_manifests": {
+    "ddpg": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T18:29:41.083444+00:00"
+    },
+    "ppo": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T19:11:36.957091+00:00"
+    },
+    "td3": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T17:04:06.093456+00:00"
+    }
+  },
+  "paired_test_protocol": "average 5 DRL seeds per matched scenario; 15 method pairs per N; Holm separately within N",
+  "published_figures": [
+    "fig01_v6_six_method_sum_rate.png",
+    "fig02_v6_learning_gain.png",
+    "fig03_v6_training_time.png"
+  ],
+  "published_tables": [
+    "TABLE_V6_CHECKPOINT_AUDIT.csv",
+    "TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
+    "TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
+    "TABLE_V6_TD3_VS_OTHERS_HOLM.csv",
+    "TABLE_V6_TRAINING_TIME.csv"
+  ],
+  "scenario_bank_checksums": {
+    "128": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+    "16": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+    "32": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+    "64": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+    "96": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "shared_scenario_banks": true,
+  "test_scenarios_per_seed_n": 1000,
+  "training_jobs": 75,
+  "verdict": "PASS"
+}

@@ -8,6 +8,8 @@ artifacts/
 results/*
 !results/physical_v6_full/
 !results/physical_v6_full/**
+!results/physical_v6_full_r2/
+!results/physical_v6_full_r2/**
 checkpoints/
 *.pt
 *.npz
