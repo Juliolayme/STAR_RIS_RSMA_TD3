@@ -25,6 +25,7 @@ def summarize(frame: pd.DataFrame) -> dict[str, float]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True)
+    parser.add_argument("--method", choices=("td3", "ddpg", "ppo"), default="td3")
     parser.add_argument("--seed", type=int, required=True)
     parser.add_argument("--tag", required=True)
     parser.add_argument("--output-root", type=Path, default=Path("artifacts/structure_pilot"))
@@ -33,7 +34,7 @@ def main() -> None:
     cfg = ExperimentConfig.from_yaml(args.config)
     output = args.output_root / f"{args.tag}_seed{args.seed}"
     started = time.perf_counter()
-    train_drl_v3("td3", cfg, args.seed, output)
+    train_drl_v3(args.method, cfg, args.seed, output)
     train_seconds = time.perf_counter() - started
 
     bank = ScenarioBank.load(cfg.test_bank_path, cfg)
@@ -41,11 +42,12 @@ def main() -> None:
     for name in ("initial", "best", "latest"):
         checkpoint = output / f"{name}.pt"
         raw_path = output / f"test_{name}_raw.csv"
-        evaluate_checkpoint("td3", cfg, checkpoint, bank, args.seed, raw_path)
+        evaluate_checkpoint(args.method, cfg, checkpoint, bank, args.seed, raw_path)
         checkpoints[name] = summarize(pd.read_csv(raw_path))
 
     summary = {
         "tag": args.tag,
+        "method": args.method,
         "seed": args.seed,
         "parameterization": cfg.action_parameterization,
         "train_steps": cfg.train_steps,

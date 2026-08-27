@@ -1,0 +1,140 @@
+name: Run Kaggle V6 comparator pilot
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [audit/ao-baseline-full-n128]
+    paths: [experiments/structure_aware/TRIGGER_V6_COMPARATOR_PILOT]
+
+permissions:
+  contents: read
+
+jobs:
+  first-six:
+    name: ${{ matrix.method }} N${{ matrix.n_ris }} seed ${{ matrix.seed }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - {method: ddpg, n_ris: 32, seed: 0, username: thanhnguyen1423, account: td3}
+          - {method: ddpg, n_ris: 32, seed: 1, username: ronganminh, account: ddpg}
+          - {method: ppo,  n_ris: 32, seed: 0, username: duythanhb1909984, account: ppo}
+          - {method: ppo,  n_ris: 32, seed: 1, username: thanhnguyen1423, account: td3}
+          - {method: ddpg, n_ris: 128, seed: 0, username: ronganminh, account: ddpg}
+          - {method: ppo,  n_ris: 128, seed: 0, username: duythanhb1909984, account: ppo}
+    env:
+      KAGGLE_USERNAME: ${{ matrix.username }}
+      KAGGLE_KEY: ${{ matrix.account == 'td3' && secrets.KAGGLE_TD3_KEY || matrix.account == 'ddpg' && secrets.KAGGLE_DDPG_KEY || secrets.KAGGLE_PPO_KEY }}
+      METHOD: ${{ matrix.method }}
+      N_RIS: ${{ matrix.n_ris }}
+      SEED: ${{ matrix.seed }}
+      REPO_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install "kaggle>=1.8.4,<3"
+      - name: Submit immutable comparator kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p kaggle_submit
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          method, n, seed = os.environ["METHOD"], int(os.environ["N_RIS"]), int(os.environ["SEED"])
+          commit = os.environ["REPO_COMMIT"]
+          slug = f"star-ris-{method}-v6-n{n}-seed-{seed}"
+          tag = f"{method}_v6_soft_anchor_n{n}_100k"
+          config = f"configs/v3/pilot_v6_soft_anchor_n{n}.yaml"
+          runner = f'''from __future__ import annotations
+          import shutil, subprocess, sys
+          from pathlib import Path
+          repo = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
+          if repo.exists(): shutil.rmtree(repo)
+          subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(repo)], check=True)
+          subprocess.run(["git", "checkout", "--detach", "{commit}"], cwd=repo, check=True)
+          subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(repo)], check=True)
+          subprocess.run([sys.executable, "scripts/create_scenario_banks.py", "--config", "{config}", "--output-dir", "artifacts/scenario_banks", "--train-count", "10000", "--validation-count", "1000", "--test-count", "1000"], cwd=repo, check=True)
+          subprocess.run([sys.executable, "scripts/pilot_structure_aware_td3.py", "--method", "{method}", "--config", "{config}", "--seed", "{seed}", "--tag", "{tag}", "--output-root", "/kaggle/working/comparator_pilot"], cwd=repo, check=True)
+          shutil.make_archive(f"/kaggle/working/{tag}_seed{seed}", "zip", "/kaggle/working/comparator_pilot", f"{tag}_seed{seed}")
+          '''
+          Path("kaggle_submit/runner.py").write_text(runner, encoding="utf-8")
+          Path("kaggle_submit/kernel-metadata.json").write_text(json.dumps({"id": f"{os.environ['KAGGLE_USERNAME']}/{slug}", "title": slug, "code_file": "runner.py", "language": "python", "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_internet": True, "enable_tpu": False, "dataset_sources": [], "kernel_sources": [], "competition_sources": []}, indent=2))
+          PY
+          ref="${KAGGLE_USERNAME}/star-ris-${METHOD}-v6-n${N_RIS}-seed-${SEED}"
+          kaggle kernels push -p kaggle_submit --accelerator NvidiaTeslaT4 --timeout 43200
+          for attempt in $(seq 1 180); do
+            status="$(kaggle kernels status "$ref" 2>&1 || true)"; echo "attempt=${attempt} ${status}"
+            normalized="$(echo "$status" | tr '[:upper:]' '[:lower:]')"
+            if echo "$normalized" | grep -Eq 'complete|success'; then exit 0; fi
+            if echo "$normalized" | grep -Eq 'error|failed|cancel'; then exit 1; fi
+            sleep 60
+          done
+          exit 1
+
+  remaining-two:
+    name: ${{ matrix.method }} N128 seed 1
+    needs: first-six
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - {method: ddpg, username: thanhnguyen1423, account: td3}
+          - {method: ppo, username: ronganminh, account: ddpg}
+    env:
+      KAGGLE_USERNAME: ${{ matrix.username }}
+      KAGGLE_KEY: ${{ matrix.account == 'td3' && secrets.KAGGLE_TD3_KEY || secrets.KAGGLE_DDPG_KEY }}
+      METHOD: ${{ matrix.method }}
+      N_RIS: 128
+      SEED: 1
+      REPO_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11"}
+      - run: python -m pip install "kaggle>=1.8.4,<3"
+      - name: Submit immutable comparator kernel
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p kaggle_submit
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          method, n, seed = os.environ["METHOD"], 128, 1
+          commit = os.environ["REPO_COMMIT"]
+          slug = f"star-ris-{method}-v6-n{n}-seed-{seed}"
+          tag = f"{method}_v6_soft_anchor_n{n}_100k"
+          config = f"configs/v3/pilot_v6_soft_anchor_n{n}.yaml"
+          runner = f'''from __future__ import annotations
+          import shutil, subprocess, sys
+          from pathlib import Path
+          repo = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
+          if repo.exists(): shutil.rmtree(repo)
+          subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(repo)], check=True)
+          subprocess.run(["git", "checkout", "--detach", "{commit}"], cwd=repo, check=True)
+          subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(repo)], check=True)
+          subprocess.run([sys.executable, "scripts/create_scenario_banks.py", "--config", "{config}", "--output-dir", "artifacts/scenario_banks", "--train-count", "10000", "--validation-count", "1000", "--test-count", "1000"], cwd=repo, check=True)
+          subprocess.run([sys.executable, "scripts/pilot_structure_aware_td3.py", "--method", "{method}", "--config", "{config}", "--seed", "{seed}", "--tag", "{tag}", "--output-root", "/kaggle/working/comparator_pilot"], cwd=repo, check=True)
+          shutil.make_archive(f"/kaggle/working/{tag}_seed{seed}", "zip", "/kaggle/working/comparator_pilot", f"{tag}_seed{seed}")
+          '''
+          Path("kaggle_submit/runner.py").write_text(runner, encoding="utf-8")
+          Path("kaggle_submit/kernel-metadata.json").write_text(json.dumps({"id": f"{os.environ['KAGGLE_USERNAME']}/{slug}", "title": slug, "code_file": "runner.py", "language": "python", "kernel_type": "script", "is_private": True, "enable_gpu": True, "enable_internet": True, "enable_tpu": False, "dataset_sources": [], "kernel_sources": [], "competition_sources": []}, indent=2))
+          PY
+          ref="${KAGGLE_USERNAME}/star-ris-${METHOD}-v6-n128-seed-1"
+          kaggle kernels push -p kaggle_submit --accelerator NvidiaTeslaT4 --timeout 43200
+          for attempt in $(seq 1 180); do
+            status="$(kaggle kernels status "$ref" 2>&1 || true)"; echo "attempt=${attempt} ${status}"
+            normalized="$(echo "$status" | tr '[:upper:]' '[:lower:]')"
+            if echo "$normalized" | grep -Eq 'complete|success'; then exit 0; fi
+            if echo "$normalized" | grep -Eq 'error|failed|cancel'; then exit 1; fi
+            sleep 60
+          done
+          exit 1

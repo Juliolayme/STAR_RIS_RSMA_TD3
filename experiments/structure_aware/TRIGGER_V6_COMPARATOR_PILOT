@@ -1,0 +1,1 @@
+DDPG PPO physical_v6_soft_anchor N32,N128 seeds=0,1 steps=100000
