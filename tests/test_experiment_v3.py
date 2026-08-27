@@ -44,12 +44,14 @@ def test_drl_v3_smoke_produces_constrained_checkpoint(method, tmp_path):
         td3_layer_norm=True,
         td3_critic_loss="huber",
         td3_gradient_clip_norm=10.0,
+        validate_at_initialization=True,
     )
     output = tmp_path / method
     train_drl_v3(method, cfg, seed=0, output=output)
 
     for name in (
         "best.pt",
+        "initial.pt",
         "latest.pt",
         "best_validation.json",
         "training.csv",

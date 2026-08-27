@@ -250,6 +250,19 @@ def train_ppo_v3(cfg: ExperimentConfig, seed: int, output: Path) -> None:
     logs: list[dict[str, object]] = []
     best: dict[str, object] | None = None
 
+    if cfg.validate_at_initialization:
+        best = _validation_step(
+            agent, "ppo", cfg, validation_bank, seed, 0, output, best
+        )
+        save_checkpoint(
+            output / "initial.pt",
+            "ppo",
+            agent,
+            0,
+            float(best["mean_reward"]),
+            cfg,
+        )
+
     while global_step < cfg.train_steps:
         observations: list[np.ndarray] = []
         actions: list[np.ndarray] = []
