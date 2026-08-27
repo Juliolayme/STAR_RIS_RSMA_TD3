@@ -12,6 +12,7 @@ N_VALUES = ORCHESTRATOR["N_VALUES"]
 REQUIRED_ARCHIVE_FILES = ORCHESTRATOR["REQUIRED_ARCHIVE_FILES"]
 SEEDS = ORCHESTRATOR["SEEDS"]
 Job = ORCHESTRATOR["Job"]
+METHODS = ORCHESTRATOR["METHODS"]
 runner_source = ORCHESTRATOR["runner_source"]
 
 
@@ -45,3 +46,33 @@ def test_generated_kaggle_runner_is_valid_python() -> None:
     compile(source, "generated_v6_runner.py", "exec")
     assert "physical_v6_n128_seed4" in source
     assert '"--n-ris", "128", "--verify-existing"' in source
+
+
+def test_td3_names_are_unchanged_so_finished_kernels_stay_adoptable() -> None:
+    job = Job("td3", 128, 4)
+    assert job.slug == "star-ris-td3-v6-full-n128-seed-4"
+    assert job.tag == "physical_v6_n128_100k"
+    assert job.archive_name == "physical_v6_n128_seed4.zip"
+    assert job.output_root == "/kaggle/working/physical_v6_full"
+
+
+def test_comparator_methods_get_disjoint_kernel_and_archive_names() -> None:
+    assert set(METHODS) == {"td3", "ddpg", "ppo"}
+    names = {
+        method: Job("td3", 32, 1, method)
+        for method in METHODS
+    }
+    assert len({job.slug for job in names.values()}) == 3
+    assert len({job.archive_name for job in names.values()}) == 3
+    assert len({job.output_root for job in names.values()}) == 3
+    assert names["ddpg"].archive_name == "physical_v6_ddpg_n32_seed1.zip"
+    assert names["ppo"].slug == "star-ris-ppo-v6-full-n32-seed-1"
+
+
+def test_generated_runner_trains_the_requested_method() -> None:
+    for method in METHODS:
+        source = runner_source(Job("ddpg", 96, 2, method), "c" * 40)
+        compile(source, f"generated_{method}_runner.py", "exec")
+        assert f'"--method", "{method}"' in source
+        assert f'"method": "{method}"' in source
+        assert '"--n-ris", "96", "--verify-existing"' in source

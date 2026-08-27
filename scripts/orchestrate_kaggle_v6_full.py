@@ -16,6 +16,7 @@ import time
 import zipfile
 
 
+METHODS = ("td3", "ddpg", "ppo")
 N_VALUES = (16, 32, 64, 96, 128)
 SEEDS = tuple(range(5))
 MAX_ACTIVE_PER_ACCOUNT = 2
@@ -65,6 +66,7 @@ class Job:
     account: str
     n_ris: int
     seed: int
+    method: str = "td3"
     attempts: int = 0
     status: str = "pending"
     status_text: str = ""
@@ -72,21 +74,35 @@ class Job:
     archive_bytes: int | None = None
 
     @property
+    def name_stem(self) -> str:
+        """TD3 keeps its original names so completed kernels stay adoptable."""
+        return "physical_v6" if self.method == "td3" else f"physical_v6_{self.method}"
+
+    @property
     def slug(self) -> str:
-        return f"star-ris-td3-v6-full-n{self.n_ris}-seed-{self.seed}"
+        return f"star-ris-{self.method}-v6-full-n{self.n_ris}-seed-{self.seed}"
 
     @property
     def ref(self) -> str:
         return f"{USERNAMES[self.account]}/{self.slug}"
 
     @property
+    def tag(self) -> str:
+        return f"{self.name_stem}_n{self.n_ris}_100k"
+
+    @property
+    def output_root(self) -> str:
+        return f"/kaggle/working/{self.name_stem}_full"
+
+    @property
     def archive_name(self) -> str:
-        return f"physical_v6_n{self.n_ris}_seed{self.seed}.zip"
+        return f"{self.name_stem}_n{self.n_ris}_seed{self.seed}.zip"
 
     def record(self) -> dict[str, object]:
         return {
             "account": self.account,
             "username": USERNAMES[self.account],
+            "method": self.method,
             "n_ris": self.n_ris,
             "seed": self.seed,
             "ref": self.ref,
@@ -149,7 +165,7 @@ def classify_status(job: Job) -> tuple[str, str]:
 
 
 def runner_source(job: Job, commit: str) -> str:
-    tag = f"physical_v6_n{job.n_ris}_100k"
+    tag = job.tag
     return textwrap.dedent(
         f'''\
         from __future__ import annotations
@@ -161,7 +177,7 @@ def runner_source(job: Job, commit: str) -> str:
         from pathlib import Path
 
         repo = Path("/kaggle/working/STAR_RIS_RSMA_TD3")
-        output_root = Path("/kaggle/working/physical_v6_full")
+        output_root = Path("{job.output_root}")
         if repo.exists():
             shutil.rmtree(repo)
         subprocess.run(["git", "clone", "--filter=blob:none", "https://github.com/Juliolayme/STAR_RIS_RSMA_TD3.git", str(repo)], check=True)
@@ -180,7 +196,7 @@ def runner_source(job: Job, commit: str) -> str:
         ], cwd=repo, check=True)
         subprocess.run([
             sys.executable, "scripts/pilot_structure_aware_td3.py",
-            "--method", "td3",
+            "--method", "{job.method}",
             "--config", "configs/v3/pilot_v6_soft_anchor_n{job.n_ris}.yaml",
             "--seed", "{job.seed}", "--tag", "{tag}",
             "--output-root", str(output_root),
@@ -189,7 +205,7 @@ def runner_source(job: Job, commit: str) -> str:
         shutil.copy2(verification, run_dir / "SCENARIO_BANK_VERIFICATION.json")
         provenance = {{
             "experiment": "physical_v6_soft_anchor_full",
-            "method": "td3",
+            "method": "{job.method}",
             "n_ris": {job.n_ris},
             "seed": {job.seed},
             "train_steps": 100000,
@@ -210,14 +226,14 @@ def runner_source(job: Job, commit: str) -> str:
 
 
 def build_submission(job: Job, commit: str, root: Path) -> Path:
-    target = root / f"{job.account}_n{job.n_ris}_seed{job.seed}"
+    target = root / f"{job.method}_{job.account}_n{job.n_ris}_seed{job.seed}"
     if target.exists():
         shutil.rmtree(target)
     target.mkdir(parents=True)
     (target / "runner.py").write_text(runner_source(job, commit), encoding="utf-8")
     metadata = {
         "id": job.ref,
-        "title": f"STAR-RIS TD3 V6 full N{job.n_ris} seed {job.seed}",
+        "title": f"STAR-RIS {job.method.upper()} V6 full N{job.n_ris} seed {job.seed}",
         "code_file": "runner.py",
         "language": "python",
         "kernel_type": "script",
@@ -291,7 +307,7 @@ def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
         "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
         "git_commit": commit,
         "protocol": {
-            "method": "td3",
+            "method": jobs[0].method,
             "action_parameterization": "physical_v6_soft_anchor",
             "n_values": list(N_VALUES),
             "seeds": list(SEEDS),
@@ -310,6 +326,7 @@ def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--commit", required=True)
+    parser.add_argument("--method", choices=METHODS, default="td3")
     parser.add_argument("--output-dir", type=Path, default=Path("collected"))
     parser.add_argument("--submission-root", type=Path, default=Path("kaggle_submit_v6"))
     parser.add_argument("--manifest", type=Path, default=Path("TRAINING_RUN_MANIFEST.json"))
@@ -318,7 +335,7 @@ def main() -> None:
     args = parser.parse_args()
 
     jobs = [
-        Job(account, n_ris, seed)
+        Job(account, n_ris, seed, args.method)
         for account, combinations in ASSIGNMENTS.items()
         for n_ris, seed in combinations
     ]
@@ -391,8 +408,8 @@ def main() -> None:
     write_manifest(args.manifest, jobs, args.commit)
     incomplete = [job.ref for job in jobs if job.status != "complete"]
     if incomplete:
-        raise SystemExit(f"V6 training incomplete: {incomplete}")
-    print("V6 25-job training audit PASS", flush=True)
+        raise SystemExit(f"V6 {args.method} training incomplete: {incomplete}")
+    print(f"V6 25-job {args.method} training audit PASS", flush=True)
 
 
 if __name__ == "__main__":
