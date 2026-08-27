@@ -1,0 +1,13 @@
+benchmark=physical_v6_six_method_cpu_latency
+protocol_revision=r2
+protocol_id=single_thread_same_runner_warmup10_count100_v6
+training_run_id=33088944075
+methods=td3,ddpg,ppo,ao_sca,ao_grid,analytical_ris
+n_values=16,32,64,96,128
+seed=0
+checkpoint=best_validation
+warmup=10
+count=100
+expected_raw_rows=3000
+note=ddpg and ppo changed architecture when they gained layer norm, so r1 latency does not carry over
+requested_at_utc=2026-08-27T23:56:00Z
