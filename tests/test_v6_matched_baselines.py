@@ -123,84 +123,110 @@ class _FakeAgent:
 
 
 def _summary(
-    step: int, sum_rate: float, *, violation: float = 0.0, qos: float = 1.0
+    step: int,
+    sum_rate: float,
+    *,
+    violation: float = 0.0,
+    qos: float = 1.0,
+    all_qos: float | None = None,
 ) -> dict[str, object]:
     return {
         "eval_step": step,
         "mean_sum_rate": sum_rate,
         "mean_violation": violation,
         "mean_qos_fraction": qos,
-        "mean_all_qos": qos,
+        "mean_all_qos": qos if all_qos is None else all_qos,
         "mean_reward": sum_rate,
     }
 
 
-def _retain_all(cfg, steps, tmp_path):
+def _retain_all(cfg, history, tmp_path):
     candidates: list[dict[str, object]] = []
-    for step, rate, violation in steps:
+    for record in history:
         _retain_candidate(
-            _FakeAgent(),
-            "td3",
-            cfg,
-            _summary(step, rate, violation=violation),
-            step,
-            tmp_path,
-            candidates,
+            _FakeAgent(), "td3", cfg, record, int(record["eval_step"]), tmp_path, candidates
         )
     return candidates
 
 
-def test_retention_keeps_every_checkpoint_some_tolerance_could_select(tmp_path: Path) -> None:
-    cfg = ExperimentConfig(retained_candidate_checkpoints=4)
-    # (step, sum_rate, violation): 2000 is dominated by 1000 - lower rate at a
-    # higher violation - so no tolerance could ever select it.
-    candidates = _retain_all(
-        cfg,
-        [(1000, 9.0, 0.001), (2000, 8.0, 0.005), (3000, 12.0, 0.010), (4000, 15.0, 0.030)],
-        tmp_path,
-    )
-    assert [item["eval_step"] for item in candidates] == [1000, 3000, 4000]
-    on_disk = sorted(p.name for p in tmp_path.glob("candidate_step*.pt"))
-    assert on_disk == [
-        "candidate_step1000.pt",
-        "candidate_step3000.pt",
-        "candidate_step4000.pt",
+def _winner(pool, *, qos_target, all_qos_target, tolerance):
+    feasible = [
+        item
+        for item in pool
+        if float(item["mean_qos_fraction"]) >= qos_target
+        and float(item["mean_all_qos"]) >= all_qos_target
+        and float(item["mean_violation"]) <= tolerance
     ]
+    if not feasible:
+        return None
+    return max(feasible, key=lambda item: float(item["mean_sum_rate"]))
 
 
-def test_retained_set_reproduces_selection_at_any_tolerance(tmp_path: Path) -> None:
-    cfg = ExperimentConfig(retained_candidate_checkpoints=4)
-    history = [(1000, 9.0, 0.001), (2000, 8.0, 0.005), (3000, 12.0, 0.010), (4000, 15.0, 0.030)]
-    candidates = _retain_all(cfg, history, tmp_path)
-
-    def winner(pool, tolerance):
-        feasible = [item for item in pool if float(item[2] if isinstance(item, tuple) else item["mean_violation"]) <= tolerance]
-        if not feasible:
-            return None
-        key = (lambda item: item[1]) if isinstance(feasible[0], tuple) else (lambda item: item["mean_sum_rate"])
-        return max(feasible, key=key)
-
-    for tolerance in (0.0005, 0.001, 0.005, 0.01, 0.02, 0.03, 0.05):
-        full = winner(history, tolerance)
-        kept = winner(candidates, tolerance)
-        if full is None:
-            assert kept is None
-        else:
-            assert kept is not None and int(kept["eval_step"]) == full[0]
+HISTORY = [
+    _summary(1000, 9.0, violation=0.001),
+    _summary(2000, 8.0, violation=0.005),                      # dominated by 1000
+    _summary(3000, 12.0, violation=0.010),
+    _summary(4000, 15.0, violation=0.030),
+    _summary(5000, 11.0, violation=0.002, qos=0.97, all_qos=0.92),
+    _summary(6000, 25.0, violation=0.400, qos=0.10, all_qos=0.00),  # diverged
+]
 
 
-def test_candidate_retention_ignores_checkpoints_that_miss_qos(tmp_path: Path) -> None:
+def test_retention_drops_only_what_no_threshold_could_ever_select(tmp_path: Path) -> None:
+    cfg = ExperimentConfig(retained_candidate_checkpoints=10)
+    kept = {int(item["eval_step"]) for item in _retain_all(cfg, HISTORY, tmp_path)}
+    # 1000 matches or beats 2000 on all four axes, so no threshold reaches it.
+    assert 2000 not in kept
+    assert kept == {1000, 3000, 4000, 5000, 6000}
+
+
+def test_retained_set_reproduces_selection_for_every_threshold(tmp_path: Path) -> None:
+    cfg = ExperimentConfig(retained_candidate_checkpoints=10)
+    candidates = _retain_all(cfg, HISTORY, tmp_path)
+    checked = 0
+    for qos_target in (0.90, 0.95, 0.99, 1.0):
+        for all_qos_target in (0.80, 0.90, 0.95, 1.0):
+            for tolerance in (0.0005, 0.002, 0.01, 0.03, 0.5):
+                full = _winner(
+                    HISTORY,
+                    qos_target=qos_target,
+                    all_qos_target=all_qos_target,
+                    tolerance=tolerance,
+                )
+                kept = _winner(
+                    candidates,
+                    qos_target=qos_target,
+                    all_qos_target=all_qos_target,
+                    tolerance=tolerance,
+                )
+                if full is None:
+                    assert kept is None
+                else:
+                    assert kept is not None
+                    assert kept["mean_sum_rate"] == full["mean_sum_rate"]
+                checked += 1
+    assert checked == 80
+
+
+def test_budget_spends_on_reachable_checkpoints_not_diverged_ones(tmp_path: Path) -> None:
     cfg = ExperimentConfig(
-        retained_candidate_checkpoints=3,
+        retained_candidate_checkpoints=2,
         validation_qos_fraction_target=0.99,
         validation_all_qos_target=0.95,
+        validation_violation_tolerance=0.02,
     )
-    candidates: list[dict[str, object]] = []
-    _retain_candidate(
-        _FakeAgent(), "td3", cfg, _summary(500, 99.0, qos=0.5), 500, tmp_path, candidates
-    )
-    assert candidates == []
-    assert list(tmp_path.glob("candidate_step*.pt")) == []
+    kept = {int(item["eval_step"]) for item in _retain_all(cfg, HISTORY, tmp_path)}
+    # Step 6000 scores highest on sum-rate only because it stopped respecting
+    # QoS; ranking by sum-rate would have spent both slots reaching it.
+    assert 6000 not in kept
+    # Both slots go to checkpoints the current thresholds already admit, and
+    # the one they select - step 3000, the highest sum-rate among them - is
+    # among them.
+    current = _winner(HISTORY, qos_target=0.99, all_qos_target=0.95, tolerance=0.02)
+    assert int(current["eval_step"]) == 3000
+    assert kept == {1000, 3000}
+    on_disk = sorted(p.name for p in tmp_path.glob("candidate_step*.pt"))
+    assert len(on_disk) == 2
 
 
 def test_checkpoint_state_scopes_trim_what_evaluation_never_reads(tmp_path: Path) -> None:

@@ -79,26 +79,61 @@ def _is_better(candidate: dict[str, object], best: dict[str, object] | None) -> 
     return tuple(candidate["selection_key"]) > tuple(best["selection_key"])
 
 
-def _pareto_front(entries: list[dict[str, object]]) -> list[dict[str, object]]:
-    """Entries that can win for some violation tolerance.
+# Every axis a validation threshold can move along, and the direction that
+# makes a checkpoint more selectable.
+CANDIDATE_AXES = (
+    ("mean_qos_fraction", 1.0),
+    ("mean_all_qos", 1.0),
+    ("mean_violation", -1.0),
+    ("mean_sum_rate", 1.0),
+)
 
-    Selection maximises sum-rate among checkpoints whose violation clears the
-    tolerance. As the tolerance sweeps upward the winner therefore traces the
-    lower-violation / higher-sum-rate frontier, so retaining exactly this set
-    is enough to reproduce the choice for any tolerance without retraining.
+
+def _dominates(a: dict[str, object], b: dict[str, object]) -> bool:
+    """True when `a` is at least as selectable as `b` on every axis, and better on one."""
+    better = False
+    for key, sign in CANDIDATE_AXES:
+        left, right = sign * float(a[key]), sign * float(b[key])
+        if left < right:
+            return False
+        if left > right:
+            better = True
+    return better
+
+
+def _pareto_front(entries: list[dict[str, object]]) -> list[dict[str, object]]:
+    """Entries some threshold setting could still select.
+
+    Selection admits a checkpoint when qos_fraction and all_qos clear their
+    targets and violation clears its tolerance, then takes the highest
+    sum-rate among those. A checkpoint that another one matches or beats on
+    all four axes can therefore never win, whatever the three thresholds are
+    set to, so dropping it costs nothing. Everything else is kept, which is
+    what makes a later threshold change a re-selection rather than a retrain.
     """
-    ordered = sorted(
-        entries,
-        key=lambda item: (float(item["mean_violation"]), -float(item["mean_sum_rate"])),
-    )
-    front: list[dict[str, object]] = []
-    best_rate = float("-inf")
-    for item in ordered:
-        rate = float(item["mean_sum_rate"])
-        if rate > best_rate:
-            front.append(item)
-            best_rate = rate
-    return front
+    return [
+        item
+        for item in entries
+        if not any(_dominates(other, item) for other in entries if other is not item)
+    ]
+
+
+def _relaxation_cost(entry: dict[str, object], cfg: ExperimentConfig) -> float:
+    """How far the thresholds must move before this entry becomes selectable.
+
+    Zero for anything already feasible. Same normalisation the validation
+    summary uses, so the ordering here agrees with the selection rule.
+    """
+    qos_gap = max(
+        cfg.validation_qos_fraction_target - float(entry["mean_qos_fraction"]), 0.0
+    ) / max(1.0 - cfg.validation_qos_fraction_target, 1e-12)
+    all_qos_gap = max(
+        cfg.validation_all_qos_target - float(entry["mean_all_qos"]), 0.0
+    ) / max(1.0 - cfg.validation_all_qos_target, 1e-12)
+    violation_gap = max(
+        float(entry["mean_violation"]) - cfg.validation_violation_tolerance, 0.0
+    ) / max(cfg.validation_violation_tolerance, 1e-12)
+    return qos_gap + all_qos_gap + violation_gap
 
 
 def _retain_candidate(
@@ -112,19 +147,11 @@ def _retain_candidate(
 ) -> None:
     """Keep the checkpoints a later re-selection could need.
 
-    Only best.pt used to survive a run, so revisiting the selection rule meant
-    retraining. The floor here is QoS satisfaction alone - deliberately
-    independent of validation_violation_tolerance, the knob most likely to be
-    revisited - and what survives above it is the sum-rate / violation
-    frontier.
+    Only best.pt used to survive a run, so revisiting any validation threshold
+    meant retraining all 25 jobs for that method.
     """
     limit = int(cfg.retained_candidate_checkpoints)
     if limit <= 0:
-        return
-    if (
-        float(summary["mean_qos_fraction"]) < cfg.validation_qos_fraction_target
-        or float(summary["mean_all_qos"]) < cfg.validation_all_qos_target
-    ):
         return
     entry = {
         "eval_step": int(step),
@@ -137,9 +164,15 @@ def _retain_candidate(
     }
     front = _pareto_front([*candidates, entry])
     if len(front) > limit:
-        # Keep the highest sum-rate end of the frontier, which is the part a
-        # loosened tolerance reaches.
-        front = sorted(front, key=lambda item: -float(item["mean_sum_rate"]))[:limit]
+        # Over budget. Order by how much the thresholds would have to move to
+        # reach each entry, so the currently selected checkpoint and its
+        # nearest alternatives survive. Ranking by raw sum-rate instead would
+        # spend the budget on diverged policies, which score highest precisely
+        # because they stopped respecting QoS.
+        front = sorted(
+            front,
+            key=lambda item: (_relaxation_cost(item, cfg), -float(item["mean_sum_rate"])),
+        )[:limit]
     kept = {int(item["eval_step"]) for item in front}
     for stale in candidates:
         if int(stale["eval_step"]) not in kept:
@@ -167,8 +200,15 @@ def _write_candidate_index(output: Path, candidates: list[dict[str, object]]) ->
                     "re-select the reported checkpoint under a different "
                     "validation_violation_tolerance without retraining"
                 ),
-                "floor": "mean_qos_fraction and mean_all_qos meet their targets",
-                "retained_set": "pareto front of (low mean_violation, high mean_sum_rate)",
+                "retained_set": (
+                    "pareto front over high mean_qos_fraction, high mean_all_qos, "
+                    "low mean_violation, high mean_sum_rate"
+                ),
+                "covers": [
+                    "validation_qos_fraction_target",
+                    "validation_all_qos_target",
+                    "validation_violation_tolerance",
+                ],
                 "state_scope": "policy",
                 "count": len(candidates),
                 "candidates": candidates,
