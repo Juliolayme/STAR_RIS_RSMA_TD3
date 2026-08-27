@@ -1,1 +1,1 @@
-physical_v5_hard physical_v5_soft N32 seeds=0,1 steps=100000
+physical_v5_hard physical_v5_soft N32 seeds=0,1 steps=100000 orchestrated-v2

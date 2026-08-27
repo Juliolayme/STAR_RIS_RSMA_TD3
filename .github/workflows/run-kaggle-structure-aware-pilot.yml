@@ -55,7 +55,7 @@ jobs:
           seed = int(os.environ["SEED"])
           commit = os.environ["REPO_COMMIT"]
           stage = Path(f"kaggle_submit_{variant}_{seed}")
-          slug = f"star-ris-td3-v5-{variant}-n32-s{seed}"
+          slug = f"star-ris-td3-v5-{variant}-n32-seed-{seed}"
           config = f"configs/v3/pilot_v5_{variant}_n32.yaml"
           tag = f"v5_{variant}_n32_100k"
           runner = f'''from __future__ import annotations
@@ -113,7 +113,28 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          slug="star-ris-td3-v5-${VARIANT}-n32-s${SEED}"
-          kaggle kernels push -p "kaggle_submit_${VARIANT}_${SEED}" \
-            --accelerator NvidiaTeslaT4 --timeout 43200
-          kaggle kernels status "${KAGGLE_USERNAME}/${slug}" || true
+          slug="star-ris-td3-v5-${VARIANT}-n32-seed-${SEED}"
+          set +e
+          push_output="$(kaggle kernels push -p "kaggle_submit_${VARIANT}_${SEED}" \
+            --accelerator NvidiaTeslaT4 --timeout 43200 2>&1)"
+          push_code=$?
+          set -e
+          echo "$push_output"
+          if [ "$push_code" -ne 0 ] && ! echo "$push_output" | grep -q "Maximum batch GPU session count"; then
+            exit "$push_code"
+          fi
+
+          for attempt in $(seq 1 180); do
+            status="$(kaggle kernels status "${KAGGLE_USERNAME}/${slug}" 2>&1 || true)"
+            echo "attempt=${attempt} ${status}"
+            normalized="$(echo "$status" | tr '[:upper:]' '[:lower:]')"
+            if echo "$normalized" | grep -Eq 'complete|success'; then
+              exit 0
+            fi
+            if echo "$normalized" | grep -Eq 'error|failed|cancel'; then
+              exit 1
+            fi
+            sleep 60
+          done
+          echo "Timed out waiting for ${KAGGLE_USERNAME}/${slug}" >&2
+          exit 1
