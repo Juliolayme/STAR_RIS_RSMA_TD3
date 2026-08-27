@@ -1,0 +1,10 @@
+launch=physical_v6_soft_anchor_full_orchestrated
+method=td3
+n_values=16,32,64,96,128
+seeds=0,1,2,3,4
+train_steps=100000
+accounts=td3,ddpg,ppo
+max_active_per_account=2
+max_active_total=6
+adopt_existing_slugs=true
+requested_at_utc=2026-08-27T08:24:00Z
