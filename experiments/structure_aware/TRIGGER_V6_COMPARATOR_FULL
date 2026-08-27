@@ -1,0 +1,12 @@
+launch=physical_v6_soft_anchor_full_orchestrated
+method=ddpg,ppo
+n_values=16,32,64,96,128
+seeds=0,1,2,3,4
+train_steps=100000
+accounts=td3,ddpg,ppo
+max_active_per_account=2
+max_active_total=6
+methods_run_sequentially=true
+adopt_existing_slugs=true
+note=pilot kernels use the star-ris-{method}-v6-n{n}-seed-{s} slug and are not adopted; all 50 runs are fresh at this commit
+requested_at_utc=2026-08-27T09:55:00Z
