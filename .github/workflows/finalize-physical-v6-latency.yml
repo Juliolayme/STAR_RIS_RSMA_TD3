@@ -2,6 +2,11 @@ name: Finalize physical V6 six-method latency
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - experiment/physical-v6-full
+    paths:
+      - experiments/structure_aware/TRIGGER_V6_LATENCY
 
 permissions:
   actions: read
