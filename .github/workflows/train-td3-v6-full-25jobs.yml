@@ -2,6 +2,9 @@ name: Train TD3 V6 full 25 jobs
 
 on:
   workflow_dispatch:
+  push:
+    branches: [experiment/physical-v6-full]
+    paths: [experiments/structure_aware/TRIGGER_V6_FULL_25]
 
 permissions:
   contents: read
