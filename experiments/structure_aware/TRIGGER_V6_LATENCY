@@ -3,3 +3,6 @@ Launch the audited physical V6 six-method CPU latency benchmark.
 Protocol: one GitHub-hosted CPU runner, one thread, warmup=10, count=100.
 Inputs: frozen ScenarioBanks and fixed seed-0 best-validation checkpoints.
 Quality reporting remains the five-seed aggregate in results/physical_v6_full.
+
+Attempt 2: accept duplicated frozen-bank copies inside the canonical evidence artifact;
+the benchmark still enforces the one expected ScenarioBank checksum for each N.
