@@ -2,6 +2,11 @@ name: Run Kaggle structure-aware TD3 pilot
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - audit/ao-baseline-full-n128
+    paths:
+      - experiments/structure_aware/TRIGGER_KAGGLE
 
 permissions:
   contents: read
