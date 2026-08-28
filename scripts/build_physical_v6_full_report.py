@@ -232,10 +232,68 @@ def holm_adjust(values: list[float]) -> list[float]:
     return adjusted.tolist()
 
 
+def seed_level_test(
+    method_a: str,
+    method_b: str,
+    seed_means: dict[str, list[float]],
+) -> dict[str, Any]:
+    """Test the difference over training runs rather than over scenarios.
+
+    The scenario-level test treats 1,000 locked scenarios as its sample while
+    every one of them is scored by the same five trained policies. It answers
+    whether these policies differ on this scenario distribution, and with
+    n=1,000 it returns tiny p-values for differences of a few hundredths.
+
+    A claim that one method beats another has to survive retraining, so the
+    sample there is the five seeds. Traditional baselines are deterministic
+    solvers with no training variability, so a learned method is tested
+    against the baseline's fixed value instead of paired against it.
+    """
+    a_values, b_values = seed_means[method_a], seed_means[method_b]
+    a_learned, b_learned = len(a_values) > 1, len(b_values) > 1
+    if not a_learned and not b_learned:
+        return {
+            "seed_level_unit": "not applicable; both methods are deterministic",
+            "seed_level_n": 0,
+            "seed_mean_difference_a_minus_b": float(
+                np.mean(a_values) - np.mean(b_values)
+            ),
+            "seed_t_statistic": float("nan"),
+            "seed_t_p": float("nan"),
+        }
+    if a_learned and b_learned:
+        result = stats.ttest_rel(a_values, b_values)
+        unit, n = "paired over 5 training seeds", len(a_values)
+        difference = float(np.mean(a_values) - np.mean(b_values))
+    elif a_learned:
+        result = stats.ttest_1samp(np.asarray(a_values) - np.mean(b_values), 0.0)
+        unit, n = "5 training seeds against a deterministic baseline", len(a_values)
+        difference = float(np.mean(a_values) - np.mean(b_values))
+    else:
+        result = stats.ttest_1samp(np.mean(a_values) - np.asarray(b_values), 0.0)
+        unit, n = "5 training seeds against a deterministic baseline", len(b_values)
+        difference = float(np.mean(a_values) - np.mean(b_values))
+    return {
+        "seed_level_unit": unit,
+        "seed_level_n": n,
+        "seed_mean_difference_a_minus_b": difference,
+        "seed_t_statistic": float(result.statistic),
+        "seed_t_p": float(result.pvalue),
+    }
+
+
 def paired_tests(drl: pd.DataFrame, baselines: pd.DataFrame) -> pd.DataFrame:
     combined = pd.concat([drl, baselines], ignore_index=True, sort=False)
     output: list[dict[str, Any]] = []
     for n_ris in N_VALUES:
+        per_seed = (
+            combined[combined.n_ris.astype(int) == n_ris]
+            .groupby(["method", "seed"], as_index=False)["sum_rate"].mean()
+        )
+        seed_means = {
+            method: group.sort_values("seed")["sum_rate"].tolist()
+            for method, group in per_seed.groupby("method")
+        }
         means = (
             combined[combined.n_ris.astype(int) == n_ris]
             .groupby(["method", "scenario"], as_index=False)["sum_rate"].mean()
@@ -266,15 +324,35 @@ def paired_tests(drl: pd.DataFrame, baselines: pd.DataFrame) -> pd.DataFrame:
                     "wilcoxon_p": w_p,
                     "holm_family": f"all_15_pairs_within_N{n_ris}",
                     "holm_family_size": 15,
+                    **seed_level_test(method_a, method_b, seed_means),
                 }
             )
         t_adjusted = holm_adjust([row["paired_t_p"] for row in local])
         w_adjusted = holm_adjust([row["wilcoxon_p"] for row in local])
         for row, t_p, w_p in zip(local, t_adjusted, w_adjusted):
-            row["paired_t_holm_p"] = t_p
+            row["scenario_t_holm_p"] = t_p
             row["wilcoxon_holm_p"] = w_p
-            row["paired_t_holm_significant_0_05"] = t_p < 0.05
+            row["scenario_t_holm_significant_0_05"] = t_p < 0.05
             row["wilcoxon_holm_significant_0_05"] = w_p < 0.05
+            # Kept so existing readers of the r1 tables still resolve.
+            row["paired_t_holm_p"] = t_p
+            row["paired_t_holm_significant_0_05"] = t_p < 0.05
+
+        # Holm over the seed-level family covers only the pairs it applies to.
+        applicable = [row for row in local if row["seed_level_n"] > 0]
+        seed_adjusted = holm_adjust([row["seed_t_p"] for row in applicable])
+        for row in local:
+            row["seed_holm_family_size"] = len(applicable)
+        for row, seed_p in zip(applicable, seed_adjusted):
+            row["seed_t_holm_p"] = seed_p
+            row["seed_t_holm_significant_0_05"] = seed_p < 0.05
+        for row in local:
+            row.setdefault("seed_t_holm_p", float("nan"))
+            row.setdefault("seed_t_holm_significant_0_05", False)
+            row["significant_under_both_units"] = bool(
+                row["scenario_t_holm_significant_0_05"]
+                and row["seed_t_holm_significant_0_05"]
+            )
         output.extend(local)
     return pd.DataFrame(output)
 
@@ -402,7 +480,8 @@ def write_review(
             pivot.loc[128, "td3"], pivot.loc[128, "ao_sca"] - pivot.loc[128, "td3"], pivot.loc[128, "ao_grid"] - pivot.loc[128, "td3"]
         ),
         "- At N=16, two TD3 seeds select step 0 because later policies lose the strict all-users-QoS gate; this lowers the five-seed mean to {:.4f}. Do not hide this in slides.".format(pivot.loc[16, "td3"]),
-        "- All paired tests average the five DRL seeds within each locked scenario before testing. Holm is applied separately within each N over all 15 method pairs.",
+        "- Two inference units are reported. The scenario-level test averages the five DRL seeds within each locked scenario and pairs over the 1,000 scenarios; with n=1,000 it resolves differences of a few hundredths, but every scenario is scored by the same five policies, so it speaks about these policies rather than about the methods.",
+        "- The seed-level test pairs over the five training seeds, which is the unit a claim that one method beats another has to survive. Deterministic baselines have no training variability, so a learned method is tested against the baseline's fixed value. Holm is applied separately within each N and within each unit; `significant_under_both_units` marks the pairs that survive both.",
         "- Error-bar widths are not compared across DRL and deterministic baselines: DRL uncertainty uses five seed means, while baseline uncertainty uses 1,000 scenarios.",
         f"- Recorded training consumed {total_gpu_hours:.2f} aggregate GPU-hours on Tesla T4; this is summed job time, not orchestration wall-clock time.",
         "",
@@ -550,7 +629,11 @@ def main() -> None:
         "shared_scenario_banks": True,
         "scenario_bank_checksums": bank_checksums,
         "checkpoint_selection": "validation-only; feasibility-first normalized gap, then sum-rate",
-        "paired_test_protocol": "average 5 DRL seeds per matched scenario; 15 method pairs per N; Holm separately within N",
+        "paired_test_protocol": {
+            "scenario_level": "average 5 DRL seeds per matched scenario; paired over 1,000 scenarios; 15 method pairs per N; Holm separately within N",
+            "seed_level": "paired over 5 training seeds, or one-sample against a deterministic baseline; Holm over the applicable pairs within N",
+            "note": "the scenario-level unit resolves hundredths because n=1,000 while the five policies are shared; treat seed-level as the test of a method-level claim",
+        },
         "orchestrator_manifests": {
             method: {
                 "audit": manifest["audit"],

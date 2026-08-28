@@ -21,7 +21,8 @@ TD3 V6 is strong and stable for N >= 32, but the frozen feasibility-first checkp
 - PPO learned in all 25 jobs, but its final quality remains far below TD3.
 - At N=128, TD3 reaches 20.9195, trailing corrected AO-SCA by 0.6899 and corrected AO-Grid by 1.4723 bit/s/Hz.
 - At N=16, two TD3 seeds select step 0 because later policies lose the strict all-users-QoS gate; this lowers the five-seed mean to 14.5515. Do not hide this in slides.
-- All paired tests average the five DRL seeds within each locked scenario before testing. Holm is applied separately within each N over all 15 method pairs.
+- Two inference units are reported. The scenario-level test averages the five DRL seeds within each locked scenario and pairs over the 1,000 scenarios; with n=1,000 it resolves differences of a few hundredths, but every scenario is scored by the same five policies, so it speaks about these policies rather than about the methods.
+- The seed-level test pairs over the five training seeds, which is the unit a claim that one method beats another has to survive. Deterministic baselines have no training variability, so a learned method is tested against the baseline's fixed value. Holm is applied separately within each N and within each unit; `significant_under_both_units` marks the pairs that survive both.
 - Error-bar widths are not compared across DRL and deterministic baselines: DRL uncertainty uses five seed means, while baseline uncertainty uses 1,000 scenarios.
 - Recorded training consumed 13.59 aggregate GPU-hours on Tesla T4; this is summed job time, not orchestration wall-clock time.
 

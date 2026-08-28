@@ -113,7 +113,11 @@
       "updated_at_utc": "2026-08-27T17:04:06.093456+00:00"
     }
   },
-  "paired_test_protocol": "average 5 DRL seeds per matched scenario; 15 method pairs per N; Holm separately within N",
+  "paired_test_protocol": {
+    "note": "the scenario-level unit resolves hundredths because n=1,000 while the five policies are shared; treat seed-level as the test of a method-level claim",
+    "scenario_level": "average 5 DRL seeds per matched scenario; paired over 1,000 scenarios; 15 method pairs per N; Holm separately within N",
+    "seed_level": "paired over 5 training seeds, or one-sample against a deterministic baseline; Holm over the applicable pairs within N"
+  },
   "published_figures": [
     "fig01_v6_six_method_sum_rate.png",
     "fig02_v6_learning_gain.png",
