@@ -123,7 +123,9 @@
     "fig02_v6_learning_gain.png",
     "fig03_v6_training_time.png",
     "fig04_v6_six_method_cpu_latency.png",
-    "fig05_v6_quality_vs_latency.png"
+    "fig05_v6_quality_vs_latency.png",
+    "fig06_v6_learning_curves.png",
+    "fig07_v6_qos.png"
   ],
   "published_tables": [
     "TABLE_V6_CHECKPOINT_AUDIT.csv",
@@ -132,7 +134,8 @@
     "TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
     "TABLE_V6_TD3_LATENCY_SPEEDUP.csv",
     "TABLE_V6_TD3_VS_OTHERS_HOLM.csv",
-    "TABLE_V6_TRAINING_TIME.csv"
+    "TABLE_V6_TRAINING_TIME.csv",
+    "TABLE_V6_VALIDATION_CURVES.csv"
   ],
   "repository_commits_per_method": {
     "ddpg": [

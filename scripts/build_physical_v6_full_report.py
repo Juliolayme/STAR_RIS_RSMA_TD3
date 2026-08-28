@@ -62,7 +62,9 @@ def validate_raw(raw: pd.DataFrame, method: str, n_ris: int, seed: int, checkpoi
         raise RuntimeError(f"{method} N={n_ris} seed={seed}: multiple test-bank checksums")
 
 
-def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+def load_method(
+    root: Path, expected_method: str
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     manifest_paths = sorted(root.glob("TRAINING_RUN_MANIFEST*.json"))
     if len(manifest_paths) != 1:
         raise RuntimeError(f"Expected one top-level run manifest under {root}: {manifest_paths}")
@@ -88,6 +90,7 @@ def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.Data
 
     best_frames: list[pd.DataFrame] = []
     checkpoint_rows: list[dict[str, Any]] = []
+    curve_rows: list[pd.DataFrame] = []
     source_commits: set[str] = set()
     for n_ris, seed in itertools.product(N_VALUES, SEEDS):
         job = job_index[(n_ris, seed)]
@@ -142,6 +145,14 @@ def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.Data
                         )
                 checkpoint_raw[checkpoint] = raw
 
+            curve = pd.read_csv(
+                io.BytesIO(read_member(archive, "validation_summary.csv"))
+            )[["eval_step", "mean_sum_rate", "mean_all_qos", "mean_violation"]].copy()
+            curve["method"] = expected_method
+            curve["n_ris"] = n_ris
+            curve["seed"] = seed
+            curve_rows.append(curve)
+
             best = checkpoint_raw["best"].copy()
             best.insert(1, "n_ris", n_ris)
             best["repository_commit"] = str(provenance["git_commit"])
@@ -186,7 +197,12 @@ def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.Data
     # in CI/orchestration files; the config hashes, test banks, and training
     # protocol are validated above for every archive.
     run_manifest["archive_repository_commits"] = sorted(source_commits)
-    return pd.concat(best_frames, ignore_index=True), pd.DataFrame(checkpoint_rows), run_manifest
+    return (
+        pd.concat(best_frames, ignore_index=True),
+        pd.DataFrame(checkpoint_rows),
+        pd.concat(curve_rows, ignore_index=True),
+        run_manifest,
+    )
 
 
 def t_interval(values: np.ndarray) -> tuple[float, float, float, float]:
@@ -407,6 +423,7 @@ def plot_results(
     timing: pd.DataFrame,
     output: Path,
     latency_table: Path | None = None,
+    curves: pd.DataFrame | None = None,
 ) -> None:
     output.mkdir(parents=True, exist_ok=True)
     labels = {"td3": "TD3", "ddpg": "DDPG", "ppo": "PPO", "ao_sca": "AO-SCA corrected", "ao_grid": "AO-Grid corrected", "analytical_ris": "AnalyticalRIS"}
@@ -424,7 +441,11 @@ def plot_results(
     for method in ALL_METHODS:
         frame = performance[performance.method == method].sort_values("n_ris")
         ax.plot(frame.n_ris, frame.sum_rate_mean, label=labels[method], **styles[method])
-    ax.set(xlabel="RIS elements (N)", ylabel="Mean sum-rate (bit/s/Hz)")
+    ax.set(
+        xlabel="RIS elements (N)",
+        ylabel="Mean test sum-rate (bit/s/Hz)",
+        title="Held-out test set, best checkpoint, mean over five seeds",
+    )
     ax.grid(alpha=0.25)
     ax.legend(ncol=2, fontsize=8)
     fig.tight_layout()
@@ -453,6 +474,72 @@ def plot_results(
     ax.legend()
     fig.tight_layout()
     fig.savefig(output / "fig03_v6_training_time.png", dpi=180)
+    plt.close(fig)
+
+    # Learning curves. Validation is the split the selection rule reads, so it
+    # is what "the model is learning" actually means here; the test set is
+    # touched three times at the end and cannot show progress.
+    if curves is not None and not curves.empty:
+        fig, axes = plt.subplots(1, len(METHODS), figsize=(13.0, 4.2), sharey=True)
+        for ax, method in zip(np.atleast_1d(axes), METHODS):
+            frame = curves[curves.method == method]
+            for n_ris in N_VALUES:
+                block = (
+                    frame[frame.n_ris == n_ris]
+                    .groupby("eval_step")["mean_sum_rate"]
+                    .agg(["mean", "min", "max"])
+                    .sort_index()
+                )
+                if block.empty:
+                    continue
+                line, = ax.plot(block.index, block["mean"], linewidth=1.4, label=f"N={n_ris}")
+                ax.fill_between(
+                    block.index, block["min"], block["max"],
+                    alpha=0.15, color=line.get_color(), linewidth=0,
+                )
+            ax.set(xlabel="Training step", title=labels[method])
+            ax.grid(alpha=0.25)
+        np.atleast_1d(axes)[0].set_ylabel("Validation sum-rate (bit/s/Hz)")
+        np.atleast_1d(axes)[-1].legend(fontsize=7, title="band = min-max over 5 seeds")
+        fig.tight_layout()
+        fig.savefig(output / "fig06_v6_learning_curves.png", dpi=180)
+        plt.close(fig)
+
+    # QoS is the hard constraint of the problem, and sum-rate alone hides
+    # whether a method bought it by violating QoS. It did not.
+    fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.4))
+    for method in ALL_METHODS:
+        frame = performance[performance.method == method].sort_values("n_ris")
+        if frame.empty:
+            continue
+        axes[0].plot(frame.n_ris, frame.all_qos_mean, label=labels[method], **styles[method])
+        axes[1].plot(
+            frame.n_ris,
+            np.maximum(frame.violation_mean, 1e-7),
+            label=labels[method],
+            **styles[method],
+        )
+    axes[0].set(
+        xlabel="RIS elements (N)",
+        ylabel="Fraction of scenarios with every user served",
+        title="QoS satisfaction (higher is better)",
+    )
+    axes[0].set_ylim(-0.05, 1.05)
+    axes[1].set_yscale("log")
+    axes[1].axhline(1e-7, color="black", linewidth=0.6, linestyle=":", alpha=0.6)
+    axes[1].set(
+        xlabel="RIS elements (N)",
+        ylabel="Mean QoS shortfall (log scale)",
+        # A log axis cannot draw zero, and both corrected solvers reach exactly
+        # zero at most N, so say where they actually are.
+        title="Residual violation (lower is better)
+markers on the dotted floor are exactly zero",
+    )
+    for ax in axes:
+        ax.grid(alpha=0.25, which="both")
+    axes[0].legend(ncol=2, fontsize=7, loc="lower right")
+    fig.tight_layout()
+    fig.savefig(output / "fig07_v6_qos.png", dpi=180)
     plt.close(fig)
 
     # The argument the study actually supports: what each method costs to run
@@ -623,14 +710,17 @@ def main() -> None:
 
     raw_frames: list[pd.DataFrame] = []
     checkpoint_frames: list[pd.DataFrame] = []
+    curve_frames: list[pd.DataFrame] = []
     manifests: dict[str, Any] = {}
     for method, root in (("td3", args.td3_root), ("ddpg", args.ddpg_root), ("ppo", args.ppo_root)):
-        raw, checkpoints, manifest = load_method(root, method)
+        raw, checkpoints, curves, manifest = load_method(root, method)
         raw_frames.append(raw)
         checkpoint_frames.append(checkpoints)
+        curve_frames.append(curves)
         manifests[method] = manifest
     drl = pd.concat(raw_frames, ignore_index=True)
     checkpoints = pd.concat(checkpoint_frames, ignore_index=True)
+    curves = pd.concat(curve_frames, ignore_index=True)
 
     if drl.duplicated(["method", "n_ris", "seed", "scenario"]).any():
         raise RuntimeError("Duplicate V6 best-checkpoint raw keys")
@@ -659,12 +749,16 @@ def main() -> None:
     tests.to_csv(tables / "TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv", index=False)
     td3_tests.to_csv(tables / "TABLE_V6_TD3_VS_OTHERS_HOLM.csv", index=False)
     timing.to_csv(tables / "TABLE_V6_TRAINING_TIME.csv", index=False)
+    curves.sort_values(["method", "n_ris", "seed", "eval_step"]).to_csv(
+        tables / "TABLE_V6_VALIDATION_CURVES.csv", index=False
+    )
     plot_results(
         performance,
         checkpoints,
         timing,
         figures,
         latency_table=tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+        curves=curves,
     )
     latency_path = tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv"
     latency = pd.read_csv(latency_path) if latency_path.is_file() else None
