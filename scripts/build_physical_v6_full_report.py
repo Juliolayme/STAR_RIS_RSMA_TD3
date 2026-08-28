@@ -24,6 +24,53 @@ SEEDS = tuple(range(5))
 METRICS = ("sum_rate", "qos_fraction", "all_qos", "violation")
 PARAMETERIZATION = "physical_v6_soft_anchor"
 
+# Figure text. The thesis is written in Vietnamese, so the wording is
+# selectable while the method names stay as published.
+METHOD_LABELS = {
+    "td3": "TD3",
+    "ddpg": "DDPG",
+    "ppo": "PPO",
+    "ao_sca": "AO-SCA",
+    "ao_grid": "AO-Grid",
+    "analytical_ris": "AnalyticalRIS",
+}
+FIGURE_TEXT = {
+    "en": {
+        "n_ris": "RIS elements (N)",
+        "test_sum_rate": "Mean test sum-rate (bit/s/Hz)",
+        "test_note": "Held-out test set, best checkpoint, mean over five seeds",
+        "learning_gain": "Mean learning gain: best - initial",
+        "training_minutes": "Mean training time per 100k job (minutes)",
+        "latency": "Median CPU decision latency (ms, log scale)",
+        "sum_rate": "Mean sum-rate (bit/s/Hz)",
+        "step": "Training step",
+        "validation_sum_rate": "Validation sum-rate (bit/s/Hz)",
+        "band": "band = min-max over 5 seeds",
+        "qos_satisfaction": "Fraction of scenarios with every user served",
+        "qos_title": "QoS satisfaction (higher is better)",
+        "violation": "Mean QoS shortfall (log scale)",
+        "violation_title": "Residual violation (lower is better)",
+        "violation_floor": "markers on the dotted floor are exactly zero",
+    },
+    "vi": {
+        "n_ris": "Số phần tử RIS (N)",
+        "test_sum_rate": "Tổng tốc độ trung bình trên tập kiểm tra (bit/s/Hz)",
+        "test_note": "Tập kiểm tra tách riêng, checkpoint tốt nhất, trung bình 5 hạt giống",
+        "learning_gain": "Mức cải thiện nhờ huấn luyện: tốt nhất − khởi tạo",
+        "training_minutes": "Thời gian huấn luyện trung bình mỗi tác vụ 100k bước (phút)",
+        "latency": "Độ trễ quyết định CPU trung vị (ms, thang log)",
+        "sum_rate": "Tổng tốc độ trung bình (bit/s/Hz)",
+        "step": "Bước huấn luyện",
+        "validation_sum_rate": "Tổng tốc độ trên tập thẩm định (bit/s/Hz)",
+        "band": "dải = nhỏ nhất–lớn nhất trên 5 hạt giống",
+        "qos_satisfaction": "Tỷ lệ kịch bản mọi người dùng đều đạt QoS",
+        "qos_title": "Mức đáp ứng QoS (càng cao càng tốt)",
+        "violation": "Mức thiếu hụt QoS trung bình (thang log)",
+        "violation_title": "Vi phạm còn lại (càng thấp càng tốt)",
+        "violation_floor": "điểm nằm trên đường chấm là bằng đúng 0",
+    },
+}
+
 
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
@@ -424,9 +471,11 @@ def plot_results(
     output: Path,
     latency_table: Path | None = None,
     curves: pd.DataFrame | None = None,
+    language: str = "en",
 ) -> None:
     output.mkdir(parents=True, exist_ok=True)
-    labels = {"td3": "TD3", "ddpg": "DDPG", "ppo": "PPO", "ao_sca": "AO-SCA corrected", "ao_grid": "AO-Grid corrected", "analytical_ris": "AnalyticalRIS"}
+    labels = METHOD_LABELS
+    text = FIGURE_TEXT[language]
     # TD3 and DDPG land within 0.005 ms of each other, so on colour alone one
     # line hides the other completely and appears to be missing.
     styles = {
@@ -441,11 +490,7 @@ def plot_results(
     for method in ALL_METHODS:
         frame = performance[performance.method == method].sort_values("n_ris")
         ax.plot(frame.n_ris, frame.sum_rate_mean, label=labels[method], **styles[method])
-    ax.set(
-        xlabel="RIS elements (N)",
-        ylabel="Mean test sum-rate (bit/s/Hz)",
-        title="Held-out test set, best checkpoint, mean over five seeds",
-    )
+    ax.set(xlabel=text["n_ris"], ylabel=text["test_sum_rate"], title=text["test_note"])
     ax.grid(alpha=0.25)
     ax.legend(ncol=2, fontsize=8)
     fig.tight_layout()
@@ -458,7 +503,7 @@ def plot_results(
         means = frame.groupby("n_ris").learning_gain_best_minus_initial.mean().reindex(N_VALUES)
         ax.plot(N_VALUES, means, label=labels[method], **styles[method])
     ax.axhline(0, color="black", linewidth=0.8)
-    ax.set(xlabel="RIS elements (N)", ylabel="Mean learning gain: best - initial")
+    ax.set(xlabel=text["n_ris"], ylabel=text["learning_gain"])
     ax.grid(alpha=0.25)
     ax.legend()
     fig.tight_layout()
@@ -469,7 +514,7 @@ def plot_results(
     for method in METHODS:
         frame = timing[timing.method == method].sort_values("n_ris")
         ax.plot(frame.n_ris, frame.training_minutes_mean, label=labels[method], **styles[method])
-    ax.set(xlabel="RIS elements (N)", ylabel="Mean training time per 100k job (minutes)")
+    ax.set(xlabel=text["n_ris"], ylabel=text["training_minutes"])
     ax.grid(alpha=0.25)
     ax.legend()
     fig.tight_layout()
@@ -497,10 +542,10 @@ def plot_results(
                     block.index, block["min"], block["max"],
                     alpha=0.15, color=line.get_color(), linewidth=0,
                 )
-            ax.set(xlabel="Training step", title=labels[method])
+            ax.set(xlabel=text["step"], title=labels[method])
             ax.grid(alpha=0.25)
-        np.atleast_1d(axes)[0].set_ylabel("Validation sum-rate (bit/s/Hz)")
-        np.atleast_1d(axes)[-1].legend(fontsize=7, title="band = min-max over 5 seeds")
+        np.atleast_1d(axes)[0].set_ylabel(text["validation_sum_rate"])
+        np.atleast_1d(axes)[-1].legend(fontsize=7, title=text["band"])
         fig.tight_layout()
         fig.savefig(output / "fig06_v6_learning_curves.png", dpi=180)
         plt.close(fig)
@@ -520,23 +565,17 @@ def plot_results(
             **styles[method],
         )
     axes[0].set(
-        xlabel="RIS elements (N)",
-        ylabel="Fraction of scenarios with every user served",
-        title="QoS satisfaction (higher is better)",
+        xlabel=text["n_ris"], ylabel=text["qos_satisfaction"], title=text["qos_title"]
     )
     axes[0].set_ylim(-0.05, 1.05)
     axes[1].set_yscale("log")
     axes[1].axhline(1e-7, color="black", linewidth=0.6, linestyle=":", alpha=0.6)
     axes[1].set(
-        xlabel="RIS elements (N)",
-        ylabel="Mean QoS shortfall (log scale)",
-        # A log axis cannot draw zero, and both corrected solvers reach exactly
-        # zero at most N, so say where they actually are.
-        title=(
-            "Residual violation (lower is better)"
-            + chr(10)
-            + "markers on the dotted floor are exactly zero"
-        ),
+        xlabel=text["n_ris"],
+        ylabel=text["violation"],
+        # A log axis cannot draw zero, and both solvers reach exactly zero at
+        # most N, so say where they actually are.
+        title=text["violation_title"] + chr(10) + text["violation_floor"],
     )
     for ax in axes:
         ax.grid(alpha=0.25, which="both")
@@ -576,10 +615,7 @@ def plot_results(
                 fontsize=7,
             )
         ax.set_xscale("log")
-        ax.set(
-            xlabel="Median CPU decision latency (ms, log scale)",
-            ylabel="Mean sum-rate (bit/s/Hz)",
-        )
+        ax.set(xlabel=text["latency"], ylabel=text["sum_rate"])
         ax.grid(alpha=0.25, which="both")
         ax.legend(ncol=2, fontsize=8, loc="lower right")
         fig.tight_layout()
@@ -690,6 +726,12 @@ def main() -> None:
     parser.add_argument("--baseline-raw", type=Path, default=Path("results/six_method_v2/raw/TRADITIONAL_TEST_RAW_ALL.csv"))
     parser.add_argument("--output", type=Path, default=Path("results/physical_v6_full"))
     parser.add_argument(
+        "--language",
+        choices=sorted(FIGURE_TEXT),
+        default="en",
+        help="Language for figure axis labels and titles",
+    )
+    parser.add_argument(
         "--github-artifacts",
         type=Path,
         help="JSON mapping each method to the run/artifact it was downloaded from",
@@ -762,6 +804,7 @@ def main() -> None:
         figures,
         latency_table=tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
         curves=curves,
+        language=args.language,
     )
     latency_path = tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv"
     latency = pd.read_csv(latency_path) if latency_path.is_file() else None

@@ -124,8 +124,29 @@ def speedups(summary: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def plot(summary: pd.DataFrame, target: Path) -> None:
-    labels = {"td3": "TD3", "ddpg": "DDPG", "ppo": "PPO", "ao_sca": "AO-SCA corrected", "ao_grid": "AO-Grid corrected", "analytical_ris": "AnalyticalRIS"}
+METHOD_LABELS = {
+    "td3": "TD3",
+    "ddpg": "DDPG",
+    "ppo": "PPO",
+    "ao_sca": "AO-SCA",
+    "ao_grid": "AO-Grid",
+    "analytical_ris": "AnalyticalRIS",
+}
+FIGURE_TEXT = {
+    "en": {
+        "n_ris": "RIS elements (N)",
+        "latency": "Median CPU decision latency (ms, log scale)",
+    },
+    "vi": {
+        "n_ris": "Số phần tử RIS (N)",
+        "latency": "Độ trễ quyết định CPU trung vị (ms, thang log)",
+    },
+}
+
+
+def plot(summary: pd.DataFrame, target: Path, language: str = "en") -> None:
+    labels = METHOD_LABELS
+    text = FIGURE_TEXT[language]
     fig, ax = plt.subplots(figsize=(8.2, 4.8))
     for method in METHODS:
         frame = summary[summary.method == method].sort_values("n_ris")
@@ -136,7 +157,7 @@ def plot(summary: pd.DataFrame, target: Path) -> None:
             **STYLES[method],
         )
     ax.set_yscale("log")
-    ax.set(xlabel="RIS elements (N)", ylabel="Median CPU decision latency (ms, log scale)")
+    ax.set(xlabel=text["n_ris"], ylabel=text["latency"])
     ax.grid(alpha=0.25, which="both")
     ax.legend(ncol=2, fontsize=8)
     fig.tight_layout()
@@ -150,6 +171,7 @@ def main() -> None:
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--checkpoint-index", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--language", choices=sorted(FIGURE_TEXT), default="en")
     args = parser.parse_args()
 
     paths = sorted(args.input.glob("*.csv"))
@@ -175,7 +197,7 @@ def main() -> None:
     (args.output / "LATENCY_CHECKPOINT_INDEX.json").write_text(
         json.dumps(checkpoint_index, indent=2, sort_keys=True), encoding="utf-8"
     )
-    plot(table, figures / "fig04_v6_six_method_cpu_latency.png")
+    plot(table, figures / "fig04_v6_six_method_cpu_latency.png", args.language)
 
     audit = {
         "verdict": "PASS",
