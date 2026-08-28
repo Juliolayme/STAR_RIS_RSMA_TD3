@@ -163,9 +163,15 @@ def review_readme(commit: str, branch: str, results_dir: str, audit: dict[str, A
         return rows
 
     learned = ("td3", "ddpg", "ppo")
-    spread = max(
-        max(rate[(m, n)] for m in learned) - min(rate[(m, n)] for m in learned)
+    spreads = {
+        n: max(rate[(m, n)] for m in learned) - min(rate[(m, n)] for m in learned)
         for n in n_values
+    }
+    widest = max(spreads, key=lambda n: spreads[n])
+    behind = min(learned, key=lambda m: rate[(m, widest)])
+    rest = [n for n in n_values if n != widest]
+    spread_line = "Spread among the learned methods by N: " + ", ".join(
+        "N=" + str(n) + " " + format(spreads[n], ".3f") for n in n_values
     )
     factors: dict[str, list[float]] = {}
     for row in speedup:
@@ -199,9 +205,13 @@ def review_readme(commit: str, branch: str, results_dir: str, audit: dict[str, A
         divider,
         *block(rate, 3),
         "",
-        "The three learned methods differ by at most " + format(spread, ".3f") + " at every N,",
-        "so this evidence does not support ranking them against one another. They",
-        "are reported together.",
+        spread_line + ".",
+        "",
+        "The widest gap is at N=" + str(widest) + ", where " + behind + " trails at " +
+        format(rate[(behind, widest)], ".3f") + "; its per-seed figures there are the",
+        "least stable in the study and are reported as measured. Excluding that",
+        "point the three lie within " + format(max(spreads[n] for n in rest), ".3f") + ",",
+        "which is too close for this evidence to rank them.",
         "",
         "## Median single-thread CPU decision time (ms)",
         "",
