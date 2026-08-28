@@ -1,0 +1,49 @@
+name: Ablate TD3 dimension-scaled exploration noise
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [experiment/physical-v6-full]
+    paths: [experiments/structure_aware/TRIGGER_V6_TD3_FLAT_NOISE]
+
+permissions:
+  contents: read
+
+jobs:
+  ablate:
+    name: TD3 flat noise, N32 and N128
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_TD3_KEY: ${{ secrets.KAGGLE_TD3_KEY }}
+      KAGGLE_DDPG_KEY: ${{ secrets.KAGGLE_DDPG_KEY }}
+      KAGGLE_PPO_KEY: ${{ secrets.KAGGLE_PPO_KEY }}
+      REPO_COMMIT: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "kaggle>=1.8.4,<3"
+      - name: Train the ten ablation jobs
+        run: |
+          python scripts/orchestrate_kaggle_v6_full.py \
+            --method td3 \
+            --revision r2-flatnoise \
+            --n-values 32 128 \
+            --config-template "configs/v3/ablation_v6_td3_flat_noise_n{n_ris}.yaml" \
+            --commit "$REPO_COMMIT" \
+            --output-dir collected \
+            --manifest TRAINING_RUN_MANIFEST_td3_flatnoise.json \
+            --timeout-minutes 150
+      - name: Upload ablation evidence
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: physical-v6-td3-flatnoise
+          path: |
+            TRAINING_RUN_MANIFEST_td3_flatnoise.json
+            collected/*.zip
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

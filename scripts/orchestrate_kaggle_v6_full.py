@@ -83,11 +83,16 @@ class Job:
     seed: int
     method: str = "td3"
     revision: str = PROTOCOL_REVISION
+    config_template: str = "configs/v3/pilot_v6_soft_anchor_n{n_ris}.yaml"
     attempts: int = 0
     status: str = "pending"
     status_text: str = ""
     archive_sha256: str | None = None
     archive_bytes: int | None = None
+
+    @property
+    def config(self) -> str:
+        return self.config_template.format(n_ris=self.n_ris)
 
     @property
     def name_stem(self) -> str:
@@ -131,6 +136,7 @@ class Job:
             "username": USERNAMES[self.account],
             "method": self.method,
             "protocol_revision": self.revision,
+            "config": self.config,
             "n_ris": self.n_ris,
             "seed": self.seed,
             "ref": self.ref,
@@ -213,7 +219,7 @@ def runner_source(job: Job, commit: str) -> str:
         subprocess.run([sys.executable, "-m", "pip", "install", "-q", "--no-build-isolation", "-e", str(repo)], check=True)
         subprocess.run([
             sys.executable, "scripts/create_scenario_banks.py",
-            "--config", "configs/v3/pilot_v6_soft_anchor_n{job.n_ris}.yaml",
+            "--config", "{job.config}",
             "--output-dir", "artifacts/scenario_banks",
             "--train-count", "10000", "--validation-count", "1000", "--test-count", "1000",
         ], cwd=repo, check=True)
@@ -225,7 +231,7 @@ def runner_source(job: Job, commit: str) -> str:
         subprocess.run([
             sys.executable, "scripts/pilot_structure_aware_td3.py",
             "--method", "{job.method}",
-            "--config", "configs/v3/pilot_v6_soft_anchor_n{job.n_ris}.yaml",
+            "--config", "{job.config}",
             "--seed", "{job.seed}", "--tag", "{tag}",
             "--output-root", str(output_root),
         ], cwd=repo, check=True)
@@ -364,12 +370,14 @@ def download(job: Job, output_dir: Path) -> None:
     verify_download(job, output_dir)
 
 
-def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
+def write_manifest(
+    path: Path, jobs: list[Job], commit: str, n_values: tuple[int, ...], expected_jobs: int
+) -> None:
     completed = [job for job in jobs if job.status == "complete"]
     failed = [job for job in jobs if job.status == "failed"]
     manifest = {
         "audit": (
-            "PASS" if len(completed) == 25 and not failed else
+            "PASS" if len(completed) == expected_jobs and not failed else
             "FAIL" if failed else "RUNNING"
         ),
         "updated_at_utc": datetime.now(timezone.utc).isoformat(),
@@ -379,10 +387,10 @@ def write_manifest(path: Path, jobs: list[Job], commit: str) -> None:
             "method": jobs[0].method,
             "revision": jobs[0].revision,
             "action_parameterization": "physical_v6_soft_anchor",
-            "n_values": list(N_VALUES),
+            "n_values": list(n_values),
             "seeds": list(SEEDS),
             "train_steps": 100_000,
-            "expected_jobs": 25,
+            "expected_jobs": expected_jobs,
             "max_active_per_account": MAX_ACTIVE_PER_ACCOUNT,
             "max_active_total": 6,
         },
@@ -398,6 +406,14 @@ def main() -> None:
     parser.add_argument("--commit", required=True)
     parser.add_argument("--method", choices=METHODS, default="td3")
     parser.add_argument("--revision", default=PROTOCOL_REVISION)
+    parser.add_argument(
+        "--n-values", type=int, nargs="+", choices=N_VALUES, default=list(N_VALUES)
+    )
+    parser.add_argument(
+        "--config-template",
+        default="configs/v3/pilot_v6_soft_anchor_n{n_ris}.yaml",
+        help="Per-N config path; an ablation points this at its own copies",
+    )
     parser.add_argument("--output-dir", type=Path, default=Path("collected"))
     parser.add_argument("--submission-root", type=Path, default=Path("kaggle_submit_v6"))
     parser.add_argument("--manifest", type=Path, default=Path("TRAINING_RUN_MANIFEST.json"))
@@ -405,15 +421,21 @@ def main() -> None:
     parser.add_argument("--timeout-minutes", type=int, default=210)
     args = parser.parse_args()
 
+    selected = tuple(sorted(set(args.n_values)))
     jobs = [
-        Job(account, n_ris, seed, args.method, args.revision)
+        Job(account, n_ris, seed, args.method, args.revision, args.config_template)
         for account, combinations in ASSIGNMENTS.items()
         for n_ris, seed in combinations
+        if n_ris in selected
     ]
-    expected = {(n_ris, seed) for n_ris in N_VALUES for seed in SEEDS}
+    expected = {(n_ris, seed) for n_ris in selected for seed in SEEDS}
     observed = {(job.n_ris, job.seed) for job in jobs}
-    if len(jobs) != 25 or observed != expected:
-        raise RuntimeError("ASSIGNMENTS must contain all 25 unique N/seed jobs")
+    if observed != expected:
+        raise RuntimeError(
+            f"ASSIGNMENTS must cover every N/seed pair in {selected}; "
+            f"missing {sorted(expected - observed)}"
+        )
+    expected_jobs = len(expected)
 
     pending = {
         account: deque(job for job in jobs if job.account == account)
@@ -452,7 +474,7 @@ def main() -> None:
 
     for account in ASSIGNMENTS:
         fill(account)
-    write_manifest(args.manifest, jobs, args.commit)
+    write_manifest(args.manifest, jobs, args.commit, selected, expected_jobs)
 
     while time.monotonic() < deadline:
         if all(job.status == "complete" for job in jobs):
@@ -486,20 +508,20 @@ def main() -> None:
                 else:
                     job.status = state
             fill(account)
-        write_manifest(args.manifest, jobs, args.commit)
+        write_manifest(args.manifest, jobs, args.commit, selected, expected_jobs)
         completed = sum(job.status == "complete" for job in jobs)
         running = sum(job.status in {"running", "queued", "unknown"} for job in jobs)
-        print(f"PROGRESS completed={completed}/25 active={running}", flush=True)
+        print(f"PROGRESS completed={completed}/{expected_jobs} active={running}", flush=True)
         if any(job.status == "failed" for job in jobs):
             break
-        if completed < 25:
+        if completed < expected_jobs:
             time.sleep(args.poll_seconds)
 
-    write_manifest(args.manifest, jobs, args.commit)
+    write_manifest(args.manifest, jobs, args.commit, selected, expected_jobs)
     incomplete = [job.ref for job in jobs if job.status != "complete"]
     if incomplete:
         raise SystemExit(f"V6 {args.method} training incomplete: {incomplete}")
-    print(f"V6 25-job {args.method} training audit PASS", flush=True)
+    print(f"V6 {expected_jobs}-job {args.method} training audit PASS", flush=True)
 
 
 if __name__ == "__main__":

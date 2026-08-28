@@ -121,3 +121,30 @@ def test_submission_refuses_a_title_that_would_be_renamed(tmp_path) -> None:
             build_submission(job, "a" * 40, tmp_path)
     # Restored: the real title still agrees with the slug.
     assert slugify(job.title) == job.slug
+
+
+def test_a_subset_run_keeps_every_seed_for_the_chosen_n() -> None:
+    """An ablation runs fewer N but must still carry all five seeds each."""
+    for subset in ((32,), (32, 128), (16, 64, 96)):
+        pairs = [
+            (n_ris, seed)
+            for jobs in ASSIGNMENTS.values()
+            for n_ris, seed in jobs
+            if n_ris in subset
+        ]
+        assert set(pairs) == {(n, s) for n in subset for s in SEEDS}
+        assert len(pairs) == len(subset) * len(SEEDS)
+
+
+def test_config_template_lets_an_ablation_swap_the_protocol_file() -> None:
+    default = Job("td3", 128, 4)
+    assert default.config == "configs/v3/pilot_v6_soft_anchor_n128.yaml"
+    ablation = Job(
+        "td3", 128, 4, "td3", PROTOCOL_REVISION,
+        "configs/v3/ablation_v6_td3_flat_noise_n{n_ris}.yaml",
+    )
+    assert ablation.config == "configs/v3/ablation_v6_td3_flat_noise_n128.yaml"
+    source = runner_source(ablation, "d" * 40)
+    compile(source, "generated_ablation_runner.py", "exec")
+    assert ablation.config in source
+    assert "pilot_v6_soft_anchor_n128.yaml" not in source.split("prepare_v6_scenario_banks")[0]

@@ -270,3 +270,37 @@ def test_orchestrator_rejects_a_run_that_never_left_its_initialisation(tmp_path:
             verify_learning(bundle, stuck)
     with zipfile.ZipFile(trained) as bundle:
         verify_learning(bundle, trained)
+
+
+def test_flat_noise_ablation_changes_exactly_one_field() -> None:
+    """The ablation must isolate the knob it is testing.
+
+    TD3 divides both its exploration noise and its target smoothing by
+    sqrt(action_dim / td3_noise_reference_dim) once action_dim passes the
+    reference, and DDPG has no equivalent. Anything else differing here
+    would confound the answer.
+    """
+    for n_ris in (32, 128):
+        published = ExperimentConfig.from_yaml(
+            ROOT / f"configs/v3/pilot_v6_soft_anchor_n{n_ris}.yaml"
+        ).to_dict()
+        ablation = ExperimentConfig.from_yaml(
+            ROOT / f"configs/v3/ablation_v6_td3_flat_noise_n{n_ris}.yaml"
+        ).to_dict()
+        differing = {k for k in published if published[k] != ablation[k]}
+        assert differing == {"td3_noise_reference_dim"}
+        assert published["td3_noise_reference_dim"] == 64
+        assert ablation["td3_noise_reference_dim"] == 0
+
+
+def test_noise_scale_only_bites_above_the_reference_dimension() -> None:
+    from star_ris_rsma.agents.td3 import TD3Agent
+
+    scaled = TD3Agent(10, 105, 32, device="cpu", noise_reference_dim=64)
+    small = TD3Agent(10, 57, 32, device="cpu", noise_reference_dim=64)
+    flat = TD3Agent(10, 105, 32, device="cpu", noise_reference_dim=0)
+    # N=16 has action_dim 57, below the reference, so min() clamps to 1.
+    assert small._dimension_noise_scale() == 1.0
+    assert flat._dimension_noise_scale() == 1.0
+    assert scaled._dimension_noise_scale() == pytest.approx((64 / 105) ** 0.5)
+    assert scaled._dimension_noise_scale() < 1.0
