@@ -1,0 +1,12 @@
+ablation=td3_dimension_scaled_exploration_noise
+question=does td3_noise_reference_dim=64 explain DDPG leading TD3 at every N >= 32
+method=td3
+protocol_revision=r2-flatnoise
+config=configs/v3/ablation_v6_td3_flat_noise_n{n_ris}.yaml
+changed_field=td3_noise_reference_dim 64 -> 0
+n_values=32,128
+seeds=0,1,2,3,4
+expected_jobs=10
+train_steps=100000
+compare_against=results/physical_v6_full_r2 td3 and ddpg at the same N
+requested_at_utc=2026-08-28T01:15:00Z
