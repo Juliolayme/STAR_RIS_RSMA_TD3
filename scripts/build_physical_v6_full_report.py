@@ -401,13 +401,29 @@ def training_time_table(checkpoints: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values(["method", "n_ris"]).reset_index(drop=True)
 
 
-def plot_results(performance: pd.DataFrame, checkpoints: pd.DataFrame, timing: pd.DataFrame, output: Path) -> None:
+def plot_results(
+    performance: pd.DataFrame,
+    checkpoints: pd.DataFrame,
+    timing: pd.DataFrame,
+    output: Path,
+    latency_table: Path | None = None,
+) -> None:
     output.mkdir(parents=True, exist_ok=True)
     labels = {"td3": "TD3", "ddpg": "DDPG", "ppo": "PPO", "ao_sca": "AO-SCA corrected", "ao_grid": "AO-Grid corrected", "analytical_ris": "AnalyticalRIS"}
+    # TD3 and DDPG land within 0.005 ms of each other, so on colour alone one
+    # line hides the other completely and appears to be missing.
+    styles = {
+        "td3": {"marker": "o", "linestyle": "-"},
+        "ddpg": {"marker": "s", "linestyle": "--"},
+        "ppo": {"marker": "^", "linestyle": "-."},
+        "ao_sca": {"marker": "D", "linestyle": "-"},
+        "ao_grid": {"marker": "v", "linestyle": "--"},
+        "analytical_ris": {"marker": "x", "linestyle": ":"},
+    }
     fig, ax = plt.subplots(figsize=(8.2, 4.8))
     for method in ALL_METHODS:
         frame = performance[performance.method == method].sort_values("n_ris")
-        ax.plot(frame.n_ris, frame.sum_rate_mean, marker="o", label=labels[method])
+        ax.plot(frame.n_ris, frame.sum_rate_mean, label=labels[method], **styles[method])
     ax.set(xlabel="RIS elements (N)", ylabel="Mean sum-rate (bit/s/Hz)")
     ax.grid(alpha=0.25)
     ax.legend(ncol=2, fontsize=8)
@@ -419,7 +435,7 @@ def plot_results(performance: pd.DataFrame, checkpoints: pd.DataFrame, timing: p
     for method in METHODS:
         frame = checkpoints[checkpoints.method == method]
         means = frame.groupby("n_ris").learning_gain_best_minus_initial.mean().reindex(N_VALUES)
-        ax.plot(N_VALUES, means, marker="o", label=labels[method])
+        ax.plot(N_VALUES, means, label=labels[method], **styles[method])
     ax.axhline(0, color="black", linewidth=0.8)
     ax.set(xlabel="RIS elements (N)", ylabel="Mean learning gain: best - initial")
     ax.grid(alpha=0.25)
@@ -431,13 +447,54 @@ def plot_results(performance: pd.DataFrame, checkpoints: pd.DataFrame, timing: p
     fig, ax = plt.subplots(figsize=(7.6, 4.5))
     for method in METHODS:
         frame = timing[timing.method == method].sort_values("n_ris")
-        ax.plot(frame.n_ris, frame.training_minutes_mean, marker="o", label=labels[method])
+        ax.plot(frame.n_ris, frame.training_minutes_mean, label=labels[method], **styles[method])
     ax.set(xlabel="RIS elements (N)", ylabel="Mean training time per 100k job (minutes)")
     ax.grid(alpha=0.25)
     ax.legend()
     fig.tight_layout()
     fig.savefig(output / "fig03_v6_training_time.png", dpi=180)
     plt.close(fig)
+
+    # The argument the study actually supports: what each method costs to run
+    # against what it delivers. Sum-rate alone shows the learned methods losing.
+    if latency_table is not None and latency_table.is_file():
+        latency = pd.read_csv(latency_table)
+        fig, ax = plt.subplots(figsize=(8.2, 5.0))
+        for method in ALL_METHODS:
+            q = performance[performance.method == method].sort_values("n_ris")
+            l = latency[latency.method == method].sort_values("n_ris")
+            merged = q.merge(l[["n_ris", "solve_ms_median"]], on="n_ris")
+            if merged.empty:
+                continue
+            ax.plot(
+                merged.solve_ms_median,
+                merged.sum_rate_mean,
+                label=labels[method],
+                markersize=7,
+                alpha=0.9,
+                **styles[method],
+            )
+            # The three learned methods sit almost on top of each other here,
+            # so a shared offset writes the labels over one another.
+            offsets = {"td3": (7, 4), "ddpg": (7, -11), "ppo": (7, -3)}
+            best = merged.loc[merged.n_ris.idxmax()]
+            ax.annotate(
+                f"N={int(best.n_ris)}",
+                (best.solve_ms_median, best.sum_rate_mean),
+                textcoords="offset points",
+                xytext=offsets.get(method, (7, -4)),
+                fontsize=7,
+            )
+        ax.set_xscale("log")
+        ax.set(
+            xlabel="Median CPU decision latency (ms, log scale)",
+            ylabel="Mean sum-rate (bit/s/Hz)",
+        )
+        ax.grid(alpha=0.25, which="both")
+        ax.legend(ncol=2, fontsize=8, loc="lower right")
+        fig.tight_layout()
+        fig.savefig(output / "fig05_v6_quality_vs_latency.png", dpi=180)
+        plt.close(fig)
 
 
 def write_review(
@@ -602,7 +659,13 @@ def main() -> None:
     tests.to_csv(tables / "TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv", index=False)
     td3_tests.to_csv(tables / "TABLE_V6_TD3_VS_OTHERS_HOLM.csv", index=False)
     timing.to_csv(tables / "TABLE_V6_TRAINING_TIME.csv", index=False)
-    plot_results(performance, checkpoints, timing, figures)
+    plot_results(
+        performance,
+        checkpoints,
+        timing,
+        figures,
+        latency_table=tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+    )
     latency_path = tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv"
     latency = pd.read_csv(latency_path) if latency_path.is_file() else None
     write_review(

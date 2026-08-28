@@ -12,6 +12,16 @@ import pandas as pd
 
 
 METHODS = ("td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris")
+# TD3 and DDPG differ by under 0.01 ms, so on colour alone the TD3 line is
+# drawn under the DDPG one and looks absent from the figure.
+STYLES = {
+    "td3": {"marker": "o", "linestyle": "-"},
+    "ddpg": {"marker": "s", "linestyle": "--"},
+    "ppo": {"marker": "^", "linestyle": "-."},
+    "ao_sca": {"marker": "D", "linestyle": "-"},
+    "ao_grid": {"marker": "v", "linestyle": "--"},
+    "analytical_ris": {"marker": "x", "linestyle": ":"},
+}
 LEARNED = {"td3", "ddpg", "ppo"}
 N_VALUES = (16, 32, 64, 96, 128)
 PROTOCOL = "single_thread_same_runner_warmup10_count100_v6"
@@ -119,7 +129,12 @@ def plot(summary: pd.DataFrame, target: Path) -> None:
     fig, ax = plt.subplots(figsize=(8.2, 4.8))
     for method in METHODS:
         frame = summary[summary.method == method].sort_values("n_ris")
-        ax.plot(frame.n_ris, frame.solve_ms_median, marker="o", label=labels[method])
+        ax.plot(
+            frame.n_ris,
+            frame.solve_ms_median,
+            label=labels[method],
+            **STYLES[method],
+        )
     ax.set_yscale("log")
     ax.set(xlabel="RIS elements (N)", ylabel="Median CPU decision latency (ms, log scale)")
     ax.grid(alpha=0.25, which="both")
