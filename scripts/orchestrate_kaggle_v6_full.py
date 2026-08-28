@@ -321,23 +321,27 @@ def verify_learning(bundle: zipfile.ZipFile, archive: Path) -> None:
     A run can finish cleanly and still hand back its initial policy as `best`
     when no validation step ever clears the feasibility rule. That reads as a
     completed job everywhere else, so it is checked here.
+
+    The check reads validation only. An accept/retry decision taken on the
+    test split would let a rejected run be retrained until it happened to
+    score well on the very set the paper reports, and the test bank has to
+    stay untouched by anything that chooses between runs. best_validation.json
+    records the step the selection rule picked, and step 0 is the
+    initialisation, so validation alone answers this. On the 75 archives of
+    the first full run the two criteria flagged exactly the same 14 jobs.
     """
     matches = [
-        name for name in bundle.namelist() if name.endswith("/summary.json")
+        name for name in bundle.namelist() if name.endswith("/best_validation.json")
     ]
     if len(matches) != 1:
-        raise JobVerificationError(f"{archive}: expected one summary.json, got {matches}")
-    summary = json.loads(bundle.read(matches[0]))
-    checkpoints = summary["checkpoints"]
-    if checkpoints["best"] == checkpoints["initial"]:
         raise JobVerificationError(
-            f"{archive}: best checkpoint equals the untrained initialisation "
-            "- no validation step was ever selected"
+            f"{archive}: expected one best_validation.json, got {matches}"
         )
-    if float(summary["learning_gain_vs_initial"]) <= 0.0:
+    best_validation = json.loads(bundle.read(matches[0]))
+    if int(best_validation["eval_step"]) == 0:
         raise JobVerificationError(
-            f"{archive}: learning_gain_vs_initial is "
-            f"{summary['learning_gain_vs_initial']}, expected a positive gain"
+            f"{archive}: the selection rule never left step 0, so the reported "
+            "checkpoint is the untrained initialisation"
         )
 
 

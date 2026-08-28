@@ -118,11 +118,13 @@ def load_method(root: Path, expected_method: str) -> tuple[pd.DataFrame, pd.Data
             # A run can finish cleanly and still hand back its initialisation as
             # the selected checkpoint when no validation step clears the
             # feasibility rule. Fourteen of the r1 jobs did, which is how an
-            # untrained policy reached the published tables.
-            if summary["checkpoints"]["best"] == summary["checkpoints"]["initial"]:
+            # untrained policy reached the published tables. Read from
+            # validation, not from the test metrics in summary.json, so nothing
+            # that gates a run touches the split being reported.
+            if int(best_validation["eval_step"]) == 0:
                 raise RuntimeError(
-                    f"{archive_path}: best checkpoint equals the untrained "
-                    "initialisation, so this run must not be published"
+                    f"{archive_path}: the selection rule never left step 0, so "
+                    "the reported checkpoint is the untrained initialisation"
                 )
             source_commits.add(str(provenance["git_commit"]))
 

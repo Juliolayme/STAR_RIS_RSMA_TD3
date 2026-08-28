@@ -249,13 +249,26 @@ def test_checkpoint_state_scopes_trim_what_evaluation_never_reads(tmp_path: Path
         save_checkpoint(tmp_path / "bad.pt", "td3", _FakeAgent(), 1, 0.0, cfg, state_scope="nope")
 
 
-def _training_archive(path: Path, best: dict[str, float], initial: dict[str, float]) -> None:
-    summary = {
-        "checkpoints": {"initial": initial, "best": best, "latest": best},
-        "learning_gain_vs_initial": best["sum_rate_mean"] - initial["sum_rate_mean"],
-    }
+def _training_archive(path: Path, *, selected_step: int, test_gain: float) -> None:
+    """test_gain is deliberately inconsistent with selected_step in one test,
+    to prove the guard reads validation and not the test metrics."""
     with zipfile.ZipFile(path, "w") as bundle:
-        bundle.writestr("run/summary.json", json.dumps(summary))
+        bundle.writestr(
+            "run/best_validation.json", json.dumps({"eval_step": selected_step})
+        )
+        bundle.writestr(
+            "run/summary.json",
+            json.dumps(
+                {
+                    "checkpoints": {
+                        "initial": {"sum_rate_mean": 4.3},
+                        "best": {"sum_rate_mean": 4.3 + test_gain},
+                        "latest": {"sum_rate_mean": 4.3 + test_gain},
+                    },
+                    "learning_gain_vs_initial": test_gain,
+                }
+            ),
+        )
 
 
 def test_orchestrator_rejects_a_run_that_never_left_its_initialisation(tmp_path: Path) -> None:
@@ -263,13 +276,36 @@ def test_orchestrator_rejects_a_run_that_never_left_its_initialisation(tmp_path:
         ROOT / "scripts" / "orchestrate_kaggle_v6_full.py"
     )["verify_learning"]
     stuck, trained = tmp_path / "stuck.zip", tmp_path / "trained.zip"
-    _training_archive(stuck, {"sum_rate_mean": 4.3}, {"sum_rate_mean": 4.3})
-    _training_archive(trained, {"sum_rate_mean": 14.3}, {"sum_rate_mean": 4.3})
+    _training_archive(stuck, selected_step=0, test_gain=0.0)
+    _training_archive(trained, selected_step=95000, test_gain=10.0)
     with zipfile.ZipFile(stuck) as bundle:
-        with pytest.raises(RuntimeError, match="untrained initialisation"):
+        with pytest.raises(RuntimeError, match="never left step 0"):
             verify_learning(bundle, stuck)
     with zipfile.ZipFile(trained) as bundle:
         verify_learning(bundle, trained)
+
+
+def test_the_accept_decision_never_reads_the_test_split(tmp_path: Path) -> None:
+    """Retrying on a test-set criterion would let a run be retrained until it
+    scored well on the split the paper reports."""
+    verify_learning = runpy.run_path(
+        ROOT / "scripts" / "orchestrate_kaggle_v6_full.py"
+    )["verify_learning"]
+
+    # Validation picked a real checkpoint but the test gain came out negative.
+    # The run is accepted: test performance is a result, not a gate.
+    accepted = tmp_path / "accepted.zip"
+    _training_archive(accepted, selected_step=45000, test_gain=-2.0)
+    with zipfile.ZipFile(accepted) as bundle:
+        verify_learning(bundle, accepted)
+
+    # Validation never left the initialisation while the test set happens to
+    # look good. The run is still rejected.
+    rejected = tmp_path / "rejected.zip"
+    _training_archive(rejected, selected_step=0, test_gain=+9.0)
+    with zipfile.ZipFile(rejected) as bundle:
+        with pytest.raises(RuntimeError, match="never left step 0"):
+            verify_learning(bundle, rejected)
 
 
 def test_flat_noise_ablation_changes_exactly_one_field() -> None:
