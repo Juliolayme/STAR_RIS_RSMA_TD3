@@ -532,8 +532,11 @@ def plot_results(
         ylabel="Mean QoS shortfall (log scale)",
         # A log axis cannot draw zero, and both corrected solvers reach exactly
         # zero at most N, so say where they actually are.
-        title="Residual violation (lower is better)
-markers on the dotted floor are exactly zero",
+        title=(
+            "Residual violation (lower is better)"
+            + chr(10)
+            + "markers on the dotted floor are exactly zero"
+        ),
     )
     for ax in axes:
         ax.grid(alpha=0.25, which="both")
