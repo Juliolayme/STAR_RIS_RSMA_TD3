@@ -1,0 +1,218 @@
+{
+  "audit": "PASS",
+  "checkpoints": [
+    {
+      "checkpoint": "selected_checkpoints/td3_N16_seed0_best.pt",
+      "checkpoint_sha256": "9137a3e959b90033c1a3424a5c6086feb44eb2996df98a5d74ca7c3889481931",
+      "checkpoint_step": 45000,
+      "config_hash": "305c037417027bfc93199c0740a2964cd587473ddb0c5a32e9da9dc8ae91f6a6",
+      "method": "td3",
+      "n_ris": 16,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_td3_r2_n16_seed0.zip",
+      "source_archive_sha256": "e4a4f618abb8973b08a38ef0da6b262d939040d0cbc294f602165f869ddf1ffc",
+      "test_bank_checksum": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7"
+    },
+    {
+      "checkpoint": "selected_checkpoints/td3_N32_seed0_best.pt",
+      "checkpoint_sha256": "838346a07fdd603ecaf41391f96867958a7b02cc5ca76ccc6bb4c0700a0438e7",
+      "checkpoint_step": 100000,
+      "config_hash": "215acf7c4a7ad4d08a0df58be6a68578a137f3574a8b4aeb507a0b1ff206d29b",
+      "method": "td3",
+      "n_ris": 32,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_td3_r2_n32_seed0.zip",
+      "source_archive_sha256": "6683386f51aff619a4064fbd5dcc0a2a5fc9006773553ab35cdbc90efb6ecc02",
+      "test_bank_checksum": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef"
+    },
+    {
+      "checkpoint": "selected_checkpoints/td3_N64_seed0_best.pt",
+      "checkpoint_sha256": "2a9f16bb866cdb1e4af88942ade1bb0fb9968dba8ef338b25be6d427ec87ef8c",
+      "checkpoint_step": 100000,
+      "config_hash": "6c99c7fe7c077359f1b9706db2d8c1a011bb12c1845f7072b0803a7cde41b3d4",
+      "method": "td3",
+      "n_ris": 64,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_td3_r2_n64_seed0.zip",
+      "source_archive_sha256": "9026520c197405c79662f7fb446dacb7e603fdd5363b86916faa836383665aec",
+      "test_bank_checksum": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae"
+    },
+    {
+      "checkpoint": "selected_checkpoints/td3_N96_seed0_best.pt",
+      "checkpoint_sha256": "1cdb0c35456dc443a38f1094fa7f890002f1ac4a268f8148b70ea22589b84b1f",
+      "checkpoint_step": 100000,
+      "config_hash": "99b77a3352d33b75b373cc5b58d3abc1f11039e0a6e9ef73068a7b1562798e36",
+      "method": "td3",
+      "n_ris": 96,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_td3_r2_n96_seed0.zip",
+      "source_archive_sha256": "55419acdd4ef5821d7a17dea48fdd3b144f2507a98afb3680164d4dcc02a996e",
+      "test_bank_checksum": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+    },
+    {
+      "checkpoint": "selected_checkpoints/td3_N128_seed0_best.pt",
+      "checkpoint_sha256": "e737f64fb5abf2875526afe6db532e7ec9391b61e14b6d65d40bc0e2c95654af",
+      "checkpoint_step": 85000,
+      "config_hash": "020c0ddd5873ee8e88db034df9d38a8b6cdc38f31cfbf3fc41880e4d4440315e",
+      "method": "td3",
+      "n_ris": 128,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_td3_r2_n128_seed0.zip",
+      "source_archive_sha256": "4baeebaf3a60cbcf23bf2d357ec96e4faa5114c928ce824f2190f88b4d21d61d",
+      "test_bank_checksum": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ddpg_N16_seed0_best.pt",
+      "checkpoint_sha256": "007c75d6f4a05f596ec91239bd1bd03d60f2d90f34afda06f96607407f61dfa6",
+      "checkpoint_step": 95000,
+      "config_hash": "305c037417027bfc93199c0740a2964cd587473ddb0c5a32e9da9dc8ae91f6a6",
+      "method": "ddpg",
+      "n_ris": 16,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ddpg_r2_n16_seed0.zip",
+      "source_archive_sha256": "0510cd59231ac9deac88cfb0b46831703caa203b6d26a56ddeb8175ce5ab2f91",
+      "test_bank_checksum": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ddpg_N32_seed0_best.pt",
+      "checkpoint_sha256": "a6dc4c12a6bf1a94b94b7c05d4b7bde6b86d6f99933571ac88d6f444776c5dfb",
+      "checkpoint_step": 100000,
+      "config_hash": "215acf7c4a7ad4d08a0df58be6a68578a137f3574a8b4aeb507a0b1ff206d29b",
+      "method": "ddpg",
+      "n_ris": 32,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ddpg_r2_n32_seed0.zip",
+      "source_archive_sha256": "d372393edd145468410598a19988ed0a21fff76fd3dfa83e9a65320dc2500fa5",
+      "test_bank_checksum": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ddpg_N64_seed0_best.pt",
+      "checkpoint_sha256": "9bca939af077364dd6cb54f4333d5c6d87429463d82fe13fb7c0542d4f239593",
+      "checkpoint_step": 100000,
+      "config_hash": "6c99c7fe7c077359f1b9706db2d8c1a011bb12c1845f7072b0803a7cde41b3d4",
+      "method": "ddpg",
+      "n_ris": 64,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ddpg_r2_n64_seed0.zip",
+      "source_archive_sha256": "938976530cadc7ea0ab5d7bb7e308b1503927c972e90a58e9b5e2aeecf709a27",
+      "test_bank_checksum": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ddpg_N96_seed0_best.pt",
+      "checkpoint_sha256": "5816d50391de491a0e54a927bb95f64b2bb21494616cb8ca3ce7947d972a6e70",
+      "checkpoint_step": 95000,
+      "config_hash": "99b77a3352d33b75b373cc5b58d3abc1f11039e0a6e9ef73068a7b1562798e36",
+      "method": "ddpg",
+      "n_ris": 96,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ddpg_r2_n96_seed0.zip",
+      "source_archive_sha256": "6cc6b24e4fcaf8c5dae33ad8ad1bc9ee7c7c43bd2ffe1afae9fc2acbc426451c",
+      "test_bank_checksum": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ddpg_N128_seed0_best.pt",
+      "checkpoint_sha256": "5ac5689157e1464e074972ead298663156de72ae886f3c425e2bf1e4a167c604",
+      "checkpoint_step": 95000,
+      "config_hash": "020c0ddd5873ee8e88db034df9d38a8b6cdc38f31cfbf3fc41880e4d4440315e",
+      "method": "ddpg",
+      "n_ris": 128,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ddpg_r2_n128_seed0.zip",
+      "source_archive_sha256": "a910210a7e74424459f5c1bd863ff71ff790bec46c248009ac897e9ee66ef178",
+      "test_bank_checksum": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ppo_N16_seed0_best.pt",
+      "checkpoint_sha256": "2da0edf7289a4ae401f6fe1e6794bae418c1c14608cdab9ba38b5da8d0053641",
+      "checkpoint_step": 100000,
+      "config_hash": "305c037417027bfc93199c0740a2964cd587473ddb0c5a32e9da9dc8ae91f6a6",
+      "method": "ppo",
+      "n_ris": 16,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ppo_r2_n16_seed0.zip",
+      "source_archive_sha256": "45fd63ed88fc21238a2dad957e9c0a6689e1c4c973da99e3de4ba8c27d3453d2",
+      "test_bank_checksum": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ppo_N32_seed0_best.pt",
+      "checkpoint_sha256": "1c75cd539888953d1c25b6b8f130d0759013d6958ed19376dbe194d86eab9a61",
+      "checkpoint_step": 96256,
+      "config_hash": "215acf7c4a7ad4d08a0df58be6a68578a137f3574a8b4aeb507a0b1ff206d29b",
+      "method": "ppo",
+      "n_ris": 32,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ppo_r2_n32_seed0.zip",
+      "source_archive_sha256": "c9f3bbdf3df213f3c8fb515e86e2e12f0924dcd236c13f92a532112d7a7e6b60",
+      "test_bank_checksum": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ppo_N64_seed0_best.pt",
+      "checkpoint_sha256": "b7e8519d54905766316601f21686305f2018a4839cf04aaa5627e937419cd984",
+      "checkpoint_step": 71680,
+      "config_hash": "6c99c7fe7c077359f1b9706db2d8c1a011bb12c1845f7072b0803a7cde41b3d4",
+      "method": "ppo",
+      "n_ris": 64,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ppo_r2_n64_seed0.zip",
+      "source_archive_sha256": "b571a0c3effb7bd1ff23208e6000f939230ddd204b5f30d5fd8209df984271f5",
+      "test_bank_checksum": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ppo_N96_seed0_best.pt",
+      "checkpoint_sha256": "bbdad0d37e24c8044e57642b7f8ca3fc3d3ee66c3a4df2554201beb1189a4f9d",
+      "checkpoint_step": 100000,
+      "config_hash": "99b77a3352d33b75b373cc5b58d3abc1f11039e0a6e9ef73068a7b1562798e36",
+      "method": "ppo",
+      "n_ris": 96,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ppo_r2_n96_seed0.zip",
+      "source_archive_sha256": "a58a4a0b568940cb9c452bf8c32d6e4a7ec360643012b59d92ae939f842a9eb6",
+      "test_bank_checksum": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+    },
+    {
+      "checkpoint": "selected_checkpoints/ppo_N128_seed0_best.pt",
+      "checkpoint_sha256": "2ae272fb404d6789c9302dfbe464963119da8a970a284f81d99bdb49c199e248",
+      "checkpoint_step": 90112,
+      "config_hash": "020c0ddd5873ee8e88db034df9d38a8b6cdc38f31cfbf3fc41880e4d4440315e",
+      "method": "ppo",
+      "n_ris": 128,
+      "repository_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "seed": 0,
+      "source_archive": "physical_v6_ppo_r2_n128_seed0.zip",
+      "source_archive_sha256": "557a1dee14926dc3c4d12760f2d20067673e30ec9fccb4f87051cfec30d62207",
+      "test_bank_checksum": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e"
+    }
+  ],
+  "selection": "best validation checkpoint; fixed seed 0 for latency only",
+  "training_manifests": {
+    "ddpg": {
+      "completed_jobs": 25,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "updated_at_utc": "2026-08-27T18:29:41.083444+00:00"
+    },
+    "ppo": {
+      "completed_jobs": 25,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "updated_at_utc": "2026-08-27T19:11:36.957091+00:00"
+    },
+    "td3": {
+      "completed_jobs": 25,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "updated_at_utc": "2026-08-27T17:04:06.093456+00:00"
+    }
+  }
+}
