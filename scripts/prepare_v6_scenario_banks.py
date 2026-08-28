@@ -6,6 +6,8 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
+import numpy as np
+
 from star_ris_rsma.config import ExperimentConfig
 from star_ris_rsma.scenario_bank import ScenarioBank, assert_disjoint, generate_bank
 
@@ -79,6 +81,15 @@ def main() -> None:
         cfg_path = Path(f"configs/v3/pilot_v6_soft_anchor_n{n_ris}.yaml")
         cfg = ExperimentConfig.from_yaml(cfg_path)
         banks: dict[str, ScenarioBank] = {}
+        # Captured before generation, which overwrites the file it would be
+        # compared against.
+        stored_test: ScenarioBank | None = None
+        stored_path = args.output_dir / f"N{n_ris}_test.npz"
+        if stored_path.is_file():
+            try:
+                stored_test = ScenarioBank.load(stored_path, cfg)
+            except (OSError, ValueError):
+                stored_test = None
         for split, (count, seed) in SPLITS.items():
             path = args.output_dir / f"N{n_ris}_{split}.npz"
             if args.verify_existing and path.is_file():
@@ -92,9 +103,33 @@ def main() -> None:
         assert_disjoint(*banks.values())
         test_checksum = banks["test"].checksum()
         if test_checksum != FROZEN_TEST_CHECKSUMS[n_ris]:
+            # ScenarioBank.checksum hashes raw bytes, so a single float differing
+            # by one ULP between numpy builds changes the whole digest while the
+            # channels stay numerically identical. Say which of the two it is
+            # rather than leaving a rebuild on other hardware to guess.
+            detail = ""
+            if stored_test is not None:
+                stored = stored_test
+                gaps = {
+                    name: float(
+                        np.max(np.abs(getattr(stored, name) - getattr(banks["test"], name)))
+                    )
+                    for name in ("h_direct", "g_br", "h_ru")
+                    if getattr(stored, name).shape == getattr(banks["test"], name).shape
+                }
+                worst = max(gaps.values(), default=float("inf"))
+                detail = (
+                    f"; largest elementwise gap against the stored bank is {worst:.3e} "
+                    + (
+                        "which is floating-point rounding, so the data agrees and only "
+                        "the byte-exact digest differs"
+                        if worst < 1e-12
+                        else "which is a real difference in the generated channels"
+                    )
+                )
             raise RuntimeError(
                 f"N={n_ris}: test checksum {test_checksum} != frozen "
-                f"{FROZEN_TEST_CHECKSUMS[n_ris]}"
+                f"{FROZEN_TEST_CHECKSUMS[n_ris]}{detail}"
             )
         manifest["banks"][str(n_ris)] = {
             "config": cfg_path.as_posix(),

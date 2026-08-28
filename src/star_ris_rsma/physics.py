@@ -20,7 +20,11 @@ def generate_channel(rng: np.random.Generator, n_users: int, n_ris: int) -> Chan
     h_direct = cn((n_users,), 0.35)
     g_br = cn((n_ris,), 1.0)
     h_ru = cn((n_users, n_ris), 0.75)
-    user_side = np.arange(n_users) % 2
+    # Pinned width. ScenarioBank.checksum hashes raw array bytes, and numpy's
+    # default integer is int32 on Windows and int64 on Linux, so leaving this
+    # to the platform made the frozen bank checksums unreproducible off Linux
+    # while the channel data itself was identical.
+    user_side = np.arange(n_users, dtype=np.int64) % 2
     return ChannelSample(h_direct=h_direct, g_br=g_br, h_ru=h_ru, user_side=user_side)
 
 

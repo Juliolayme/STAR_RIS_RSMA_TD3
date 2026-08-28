@@ -37,3 +37,34 @@ def test_v6_bank_preparer_accepts_one_ris_size() -> None:
         text=True,
     )
     assert "--n-ris" in completed.stdout
+
+
+def test_user_side_width_is_pinned_so_the_checksum_is_portable() -> None:
+    """ScenarioBank.checksum hashes raw bytes.
+
+    numpy's default integer is int32 on Windows and int64 on Linux, so leaving
+    user_side to the platform made the frozen bank checksums unreproducible
+    off Linux while the channel data itself was identical.
+    """
+    import numpy as np
+
+    from star_ris_rsma.physics import generate_channel
+
+    channel = generate_channel(np.random.default_rng(0), 4, 16)
+    assert channel.user_side.dtype == np.int64
+    assert channel.user_side.tolist() == [0, 1, 0, 1]
+
+
+def test_the_frozen_n16_checksum_reproduces_from_source() -> None:
+    import runpy
+    from pathlib import Path
+
+    from star_ris_rsma.config import ExperimentConfig
+    from star_ris_rsma.scenario_bank import generate_bank
+
+    root = Path(__file__).resolve().parents[1]
+    frozen = runpy.run_path(
+        root / "scripts" / "prepare_v6_scenario_banks.py"
+    )["FROZEN_TEST_CHECKSUMS"]
+    cfg = ExperimentConfig.from_yaml(root / "configs/v3/pilot_v6_soft_anchor_n16.yaml")
+    assert generate_bank(cfg, 1000, 33001, "test").checksum() == frozen[16]
