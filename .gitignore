@@ -10,6 +10,9 @@ results/*
 !results/physical_v6_full/**
 !results/physical_v6_full_r2/
 !results/physical_v6_full_r2/**
+results/physical_v6_full_r2/**/__pycache__/
+results/physical_v6_full_r2/**/*.py[cod]
+results/physical_v6_full_r2/evidence/downloaded/
 checkpoints/
 *.pt
 *.npz

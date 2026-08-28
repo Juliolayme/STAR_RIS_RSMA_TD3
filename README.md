@@ -53,6 +53,16 @@ The command checks count, seed, split disjointness, and all five frozen test
 checksums. Provenance and every checksum are recorded in
 `results/physical_v6_full/SCENARIO_BANK_MANIFEST.json`.
 
+The permanent V6 r2 binary evidence is indexed under
+`results/physical_v6_full_r2/evidence/`. Its GitHub Release retains all 15
+ScenarioBanks and all 75 audited training archives, including checkpoints,
+training/validation logs, test outputs, timing and per-job provenance. Download
+and SHA-256 verify it with:
+
+```bash
+python results/physical_v6_full_r2/evidence/download_evidence.py
+```
+
 ## Train one TD3 job
 
 ```bash
