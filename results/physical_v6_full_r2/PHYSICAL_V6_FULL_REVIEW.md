@@ -35,6 +35,20 @@ TD3 V6 is strong and stable for N >= 32, but the frozen feasibility-first checkp
 | 96 | -0.9824 | -1.6583 | 0.015 |
 | 128 | -0.6899 | -1.4723 | 0.057 |
 
+## Single-thread CPU latency
+
+Latency uses a fixed seed-0 best-validation checkpoint for each learned method, while quality claims retain the full five-seed mean. All six methods were measured on one GitHub runner with warmup=10 and count=100 per method/N.
+
+| N | TD3 (ms) | DDPG (ms) | PPO (ms) | AO-SCA (ms) | AO-Grid (ms) | AnalyticalRIS (ms) | AO-SCA / TD3 |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 16 | 0.3389 | 0.3435 | 0.5645 | 830.45 | 188.56 | 0.2031 | 2450.7x |
+| 32 | 0.3660 | 0.3652 | 0.5847 | 1064.72 | 320.03 | 0.2094 | 2909.3x |
+| 64 | 0.3934 | 0.3930 | 0.6237 | 1861.64 | 579.27 | 0.2209 | 4732.7x |
+| 96 | 0.4343 | 0.4328 | 0.6850 | 2543.52 | 881.05 | 0.2230 | 5856.7x |
+| 128 | 0.4519 | 0.4459 | 0.7252 | 3606.38 | 1204.73 | 0.2349 | 7981.2x |
+
+TD3 is not the absolute fastest method: AnalyticalRIS and DDPG are slightly faster, but they provide much lower or unstable sum-rate. The defensible latency claim is that TD3 remains sub-millisecond and is 2,414x-7,539x faster than corrected AO-SCA and 551x-2,524x faster than corrected AO-Grid in median decision time.
+
 ## Reporting recommendation
 
 Use TD3 V6 as the proposed method and report the full five-seed mean. State explicitly that corrected AO gives higher offline sum-rate, while TD3 provides a learned one-pass policy. Do not call corrected AO a global optimum, and do not replace the N=16 mean with only the three successful seeds.

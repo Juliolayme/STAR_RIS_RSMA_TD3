@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import hashlib
 import json
 import subprocess
@@ -11,11 +12,12 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE_ROOT = "STAR_RIS_RSMA_TD3_physical_v6_full_review"
-METHOD_ROOTS = {
-    "td3": ROOT / "artifacts/physical_v6_full_download/td3",
-    "ddpg": ROOT / "artifacts/physical_v6_full_download/comparators/physical-v6-full-25jobs-ddpg",
-    "ppo": ROOT / "artifacts/physical_v6_full_download/comparators/physical-v6-full-25jobs-ppo",
+DEFAULT_METHOD_ROOTS = {
+    "td3": "artifacts/physical_v6_full_download/td3",
+    "ddpg": "artifacts/physical_v6_full_download/comparators/physical-v6-full-25jobs-ddpg",
+    "ppo": "artifacts/physical_v6_full_download/comparators/physical-v6-full-25jobs-ppo",
 }
+DEFAULT_RESULTS_DIR = "results/physical_v6_full"
 ROOT_FILES = {
     ".gitignore",
     "CODEX_REPOSITORY_GUIDE.md",
@@ -25,11 +27,10 @@ ROOT_FILES = {
     "requirements.txt",
     "requirements-lock.txt",
 }
-INCLUDED_PREFIXES = (
+BASE_PREFIXES = (
     ".github/workflows/",
     "configs/",
     "experiments/structure_aware/",
-    "results/physical_v6_full/",
     "results/six_method_v2/",
     "scripts/",
     "src/",
@@ -62,7 +63,8 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def tracked_review_files() -> list[Path]:
+def tracked_review_files(results_dir: str) -> list[Path]:
+    included_prefixes = (*BASE_PREFIXES, f"{results_dir.rstrip('/')}/")
     output = subprocess.check_output(
         ["git", "ls-files"], cwd=ROOT, text=True, encoding="utf-8"
     )
@@ -71,7 +73,7 @@ def tracked_review_files() -> list[Path]:
         path
         for path in paths
         if path.as_posix() in ROOT_FILES
-        or path.as_posix().startswith(INCLUDED_PREFIXES)
+        or path.as_posix().startswith(included_prefixes)
     )
     for path in selected:
         if path.name.lower() in FORBIDDEN_NAMES or path.suffix.lower() in FORBIDDEN_SUFFIXES:
@@ -79,25 +81,25 @@ def tracked_review_files() -> list[Path]:
     return selected
 
 
-def validate_published_results(files: list[Path]) -> dict[str, Any]:
+def validate_published_results(files: list[Path], results_dir: str) -> dict[str, Any]:
     included = {path.as_posix() for path in files}
     required = {
-        "results/physical_v6_full/PHYSICAL_V6_FULL_AUDIT.json",
-        "results/physical_v6_full/PHYSICAL_V6_FULL_REVIEW.md",
-        "results/physical_v6_full/raw/DRL_V6_TEST_BEST_RAW_ALL.csv",
-        "results/physical_v6_full/raw/CPU_LATENCY_V6_RAW_ALL.csv",
-        "results/physical_v6_full/tables/TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
-        "results/physical_v6_full/tables/TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
-        "results/physical_v6_full/tables/TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
-        "results/six_method_v2/raw/TRADITIONAL_TEST_RAW_ALL.csv",
-    }
+        f"{results_dir}/{name}"
+        for name in (
+            "PHYSICAL_V6_FULL_AUDIT.json",
+            "PHYSICAL_V6_FULL_REVIEW.md",
+            "raw/DRL_V6_TEST_BEST_RAW_ALL.csv",
+            "raw/CPU_LATENCY_V6_RAW_ALL.csv",
+            "tables/TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
+            "tables/TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
+            "tables/TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+        )
+    } | {"results/six_method_v2/raw/TRADITIONAL_TEST_RAW_ALL.csv"}
     missing = sorted(required - included)
     if missing:
         raise RuntimeError(f"Review package is missing required tracked results: {missing}")
     audit = json.loads(
-        (ROOT / "results/physical_v6_full/PHYSICAL_V6_FULL_AUDIT.json").read_text(
-            encoding="utf-8"
-        )
+        (ROOT / results_dir / "PHYSICAL_V6_FULL_AUDIT.json").read_text(encoding="utf-8")
     )
     if audit.get("verdict") != "PASS" or int(audit.get("training_jobs", 0)) != 75:
         raise RuntimeError("Physical V6 full audit is not PASS/75 jobs")
@@ -126,47 +128,112 @@ def find_member(archive: zipfile.ZipFile, suffix: str) -> str:
     return matches[0]
 
 
-def review_readme(commit: str) -> str:
-    return f"""# STAR-RIS RSMA physical V6 full review bundle
+def read_table(path: Path) -> list[dict[str, str]]:
+    with path.open(newline="", encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
 
-Repository branch: `experiment/physical-v6-full`  
-Packaging commit: `{commit}`
 
-This self-contained review bundle includes the tracked source, configs,
-workflows, tests, corrected traditional baselines, V6 quality/statistical
-tables, 75,000 best-checkpoint test rows, 3,000 latency samples, figures, and
-compact training metadata for all 75 GPU jobs.
+def review_readme(commit: str, branch: str, results_dir: str, audit: dict[str, Any]) -> str:
+    """Build the summary from the published tables.
 
-## Headline results
+    An earlier version carried the headline numbers as literal text. They
+    silently described the previous protocol once the results were rebuilt,
+    so every figure quoted here is read back out of the CSVs being shipped.
+    """
+    tables = ROOT / results_dir / "tables"
+    quality = read_table(tables / "TABLE_V6_SIX_METHOD_PERFORMANCE.csv")
+    latency = read_table(tables / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv")
+    speedup = read_table(tables / "TABLE_V6_TD3_LATENCY_SPEEDUP.csv")
 
-| N | TD3 sum-rate | AO-SCA corrected | AO-Grid corrected | TD3 median CPU latency |
-|---:|---:|---:|---:|---:|
-| 16 | 10.2881 | 14.3449 | 16.5802 | 0.3317 ms |
-| 32 | 16.1728 | 17.7256 | 18.5044 | 0.3575 ms |
-| 64 | 18.7154 | 19.9050 | 20.4401 | 0.3903 ms |
-| 96 | 19.9279 | 20.9103 | 21.5862 | 0.4335 ms |
-| 128 | 20.9018 | 21.6095 | 22.3918 | 0.4547 ms |
+    n_values = sorted({int(row["n_ris"]) for row in quality})
+    order = ("td3", "ddpg", "ppo", "ao_sca", "ao_grid", "analytical_ris")
+    rate = {(r["method"], int(r["n_ris"])): float(r["sum_rate_mean"]) for r in quality}
+    solve = {(r["method"], int(r["n_ris"])): float(r["solve_ms_median"]) for r in latency}
 
-TD3 is 2,414x-7,539x faster than corrected AO-SCA and 551x-2,524x faster
-than corrected AO-Grid in median single-thread decision time. AnalyticalRIS
-is faster than TD3 but has much lower sum-rate. Quality uses five training
-seeds; latency uses one fixed seed-0 best-validation checkpoint per N.
+    header = "| Method | " + " | ".join("N=" + str(n) for n in n_values) + " |"
+    divider = "|---|" + "---:|" * len(n_values)
 
-## Start here
+    def block(values: dict, digits: int) -> list[str]:
+        rows = []
+        for method in order:
+            if not all((method, n) in values for n in n_values):
+                continue
+            cells = " | ".join(format(values[(method, n)], "." + str(digits) + "f") for n in n_values)
+            rows.append("| " + method + " | " + cells + " |")
+        return rows
 
-- `results/physical_v6_full/PHYSICAL_V6_FULL_REVIEW.md`
-- `results/physical_v6_full/PHYSICAL_V6_FULL_AUDIT.json`
-- `results/physical_v6_full/tables/`
-- `review_evidence/training_runs/` for per-job learning/timing metadata
-- `PACKAGE_PROVENANCE.json` and `PACKAGE_FILE_MANIFEST.json`
+    learned = ("td3", "ddpg", "ppo")
+    spread = max(
+        max(rate[(m, n)] for m in learned) - min(rate[(m, n)] for m in learned)
+        for n in n_values
+    )
+    factors: dict[str, list[float]] = {}
+    for row in speedup:
+        factors.setdefault(row["baseline_method"], []).append(
+            float(row["baseline_over_td3_speedup"])
+        )
+    speed_lines = [
+        "- " + baseline + ": " + format(min(v), ",.0f") + "x to " + format(max(v), ",.0f") + "x"
+        for baseline, v in sorted(factors.items())
+        if min(v) > 1
+    ]
+    jobs = int(audit["training_jobs"])
+    rows_count = int(audit["best_checkpoint_test_rows"])
+    latency_rows = int(audit["latency"]["raw_rows"])
 
-Run the test suite with `python -m pytest -q` after installing the package.
-
-PyTorch checkpoints (`*.pt`), ScenarioBank arrays (`*.npz`), nested ZIPs, and
-credentials are intentionally excluded. Exact checkpoint/archive SHA-256
-values and GitHub run/artifact IDs are retained in the audits and provenance.
-"""
-
+    lines = [
+        "# STAR-RIS RSMA physical V6 review bundle",
+        "",
+        "Repository branch: `" + branch + "`  ",
+        "Packaging commit: `" + commit + "`  ",
+        "Published results: `" + results_dir + "/`",
+        "",
+        "Tracked source, configs, workflows and tests, the corrected traditional",
+        "baselines, the V6 quality and statistical tables, " + format(rows_count, ",") +
+        " best-checkpoint test rows, " + format(latency_rows, ",") + " latency samples,",
+        "figures, and compact training metadata for all " + str(jobs) + " GPU jobs.",
+        "",
+        "## Mean sum-rate over five training seeds",
+        "",
+        header,
+        divider,
+        *block(rate, 3),
+        "",
+        "The three learned methods differ by at most " + format(spread, ".3f") + " at every N,",
+        "so this evidence does not support ranking them against one another. They",
+        "are reported together.",
+        "",
+        "## Median single-thread CPU decision time (ms)",
+        "",
+        header,
+        divider,
+        *block(solve, 3),
+        "",
+        "TD3 against the corrected traditional solvers, across N:",
+        "",
+        *speed_lines,
+        "",
+        "Quality uses five training seeds. Latency uses one fixed seed-0",
+        "best-validation checkpoint per method and N, measured single-threaded on",
+        "one runner so all six methods share a machine.",
+        "",
+        "## Start here",
+        "",
+        "- `" + results_dir + "/PHYSICAL_V6_FULL_REVIEW.md`",
+        "- `" + results_dir + "/PHYSICAL_V6_FULL_AUDIT.json`",
+        "- `" + results_dir + "/tables/`",
+        "- `review_evidence/training_runs/` for per-job learning and timing metadata",
+        "- `PACKAGE_PROVENANCE.json` and `PACKAGE_FILE_MANIFEST.json`",
+        "",
+        "Run the test suite with `python -m pytest -q` after installing the package.",
+        "",
+        "PyTorch checkpoints (`*.pt`), ScenarioBank arrays (`*.npz`), nested ZIPs and",
+        "credentials are excluded. Their SHA-256 values and the GitHub run and",
+        "artifact identifiers are retained in the audits and in",
+        "`PACKAGE_PROVENANCE.json`.",
+        "",
+    ]
+    return chr(10).join(lines)
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -177,11 +244,18 @@ def main() -> None:
         type=Path,
         default=ROOT / "STAR_RIS_RSMA_TD3_physical_v6_full_review_2026-08-27.zip",
     )
+    parser.add_argument("--results-dir", default=DEFAULT_RESULTS_DIR)
+    for method, default in DEFAULT_METHOD_ROOTS.items():
+        parser.add_argument(f"--{method}-root", type=Path, default=ROOT / default)
     args = parser.parse_args()
     output = args.output if args.output.is_absolute() else ROOT / args.output
+    results_dir = args.results_dir.strip("/")
+    method_roots = {
+        method: getattr(args, f"{method}_root") for method in DEFAULT_METHOD_ROOTS
+    }
 
-    files = tracked_review_files()
-    audit = validate_published_results(files)
+    files = tracked_review_files(results_dir)
+    audit = validate_published_results(files, results_dir)
     commit = subprocess.check_output(
         ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True, encoding="utf-8"
     ).strip()
@@ -205,7 +279,7 @@ def main() -> None:
         for relative in files:
             add_bytes(relative.as_posix(), (ROOT / relative).read_bytes())
 
-        for method, root in METHOD_ROOTS.items():
+        for method, root in method_roots.items():
             manifest = load_training_manifest(root, method)
             training_manifests[method] = {
                 "git_commit": manifest["git_commit"],
@@ -240,26 +314,28 @@ def main() -> None:
             "repository_commit": commit,
             "action_parameterization": "physical_v6_soft_anchor",
             "training_protocol": "5 N x 5 seeds x 3 learned methods x 100,000 interactions",
-            "quality_test_rows": 75000,
-            "latency_rows": 3000,
-            "github_runs": {
-                "td3_training": 33053693666,
-                "ddpg_ppo_training": 33061462093,
-                "six_method_latency": 33076374485,
-                "publish_ci": 33079269691,
-            },
-            "github_artifacts": audit["github_artifacts"] | {
+            "published_results": results_dir,
+            # Taken from the audit being shipped. Literal run ids here once
+            # outlived the results they described.
+            "quality_test_rows": int(audit["best_checkpoint_test_rows"]),
+            "latency_rows": int(audit["latency"]["raw_rows"]),
+            "github_artifacts": audit["github_artifacts"]
+            | {
                 "latency": {
-                    "run_id": 33076374485,
-                    "artifact_id": 9649135691,
-                    "artifact_name": "PHYSICAL_V6_SIX_METHOD_LATENCY",
+                    "run_id": audit["latency"]["github_run_id"],
+                    "artifact_id": audit["latency"]["github_artifact_id"],
+                    "artifact_name": audit["latency"]["github_artifact_name"],
                 }
             },
+            "repository_commits_per_method": audit["repository_commits_per_method"],
             "scenario_bank_checksums": audit["scenario_bank_checksums"],
             "training_manifests": training_manifests,
             "excluded": ["*.pt", "*.npz", "nested ZIPs", "credentials", "download caches"],
         }
-        add_bytes("REVIEW_README.md", review_readme(commit).encode("utf-8"))
+        add_bytes(
+            "REVIEW_README.md",
+            review_readme(commit, branch, results_dir, audit).encode("utf-8"),
+        )
         add_bytes(
             "PACKAGE_PROVENANCE.json",
             json.dumps(provenance, indent=2, sort_keys=True).encode("utf-8"),

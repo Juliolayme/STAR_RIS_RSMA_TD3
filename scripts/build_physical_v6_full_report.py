@@ -461,7 +461,27 @@ def main() -> None:
     parser.add_argument("--ppo-root", type=Path, default=Path("artifacts/physical_v6_full_download/comparators/physical-v6-full-25jobs-ppo"))
     parser.add_argument("--baseline-raw", type=Path, default=Path("results/six_method_v2/raw/TRADITIONAL_TEST_RAW_ALL.csv"))
     parser.add_argument("--output", type=Path, default=Path("results/physical_v6_full"))
+    parser.add_argument(
+        "--github-artifacts",
+        type=Path,
+        help="JSON mapping each method to the run/artifact it was downloaded from",
+    )
+    parser.add_argument(
+        "--latency-artifact",
+        type=Path,
+        help="JSON naming the run/artifact the tracked latency audit came from",
+    )
     args = parser.parse_args()
+    github_artifacts = (
+        json.loads(args.github_artifacts.read_text(encoding="utf-8"))
+        if args.github_artifacts
+        else {}
+    )
+    latency_artifact = (
+        json.loads(args.latency_artifact.read_text(encoding="utf-8"))
+        if args.latency_artifact
+        else {}
+    )
 
     raw_frames: list[pd.DataFrame] = []
     checkpoint_frames: list[pd.DataFrame] = []
@@ -543,13 +563,14 @@ def main() -> None:
             }
             for method, manifest in manifests.items()
         },
-        "github_artifacts": {
-            "td3": {"run_id": 33053693666, "artifact_id": 9641030712, "artifact_name": "physical-v6-full-25jobs"},
-            "ddpg": {"run_id": 33061462093, "artifact_id": 9643842473, "artifact_name": "physical-v6-full-25jobs-ddpg"},
-            "ppo": {"run_id": 33061462093, "artifact_id": 9645121540, "artifact_name": "physical-v6-full-25jobs-ppo"},
-        },
+        # Hardcoding these once meant a rebuild on different inputs published
+        # provenance pointing at the wrong artifacts, so they are supplied.
+        **({"github_artifacts": github_artifacts} if github_artifacts else {}),
         "embedded_identifier_note": "Training CSV git_commit contains KAGGLE_KERNEL_RUN_ID; repository_commit is taken from independent KAGGLE_JOB_PROVENANCE.json.",
-        "mixed_td3_commit_note": "TD3 N16 seeds 2-3 use 0e47904 and the other 23 TD3 jobs use d5c25da; git diff changes orchestration only, with per-archive config hashes and bank checksums validated.",
+        "repository_commits_per_method": {
+            method: manifest["archive_repository_commits"]
+            for method, manifest in manifests.items()
+        },
         "published_tables": sorted(path.name for path in tables.glob("*.csv")),
         "published_figures": sorted(path.name for path in figures.glob("*.png")),
     }
@@ -560,12 +581,7 @@ def main() -> None:
             raise RuntimeError("Tracked V6 latency audit is not PASS")
         if latency_audit.get("scenario_bank_checksums") != bank_checksums:
             raise RuntimeError("V6 latency and quality ScenarioBank checksums differ")
-        audit["latency"] = {
-            **latency_audit,
-            "github_run_id": 33076374485,
-            "github_artifact_id": 9649135691,
-            "github_artifact_name": "PHYSICAL_V6_SIX_METHOD_LATENCY",
-        }
+        audit["latency"] = {**latency_audit, **latency_artifact}
     (output / "PHYSICAL_V6_FULL_AUDIT.json").write_text(json.dumps(audit, indent=2, sort_keys=True), encoding="utf-8")
     print(json.dumps(audit, indent=2, sort_keys=True))
 
