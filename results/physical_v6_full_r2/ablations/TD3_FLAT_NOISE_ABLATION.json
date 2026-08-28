@@ -1,0 +1,46 @@
+{
+  "ablation": "td3_dimension_scaled_exploration_noise",
+  "changed_field": "td3_noise_reference_dim 64 -> 0",
+  "comparisons": {
+    "128": {
+      "all_qos_flat": 0.9994,
+      "all_qos_scaled": 0.9996,
+      "ddpg_mean": 20.989,
+      "flat_minus_ddpg": -0.0619,
+      "flat_minus_ddpg_paired_p": 0.5315,
+      "flat_minus_scaled": 0.0077,
+      "flat_minus_scaled_paired_p": 0.9399,
+      "gap_to_ddpg_closed_percent": 11.0,
+      "td3_flat_mean": 20.9272,
+      "td3_scaled_mean": 20.9195,
+      "violation_flat": 0.000231,
+      "violation_scaled": 0.000211
+    },
+    "32": {
+      "all_qos_flat": 0.9958,
+      "all_qos_scaled": 0.9898,
+      "ddpg_mean": 16.8518,
+      "flat_minus_ddpg": -0.248,
+      "flat_minus_ddpg_paired_p": 0.1368,
+      "flat_minus_scaled": 0.2774,
+      "flat_minus_scaled_paired_p": 0.1001,
+      "gap_to_ddpg_closed_percent": 52.8,
+      "td3_flat_mean": 16.6038,
+      "td3_scaled_mean": 16.3264,
+      "violation_flat": 0.001337,
+      "violation_scaled": 0.0031
+    }
+  },
+  "everything_else": "identical to the r2 protocol; verified by test as a one-field diff",
+  "github_run_id": 33136503046,
+  "jobs": 10,
+  "n_values": [
+    32,
+    128
+  ],
+  "power_note": "five seeds per cell; neither difference reaches p<0.05",
+  "question": "does td3_noise_reference_dim=64 explain DDPG leading TD3 at every N >= 32",
+  "seeds": 5,
+  "train_steps": 100000,
+  "verdict": "partially supported at N=32 and not supported at N=128; removing the compression does not account for the DDPG lead"
+}
