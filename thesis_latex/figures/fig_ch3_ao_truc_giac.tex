@@ -1,0 +1,171 @@
+% Hinh truc giac: co che hoat dong cua AnalyticalRIS, AO-SCA va AO-Grid
+% Ham muc tieu dung chung cho hai panel AO (mot dinh chinh + mot dinh phu)
+\def\fmuctieu{2.45*exp(-((\x-2.55)^2)/0.55) + 1.30*exp(-((\x-0.95)^2)/0.30)}
+
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+% =====================================================================
+% (a) AnalyticalRIS -- can pha cac mui ten
+% =====================================================================
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,4.55) {(a) AnalyticalRIS};
+
+  % --- truoc khi can pha ---
+  \node[font=\scriptsize,anchor=west] at (0,3.72) {Trước: mỗi phần tử một hướng pha};
+  \begin{scope}[shift={(0.55,2.45)}]
+    \draw[gray!45,->] (-0.45,0)--(2.30,0);
+    \draw[gray!45,->] (0,-0.85)--(0,0.95);
+    \draw[cUEc,line width=0.9pt,->] (0,0) -- ++(20:0.46);
+    \draw[cUEc,line width=0.9pt,->] (20:0.46) -- ++(100:0.46);
+    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)$) -- ++(175:0.46);
+    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)+(175:0.46)$) -- ++(250:0.46);
+    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)+(175:0.46)+(250:0.46)$) -- ++(320:0.46);
+    \coordinate (R1) at ($(20:0.46)+(100:0.46)+(175:0.46)+(250:0.46)+(320:0.46)$);
+    \draw[red!75!black,line width=1.3pt,->] (0,0) -- (R1);
+    \node[font=\tiny,red!75!black,anchor=west] at (0.25,-0.70)
+         {tổng ngắn $\Rightarrow$ độ lợi kênh thấp};
+  \end{scope}
+
+  % --- phep can pha ---
+  \node[box,fill=cKenh!12,text width=3.7cm,minimum height=0.72cm] (rule) at (2.05,0.98)
+       {Đặt $\theta_n=\bar\theta_n=-\angle z_n$\\ với $z_n=\sum_k w_k h^{*}_{r,k,n}g_n$};
+  \draw[->,cKenh,line width=0.9pt] (2.05,1.62) -- (rule.north);
+  \draw[->,cKenh,line width=0.9pt] (rule.south) -- (2.05,0.22);
+
+  % --- sau khi can pha ---
+  \node[font=\scriptsize,anchor=west] at (0,-0.08) {Sau: mọi mũi tên cùng hướng};
+  \begin{scope}[shift={(0.55,-1.02)}]
+    \draw[gray!45,->] (-0.45,0)--(2.75,0);
+    \draw[gray!45,->] (0,-0.75)--(0,0.75);
+    \foreach \i in {0,1,2,3,4}{
+      \draw[cUEc,line width=0.9pt,->] (\i*0.46,0.26) -- (\i*0.46+0.46,0.26);
+    }
+    \draw[red!75!black,line width=1.3pt,->] (0,-0.26) -- (2.30,-0.26);
+    \node[font=\tiny,red!75!black,anchor=north] at (1.15,-0.34)
+         {tổng dài $\Rightarrow$ độ lợi kênh cao};
+  \end{scope}
+
+  \node[note,text width=4.4cm] at (0,-2.62)
+       {Một công thức đóng, tính đúng một lần cho mỗi kịch bản. Không dò, không lặp,
+        nên nhanh nhất; bù lại chỉ chỉnh pha mà không tối ưu đồng thời công suất
+        và chia năng lượng.};
+\end{scope}
+
+% =====================================================================
+% (b) AO--SCA -- do doc bang sai phan roi buoc nho
+% =====================================================================
+\begin{scope}[shift={(5.6,0)}]
+  \node[tit] at (0,4.55) {(b) AO--SCA};
+
+  % --- khoi don hinh: chuyen delta giua hai luong ---
+  \node[font=\scriptsize,anchor=west] at (0,3.72) {Khối đơn hình: chuyển $\delta$, tổng không đổi};
+  \begin{scope}[shift={(0.35,2.30)}]
+    \fill[cUEa!30] (0,0) rectangle ++(0.5,1.05);
+    \draw[cUEa!70!black] (0,0) rectangle ++(0.5,1.05);
+    \node[font=\tiny,anchor=north] at (0.25,-0.05) {$p_i$};
+    \fill[cUEb!30] (1.75,0) rectangle ++(0.5,0.45);
+    \draw[cUEb!70!black] (1.75,0) rectangle ++(0.5,0.45);
+    \node[font=\tiny,anchor=north] at (2.0,-0.05) {$p_j$};
+    % phan chuyen di
+    \fill[cUEb!30,opacity=0.55] (0,0.75) rectangle ++(0.5,0.30);
+    \draw[dashed,cUEb!70!black] (0,0.75) rectangle ++(0.5,0.30);
+    \fill[cUEb!30,opacity=0.55] (1.75,0.45) rectangle ++(0.5,0.30);
+    \draw[dashed,cUEb!70!black] (1.75,0.45) rectangle ++(0.5,0.30);
+    \draw[->,cUEd,line width=0.9pt] (0.60,0.95) to[bend left=30] (1.65,0.68);
+    \node[font=\tiny,cUEd] at (1.13,1.22) {$\delta$};
+  \end{scope}
+
+  % --- khoi STAR-RIS: sai phan huu han ---
+  \node[font=\scriptsize,anchor=west] at (0,1.30) {Khối STAR--RIS: dò dốc bằng sai phân};
+  \begin{scope}[shift={(0.35,-1.38)}]
+    \draw[gray!45,->] (-0.15,0) -- (4.30,0) node[anchor=north east,font=\tiny,gray!50!black]{$\theta_n$};
+    \draw[gray!45,->] (0,-0.12) -- (0,2.35);
+    \node[font=\tiny,gray!50!black,rotate=90,anchor=south] at (-0.22,1.1) {tổng tốc độ};
+    \draw[cUEc,line width=1pt,domain=0.05:4.15,samples=90,smooth] plot (\x,{\fmuctieu});
+    % diem hien tai
+    \fill[black] (1.60,{2.45*exp(-((1.60-2.55)^2)/0.55) + 1.30*exp(-((1.60-0.95)^2)/0.30)}) circle (1.6pt);
+    % hai diem tham do
+    \foreach \p in {1.35,1.85}{
+      \fill[cUEd] (\p,{2.45*exp(-((\p-2.55)^2)/0.55) + 1.30*exp(-((\p-0.95)^2)/0.30)}) circle (1.2pt);
+      \draw[cUEd,dashed,line width=0.4pt] (\p,0) -- (\p,{2.45*exp(-((\p-2.55)^2)/0.55) + 1.30*exp(-((\p-0.95)^2)/0.30)});
+    }
+    \node[font=\tiny,cUEd,anchor=north] at (0.95,-0.14) {thử $\theta_n\pm\varepsilon$};
+    % buoc nho
+    \draw[->,cUEa,line width=1pt] (1.62,1.28) -- (2.02,1.62);
+    \node[font=\tiny,cUEa,anchor=west] at (2.05,1.52) {bước nhỏ};
+  \end{scope}
+
+  \node[note,text width=4.6cm] at (0,-2.62)
+       {Mỗi biến cần hai lần tính thêm để ước lượng độ dốc, rồi chỉ đi một bước ngắn;
+        nếu bước quá đà thì quay lui và thu nhỏ bước. Vì vậy chi phí cho một kịch bản
+        rất lớn.};
+\end{scope}
+
+% =====================================================================
+% (c) AO--Grid -- thu het ung vien roi nhay
+% =====================================================================
+\begin{scope}[shift={(11.2,0)}]
+  \node[tit] at (0,4.55) {(c) AO--Grid};
+
+  % --- luoi cong suat co gia tri 0 ---
+  \node[font=\scriptsize,anchor=west] at (0,3.72) {Lưới công suất: có mức $0$ nên tắt được luồng};
+  \begin{scope}[shift={(0.35,2.30)}]
+    \foreach \i/\hh in {0/1.05, 1/0.70, 2/0.35, 3/0.02}{
+      \fill[cUEa!30] (\i*0.62,0) rectangle ++(0.42,\hh);
+      \draw[cUEa!70!black] (\i*0.62,0) rectangle ++(0.42,\hh);
+    }
+    \node[font=\tiny,anchor=north] at (0.21,-0.05) {$1$};
+    \node[font=\tiny,anchor=north] at (0.83,-0.05) {$\tfrac{2}{3}$};
+    \node[font=\tiny,anchor=north] at (1.45,-0.05) {$\tfrac{1}{3}$};
+    \node[font=\tiny,anchor=north,cUEd] at (2.07,-0.05) {$0$};
+    \node[font=\tiny,cUEd,anchor=west] at (2.40,0.35) {tắt hẳn};
+  \end{scope}
+
+  % --- khoi STAR-RIS: thu cac moc roi rac ---
+  \node[font=\scriptsize,anchor=west] at (0,1.30) {Khối STAR--RIS: thử hết mốc rồi nhảy};
+  \begin{scope}[shift={(0.35,-1.38)}]
+    \draw[gray!45,->] (-0.15,0) -- (4.30,0) node[anchor=north east,font=\tiny,gray!50!black]{$\theta_n$};
+    \draw[gray!45,->] (0,-0.12) -- (0,2.35);
+    \node[font=\tiny,gray!50!black,rotate=90,anchor=south] at (-0.22,1.1) {tổng tốc độ};
+    \draw[cUEc,line width=1pt,domain=0.05:4.15,samples=90,smooth] plot (\x,{\fmuctieu});
+    % cac ung vien roi rac
+    \foreach \p in {0.35,0.80,1.25,1.70,2.15,2.60,3.05,3.50,3.95}{
+      \draw[gray!55,line width=0.4pt] (\p,-0.10) -- (\p,0.10);
+      \fill[cUEd] (\p,{2.45*exp(-((\p-2.55)^2)/0.55) + 1.30*exp(-((\p-0.95)^2)/0.30)}) circle (1.2pt);
+    }
+    % diem hien tai va cu nhay toi ung vien tot nhat
+    \fill[black] (1.70,{2.45*exp(-((1.70-2.55)^2)/0.55) + 1.30*exp(-((1.70-0.95)^2)/0.30)}) circle (1.6pt);
+    \draw[cUEa,line width=1pt,->] (1.76,1.28) to[bend right=28] (2.50,2.28);
+    \node[circle,draw=cUEa,line width=0.8pt,inner sep=2.6pt] at (2.60,2.43) {};
+    \node[font=\tiny,cUEa,anchor=west] at (2.95,1.70) {mốc tốt nhất};
+  \end{scope}
+
+  \node[note,text width=4.6cm] at (0,-2.62)
+       {Không cần đạo hàm và có thể nhảy xa ngay trong một lần cập nhật, nhưng phải
+        tính lại hàm mục tiêu cho từng mốc của từng biến nên số phép đánh giá tăng
+        nhanh theo $N$.};
+\end{scope}
+
+% =====================================================================
+% Dai doi chieu chi phi
+% =====================================================================
+\begin{scope}[shift={(0,-4.52)}]
+  \draw[gray!40,line width=0.6pt] (0,0.55) -- (15.8,0.55);
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,0.25)
+       {Số lần tính lại hàm mục tiêu cho mỗi biến STAR--RIS, trong một vòng cập nhật:};
+  \foreach \x/\lbl/\v/\c in {%
+      0.0/{AnalyticalRIS}/{$0$ --- dùng công thức đóng}/cKenh,
+      5.4/{AO--SCA}/{$2$ --- hai điểm sai phân}/cUEd,
+      10.8/{AO--Grid}/{$G$ --- số mốc của lưới}/cUEa}{
+    \node[draw=\c,fill=\c!8,rounded corners=2pt,line width=0.8pt,
+          text width=4.3cm,align=center,inner sep=4pt,font=\scriptsize,anchor=north west]
+          at (\x,-0.15) {\lbl\\[2pt] \v};
+  }
+  \node[font=\tiny,anchor=north west,text width=15.6cm] at (0,-1.20)
+       {Đây là gốc của chênh lệch độ trễ ở Chương~4: với $N=128$ và nhiều vòng lặp,
+        AO--SCA và AO--Grid phải tính lại hàm mục tiêu hàng chục nghìn lần cho một
+        kịch bản, trong khi AnalyticalRIS và các chính sách DRL chỉ cần một lượt
+        tính duy nhất.};
+\end{scope}
+
+\end{tikzpicture}
