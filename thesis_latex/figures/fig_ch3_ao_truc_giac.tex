@@ -41,10 +41,6 @@
          {tổng $\big|\sum_n\big|$ dài gấp nhiều lần};
   \end{scope}
 
-  \node[note,text width=4.4cm] at (0,-2.62)
-       {Một công thức đóng, tính đúng một lần cho mỗi kịch bản. Không dò, không lặp,
-        nên nhanh nhất; bù lại chỉ chỉnh pha mà không tối ưu đồng thời công suất
-        và chia năng lượng.};
 \end{scope}
 
 % =====================================================================
@@ -91,10 +87,6 @@
     \node[font=\tiny,cUEa,anchor=west] at (2.05,1.52) {bước nhỏ};
   \end{scope}
 
-  \node[note,text width=4.6cm] at (0,-2.62)
-       {Mỗi biến cần hai lần tính thêm để ước lượng độ dốc, rồi chỉ đi một bước ngắn;
-        nếu bước quá đà thì quay lui và thu nhỏ bước. Vì vậy chi phí cho một kịch bản
-        rất lớn.};
 \end{scope}
 
 % =====================================================================
@@ -136,19 +128,13 @@
     \node[font=\tiny,cUEa,anchor=west] at (2.95,1.70) {mốc tốt nhất};
   \end{scope}
 
-  \node[note,text width=4.6cm] at (0,-2.62)
-       {Không cần đạo hàm và có thể nhảy xa ngay trong một lần cập nhật, nhưng phải
-        tính lại hàm mục tiêu cho từng mốc của từng biến nên số phép đánh giá tăng
-        nhanh theo $N$.};
 \end{scope}
 
 % =====================================================================
 % Dai doi chieu chi phi
 % =====================================================================
-\begin{scope}[shift={(0,-4.52)}]
+\begin{scope}[shift={(0,-2.95)}]
   \draw[gray!40,line width=0.6pt] (0,0.55) -- (15.8,0.55);
-  \node[font=\scriptsize\bfseries,anchor=west] at (0,0.25)
-       {Số lần tính lại hàm mục tiêu cho mỗi biến STAR--RIS, trong một vòng cập nhật:};
   \foreach \x/\lbl/\v/\c in {%
       0.0/{AnalyticalRIS}/{$0$ --- dùng công thức đóng}/cKenh,
       5.4/{AO--SCA}/{$2$ --- hai điểm sai phân}/cUEd,
@@ -157,11 +143,6 @@
           text width=4.3cm,align=center,inner sep=4pt,font=\scriptsize,anchor=north west]
           at (\x,-0.15) {\lbl\\[2pt] \v};
   }
-  \node[font=\tiny,anchor=north west,text width=15.6cm] at (0,-1.20)
-       {Đây là gốc của chênh lệch độ trễ ở Chương~4: với $N=128$ và nhiều vòng lặp,
-        AO--SCA và AO--Grid phải tính lại hàm mục tiêu hàng chục nghìn lần cho một
-        kịch bản, trong khi AnalyticalRIS và các chính sách DRL chỉ cần một lượt
-        tính duy nhất.};
 \end{scope}
 
 \end{tikzpicture}

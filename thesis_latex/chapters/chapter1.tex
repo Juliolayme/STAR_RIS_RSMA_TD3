@@ -10,18 +10,19 @@ khiển của môi trường truyền. Trong hệ thống nhiều người dùng
 chỉ làm tăng tốc độ của một liên kết riêng lẻ mà còn phải xem xét tác động của quyết
 định đó lên các liên kết khác. Đây là nguồn gốc của bài toán quản lý nhiễu.
 
-Trong một hệ thống có nhiều UE, cùng một đơn vị công suất có thể mang lại lợi ích rất
+Trong một hệ thống có nhiều thiết bị người dùng (User Equipment, UE), cùng một đơn vị công suất có thể mang lại lợi ích rất
 khác nhau tùy theo kênh và mức nhiễu hiện tại. Nếu dồn phần lớn công suất cho UE có kênh
 tốt, tổng tốc độ có thể tăng nhanh nhưng UE yếu dễ vi phạm yêu cầu tối thiểu. Nếu chia
 công suất đều để tăng tính công bằng, nhiều luồng cùng tồn tại có thể tạo nhiễu lẫn nhau
 và làm giảm hiệu suất sử dụng công suất. Vì vậy, bài toán thực tế thường là một bài toán
-cân bằng giữa ba yêu cầu: hiệu năng tổng thể, QoS của từng UE và chi phí tính toán của
+cân bằng giữa ba yêu cầu: hiệu năng tổng thể, chất lượng dịch vụ (Quality of Service, QoS) của từng UE và chi phí tính toán của
 bộ điều khiển.
 
 Trong luận văn này, chỉ số hiệu năng chính là tổng tốc độ. Tuy nhiên, tổng tốc độ không
 được dùng một cách tách rời. Một nghiệm có tổng tốc độ cao nhưng để một hoặc nhiều UE có
 tốc độ gần bằng không không được xem là nghiệm phù hợp với mục tiêu phục vụ đa người
-dùng. Do đó, QoS được đưa vào cả phát biểu bài toán và hàm phần thưởng dùng cho DRL.
+dùng. Do đó, QoS được đưa vào cả phát biểu bài toán và hàm phần thưởng dùng cho học tăng cường sâu
+(Deep Reinforcement Learning, DRL).
 Cách tiếp cận này phản ánh một yêu cầu vật lý đơn giản: hệ thống chỉ hữu ích khi không
 chỉ truyền nhanh mà còn duy trì mức dịch vụ tối thiểu cho các UE đang được phục vụ.
 
@@ -31,30 +32,52 @@ chỉ truyền nhanh mà còn duy trì mức dịch vụ tối thiểu cho các 
 \subsection{Từ OMA đến SDMA và NOMA}
 \label{ssec:oma-sdma-noma}
 
-Đa truy cập là cơ chế cho phép nhiều UE cùng chia sẻ tài nguyên của một BS. OMA tách
+Đa truy cập là cơ chế cho phép nhiều UE cùng chia sẻ tài nguyên của một trạm gốc
+(Base Station, BS). Đa truy cập trực giao (Orthogonal Multiple Access, OMA) tách
 người dùng trên các miền trực giao như thời gian hoặc tần số. Ưu điểm của cách này là
 nhiễu liên người dùng trong cùng tài nguyên được giảm mạnh và bộ thu tương đối đơn giản.
 Nhược điểm là một phần tài nguyên phải dành riêng cho từng UE, nên hiệu suất phổ có thể
 giảm khi số UE tăng hoặc khi yêu cầu tốc độ biến động nhanh.
 
-SDMA tận dụng miền không gian của hệ thống nhiều anten. BS sử dụng các véc-tơ tiền mã
+Đa truy cập phân chia theo không gian (Space Division Multiple Access, SDMA) tận dụng
+miền không gian của hệ thống nhiều anten. BS sử dụng các véc-tơ tiền mã
 hóa để tập trung năng lượng theo các hướng khác nhau và giảm nhiễu chéo. Khi số anten đủ
 lớn và kênh giữa các UE đủ phân biệt, SDMA có thể phục vụ đồng thời nhiều luồng trên
 cùng thời gian--tần số. Tuy nhiên, lợi thế này phụ thuộc trực tiếp vào khả năng tạo phân
-tách không gian. Trong hệ SISO của luận văn, BS chỉ có một anten nên không tồn tại véc-tơ
+tách không gian. Trong hệ một đầu vào một đầu ra (Single-Input Single-Output, SISO) của luận văn, BS chỉ
+có một anten nên không tồn tại véc-tơ
 beamforming nhiều chiều để tạo các hướng truyền riêng cho từng UE. Đây là khác biệt quan
 trọng khi phân tích nhiễu của các luồng riêng ở Chương~\ref{chap:mo-hinh-he-thong}.
 
-NOMA cho phép nhiều UE sử dụng cùng tài nguyên thời gian--tần số nhưng phân biệt bằng
-miền công suất. Một UE có thể giải mã tín hiệu của UE khác trước rồi loại bỏ bằng SIC.
+Đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) cho phép nhiều UE sử
+dụng cùng tài nguyên thời gian--tần số nhưng phân biệt bằng
+miền công suất. Một UE có thể giải mã tín hiệu của UE khác trước rồi loại bỏ bằng khử nhiễu liên tiếp
+(Successive Interference Cancellation, SIC).
 Cách tiếp cận này hữu ích khi kênh của các UE chênh lệch rõ, nhưng thứ tự giải mã, phân
 bổ công suất và lan truyền sai số SIC có thể làm bài toán thiết kế phức tạp. Các nghiên
 cứu tổng quan cũng chỉ ra rằng không nên xem NOMA như một cơ chế mặc nhiên vượt trội
 trong mọi cấu hình nhiều anten hoặc mọi phân bố kênh \cite{Clerckx2021NOMACritical}.
 
-Hình~\ref{fig:ch1-da-truy-cap} minh họa trực giác của bốn cách tổ chức tín hiệu. Hình
-không nhằm mô tả đầy đủ mọi biến thể chuẩn hóa, mà tập trung vào cách mỗi kỹ thuật xử lý
-việc nhiều người dùng cùng chia sẻ tài nguyên.
+Hình~\ref{fig:ch1-da-truy-cap} minh họa trực giác của bốn cách tổ chức tín hiệu với bốn
+UE. Hình không nhằm mô tả đầy đủ mọi biến thể chuẩn hóa, mà tập trung vào cách mỗi kỹ
+thuật xử lý việc nhiều người dùng cùng chia sẻ tài nguyên.
+
+Ở panel OMA, mỗi UE chiếm một khối tài nguyên riêng nên không có nhiễu liên người dùng,
+nhưng mỗi UE chỉ dùng được $1/K$ tài nguyên. Panel SDMA cho thấy BS dùng véc-tơ tiền mã
+hóa để tạo búp sóng riêng cho từng UE; điều này đòi hỏi nhiều anten, nên hệ SISO của luận
+văn với một anten duy nhất không tạo được phân tách không gian. Panel NOMA mô tả các UE
+dùng chung tài nguyên và phân biệt bằng mức công suất, trong đó UE có kênh tốt phải giải
+mã rồi loại lần lượt tín hiệu của các UE khác, với thứ tự giải mã phụ thuộc độ mạnh kênh.
+Panel RSMA cho thấy thông điệp mỗi UE được tách thành phần chung và phần riêng; mọi UE
+giải luồng chung trước, dùng đúng một tầng SIC để loại luồng chung, rồi mới giải luồng
+riêng của mình.
+
+Dải nằm ngang ở cuối hình thể hiện quan hệ bao hàm: khi tỷ lệ công suất luồng chung
+$\rho_c$ tiến về $0$, RSMA suy biến thành SDMA vì chỉ còn các luồng riêng; khi $\rho_c$
+tiến về $1$, gần như toàn bộ công suất nằm ở luồng chung nên hệ thống hoạt động giống
+NOMA. Luận văn giới hạn miền hành động ở $\rho_c \in [0,70;\,0,99]$, tức làm việc trong
+vùng công suất chung cao của dải này; lý do của lựa chọn đó được trình bày ở
+Chương~\ref{chap:phuong-phap}.
 
 \begin{figure}[htbp]
 \centering
@@ -67,7 +90,8 @@ việc nhiều người dùng cùng chia sẻ tài nguyên.
 \subsection{Nguyên lý của RSMA}
 \label{ssec:nguyen-ly-rsma}
 
-RSMA tiếp cận quản lý nhiễu theo cách mềm hơn. Thông điệp dành cho mỗi UE được chia thành
+Đa truy cập phân chia tỷ lệ (Rate-Splitting Multiple Access, RSMA) tiếp cận quản lý
+nhiễu theo cách mềm hơn. Thông điệp dành cho mỗi UE được chia thành
 hai phần: một phần được gộp vào luồng chung và một phần nằm trong luồng riêng. Mọi UE đều
 giải mã luồng chung trước trong khi xem tất cả luồng riêng như nhiễu. Sau khi luồng chung
 được giải mã thành công, UE dùng SIC để loại luồng chung khỏi tín hiệu thu. Tiếp theo, UE
@@ -93,7 +117,8 @@ công suất luồng chung cao có thể hữu ích trong cấu hình SISO đang
 \subsection{RIS phản xạ truyền thống}
 \label{ssec:ris-phan-xa}
 
-RIS là một bề mặt gồm nhiều phần tử có thể điều chỉnh đáp ứng điện từ. Trong mô hình lý
+Bề mặt phản xạ thông minh có thể cấu hình lại (Reconfigurable Intelligent Surface, RIS)
+là một bề mặt gồm nhiều phần tử có thể điều chỉnh đáp ứng điện từ. Trong mô hình lý
 tưởng thường dùng ở mức hệ thống, mỗi phần tử chủ yếu thay đổi pha của tín hiệu phản xạ.
 Khi các pha được phối hợp hợp lý, các thành phần tín hiệu đi qua nhiều phần tử có thể
 cộng tăng cường tại vị trí mong muốn. Nhờ đó, RIS thay đổi kênh hiệu dụng mà không cần
@@ -109,10 +134,11 @@ Chương~\ref{chap:phuong-phap} để tạo pha tham chiếu cho bộ giải mã
 \subsection{STAR--RIS và phạm vi phủ sóng hai phía}
 \label{ssec:star-ris}
 
-RIS phản xạ chỉ điều khiển đáng kể nửa không gian phía phản xạ. STAR--RIS được nghiên
+RIS phản xạ chỉ điều khiển đáng kể nửa không gian phía phản xạ. Bề mặt đồng thời
+truyền và phản xạ (Simultaneously Transmitting and Reflecting RIS, STAR--RIS) được nghiên
 cứu nhằm mở rộng vùng phủ bằng cách cho phép một phần năng lượng truyền qua bề mặt và
 phần còn lại phản xạ \cite{Xu2021STARRIS, Mu2021STARAided, Khalid2022STARDesign}. Một
-phần tử STAR--RIS trong mô hình ES có hai hệ số phức: một cho phía truyền và một cho phía
+phần tử STAR--RIS trong mô hình chia năng lượng (Energy Splitting, ES) có hai hệ số phức: một cho phía truyền và một cho phía
 phản xạ.
 \begin{equation}
 \label{eq:phi-star}
@@ -137,6 +163,14 @@ lý ngay tại bộ giải mã hành động. Ngoài ES, tài liệu STAR--RIS c
 chuyển chế độ và chuyển theo thời gian; tuy nhiên các cơ chế đó không nằm trong phạm vi
 mô phỏng của luận văn \cite{Mu2021STARAided, Liu2021STARCoupledPhase,
 Wang2022STAROptimization}.
+
+Hình~\ref{fig:ch1-ris-star} đối chiếu hai loại bề mặt. Ở panel bên trái, mỗi phần tử RIS
+chỉ điều chỉnh pha của tín hiệu phản xạ, nên toàn bộ năng lượng quay về nửa không gian
+chứa BS và các UE nằm sau bề mặt không nhận được đường ghép tầng. Ở panel bên phải, mỗi
+phần tử STAR--RIS chia năng lượng tới thành một phần truyền qua và một phần phản xạ, đồng
+thời điều chỉnh pha độc lập cho hai phía, nhờ đó cả bốn UE đều nhận được đường ghép tầng.
+Khối phóng to phía dưới minh họa một phần tử ở chế độ ES: tín hiệu tới được tách thành
+hai nhánh có tỷ lệ năng lượng $\beta^T_n$ và $\beta^R_n$ cộng lại bằng một.
 
 \begin{figure}[htbp]
 \centering
@@ -227,7 +261,8 @@ mạng STAR--RIS hỗ trợ RSMA, cho thấy tính phù hợp của PPO với lo
 \subsection{Tối ưu luân phiên}
 \label{ssec:ao}
 
-AO chia một bài toán nhiều khối biến thành các bài toán con. Tại một bước, một khối được
+Tối ưu luân phiên (Alternating Optimization, AO) chia một bài toán nhiều khối biến
+thành các bài toán con. Tại một bước, một khối được
 tối ưu trong khi các khối khác tạm thời giữ cố định. Sau đó chuyển sang khối tiếp theo và
 lặp lại. Đối với STAR--RIS--RSMA, cách chia tự nhiên là khối công suất, khối phân bổ tốc
 độ chung và khối STAR--RIS. Ưu điểm của AO là có thể tận dụng cấu trúc riêng của từng
@@ -255,10 +290,33 @@ AnalyticalRIS là đối chiếu nhẹ hơn: sử dụng một quy tắc căn ph
 STAR--RIS.
 
 Hình~\ref{fig:ch1-ao-truc-giac} minh họa cơ chế của ba phương pháp này. Điểm chung là cả
-ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn nhau:
-AnalyticalRIS dùng một công thức đóng, AO--SCA dò độ dốc bằng sai phân rồi đi từng bước
-ngắn, còn AO--Grid thử hết các mốc rời rạc rồi nhảy tới mốc tốt nhất. Chênh lệch về số
-lần tính lại hàm mục tiêu chính là nguồn gốc của khác biệt độ trễ được báo cáo ở
+ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn nhau.
+
+Panel AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép tầng đến từ những
+phần tử khác nhau có hướng pha tản mát nên véc-tơ tổng rất ngắn, tức độ lợi kênh thấp.
+Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$, mọi thành phần quay về cùng một
+hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần. Đây là một công thức đóng,
+tính đúng một lần cho mỗi CSI, nên nhanh nhất trong bốn phương pháp; bù lại nó chỉ chỉnh
+pha mà không tối ưu đồng thời công suất và tỷ lệ chia năng lượng.
+
+Panel AO--SCA mô tả hai cơ chế cập nhật. Với khối đơn hình, bộ giải chuyển một lượng
+$\delta$ từ thành phần này sang thành phần khác nên tổng không đổi. Với khối STAR--RIS,
+bộ giải thử hai điểm $\theta_n \pm \varepsilon$ để ước lượng độ dốc rồi chỉ đi một bước
+ngắn; nếu bước quá đà thì quay lui và thu nhỏ bước. Vì mỗi biến cần thêm hai lần tính hàm
+mục tiêu, chi phí cho một kịch bản rất lớn.
+
+Panel AO--Grid dùng cùng đường cong mục tiêu để tiện so sánh. Lưới công suất có chứa mức
+$0$ nên bộ giải có thể tắt hẳn một luồng riêng, điều mà bước cập nhật liên tục khó đạt
+được. Với khối STAR--RIS, bộ giải tính hàm mục tiêu tại mọi mốc rời rạc rồi nhảy thẳng
+tới mốc tốt nhất. Cách này không cần đạo hàm và có thể đi những bước rất xa, nhưng số
+phép đánh giá tăng nhanh theo số phần tử $N$.
+
+Dải ở cuối hình tóm tắt nguồn gốc của chênh lệch chi phí: trong một vòng cập nhật,
+AnalyticalRIS không phải tính lại hàm mục tiêu lần nào vì dùng công thức đóng, AO--SCA
+cần hai lần cho mỗi biến để lấy sai phân, còn AO--Grid cần đúng bằng số mốc của lưới. Với
+$N = 128$ và nhiều vòng lặp, hai phương pháp AO phải tính lại hàm mục tiêu hàng chục
+nghìn lần cho một kịch bản, trong khi AnalyticalRIS và các chính sách DRL chỉ cần một
+lượt tính duy nhất. Đây chính là nguồn gốc của khác biệt độ trễ được báo cáo ở
 Chương~\ref{chap:ket-qua}.
 
 \begin{figure}[htbp]
@@ -274,8 +332,7 @@ Chương~\ref{chap:ket-qua}.
 
 Các công trình liên quan có thể chia thành bốn nhóm. Nhóm thứ nhất xây dựng nền tảng RSMA
 và chỉ ra khả năng quản lý nhiễu mềm giữa SDMA và NOMA \cite{Mao2018RSMABridging,
-Mao2022RSMAFundamentals, Joudeh2016RSMASumRate}. Nhóm thứ hai nghiên cứu RIS và
-STAR--RIS, từ mô hình phản xạ truyền thống đến mô hình đồng thời truyền và phản xạ cùng
+Mao2022RSMAFundamentals, Joudeh2016RSMASumRate}. Nhóm thứ hai nghiên cứu RIS và STAR--RIS, từ mô hình phản xạ truyền thống đến mô hình đồng thời truyền và phản xạ cùng
 các ràng buộc pha \cite{Xu2021STARRIS, Mu2021STARAided, Wu2019IRSBeamforming,
 DiRenzo2020SmartRadio, Wu2021IRSTutorial, Liu2021STARCoupledPhase,
 Wang2022STAROptimization}. Nhóm thứ ba kết hợp RSMA với RIS hoặc STAR--RIS để tối ưu tốc

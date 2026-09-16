@@ -13,9 +13,6 @@
   }
   \draw[gray!60,->] (0.5,0.5) -- (4.1,0.5) node[anchor=north,font=\tiny,gray!50!black,midway,yshift=-2pt]{thời gian};
   \draw[gray!60,->] (0.35,0.7) -- (0.35,2.9) node[anchor=east,font=\tiny,gray!50!black,midway,rotate=90,yshift=6pt]{tần số};
-  \node[note] at (0,0.15)
-    {Mỗi UE chiếm một khối tài nguyên riêng. Không có nhiễu liên người dùng,
-     nhưng mỗi UE chỉ dùng được $1/K$ tài nguyên.};
 \end{scope}
 
 % =====================================================================
@@ -34,10 +31,6 @@
      \fill[\c!22,opacity=0.75] (1.40,1.7) -- (4.15,\y+0.30) -- (4.15,\y-0.30) -- cycle;
      \node[ue,fill=\c!20,draw=\c!60!black] at (4.45,\y) {\lbl};
   }
-  \node[note] at (0,0.15)
-    {BS dùng véc-tơ tiền mã hóa để tạo búp sóng riêng cho từng UE.
-     \textbf{Cần nhiều anten.} Hệ SISO của luận văn chỉ có một anten nên
-     không tạo được phân tách không gian.};
 \end{scope}
 
 % =====================================================================
@@ -65,10 +58,6 @@
   \draw[decorate,decoration={brace,amplitude=4pt},gray!70] (3.80,3.20) -- (3.80,0.92);
   \node[font=\tiny,anchor=west,align=left,gray!40!black] at (3.98,2.06) {tối đa\\ $K-1$\\ tầng SIC};
 
-  \node[note] at (0,0.18)
-    {Các UE dùng chung tài nguyên, phân biệt bằng mức công suất.
-     UE kênh tốt phải giải mã và loại lần lượt tín hiệu của các UE khác.
-     Thứ tự giải mã phụ thuộc độ mạnh kênh.};
 \end{scope}
 
 % =====================================================================
@@ -104,16 +93,12 @@
   \draw[->] (4.30,1.75) -- (4.30,1.28);
   \node[font=\tiny,anchor=north west,align=left] at (0.50,0.90)
        {$R_k=\underbrace{\eta_k R_c}_{\text{phần chung}}+\underbrace{R_{p,k}}_{\text{phần riêng}}$};
-  \node[note] at (0,0.15)
-    {Thông điệp mỗi UE được tách thành phần chung và phần riêng.
-     \textbf{Mọi UE giải luồng chung trước, rồi dùng đúng một tầng SIC}
-     để loại $s_c$, sau đó giải luồng riêng của mình.};
 \end{scope}
 
 % =====================================================================
 % Dai quan he bao ham
 % =====================================================================
-\begin{scope}[shift={(0,-8.05)}]
+\begin{scope}[shift={(0,-6.35)}]
   \draw[gray!45,line width=0.9pt,->] (1.6,0) -- (12.2,0);
   \foreach \x in {2.0,11.8}{ \draw[gray!60] (\x,-0.12) -- (\x,0.12); }
   \node[font=\tiny,anchor=north] at (2.0,-0.18) {$\rho_c\to 0$};
@@ -123,9 +108,6 @@
   \fill[magenta!14] (5.0,-0.30) rectangle (9.0,0.30);
   \draw[magenta!60!black,line width=0.6pt] (5.0,-0.30) rectangle (9.0,0.30);
   \node[font=\scriptsize,magenta!60!black] at (7.0,0) {RSMA};
-  \node[font=\tiny,anchor=north,align=center] at (7.0,-0.55)
-       {RSMA bao hàm SDMA và NOMA như hai trường hợp đặc biệt;\\
-        luận văn giới hạn miền hành động ở $\rho_c\in[0{,}70;\,0{,}99]$};
   \node[font=\tiny,anchor=east] at (1.5,0) {$\rho_c=p_c/P_{\max}$:};
 \end{scope}
 
