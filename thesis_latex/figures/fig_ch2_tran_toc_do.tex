@@ -1,0 +1,45 @@
+\begin{tikzpicture}[font=\footnotesize]
+\begin{axis}[
+  name=left, width=8.2cm, height=6.0cm,
+  xlabel={Tỷ số tín hiệu trên tạp âm $g_kP_{\mathrm{priv}}/\sigma^2$ (dB)},
+  ylabel={$R_{p,k}$ (bit/s/Hz)},
+  xmin=0,xmax=30, ymin=0, ymax=10.5, ytick={0,2,4,6,8,10},
+  grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  legend style={font=\scriptsize,at={(0.03,0.97)},anchor=north west,draw=gray!50},
+  legend cell align=left,
+]
+% M = 1 : toan bo cong suat rieng don vao mot luong
+\addplot[very thick,blue!70!black,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10))};
+\addlegendentry{$M=1$ (tập trung)}
+% M = 2
+\addplot[very thick,orange!85!black,dashed,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10)/(1*10^(x/10) + 2))};
+\addlegendentry{$M=2$ (chia đều)}
+% M = 4
+\addplot[very thick,violet,dotted,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10)/(3*10^(x/10) + 4))};
+\addlegendentry{$M=4$ (chia đều)}
+% duong tiem can
+\addplot[gray,thin,domain=0:30,samples=2]{1.0};
+\addplot[gray,thin,domain=0:30,samples=2]{0.415};
+\node[font=\tiny,anchor=west,gray!45!black,align=left] at (axis cs:13.5,1.9)
+     {đường xám: trần tiệm cận $\log_2\!\big(M/(M-1)\big)$};
+\end{axis}
+
+\begin{axis}[
+  at={(left.east)}, anchor=west, xshift=1.1cm,
+  width=6.6cm, height=6.0cm,
+  xlabel={Số luồng riêng hoạt động $M$},
+  ylabel={$R_{p,k}$ tiệm cận (bit/s/Hz)},
+  ybar, bar width=9pt, xmin=1.4,xmax=8.6, ymin=0,ymax=1.2,
+  xtick={2,3,4,5,6,7,8},
+  grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  nodes near coords, every node near coord/.append style={font=\tiny,/pgf/number format/.cd,fixed,precision=3,use comma},
+]
+\addplot[fill=blue!35,draw=blue!60!black] coordinates
+  {(2,1.000)(3,0.585)(4,0.415)(5,0.322)(6,0.263)(7,0.222)(8,0.193)};
+\end{axis}
+\end{tikzpicture}

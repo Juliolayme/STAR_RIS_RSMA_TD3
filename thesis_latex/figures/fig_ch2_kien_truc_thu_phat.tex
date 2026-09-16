@@ -1,0 +1,97 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.55pt]
+
+% ============ PHIA PHAT (BS SISO) ============
+\node[vbox,text width=2.6cm] (sch) at (0,0.6) {Lập lịch $K$ UE};
+\node[vbox,text width=3.2cm] (spl) at (1.6,0.6) {Bộ tách thông điệp};
+\node[vbox,text width=1.5cm] (cmb) at (3.1,1.50) {Bộ ghép\\ phần chung};
+\node[vbox,text width=3.2cm] (enc) at (4.6,0.6) {Bộ mã hóa};
+\node[vbox,text width=3.2cm] (pwr) at (6.1,0.6) {Phân bổ công suất $p_c,\,p_k$};
+
+% thong diep vao
+\draw[->] ($(sch.south)+(0,0.85)$)  -- node[above,inner sep=1.5pt]{\lbm{W_1}}   ($(spl.north)+(0,0.85)$);
+\draw[->] ($(sch.south)+(0,0)$)     -- node[above,inner sep=1.5pt]{\lbm{W_k}}   ($(spl.north)+(0,0)$);
+\draw[->] ($(sch.south)+(0,-0.85)$) -- node[above,inner sep=1.5pt]{\lbm{W_K}}   ($(spl.north)+(0,-0.85)$);
+\node[font=\tiny] at (0.8,0.30) {$\vdots$};
+\node[font=\tiny] at (0.8,-0.55) {$\vdots$};
+
+% phan chung -> bo ghep
+\draw[->] (1.88,2.05) -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{c,1}}} (2.65,2.05);
+\draw[->] (1.88,1.50) -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{c,k}}} (2.65,1.50);
+\draw[->] (1.88,0.95) -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{c,K}}} (2.65,0.95);
+
+% phan rieng -> bo ma hoa
+\draw[->] (1.88,0.10)  -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{p,1}}} (4.32,0.10);
+\draw[->] (1.88,-0.40) -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{p,k}}} (4.32,-0.40);
+\draw[->] (1.88,-0.90) -- node[above,inner sep=1pt,font=\tiny]{\lbm{W_{p,K}}} (4.32,-0.90);
+
+% bo ghep -> bo ma hoa
+\draw[->] (3.55,1.50) -- node[above,inner sep=1pt,font=\tiny]{\textcolor{magenta}{$W_c$}} (4.32,1.50);
+
+% bo ma hoa -> phan bo cong suat
+\draw[->] (4.88,1.50)  -- node[above,inner sep=1pt,font=\tiny]{\textcolor{magenta}{$s_c$}} (5.82,1.50);
+\draw[->] (4.88,0.10)  -- node[above,inner sep=1pt,font=\tiny]{$s_1$} (5.82,0.10);
+\draw[->] (4.88,-0.40) -- node[above,inner sep=1pt,font=\tiny]{$s_k$} (5.82,-0.40);
+\draw[->] (4.88,-0.90) -- node[above,inner sep=1pt,font=\tiny]{$s_K$} (5.82,-0.90);
+
+% mot anten phat duy nhat (SISO)
+\path (8.0,0.6) pic {ant};
+\draw (pwr.south) -- (8.0,0.6);
+\node[anchor=south,inner sep=1pt] at (7.55,0.72) {\sgm{x}};
+\node[font=\tiny,anchor=north] at (6.55,-1.85)
+      {$x=\sqrt{p_c}\,s_c+\sum_{k=1}^{K}\sqrt{p_k}\,s_k$};
+
+% ============ UE 1 ============
+\path (10.4,3.00) pic[rotate=180] {ant};
+\node[anchor=south west,inner sep=1pt] at (10.28,3.12) {\sgm{y_1}};
+\node[draw=blue,line width=0.9pt,fill=blue!8,rounded corners=2pt,inner sep=4pt] (ue1) at (11.75,3.00) {UE$_1$};
+\draw[->] (10.4,3.00) -- (ue1.west);
+\draw[->] (ue1.east) -- (13.6,3.00) node[midway,above,inner sep=1.5pt]{\lbm{\widehat{W}_1}};
+\node[font=\tiny] at (10.4,2.35) {$\vdots$};
+
+% ============ UE k (chi tiet) ============
+\path (10.4,1.85) pic[rotate=180] {ant};
+\node[anchor=south east,inner sep=1pt] at (10.42,1.99) {\sgm{y_k}};
+\node[box,text width=1.35cm] (deca) at (12.15,1.85) {Giải mã\\ luồng chung};
+\node[box] (spl2) at (14.35,1.85) {Tách};
+\node[sbox] (encs) at (14.35,0.85) {Mã hóa};
+\node[sbox] (chs)  at (12.60,0.85) {Kênh};
+\node[draw,circle,inner sep=1.2pt,line width=0.4pt] (sum) at (11.40,0.85) {\tiny$+$};
+\node[font=\tiny] at (11.62,1.10) {SIC};
+\node[box,text width=1.35cm] (decb) at (12.45,-0.40) {Giải mã\\ luồng riêng};
+\node[vbox,text width=2.4cm,minimum height=0.5cm] (cmb2) at (15.95,0.60) {Ghép};
+
+\draw[->] (10.4,1.85) -- (deca.west);
+\draw[->] (deca.east) -- node[above,inner sep=1.5pt]{\textcolor{magenta}{$\widehat{W}_c$}} (spl2.west);
+\draw[->] (spl2.east) -- (15.55,1.85) node[midway,above,inner sep=1pt,font=\tiny]{$\widehat{W}_{c,k}$}
+          -- (15.55,1.05) -- (15.70,1.05);
+\draw[->] (spl2.south) -- (encs.north);
+\draw[->] (encs.west) -- (chs.east);
+\draw[->] (chs.west) -- (sum.east);
+\draw[->] (10.95,1.85) -- (10.95,0.85) -- (sum.west);
+\node[font=\tiny] at (11.20,0.99) {$-$};
+\draw[->] (sum.south) -- (10.95,-0.40) -- (decb.west);
+\draw[->] (decb.east) -- (15.55,-0.40) node[midway,above,inner sep=1pt,font=\tiny]{$\widehat{W}_{p,k}$}
+          -- (15.55,0.15) -- (15.70,0.15);
+\draw[->] (cmb2.south) -- (17.45,0.60);
+\node[anchor=south,inner sep=2pt] at (16.95,0.68) {\lbm{\widehat{W}_k}};
+
+% ============ UE K ============
+\path (10.4,-1.80) pic[rotate=180] {ant};
+\node[anchor=south west,inner sep=1pt] at (10.28,-1.68) {\sgm{y_K}};
+\node[draw=violet,line width=0.9pt,fill=violet!8,rounded corners=2pt,inner sep=4pt] (ueK) at (11.75,-1.80) {UE$_K$};
+\draw[->] (10.4,-1.80) -- (ueK.west);
+\draw[->] (ueK.east) -- (13.6,-1.80) node[midway,above,inner sep=1.5pt]{\lbm{\widehat{W}_K}};
+
+% ============ NEN: kenh, cac khung nhom ============
+\begin{scope}[on background layer]
+  \node[cloud,cloud puffs=15,draw=green!45!black,fill=green!16,
+        minimum width=3.2cm,minimum height=6.4cm] at (9.30,0.60) {};
+  \node[align=center,font=\scriptsize] at (9.25,0.75)
+       {Kênh hiệu dụng\\[1pt] $h^{\mathrm{eff}}_k$\\[2pt] \tiny (đường trực tiếp\\[-1pt] \tiny + STAR--RIS)};
+  \grp{1.05}{-1.55}{6.65}{2.45}{magenta}{Trạm gốc BS (SISO)}
+  \grp{10.78}{-1.05}{16.55}{2.42}{orange}{UE$_k$}
+  \node[draw=black!55,line width=0.4pt,inner sep=0pt,
+        fit={(11.15,0.45)(15.15,1.28)}] {};
+\end{scope}
+\node[draw,line width=0.9pt,inner sep=0pt,fit={(-0.9,-2.75)(17.95,3.75)}] {};
+\end{tikzpicture}

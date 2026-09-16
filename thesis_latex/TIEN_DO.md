@@ -6,13 +6,14 @@ Nguồn dựng lại: `Luan_van_STAR_RIS_RSMA_DRL_ban_review.pdf` (102 trang, bi
 ## Đã xong
 
 - `main.tex`, `uththesis.sty`, `frontmatter.tex`, `references.bib`
-- Chương 1 đầy đủ 8 mục, kèm Bảng 1.1 và ba hình
-- Hình 1.1, 1.2, 1.3 dùng bản TikZ mới vẽ lại
+- Chương 1 đầy đủ 8 mục, kèm Bảng 1.1 và bốn hình
+- Chương 2 đầy đủ 10 mục, 36 công thức đánh số, bốn hình
+- Mọi hình dùng bản TikZ mới vẽ lại
 
 ## Chưa xong
 
 - Mở đầu (đang là chỗ giữ chỗ)
-- Chương 2, 3, 4
+- Chương 3, 4
 - Kết luận và ba phụ lục
 - Các dòng `\input` tương ứng trong `main.tex` đang được chú thích
 
