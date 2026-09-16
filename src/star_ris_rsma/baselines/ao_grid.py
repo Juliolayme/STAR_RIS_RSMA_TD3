@@ -105,4 +105,5 @@ def solve(
         current.action,
         c.p_max,
         c.action_parameterization,
+        channel=env.channel,
     ), metrics

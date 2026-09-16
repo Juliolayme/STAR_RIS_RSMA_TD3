@@ -1,0 +1,27 @@
+{
+  "128": {
+    "bank_checksum_expected": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+    "bytes": 9870980,
+    "file_sha256": "8235d2fac1035ab9c09c01eabb38e370298154147d66b7e728dc230095a4fcc7"
+  },
+  "16": {
+    "bank_checksum_expected": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+    "bytes": 1288522,
+    "file_sha256": "4a60560200dcf28f6e83e40d0a239b5e6593267ae041fd60dd0749e9d03fcc55"
+  },
+  "32": {
+    "bank_checksum_expected": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+    "bytes": 2514619,
+    "file_sha256": "a3cc6cbde9a9ecd67491c388be877d34062065ae3a9f83866652802c2261ef49"
+  },
+  "64": {
+    "bank_checksum_expected": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+    "bytes": 4966732,
+    "file_sha256": "1fa7f18ca1746d71750bd01108c1070d06707ac427ffa4d916243c169a0d2593"
+  },
+  "96": {
+    "bank_checksum_expected": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63",
+    "bytes": 7418943,
+    "file_sha256": "594d821561d40add389473a265910b0f7a2f9bc1ba612c0ef3fdda65dd46d0f6"
+  }
+}

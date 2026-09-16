@@ -1,0 +1,169 @@
+{
+  "action_parameterization": "physical_v6_soft_anchor",
+  "best_checkpoint_test_rows": 75000,
+  "checkpoint_selection": "validation-only; feasibility-first normalized gap, then sum-rate",
+  "embedded_identifier_note": "Training CSV git_commit contains KAGGLE_KERNEL_RUN_ID; repository_commit is taken from independent KAGGLE_JOB_PROVENANCE.json.",
+  "github_artifacts": {
+    "ddpg": {
+      "artifact_id": 9659555469,
+      "artifact_name": "physical-v6-full-r2-ddpg",
+      "run_id": 33088944075
+    },
+    "ppo": {
+      "artifact_id": 9660959676,
+      "artifact_name": "physical-v6-full-r2-ppo",
+      "run_id": 33088944075
+    },
+    "td3": {
+      "artifact_id": 9656583784,
+      "artifact_name": "physical-v6-full-r2-td3",
+      "run_id": 33088944075
+    }
+  },
+  "interactions_per_job": 100000,
+  "latency": {
+    "checkpoint_selection": "fixed seed-0 best-validation checkpoint for latency; quality claims retain five-seed means",
+    "count_per_method_n": 100,
+    "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "cpu_threads": 1,
+    "github_artifact_id": 9669671995,
+    "github_artifact_name": "PHYSICAL_V6_SIX_METHOD_LATENCY_R2",
+    "github_run_id": 33127784216,
+    "methods": [
+      "td3",
+      "ddpg",
+      "ppo",
+      "ao_sca",
+      "ao_grid",
+      "analytical_ris"
+    ],
+    "n_values": [
+      16,
+      32,
+      64,
+      96,
+      128
+    ],
+    "protocol": "single_thread_same_runner_warmup10_count100_v6",
+    "published_figure": "fig04_v6_six_method_cpu_latency.png",
+    "published_tables": [
+      "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+      "TABLE_V6_TD3_LATENCY_SPEEDUP.csv"
+    ],
+    "python_version": "3.11.16",
+    "raw_rows": 3000,
+    "repository_commit": "346e125e78fb4d3d6a0f6e62b2590b1ea3eaf711",
+    "runner_os": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+    "same_runner": true,
+    "scenario_bank_checksums": {
+      "128": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+      "16": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+      "32": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+      "64": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+      "96": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+    },
+    "torch_version": "2.13.0+cu130",
+    "verdict": "PASS",
+    "warmup": 10
+  },
+  "methods": [
+    "td3",
+    "ddpg",
+    "ppo"
+  ],
+  "n_values": [
+    16,
+    32,
+    64,
+    96,
+    128
+  ],
+  "orchestrator_manifests": {
+    "ddpg": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T18:29:41.083444+00:00"
+    },
+    "ppo": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T19:11:36.957091+00:00"
+    },
+    "td3": {
+      "archive_repository_commits": [
+        "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+      ],
+      "audit": "PASS",
+      "completed_jobs": 25,
+      "failed_jobs": 0,
+      "git_commit": "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1",
+      "repository": "Juliolayme/STAR_RIS_RSMA_TD3",
+      "updated_at_utc": "2026-08-27T17:04:06.093456+00:00"
+    }
+  },
+  "paired_test_protocol": {
+    "note": "the scenario-level unit resolves hundredths because n=1,000 while the five policies are shared; treat seed-level as the test of a method-level claim",
+    "scenario_level": "average 5 DRL seeds per matched scenario; paired over 1,000 scenarios; 15 method pairs per N; Holm separately within N",
+    "seed_level": "paired over 5 training seeds, or one-sample against a deterministic baseline; Holm over the applicable pairs within N"
+  },
+  "published_figures": [
+    "fig01_v6_six_method_sum_rate.png",
+    "fig02_v6_learning_gain.png",
+    "fig03_v6_training_time.png",
+    "fig04_v6_six_method_cpu_latency.png",
+    "fig05_v6_quality_vs_latency.png",
+    "fig06_v6_learning_curves.png",
+    "fig07_v6_qos.png"
+  ],
+  "published_tables": [
+    "TABLE_V6_CHECKPOINT_AUDIT.csv",
+    "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv",
+    "TABLE_V6_SIX_METHOD_PAIRED_TESTS_HOLM.csv",
+    "TABLE_V6_SIX_METHOD_PERFORMANCE.csv",
+    "TABLE_V6_TD3_LATENCY_SPEEDUP.csv",
+    "TABLE_V6_TD3_VS_OTHERS_HOLM.csv",
+    "TABLE_V6_TRAINING_TIME.csv",
+    "TABLE_V6_VALIDATION_CURVES.csv"
+  ],
+  "repository_commits_per_method": {
+    "ddpg": [
+      "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+    ],
+    "ppo": [
+      "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+    ],
+    "td3": [
+      "3e96df18eab0a8b3a6a3f1006d74c31e09add2a1"
+    ]
+  },
+  "scenario_bank_checksums": {
+    "128": "f4c80269e5fb3cf553900b2e82f235af875b7c2e33b4ff71ec5d85cc25eb2b4e",
+    "16": "ee98d51d23f2f29facb379bf4250dad3e33d568085dfd332a582372e84151ce7",
+    "32": "6ec54735c1c2c35cd253d9d3d23295783293b6d64c65204dfcab16b2d59ebbef",
+    "64": "ae41070d268d283dcc283b0aaf9b960eae1f4ddd22d423577b272c18802a3aae",
+    "96": "4e84455d08cacd9f85c432f7838c3be2cb0f000b55edc3487c6dee9520cc0b63"
+  },
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "shared_scenario_banks": true,
+  "test_scenarios_per_seed_n": 1000,
+  "training_jobs": 75,
+  "verdict": "PASS"
+}

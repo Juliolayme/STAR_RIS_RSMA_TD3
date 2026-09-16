@@ -1,0 +1,253 @@
+% =====================================================================
+%  Cac hinh bo sung cho Chuong 2 va Chuong 3
+%  Bien dich:  xelatex hinh_ch23.tex
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1.6cm,paperwidth=19cm,paperheight=30cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}   % Overleaf: doi thanh "Times New Roman"
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{positioning,fit,shapes.geometric,shapes.symbols,backgrounds,arrows.meta,calc,decorations.pathreplacing}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+\tikzset{
+  box/.style ={draw,fill=gray!12,align=center,inner sep=3pt,line width=0.5pt},
+  sbox/.style={draw,align=center,inner sep=3pt,font=\scriptsize,line width=0.5pt},
+}
+\newcommand{\chuthich}[2]{\vspace{1.5mm}{\footnotesize #1\\ \textit{Nguồn: #2}}\vspace{7mm}}
+
+\begin{document}
+\centering
+
+% =====================================================================
+% HINH A -- muc 2.8.1 : tran toc do do nhieu luong rieng
+% =====================================================================
+\begin{tikzpicture}[font=\footnotesize]
+\begin{axis}[
+  name=left, width=8.2cm, height=6.0cm,
+  xlabel={Tỷ số tín hiệu trên tạp âm $g_kP_{\mathrm{priv}}/\sigma^2$ (dB)},
+  ylabel={$R_{p,k}$ (bit/s/Hz)},
+  xmin=0,xmax=30, ymin=0, ymax=10.5, ytick={0,2,4,6,8,10},
+  grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  legend style={font=\scriptsize,at={(0.03,0.97)},anchor=north west,draw=gray!50},
+  legend cell align=left,
+]
+% M = 1 : toan bo cong suat rieng don vao mot luong
+\addplot[very thick,blue!70!black,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10))};
+\addlegendentry{$M=1$ (tập trung)}
+% M = 2
+\addplot[very thick,orange!85!black,dashed,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10)/(1*10^(x/10) + 2))};
+\addlegendentry{$M=2$ (chia đều)}
+% M = 4
+\addplot[very thick,violet,dotted,domain=0:30,samples=120]
+   {log2(1 + 10^(x/10)/(3*10^(x/10) + 4))};
+\addlegendentry{$M=4$ (chia đều)}
+% duong tiem can
+\addplot[gray,thin,domain=0:30,samples=2]{1.0};
+\addplot[gray,thin,domain=0:30,samples=2]{0.415};
+\node[font=\tiny,anchor=west,gray!45!black,align=left] at (axis cs:13.5,1.9)
+     {đường xám: trần tiệm cận $\log_2\!\big(M/(M-1)\big)$};
+\end{axis}
+
+\begin{axis}[
+  at={(left.east)}, anchor=west, xshift=1.1cm,
+  width=6.6cm, height=6.0cm,
+  xlabel={Số luồng riêng hoạt động $M$},
+  ylabel={$R_{p,k}$ tiệm cận (bit/s/Hz)},
+  ybar, bar width=9pt, xmin=1.4,xmax=8.6, ymin=0,ymax=1.2,
+  xtick={2,3,4,5,6,7,8},
+  grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
+  label style={font=\scriptsize},
+  nodes near coords, every node near coord/.append style={font=\tiny,/pgf/number format/.cd,fixed,precision=3,use comma},
+]
+\addplot[fill=blue!35,draw=blue!60!black] coordinates
+  {(2,1.000)(3,0.585)(4,0.415)(5,0.322)(6,0.263)(7,0.222)(8,0.193)};
+\end{axis}
+\end{tikzpicture}
+
+\chuthich{Hình 2.4: Trần tốc độ luồng riêng do nhiễu giữa các luồng riêng trong hệ SISO.
+Trái: $R_{p,k}$ theo tỷ số tín hiệu trên tạp âm. Phải: giá trị tiệm cận khi $M$ luồng riêng chia đều công suất.}
+{Tác giả xây dựng từ công thức (2.29)--(2.32) (2026)}
+
+% =====================================================================
+% HINH B -- muc 2.8.4 : vai tro cua can pha
+% =====================================================================
+\begin{tikzpicture}[font=\footnotesize,>=Stealth,scale=1.0]
+
+% ---------- panel trai: pha lech ----------
+\begin{scope}[shift={(0,0)}]
+  \draw[gray!45,->] (-0.6,0)--(3.6,0);
+  \draw[gray!45,->] (0,-1.9)--(0,1.9);
+  \draw[blue!65,line width=1pt,->] (0,0) -- ++(20:0.75);
+  \draw[blue!65,line width=1pt,->] (20:0.75) -- ++(100:0.75);
+  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)$) -- ++(175:0.75);
+  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)+(175:0.75)$) -- ++(250:0.75);
+  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)+(175:0.75)+(250:0.75)$) -- ++(320:0.75);
+  \coordinate (T1) at ($(20:0.75)+(100:0.75)+(175:0.75)+(250:0.75)+(320:0.75)$);
+  \draw[red!75!black,line width=1.5pt,->] (0,0) -- (T1);
+  \node[font=\scriptsize,red!75!black,anchor=west] at (0.30,-0.30) {$\big|\sum_n\big|$ nhỏ};
+  \node[font=\scriptsize,anchor=north] at (1.3,-2.15) {(a) Pha chưa căn chỉnh};
+\end{scope}
+
+% ---------- panel phai: da can pha ----------
+\begin{scope}[shift={(6.6,0)}]
+  \draw[gray!45,->] (-0.6,0)--(4.6,0);
+  \draw[gray!45,->] (0,-1.9)--(0,1.9);
+  \foreach \i in {0,1,2,3,4}{
+     \draw[blue!65,line width=1pt,->] (\i*0.75,0.30) -- (\i*0.75+0.75,0.30);
+  }
+  \draw[red!75!black,line width=1.5pt,->] (0,-0.30) -- (3.75,-0.30);
+  \node[font=\scriptsize,red!75!black,anchor=north] at (1.9,-0.38) {$\big|\sum_n\big|$ lớn};
+  \node[font=\scriptsize,anchor=north] at (1.9,-2.15) {(b) Sau khi căn pha $\bar\theta_n=-\angle z_n$};
+\end{scope}
+
+\node[font=\scriptsize,align=center,anchor=north] at (4.2,-2.75)
+  {Mỗi mũi tên là một thành phần ghép tầng $h^{*}_{r,k,n}g_n e^{j\theta_n}$ qua một phần tử STAR--RIS};
+\end{tikzpicture}
+
+\chuthich{Hình 2.5: Ý nghĩa của căn pha đối với độ lợi kênh hiệu dụng}
+{Tác giả xây dựng dựa trên [6], [7] (2026)}
+
+\clearpage
+
+% =====================================================================
+% HINH C -- muc 3.2 : cau truc vec-to trang thai
+% =====================================================================
+\begin{tikzpicture}[font=\footnotesize,>=Stealth]
+\def\h{0.85}
+% cac khoi
+\node[sbox,fill=blue!12,  minimum width=2.1cm,minimum height=\h cm,anchor=west] (b1) at (0,0)    {$\mathrm{Re}/\mathrm{Im}\ h_{d,k}$};
+\node[sbox,fill=green!14, minimum width=2.6cm,minimum height=\h cm,anchor=west] (b2) at (2.1,0)  {$\mathrm{Re}/\mathrm{Im}\ g_n$};
+\node[sbox,fill=orange!16,minimum width=5.2cm,minimum height=\h cm,anchor=west] (b3) at (4.7,0)  {$\mathrm{Re}/\mathrm{Im}\ h_{r,k,n}$};
+\node[sbox,fill=violet!14,minimum width=2.3cm,minimum height=\h cm,anchor=west] (b4) at (9.9,0)  {chỉ báo phía $s_k$};
+
+% so chieu duoi tung khoi
+\node[font=\scriptsize,anchor=north] at (1.05,-0.50) {$2K$};
+\node[font=\scriptsize,anchor=north] at (3.40,-0.50) {$2N$};
+\node[font=\scriptsize,anchor=north] at (7.30,-0.50) {$2KN$};
+\node[font=\scriptsize,anchor=north] at (11.05,-0.50) {$K$};
+\node[font=\tiny,anchor=north,gray!60!black] at (1.05,-0.88) {$=8$};
+\node[font=\tiny,anchor=north,gray!60!black] at (3.40,-0.88) {$=64$};
+\node[font=\tiny,anchor=north,gray!60!black] at (7.30,-0.88) {$=256$};
+\node[font=\tiny,anchor=north,gray!60!black] at (11.05,-0.88) {$=4$};
+
+% he so chuan hoa phia tren
+\node[font=\scriptsize,anchor=south] at (1.05,0.52) {$\div\,0{,}35$};
+\node[font=\scriptsize,anchor=south] at (3.40,0.52) {$\div\,1{,}0$};
+\node[font=\scriptsize,anchor=south] at (7.30,0.52) {$\div\,0{,}75$};
+\node[font=\scriptsize,anchor=south] at (11.05,0.52) {$\{0,1\}\!\to\!\{-1,1\}$};
+
+% ngoac tong
+\draw[decorate,decoration={brace,amplitude=5pt,mirror},gray!70]
+      (0,-1.35) -- (12.2,-1.35);
+\node[font=\scriptsize,anchor=north] at (6.1,-1.80)
+     {$d_s = 2(K+N+KN)+K = 332$ \quad với $K=4,\ N=32$};
+
+% buoc cat bien
+\node[box,anchor=west,font=\scriptsize] (clip) at (0,-2.75) {Cắt biên về $[-8,\,8]$};
+\node[box,anchor=west,font=\scriptsize] (net)  at (4.2,-2.75) {Mạng nơ-ron (Actor / Critic)};
+\draw[->] ($(clip.north)+(0,0.60)$) -- (clip.north);
+\draw[->] (clip.east) -- (net.west);
+\end{tikzpicture}
+
+\chuthich{Hình 3.2: Cấu trúc và chuẩn hóa theo khối của véc-tơ trạng thái}
+{Tác giả xây dựng theo công thức (3.1), (3.2) và mã nguồn (2026)}
+
+% =====================================================================
+% HINH D -- ve lai Hinh 3.2 : bo giai ma hanh dong
+% =====================================================================
+\begin{tikzpicture}[font=\footnotesize,>=Stealth]
+
+% ---------- vec-to hanh dong, xep doc ----------
+\node[font=\scriptsize,anchor=south] at (0.6,0.45) {$a\in[-1,1]^{d_a}$};
+\foreach \y/\lbl/\dim in {0/{$a_c$}/1, -1.1/{$a_p$}/K, -2.2/{$a_\eta$}/K,
+                          -3.3/{$a_\beta$}/N, -4.40/{$a_{\theta^T}$}/N, -5.05/{$a_{\theta^R}$}/N}{
+   \node[sbox,fill=gray!18,minimum width=1.2cm,minimum height=0.55cm,anchor=west] at (0,\y) {\lbl};
+   \node[font=\tiny,gray!55!black,anchor=east] at (-0.15,\y) {\dim};
+}
+\node[font=\scriptsize,anchor=north] at (0.6,-5.55) {$d_a=2K+1+3N$};
+
+% ---------- khoi giai ma ----------
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d1) at (2.4,0)
+     {Ánh xạ tuyến tính\\ $\rho_c=0{,}70+0{,}29\,\tfrac{a_c+1}{2}$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d2) at (2.4,-1.1)
+     {Softmax độ sắc $\kappa=10$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d3) at (2.4,-2.2)
+     {Chiếu Euclid lên đơn hình $\Delta_K$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d4) at (2.4,-3.3)
+     {Ánh xạ tuyến tính $[-1,1]\to[0,1]$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d5) at (2.4,-4.725)
+     {Pha tham chiếu $\bar\theta_n=-\angle z_n$\\ cộng phần hiệu chỉnh học được};
+
+% ---------- bien vat ly ----------
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v1) at (8.1,0)
+     {$p_c=\rho_c P_{\max}$, \ $\rho_c\in[0{,}70;\,0{,}99]$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v2) at (8.1,-1.1)
+     {$p_k=(1-\rho_c)P_{\max}w_k$ \ (gần one-hot)};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v3) at (8.1,-2.2)
+     {$\eta_k\ge 0$, \ $\textstyle\sum_k \eta_k = 1$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v4) at (8.1,-3.3)
+     {$\beta^T_n\in[0,1]$, \ $\beta^R_n=1-\beta^T_n$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v5) at (8.1,-4.725)
+     {$\theta^T_n,\ \theta^R_n=\bar\theta_n+0{,}25\pi\,a_{\theta}$};
+
+% ---------- noi day: hang ngang, khong cat nhau ----------
+\foreach \i/\y in {1/0, 2/-1.1, 3/-2.2, 4/-3.3}{
+   \draw[->] (1.2,\y) -- (d\i.west);
+}
+\draw (1.2,-4.40) -- (1.85,-4.40);
+\draw (1.2,-5.05) -- (1.85,-5.05);
+\draw (1.85,-4.40) -- (1.85,-5.05);
+\draw[->] (1.85,-4.725) -- (d5.west);
+
+\foreach \i in {1,...,5}{ \draw[->] (d\i.east) -- (v\i.west); }
+
+\node[font=\scriptsize,anchor=north west,text width=13.4cm] at (0,-6.05)
+  {Mọi ràng buộc công suất, đơn hình và bảo toàn năng lượng được bảo đảm ngay tại bộ giải mã,
+   nên không cần phép chiếu hay hạng phạt bổ sung sau khi hành động đã được sinh.};
+\end{tikzpicture}
+
+\chuthich{Hình 3.3: Bộ giải mã hành động có cấu trúc vật lý}
+{Tác giả xây dựng theo \texttt{action.py} (2026)}
+
+\clearpage
+
+% =====================================================================
+% HINH E -- muc 3.4.2 : anh huong cua do sac softmax
+% =====================================================================
+\begin{tikzpicture}[font=\footnotesize]
+\begin{axis}[
+  width=13.5cm, height=6.4cm,
+  ybar=2pt, bar width=11pt,
+  xlabel={Chỉ số UE $k$}, ylabel={Trọng số công suất riêng $w_k$},
+  symbolic x coords={UE1,UE2,UE3,UE4},
+  xtick=data, ymin=0, ymax=1.08,
+  grid=both, grid style={gray!25},
+  tick label style={font=\scriptsize}, label style={font=\scriptsize},
+  legend style={font=\scriptsize,at={(0.98,0.97)},anchor=north east,draw=gray!50},
+  legend cell align=left,
+  nodes near coords, every node near coord/.append style=
+     {font=\tiny,/pgf/number format/.cd,fixed,precision=3,use comma},
+]
+\addplot[fill=gray!35,draw=gray!60!black]      coordinates {(UE1,0.358)(UE2,0.265)(UE3,0.217)(UE4,0.161)};
+\addlegendentry{$\kappa=1$}
+\addplot[fill=orange!45,draw=orange!70!black]  coordinates {(UE1,0.756)(UE2,0.169)(UE3,0.062)(UE4,0.014)};
+\addlegendentry{$\kappa=5$}
+\addplot[fill=blue!45,draw=blue!70!black]      coordinates {(UE1,0.946)(UE2,0.047)(UE3,0.006)(UE4,0.000)};
+\addlegendentry{$\kappa=10$ (luận văn)}
+\end{axis}
+\node[font=\scriptsize,anchor=north] at (6.8,-1.35)
+     {Cùng một đầu ra Actor $a_p=[0{,}5;\ 0{,}2;\ 0{,}0;\ -0{,}3]$};
+\end{tikzpicture}
+
+\chuthich{Hình 3.4: Ảnh hưởng của hệ số độ sắc $\kappa$ đến phân bổ công suất luồng riêng}
+{Tác giả xây dựng theo công thức (3.6) (2026)}
+
+\end{document}

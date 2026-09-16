@@ -26,24 +26,81 @@ def build_agent(method: str, obs_dim: int, action_dim: int, cfg: ExperimentConfi
             noise_reference_dim=cfg.td3_noise_reference_dim,
             critic_loss=cfg.td3_critic_loss,
             layer_norm=cfg.td3_layer_norm,
+            small_final_init=cfg.actor_small_final_init,
         )
     if method == "ddpg":
-        return DDPGAgent(obs_dim, action_dim, cfg.hidden_dim, cfg.gamma, cfg.tau, device)
+        return DDPGAgent(
+            obs_dim,
+            action_dim,
+            cfg.hidden_dim,
+            cfg.gamma,
+            cfg.tau,
+            device,
+            actor_lr=cfg.ddpg_actor_lr,
+            critic_lr=cfg.ddpg_critic_lr,
+            gradient_clip_norm=cfg.ddpg_gradient_clip_norm,
+            critic_loss=cfg.ddpg_critic_loss,
+            layer_norm=cfg.ddpg_layer_norm,
+            small_final_init=cfg.actor_small_final_init,
+        )
     if method == "ppo":
-        return PPOAgent(obs_dim, action_dim, cfg.hidden_dim, device)
+        return PPOAgent(
+            obs_dim,
+            action_dim,
+            cfg.hidden_dim,
+            device,
+            lr=cfg.ppo_lr,
+            gradient_clip_norm=cfg.ppo_gradient_clip_norm,
+            layer_norm=cfg.ppo_layer_norm,
+            epochs=cfg.ppo_epochs,
+            minibatch_size=cfg.ppo_minibatch_size,
+            clip_ratio=cfg.ppo_clip_ratio,
+            entropy_coef=cfg.ppo_entropy_coef,
+            value_coef=cfg.ppo_value_coef,
+        )
     raise ValueError(method)
 
 
-def save_checkpoint(path: str | Path, method: str, agent, step: int, score: float, cfg: ExperimentConfig) -> None:
+OPTIMIZER_STATE_KEYS = ("actor_opt", "q_opt", "optimizer")
+# The only entries load_checkpoint_state reads when inference_only=True.
+POLICY_STATE_KEYS = ("actor", "model")
+STATE_SCOPES = ("full", "no_optimizer", "policy")
+
+
+def save_checkpoint(
+    path: str | Path,
+    method: str,
+    agent,
+    step: int,
+    score: float,
+    cfg: ExperimentConfig,
+    state_scope: str = "full",
+) -> None:
+    """Persist an agent.
+
+    `state_scope` trades resumability for size. "full" keeps everything and is
+    what training checkpoints use. "policy" keeps only what an evaluation
+    needs, which for TD3 drops five of six networks plus both optimizers -
+    small enough to retain several candidates per run.
+    """
+    if state_scope not in STATE_SCOPES:
+        raise ValueError(f"state_scope must be one of {STATE_SCOPES}")
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
+    state = agent.checkpoint_state()
+    if state_scope == "no_optimizer":
+        state = {k: v for k, v in state.items() if k not in OPTIMIZER_STATE_KEYS}
+    elif state_scope == "policy":
+        state = {k: v for k, v in state.items() if k in POLICY_STATE_KEYS}
+        if not state:
+            raise RuntimeError(f"No policy state found for method {method}")
     torch.save({
         "method": method,
         "step": int(step),
         "validation_score": float(score),
         "config": cfg.to_dict(),
         "config_hash": cfg.config_hash(),
-        "agent": agent.checkpoint_state(),
+        "agent": state,
     }, target)
 
 

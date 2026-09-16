@@ -1,0 +1,155 @@
+% =====================================================================
+%  Hinh 1.2 (ve lai): So sanh RIS phan xa truyen thong va STAR-RIS
+%  Bien dich:  xelatex hinh12.tex
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1.4cm,paperwidth=19cm,paperheight=19cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}   % Overleaf: doi thanh "Times New Roman"
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,arrows.meta,calc,decorations.pathreplacing,shapes.geometric,patterns}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+\tikzset{
+  bx/.style  ={draw,fill=gray!12,align=center,inner sep=3pt,font=\scriptsize,line width=0.5pt},
+  ue/.style  ={draw,circle,inner sep=0pt,minimum size=0.48cm,font=\tiny,line width=0.5pt},
+  tit/.style ={font=\small\bfseries,anchor=north west},
+  note/.style={font=\tiny,align=left,anchor=north west,text width=7.2cm},
+}
+
+% mot be mat RIS: cot cac phan tu nho
+\newcommand{\risbar}[2]{% #1 = x, #2 = mau
+  \foreach \i in {0,...,9}{
+     \fill[#2!25] (#1-0.11,0.42+\i*0.29) rectangle ++(0.22,0.23);
+     \draw[#2!70!black,line width=0.35pt] (#1-0.11,0.42+\i*0.29) rectangle ++(0.22,0.23);
+  }
+  \draw[#2!70!black,line width=0.7pt] (#1,0.34) -- (#1,3.38);
+}
+
+\begin{document}
+\centering
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+% =====================================================================
+% (a) RIS phan xa truyen thong
+% =====================================================================
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,4.55) {(a) RIS phản xạ truyền thống};
+
+  % vung khuat phia sau be mat
+  \fill[gray!10] (3.30,0.30) rectangle (6.30,3.55);
+  \draw[gray!45,dashed,line width=0.5pt] (3.30,0.30) rectangle (6.30,3.55);
+  \node[font=\tiny,gray!45!black,align=center,anchor=north] at (4.80,1.95)
+       {Nửa không gian phía sau\\ không được phục vụ};
+
+  \risbar{3.18}{blue}
+  \node[font=\tiny,anchor=north] at (3.18,0.22) {RIS, $N$ phần tử};
+
+  % BS SISO
+  \node[bx,minimum height=0.8cm,minimum width=0.5cm] (bs) at (0.45,1.85) {BS};
+  \draw[blue!70!black,line width=0.6pt] (0.68,1.85) -- ++(0.20,0);
+  \fill[blue!65] (0.88,1.78) -- (0.88,1.92) -- (1.04,1.85) -- cycle;
+
+  % UE phia phan xa
+  \node[ue,fill=orange!22,draw=orange!70!black] (u1) at (1.55,3.20) {UE$_1$};
+  \node[ue,fill=blue!22,draw=blue!70!black]     (u3) at (1.75,0.62) {UE$_3$};
+  % UE phia sau -- khong duoc phuc vu
+  \node[ue,fill=gray!12,draw=gray!55,dashed] (u2) at (5.55,3.10) {UE$_2$};
+  \node[ue,fill=gray!12,draw=gray!55,dashed] (u4) at (5.75,0.72) {UE$_4$};
+
+  % tia toi va tia phan xa
+  \draw[orange!80!black,->] (1.06,1.85) -- (3.05,2.72);
+  \draw[orange!80!black,->] (3.05,2.72) -- (1.80,3.10);
+  \draw[blue!70!black,->]   (1.06,1.85) -- (3.05,1.05);
+  \draw[blue!70!black,->]   (3.05,1.05) -- (1.98,0.75);
+
+  \node[font=\tiny,anchor=east,gray!45!black] at (3.05,3.74) {phía phản xạ};
+  \node[font=\tiny,anchor=west,gray!45!black] at (3.32,3.74) {phía sau bề mặt};
+
+  \node[font=\scriptsize,anchor=north west] at (0,-0.30)
+       {Hệ số phần tử: \ $\phi_n=e^{j\theta_n}$};
+  \node[note] at (0,-0.82)
+    {Mỗi phần tử chỉ điều chỉnh pha của tín hiệu phản xạ. Toàn bộ năng lượng
+     quay về nửa không gian chứa BS, nên UE nằm sau bề mặt không nhận được
+     đường ghép tầng.};
+\end{scope}
+
+% =====================================================================
+% (b) STAR-RIS
+% =====================================================================
+\begin{scope}[shift={(8.2,0)}]
+  \node[tit] at (0,4.55) {(b) STAR--RIS};
+
+  \fill[green!8] (3.30,0.30) rectangle (6.30,3.55);
+  \draw[green!45!black,dashed,line width=0.5pt] (3.30,0.30) rectangle (6.30,3.55);
+
+  \risbar{3.18}{green!60!black}
+  \node[font=\tiny,anchor=north] at (3.18,0.22) {STAR--RIS, $N$ phần tử};
+
+  \node[bx,minimum height=0.8cm,minimum width=0.5cm] (bs2) at (0.45,1.85) {BS};
+  \draw[blue!70!black,line width=0.6pt] (0.68,1.85) -- ++(0.20,0);
+  \fill[blue!65] (0.88,1.78) -- (0.88,1.92) -- (1.04,1.85) -- cycle;
+
+  \node[ue,fill=orange!22,draw=orange!70!black] (v1) at (1.55,3.20) {UE$_1$};
+  \node[ue,fill=blue!22,draw=blue!70!black]     (v3) at (1.75,0.62) {UE$_3$};
+  \node[ue,fill=teal!22,draw=teal!70!black]     (v2) at (5.55,3.10) {UE$_2$};
+  \node[ue,fill=violet!22,draw=violet!70!black] (v4) at (5.75,0.72) {UE$_4$};
+
+  % tia toi
+  \draw[gray!55,->] (1.06,1.85) -- (3.05,2.72);
+  \draw[gray!55,->] (1.06,1.85) -- (3.05,1.05);
+  % phan xa
+  \draw[orange!80!black,->] (3.05,2.72) -- (1.80,3.10);
+  \draw[blue!70!black,->]   (3.05,1.05) -- (1.98,0.75);
+  % truyen qua
+  \draw[teal!70!black,->,dashed]   (3.31,2.72) -- (5.28,3.02);
+  \draw[violet!70!black,->,dashed] (3.31,1.05) -- (5.48,0.80);
+
+  \node[font=\tiny,anchor=east,gray!45!black] at (3.05,3.74) {phía phản xạ};
+  \node[font=\tiny,anchor=west,green!35!black] at (3.32,3.74) {phía truyền qua};
+
+  \node[font=\scriptsize,anchor=north west] at (0,-0.30)
+       {$\phi^T_n=\sqrt{\beta^T_n}\,e^{j\theta^T_n}$, \quad
+        $\phi^R_n=\sqrt{\beta^R_n}\,e^{j\theta^R_n}$, \quad
+        $\beta^T_n+\beta^R_n=1$};
+  \node[note] at (0,-0.82)
+    {Mỗi phần tử chia năng lượng tới thành một phần truyền qua và một phần
+     phản xạ, đồng thời điều chỉnh pha độc lập cho hai phía. Nhờ đó cả bốn UE
+     đều nhận được đường ghép tầng.};
+\end{scope}
+
+% =====================================================================
+% Chi tiet mot phan tu (chung cho ca hai panel)
+% =====================================================================
+\begin{scope}[shift={(4.3,-4.35)}]
+  \node[font=\scriptsize,anchor=south] at (2.9,1.62) {Chi tiết một phần tử STAR--RIS ở chế độ chia năng lượng (ES)};
+  % tia toi
+  \draw[gray!55,->,line width=0.7pt] (0.55,0.55) -- (2.55,0.55);
+  \node[font=\tiny,anchor=north,gray!45!black] at (1.5,0.48) {tín hiệu tới};
+  % phan tu
+  \fill[green!20] (2.60,0.15) rectangle ++(0.30,0.80);
+  \draw[green!55!black,line width=0.7pt] (2.60,0.15) rectangle ++(0.30,0.80);
+  % phan xa
+  \draw[orange!80!black,->,line width=0.7pt] (2.58,0.62) -- (1.58,1.12);
+  \node[font=\tiny,anchor=south east,orange!70!black] at (1.66,1.08) {$\beta^R_n$ phản xạ};
+  % truyen qua
+  \draw[teal!70!black,->,line width=0.7pt,dashed] (2.92,0.55) -- (4.10,0.55);
+  \node[font=\tiny,anchor=south,teal!60!black] at (3.72,0.62) {$\beta^T_n$ truyền qua};
+  % thanh chia nang luong
+  \draw[gray!60] (4.55,0.30) rectangle ++(1.70,0.45);
+  \fill[teal!30] (4.55,0.30) rectangle ++(0.75,0.45);
+  \fill[orange!30] (5.30,0.30) rectangle ++(0.95,0.45);
+  \node[font=\tiny] at (4.93,0.525) {$\beta^T_n$};
+  \node[font=\tiny] at (5.78,0.525) {$\beta^R_n$};
+  \node[font=\tiny,anchor=north] at (5.40,0.24) {tổng bằng 1};
+\end{scope}
+
+\end{tikzpicture}
+
+\vspace{2mm}
+{\footnotesize Hình 1.2: So sánh vùng phục vụ của RIS phản xạ truyền thống và STAR--RIS\\
+\textit{Nguồn: Tác giả xây dựng dựa trên [3], [4], [6] (2026)}}
+
+\end{document}

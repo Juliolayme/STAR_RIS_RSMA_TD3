@@ -132,4 +132,5 @@ def solve(
         current.action,
         env.config.p_max,
         env.config.action_parameterization,
+        channel=env.channel,
     ), metrics

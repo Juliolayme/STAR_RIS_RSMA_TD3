@@ -1,0 +1,192 @@
+% =====================================================================
+%  Cac hinh ve lai theo bo ky hieu va bang mau thong nhat
+%  Bien dich:  xelatex hinh_thongnhat.tex
+%  Gom: Hinh 2.1, Hinh 3.1, Hinh 3.3 (gop 3.3 + 3.4 cu)
+% =====================================================================
+\documentclass[11pt]{article}
+\usepackage[margin=1.4cm,paperwidth=19cm,paperheight=34cm]{geometry}
+\usepackage{fontspec}
+\setmainfont{Liberation Serif}   % Overleaf: doi thanh "Times New Roman"
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{positioning,fit,arrows.meta,calc,decorations.pathreplacing,shapes.geometric,backgrounds}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+% ---------------------------------------------------------------------
+%  BANG MAU DUNG CHUNG CHO MOI HINH TRONG LUAN VAN
+%    UE1 cam | UE2 teal | UE3 xanh duong | UE4 tim
+%    luong chung magenta | kenh/moi truong green | khoi xu ly gray
+% ---------------------------------------------------------------------
+\definecolor{cUEa}{RGB}{217,119,6}     % UE1
+\definecolor{cUEb}{RGB}{13,148,136}    % UE2
+\definecolor{cUEc}{RGB}{37,99,235}     % UE3
+\definecolor{cUEd}{RGB}{124,58,237}    % UE4
+\definecolor{cChung}{RGB}{190,24,93}   % luong chung
+\definecolor{cKenh}{RGB}{22,101,52}    % kenh / STAR-RIS
+
+\tikzset{
+  bx/.style  ={draw,fill=gray!12,align=center,inner sep=3pt,font=\scriptsize,line width=0.5pt},
+  sm/.style  ={draw,fill=gray!12,align=center,inner sep=2.5pt,font=\tiny,line width=0.45pt},
+  ue/.style  ={draw,circle,inner sep=0pt,minimum size=0.5cm,font=\tiny,line width=0.5pt},
+  tit/.style ={font=\small\bfseries,anchor=north west},
+  note/.style={font=\tiny,align=left,anchor=north west},
+}
+\newcommand{\chuthich}[2]{\vspace{1.5mm}{\footnotesize #1\\ \textit{Nguồn: #2}}\vspace{9mm}}
+
+\begin{document}
+\centering
+
+% =====================================================================
+% HINH 2.1 -- mo hinh he thong
+% =====================================================================
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+% --- BS mot anten ---
+\node[bx,minimum height=0.85cm,minimum width=0.55cm] (bs) at (0.45,1.85) {BS};
+\draw[cUEc,line width=0.6pt] (0.72,1.85) -- ++(0.20,0);
+\fill[cUEc] (0.92,1.78) -- (0.92,1.92) -- (1.08,1.85) -- cycle;
+
+% --- STAR-RIS ---
+\foreach \i in {0,...,10}{
+   \fill[cKenh!22] (4.29,0.42+\i*0.28) rectangle ++(0.22,0.22);
+   \draw[cKenh,line width=0.35pt] (4.29,0.42+\i*0.28) rectangle ++(0.22,0.22);
+}
+\draw[cKenh,line width=0.8pt] (4.40,0.34) -- (4.40,3.62);
+\node[font=\tiny,anchor=north,align=center] at (4.40,0.26) {STAR--RIS\\ $N$ phần tử};
+
+% --- UE ---
+\node[ue,fill=cUEa!18,draw=cUEa] (u1) at (2.25,3.45) {UE$_1$};
+\node[ue,fill=cUEc!18,draw=cUEc] (u3) at (2.45,0.55) {UE$_3$};
+\node[ue,fill=cUEb!18,draw=cUEb] (u2) at (6.75,3.45) {UE$_2$};
+\node[ue,fill=cUEd!18,draw=cUEd] (u4) at (6.95,0.55) {UE$_4$};
+
+% --- duong BS -> STAR-RIS : g ---
+\draw[cKenh,line width=0.9pt,->] (1.10,1.85) -- (4.25,2.00);
+\node[font=\scriptsize,cKenh,anchor=south] at (2.75,2.02) {$g$};
+
+% --- duong ghep tang STAR-RIS -> UE : h_{r,k} ---
+\draw[cUEa,->] (4.32,2.55) -- (2.55,3.28);
+\node[font=\tiny,cUEa,anchor=south west] at (3.35,3.00) {$h_{r,1}$};
+\draw[cUEc,->] (4.32,1.35) -- (2.72,0.72);
+\node[font=\tiny,cUEc,anchor=north west] at (3.35,1.02) {$h_{r,3}$};
+\draw[cUEb,->] (4.52,2.55) -- (6.45,3.28);
+\node[font=\tiny,cUEb,anchor=south east] at (5.85,3.00) {$h_{r,2}$};
+\draw[cUEd,->] (4.52,1.35) -- (6.65,0.72);
+\node[font=\tiny,cUEd,anchor=north east] at (5.85,1.02) {$h_{r,4}$};
+
+% --- duong truc tiep BS -> UE : h_{d,k} ---
+\draw[gray!60,dashed,->] (1.05,2.10) -- (2.05,3.22);
+\node[font=\tiny,gray!45!black,anchor=south] at (1.52,2.98) {$h_{d,1}$};
+\draw[gray!60,dashed,->] (1.05,1.45) -- (2.25,0.78);
+\node[font=\tiny,gray!45!black,anchor=north] at (1.52,1.02) {$h_{d,3}$};
+% toi phia truyen qua: vong qua mep be mat
+\draw[gray!60,dashed,->] (1.05,2.25) .. controls (3.0,4.85) and (5.6,4.85) .. (6.60,3.72);
+\node[font=\tiny,gray!45!black,anchor=south] at (4.40,4.62) {$h_{d,2}$};
+\draw[gray!60,dashed,->] (1.05,1.45) .. controls (3.0,-1.05) and (5.6,-1.05) .. (6.80,0.30);
+\node[font=\tiny,gray!45!black,anchor=north] at (4.40,-0.86) {$h_{d,4}$};
+
+% --- nhan hai phia ---
+\node[font=\tiny,cKenh,anchor=east] at (4.25,3.82) {phía phản xạ};
+\node[font=\tiny,cKenh,anchor=west] at (4.55,3.82) {phía truyền qua};
+
+\node[note,text width=12.5cm] at (0,-1.50)
+  {Đường liền: đường ghép tầng BS $\to$ STAR--RIS $\to$ UE.
+   Đường nét đứt: đường trực tiếp BS $\to$ UE, tồn tại với mọi $k$.
+   Kênh hiệu dụng của UE $k$ là $h^{\mathrm{eff}}_k=h_{d,k}+\sum_{n}h^{*}_{r,k,n}\,\phi^{X}_n\,g_n$
+   với $X\in\{T,R\}$ theo phía của UE.};
+\end{tikzpicture}
+
+\chuthich{Hình 2.1: Mô hình hệ thống SISO STAR--RIS hỗ trợ RSMA}
+{Tác giả xây dựng theo công thức (2.6) (2026)}
+
+\clearpage
+
+% =====================================================================
+% HINH 3.1 -- khung DRL (thay the ca Hinh 1.3 cu)
+% =====================================================================
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+\node[bx,text width=2.0cm,minimum height=1.0cm] (csi)  at (0,0)    {CSI\\ $h_d,\ g,\ h_r$};
+\node[bx,text width=2.2cm,minimum height=1.0cm] (st)   at (3.0,0)  {Tạo trạng thái\\ và chuẩn hóa\\ \tiny $s\in\mathbb{R}^{d_s}$};
+\node[bx,text width=2.6cm,minimum height=1.0cm] (net)  at (6.4,0)  {Actor\\ DDPG / TD3 / PPO};
+\node[bx,text width=2.4cm,minimum height=1.0cm] (act)  at (9.8,0)  {Hành động chuẩn hóa\\ $a\in[-1,1]^{d_a}$};
+\node[bx,fill=cChung!10,text width=2.6cm,minimum height=1.0cm] (dec) at (9.8,-2.3)
+      {Bộ giải mã hành động vật lý\\ \tiny $p,\ \eta,\ \beta,\ \theta^T,\ \theta^R$};
+\node[bx,fill=cKenh!10,text width=2.8cm,minimum height=1.0cm] (env) at (5.4,-2.3)
+      {Môi trường\\ STAR--RIS--RSMA};
+\node[bx,text width=2.4cm,minimum height=1.0cm] (rw)  at (1.4,-2.3)
+      {Tốc độ, QoS\\ và phần thưởng};
+
+\draw[->] (csi)  -- (st);
+\draw[->] (st)   -- (net);
+\draw[->] (net)  -- (act);
+\draw[->] (act)  -- (dec);
+\draw[->] (dec)  -- (env);
+\draw[->] (env)  -- (rw);
+\draw[->] (rw.north) -- (1.4,-1.15) -- (6.4,-1.15) -- (net.south);
+\node[font=\tiny,anchor=south] at (3.9,-1.12) {tín hiệu học (cập nhật trọng số)};
+
+\node[note,text width=12.5cm] at (-0.9,-3.30)
+  {Bộ giải mã hành động vật lý \textbf{dùng chung} cho DDPG, TD3 và PPO, nên khác biệt
+   giữa ba thuật toán chỉ nằm ở cách cập nhật chính sách, không nằm ở miền hành động.};
+\end{tikzpicture}
+
+\chuthich{Hình 3.1: Khung DRL và bộ giải mã hành động vật lý dùng chung}
+{Tác giả xây dựng (2026)}
+
+\clearpage
+
+% =====================================================================
+% HINH 3.3 -- gop Hinh 3.3 + 3.4 cu thanh mot hinh ba cot
+% =====================================================================
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+\def\bw{3.1}   % be rong mot cot
+\def\bh{0.52}  % chieu cao mot khoi
+
+% ---------- cot 1: Actor xac dinh (DDPG / TD3) ----------
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,0.95) {(a) Actor — DDPG, TD3};
+  \node[sm,anchor=north,text width=\bw cm] (a1) at (1.55,0.25)  {Trạng thái $s$ \ ($d_s$)};
+  \node[sm,anchor=north,text width=\bw cm] (a2) at (1.55,-0.55) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (a3) at (1.55,-1.35) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (a4) at (1.55,-2.15) {FC $d_a$};
+  \node[sm,anchor=north,text width=\bw cm,fill=cChung!10] (a5) at (1.55,-2.95) {Tanh \ $\to$ \ $a\in[-1,1]^{d_a}$};
+  \foreach \i/\j in {a1/a2,a2/a3,a3/a4,a4/a5}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+% ---------- cot 2: Actor ngau nhien (PPO) ----------
+\begin{scope}[shift={(4.9,0)}]
+  \node[tit] at (0,0.95) {(b) Actor — PPO};
+  \node[sm,anchor=north,text width=\bw cm] (b1) at (1.55,0.25)  {Trạng thái $s$ \ ($d_s$)};
+  \node[sm,anchor=north,text width=\bw cm] (b2) at (1.55,-0.55) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (b3) at (1.55,-1.35) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (b4) at (1.55,-2.15) {FC $d_a$ \ $\to$ \ $\mu(s)$};
+  \node[sm,anchor=north,text width=\bw cm] (b5) at (1.55,-2.95) {Lấy mẫu $u\sim\mathcal{N}(\mu,\sigma^2)$\\ \tiny $\log\sigma$ là tham số học riêng};
+  \node[sm,anchor=north,text width=\bw cm,fill=cChung!10] (b7) at (1.55,-3.75) {Tanh \ $\to$ \ $a=\tanh(u)$};
+  \foreach \i/\j in {b1/b2,b2/b3,b3/b4,b4/b5,b5/b7}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+% ---------- cot 3: Critic ----------
+\begin{scope}[shift={(9.8,0)}]
+  \node[tit] at (0,0.95) {(c) Critic};
+  \node[sm,anchor=north,text width=\bw cm] (c1) at (1.55,0.25)  {$[s,a]$ \ ($d_s+d_a$) — DDPG/TD3\\ $s$ \ ($d_s$) — PPO};
+  \node[sm,anchor=north,text width=\bw cm] (c2) at (1.55,-0.80) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (c3) at (1.55,-1.60) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (c4) at (1.55,-2.40) {FC 1};
+  \node[sm,anchor=north,text width=\bw cm,fill=cKenh!10] (c5) at (1.55,-3.20)
+       {$Q(s,a)$ — DDPG/TD3\\ $V(s)$ — PPO};
+  \foreach \i/\j in {c1/c2,c2/c3,c3/c4,c4/c5}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+\node[note,text width=12.8cm] at (0,-4.55)
+  {Cả ba cột dùng cùng bề rộng ẩn 256 và cùng thứ tự FC $\to$ LN $\to$ ReLU.
+   TD3 dùng hai Critic độc lập có cấu trúc giống cột (c) và lấy giá trị nhỏ hơn khi tạo mục tiêu.
+   Đầu ra của cả hai Actor đều đi vào cùng một bộ giải mã hành động vật lý ở Hình 3.1.};
+\end{tikzpicture}
+
+\chuthich{Hình 3.5: Kiến trúc khối của Actor và Critic}
+{Tác giả xây dựng theo cấu hình thực nghiệm (2026)}
+
+\end{document}

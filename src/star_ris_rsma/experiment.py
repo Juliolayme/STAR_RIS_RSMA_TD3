@@ -25,7 +25,10 @@ def _device(force_cpu: bool = False) -> str:
 
 
 def _git_commit() -> str:
-    explicit = os.environ.get("GIT_COMMIT") or os.environ.get("KAGGLE_KERNEL_RUN_ID")
+    # KAGGLE_KERNEL_RUN_ID identifies a runtime, not a repository commit.  Older
+    # artifacts accidentally stored it in columns named git_commit.  Preserve
+    # commit provenance by accepting only an explicit commit or git itself.
+    explicit = os.environ.get("GIT_COMMIT")
     if explicit:
         return explicit
     try:
@@ -309,6 +312,10 @@ def evaluate_solver(
             "evaluations": metrics.get("evaluations", 1),
             "accepted_steps": metrics.get("accepted_steps", 0),
             "solver": metrics.get("solver", method),
+            "algorithm_version": metrics.get("algorithm_version", metrics.get("solver", method)),
+            "termination_reason": metrics.get("termination_reason", ""),
+            "power_stationarity_gap": metrics.get("power_stationarity_gap", np.nan),
+            "common_stationarity_gap": metrics.get("common_stationarity_gap", np.nan),
             "initialization": metrics.get("initialization", "unknown"),
             "objective_history": json.dumps(metrics.get("objective_history", [])),
             "surrogate_records": json.dumps(metrics.get("surrogate_records", [])),

@@ -10,15 +10,44 @@ from .networks import Critic, DeterministicActor
 
 
 class DDPGAgent:
-    def __init__(self, obs_dim: int, action_dim: int, hidden_dim: int = 256, gamma: float = 0.99, tau: float = 0.005, device: str = "cpu"):
+    def __init__(
+        self,
+        obs_dim: int,
+        action_dim: int,
+        hidden_dim: int = 256,
+        gamma: float = 0.99,
+        tau: float = 0.005,
+        device: str = "cpu",
+        *,
+        actor_lr: float = 3e-4,
+        critic_lr: float = 3e-4,
+        gradient_clip_norm: float = 0.0,
+        critic_loss: str = "mse",
+        layer_norm: bool = False,
+        small_final_init: bool = False,
+    ):
         self.device = torch.device(device)
-        self.actor = DeterministicActor(obs_dim, action_dim, hidden_dim).to(self.device)
+        self.actor = DeterministicActor(
+            obs_dim,
+            action_dim,
+            hidden_dim,
+            layer_norm=layer_norm,
+            small_final_init=small_final_init,
+        ).to(self.device)
         self.actor_target = deepcopy(self.actor)
-        self.q = Critic(obs_dim, action_dim, hidden_dim).to(self.device)
+        self.q = Critic(obs_dim, action_dim, hidden_dim, layer_norm=layer_norm).to(self.device)
         self.q_target = deepcopy(self.q)
-        self.actor_opt = torch.optim.Adam(self.actor.parameters(), lr=3e-4)
-        self.q_opt = torch.optim.Adam(self.q.parameters(), lr=3e-4)
+        self.actor_opt = torch.optim.Adam(self.actor.parameters(), lr=actor_lr)
+        self.q_opt = torch.optim.Adam(self.q.parameters(), lr=critic_lr)
         self.gamma, self.tau = gamma, tau
+        self.gradient_clip_norm = float(gradient_clip_norm)
+        if critic_loss not in {"mse", "huber"}:
+            raise ValueError("critic_loss must be 'mse' or 'huber'")
+        self.critic_loss = critic_loss
+
+    def _clip(self, parameters) -> None:
+        if self.gradient_clip_norm > 0:
+            nn.utils.clip_grad_norm_(parameters, self.gradient_clip_norm)
 
     @torch.no_grad()
     def act(self, obs: np.ndarray, noise_std: float = 0.0) -> np.ndarray:
@@ -32,10 +61,15 @@ class DDPGAgent:
         obs, action, reward, next_obs, done = [torch.as_tensor(x, dtype=torch.float32, device=self.device) for x in batch]
         with torch.no_grad():
             y = reward + self.gamma * (1.0 - done) * self.q_target(next_obs, self.actor_target(next_obs))
-        q_loss = nn.functional.mse_loss(self.q(obs, action), y)
-        self.q_opt.zero_grad(); q_loss.backward(); self.q_opt.step()
+        loss_fn = (
+            nn.functional.smooth_l1_loss
+            if self.critic_loss == "huber"
+            else nn.functional.mse_loss
+        )
+        q_loss = loss_fn(self.q(obs, action), y)
+        self.q_opt.zero_grad(); q_loss.backward(); self._clip(self.q.parameters()); self.q_opt.step()
         actor_loss = -self.q(obs, self.actor(obs)).mean()
-        self.actor_opt.zero_grad(); actor_loss.backward(); self.actor_opt.step()
+        self.actor_opt.zero_grad(); actor_loss.backward(); self._clip(self.actor.parameters()); self.actor_opt.step()
         self._soft_update()
         return {"critic_loss": float(q_loss.item()), "actor_loss": float(actor_loss.item())}
 

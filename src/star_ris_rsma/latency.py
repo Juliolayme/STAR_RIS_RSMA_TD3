@@ -149,6 +149,7 @@ def benchmark_td3_vs_traditional(
             cfg.n_ris,
             cfg.p_max,
             cfg.action_parameterization,
+            channel=env.channel,
         )
         env.evaluate_decoded_action(decoded)
 
@@ -180,6 +181,7 @@ def benchmark_td3_vs_traditional(
                     cfg.n_ris,
                     cfg.p_max,
                     cfg.action_parameterization,
+                    channel=env.channel,
                 )
             decode_ms = _elapsed_per_call_ms(started, decode_repeats)
 
@@ -192,6 +194,7 @@ def benchmark_td3_vs_traditional(
                     cfg.n_ris,
                     cfg.p_max,
                     cfg.action_parameterization,
+                    channel=env.channel,
                 )
                 td3_metrics = env.evaluate_decoded_action(timed_decoded)
             td3_end_to_end_ms = _elapsed_per_call_ms(started, end_to_end_repeats)

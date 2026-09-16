@@ -29,11 +29,16 @@ class TD3Agent:
         noise_reference_dim: int = 0,
         critic_loss: str = "mse",
         layer_norm: bool = False,
+        small_final_init: bool = False,
     ):
         self.device = torch.device(device)
         self.action_dim = int(action_dim)
         self.actor = DeterministicActor(
-            obs_dim, action_dim, hidden_dim, layer_norm=layer_norm
+            obs_dim,
+            action_dim,
+            hidden_dim,
+            layer_norm=layer_norm,
+            small_final_init=small_final_init,
         ).to(self.device)
         self.actor_target = deepcopy(self.actor)
         self.q1 = Critic(
