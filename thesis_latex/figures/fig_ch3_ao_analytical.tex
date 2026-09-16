@@ -1,0 +1,89 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+% =====================================================================
+% (a) AnalyticalRIS -- mot buoc, khong lap
+% =====================================================================
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,1.30) {(a) AnalyticalRIS};
+  \node[box,text width=2.5cm,minimum height=0.75cm] (a0) at (1.55,0.30) {CSI của một kịch bản};
+  \node[box,text width=2.5cm,minimum height=0.9cm]  (a1) at (1.55,-0.95)
+       {Phân bổ công suất\\ và tốc độ đơn giản};
+  \node[box,text width=2.5cm,minimum height=0.75cm] (a2) at (1.55,-2.20) {$\beta^T_n=\beta^R_n=0,5$};
+  \node[box,fill=cKenh!10,text width=2.5cm,minimum height=0.9cm] (a3) at (1.55,-3.45)
+       {Căn pha\\ $\bar\theta_n=-\angle\sum_k h^{*}_{r,k,n}g_n$};
+  \node[sbox,fill=cChung!10,text width=2.5cm,minimum height=0.7cm] (a4) at (1.55,-4.70) {Nghiệm};
+  \foreach \i/\j in {a0/a1,a1/a2,a2/a3,a3/a4}{ \draw[->] (\i.south) -- (\j.north); }
+  \node[note,text width=3.3cm] at (0,-5.35)
+       {Không có vòng lặp. Mỗi khối được tính đúng một lần, nên chi phí thấp nhất
+        trong bốn phương pháp.};
+\end{scope}
+
+% =====================================================================
+% (b) AO--SCA
+% =====================================================================
+\begin{scope}[shift={(5.1,0)}]
+  \node[tit] at (0,1.30) {(b) AO--SCA};
+  \node[sbox,fill=cChung!10,text width=2.9cm,minimum height=0.7cm] (b0) at (1.75,0.30)
+       {Khởi tạo bằng AnalyticalRIS};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (b1) at (1.75,-0.95)
+       {Khối công suất $p$:\\ chuyển $\delta$ giữa hai luồng};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (b2) at (1.75,-2.20)
+       {Khối $\eta$:\\ chuyển $\delta$ trên đơn hình};
+  \node[box,text width=2.9cm,minimum height=1.05cm] (b3) at (1.75,-3.55)
+       {Khối STAR--RIS $(\beta,\theta)$:\\ gradient sai phân hữu hạn\\ + bước lân cận, quay lui};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (b4) at (1.75,-4.90)
+       {Đánh bóng hai đơn hình\\ và kiểm tra stationarity};
+  \foreach \i/\j in {b0/b1,b1/b2,b2/b3,b3/b4}{ \draw[->] (\i.south) -- (\j.north); }
+  % vong lap quay ve
+  \draw[->,cUEa] (b4.east) -- (3.42,-4.90) -- (3.42,-0.95) -- (b1.east);
+  \node[font=\tiny,cUEa,rotate=90,fill=white,inner sep=1.5pt] at (3.42,-2.92) {lặp đến khi hội tụ};
+  \node[note,text width=3.7cm] at (0,-5.75)
+       {Mỗi vòng quét lần lượt ba khối. Khối STAR--RIS tốn nhất vì cần một lần
+        tính sai phân cho từng biến.};
+\end{scope}
+
+% =====================================================================
+% (c) AO--Grid
+% =====================================================================
+\begin{scope}[shift={(10.6,0)}]
+  \node[tit] at (0,1.30) {(c) AO--Grid};
+  \node[sbox,fill=cChung!10,text width=2.9cm,minimum height=0.7cm] (c0) at (1.75,0.30)
+       {Khởi tạo bằng AnalyticalRIS};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (c1) at (1.75,-0.95)
+       {Lưới công suất, có giá trị $0$\\ nên tắt hẳn được một luồng};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (c2) at (1.75,-2.20)
+       {Lưới $\eta$:\\ tập giá trị rời rạc};
+  \node[box,text width=2.9cm,minimum height=1.05cm] (c3) at (1.75,-3.55)
+       {Khối STAR--RIS: quét tọa độ\\ thuận và nghịch,\\ giữ kết quả tốt hơn};
+  \node[box,text width=2.9cm,minimum height=0.9cm] (c4) at (1.75,-4.90)
+       {Chọn bước cải thiện tốt nhất\\ trong các ứng viên};
+  \foreach \i/\j in {c0/c1,c1/c2,c2/c3,c3/c4}{ \draw[->] (\i.south) -- (\j.north); }
+  \draw[->,cUEa] (c4.east) -- (3.42,-4.90) -- (3.42,-0.95) -- (c1.east);
+  \node[font=\tiny,cUEa,rotate=90,fill=white,inner sep=1.5pt] at (3.42,-2.92) {lặp đến khi hội tụ};
+  \node[note,text width=3.7cm] at (0,-5.75)
+       {Không dùng đạo hàm. Bù lại, số phép đánh giá tăng nhanh theo số biến
+        STAR--RIS.};
+\end{scope}
+
+% =====================================================================
+% Dai doi chieu do tre
+% =====================================================================
+\begin{scope}[shift={(0,-7.35)}]
+  \node[font=\scriptsize\bfseries,anchor=west] at (0,0.45)
+       {Độ trễ ra quyết định cho một kịch bản, giá trị trung vị trên CPU một luồng:};
+  \foreach \x/\lbl/\v/\c in {%
+      0.0/{AnalyticalRIS}/{0,20 -- 0,24 ms}/cKenh,
+      3.6/{TD3 (tham chiếu)}/{0,34 -- 0,45 ms}/cUEc,
+      7.2/{AO--Grid}/{189 -- 1.205 ms}/cUEa,
+      10.8/{AO--SCA}/{830 -- 3.606 ms}/cUEd}{
+    \node[draw=\c,fill=\c!8,rounded corners=2pt,line width=0.8pt,
+          text width=3.1cm,align=center,inner sep=4pt,font=\scriptsize,anchor=north west]
+          at (\x,0.15) {\lbl\\[2pt] \v};
+  }
+  \node[font=\tiny,anchor=north west,text width=14.0cm] at (0,-1.05)
+       {Khoảng giá trị ứng với $N = 16$ đến $N = 128$. Hai phương pháp AO chậm hơn
+        nhóm còn lại từ ba đến bốn bậc độ lớn vì phải lặp nhiều vòng và đánh giá lại
+        hàm mục tiêu cho từng ứng viên của mỗi biến.};
+\end{scope}
+
+\end{tikzpicture}
