@@ -1,0 +1,132 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+% =====================================================================
+% (a) OMA
+% =====================================================================
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,3.95) {(a) OMA — tách tài nguyên};
+  \foreach \x/\y/\lbl/\c in {0.5/0.7/UE$_3$/blue, 2.2/0.7/UE$_4$/violet,
+                             0.5/1.7/UE$_1$/orange, 2.2/1.7/UE$_2$/teal}{
+     \fill[\c!18] (\x,\y) rectangle ++(1.7,1.0);
+     \draw[\c!60!black,line width=0.6pt] (\x,\y) rectangle ++(1.7,1.0);
+     \node[font=\scriptsize] at (\x+0.85,\y+0.5) {\lbl};
+  }
+  \draw[gray!60,->] (0.5,0.5) -- (4.1,0.5) node[anchor=north,font=\tiny,gray!50!black,midway,yshift=-2pt]{thời gian};
+  \draw[gray!60,->] (0.35,0.7) -- (0.35,2.9) node[anchor=east,font=\tiny,gray!50!black,midway,rotate=90,yshift=6pt]{tần số};
+  \node[note] at (0,0.15)
+    {Mỗi UE chiếm một khối tài nguyên riêng. Không có nhiễu liên người dùng,
+     nhưng mỗi UE chỉ dùng được $1/K$ tài nguyên.};
+\end{scope}
+
+% =====================================================================
+% (b) SDMA
+% =====================================================================
+\begin{scope}[shift={(8.6,0)}]
+  \node[tit] at (0,3.95) {(b) SDMA — tách theo không gian};
+  % BS nhieu anten
+  \node[bx,minimum height=0.9cm,minimum width=0.5cm] (bs) at (0.75,1.7) {BS};
+  \foreach \dy in {-0.25,0,0.25}{
+     \draw[blue!70!black,line width=0.6pt] (0.98,1.7+\dy) -- ++(0.22,0);
+     \fill[blue!65] (1.20,1.7+\dy-0.07) -- (1.20,1.7+\dy+0.07) -- (1.36,1.7+\dy) -- cycle;
+  }
+  % 4 bup song
+  \foreach \y/\lbl/\c in {2.90/UE$_1$/orange, 2.20/UE$_2$/teal, 1.20/UE$_3$/blue, 0.50/UE$_4$/violet}{
+     \fill[\c!22,opacity=0.75] (1.40,1.7) -- (4.15,\y+0.30) -- (4.15,\y-0.30) -- cycle;
+     \node[ue,fill=\c!20,draw=\c!60!black] at (4.45,\y) {\lbl};
+  }
+  \node[note] at (0,0.15)
+    {BS dùng véc-tơ tiền mã hóa để tạo búp sóng riêng cho từng UE.
+     \textbf{Cần nhiều anten.} Hệ SISO của luận văn chỉ có một anten nên
+     không tạo được phân tách không gian.};
+\end{scope}
+
+% =====================================================================
+% (c) NOMA
+% =====================================================================
+\begin{scope}[shift={(0,-5.6)}]
+  \node[tit] at (0,3.95) {(c) NOMA — tách theo miền công suất};
+  % chong cong suat
+  \foreach \y/\h/\lbl/\c in {0.75/0.95/$p_1$/orange, 1.70/0.70/$p_2$/teal,
+                             2.40/0.48/$p_3$/blue, 2.88/0.32/$p_4$/violet}{
+     \fill[\c!22] (0.45,\y) rectangle ++(0.75,\h);
+     \draw[\c!60!black,line width=0.5pt] (0.45,\y) rectangle ++(0.75,\h);
+     \node[font=\tiny] at (0.825,\y+\h/2) {\lbl};
+  }
+  \node[font=\tiny,anchor=north,align=center] at (0.825,0.70) {chồng\\ công suất};
+  \draw[gray!60,->] (0.30,0.75) -- (0.30,3.25) node[anchor=east,font=\tiny,gray!50!black,midway,rotate=90,yshift=6pt]{công suất};
+
+  % chuoi SIC nhieu tang: mot cot doc, khong cat nhau
+  \node[sm,anchor=west,minimum width=1.6cm] (n1) at (2.05,3.05) {Giải mã $s_1$};
+  \node[sm,anchor=west,minimum width=1.6cm,fill=gray!22] (n2) at (2.05,2.55) {SIC};
+  \node[sm,anchor=west,minimum width=1.6cm] (n3) at (2.05,2.05) {Giải mã $s_2$};
+  \node[sm,anchor=west,minimum width=1.6cm,fill=gray!22] (n4) at (2.05,1.55) {SIC};
+  \node[sm,anchor=west,minimum width=1.6cm] (n5) at (2.05,1.05) {Giải mã $s_k$};
+  \foreach \a/\b in {n1/n2, n2/n3, n3/n4, n4/n5}{ \draw[->] (\a.south) -- (\b.north); }
+  \draw[decorate,decoration={brace,amplitude=4pt},gray!70] (3.80,3.20) -- (3.80,0.92);
+  \node[font=\tiny,anchor=west,align=left,gray!40!black] at (3.98,2.06) {tối đa\\ $K-1$\\ tầng SIC};
+
+  \node[note] at (0,0.18)
+    {Các UE dùng chung tài nguyên, phân biệt bằng mức công suất.
+     UE kênh tốt phải giải mã và loại lần lượt tín hiệu của các UE khác.
+     Thứ tự giải mã phụ thuộc độ mạnh kênh.};
+\end{scope}
+
+% =====================================================================
+% (d) RSMA
+% =====================================================================
+\begin{scope}[shift={(8.6,-5.6)}]
+  \node[tit] at (0,3.95) {(d) RSMA — chung + riêng};
+  % tach thong diep
+  \node[font=\tiny,anchor=east] at (0.42,2.95) {$W_k$};
+  \foreach \i/\x/\c in {1/0.50/orange, 2/1.42/teal, 3/2.34/blue, 4/3.26/violet}{
+     \fill[magenta!25] (\x,2.80) rectangle ++(0.34,0.32);
+     \draw[magenta!70!black,line width=0.4pt] (\x,2.80) rectangle ++(0.34,0.32);
+     \fill[\c!25] (\x+0.34,2.80) rectangle ++(0.48,0.32);
+     \draw[\c!60!black,line width=0.4pt] (\x+0.34,2.80) rectangle ++(0.48,0.32);
+     \node[font=\tiny,anchor=north] at (\x+0.41,2.74) {\i};
+  }
+  \node[font=\tiny,anchor=west,magenta!70!black] at (4.20,3.08) {phần chung $W_{c,k}$};
+  \node[font=\tiny,anchor=west,gray!40!black] at (4.20,2.80) {phần riêng $W_{p,k}$};
+
+  % gop thanh luong chung + cac luong rieng
+  \node[sm,fill=magenta!15,anchor=west] (sc) at (0.50,1.95) {gộp $\to$ luồng chung $s_c$};
+  \node[sm,anchor=west] (sp) at (3.45,1.95) {$s_1,\dots,s_4$};
+  \draw[->] (1.00,2.72) -- (1.00,2.22);
+  \draw[->] (4.00,2.72) -- (4.00,2.22);
+
+  % may thu cua UE k : dung 1 tang SIC
+  \node[sm,anchor=west] (r1) at (0.50,1.05) {Giải mã $s_c$};
+  \node[sm,fill=magenta!12,anchor=west] (r2) at (2.15,1.05) {SIC (1 tầng)};
+  \node[sm,anchor=west] (r3) at (4.00,1.05) {Giải mã $s_k$};
+  \draw[->] (r1.east) -- (r2.west);
+  \draw[->] (r2.east) -- (r3.west);
+  \draw[->] (1.20,1.75) -- (1.20,1.28);
+  \draw[->] (4.30,1.75) -- (4.30,1.28);
+  \node[font=\tiny,anchor=north west,align=left] at (0.50,0.90)
+       {$R_k=\underbrace{\eta_k R_c}_{\text{phần chung}}+\underbrace{R_{p,k}}_{\text{phần riêng}}$};
+  \node[note] at (0,0.15)
+    {Thông điệp mỗi UE được tách thành phần chung và phần riêng.
+     \textbf{Mọi UE giải luồng chung trước, rồi dùng đúng một tầng SIC}
+     để loại $s_c$, sau đó giải luồng riêng của mình.};
+\end{scope}
+
+% =====================================================================
+% Dai quan he bao ham
+% =====================================================================
+\begin{scope}[shift={(0,-8.05)}]
+  \draw[gray!45,line width=0.9pt,->] (1.6,0) -- (12.2,0);
+  \foreach \x in {2.0,11.8}{ \draw[gray!60] (\x,-0.12) -- (\x,0.12); }
+  \node[font=\tiny,anchor=north] at (2.0,-0.18) {$\rho_c\to 0$};
+  \node[font=\tiny,anchor=north] at (11.8,-0.18) {$\rho_c\to 1$};
+  \node[bx,fill=teal!12,anchor=north] at (2.0,-0.55) {SDMA\\ \tiny chỉ luồng riêng};
+  \node[bx,fill=violet!12,anchor=north] at (11.8,-0.55) {NOMA\\ \tiny gần như chỉ luồng chung};
+  \fill[magenta!14] (5.0,-0.30) rectangle (9.0,0.30);
+  \draw[magenta!60!black,line width=0.6pt] (5.0,-0.30) rectangle (9.0,0.30);
+  \node[font=\scriptsize,magenta!60!black] at (7.0,0) {RSMA};
+  \node[font=\tiny,anchor=north,align=center] at (7.0,-0.55)
+       {RSMA bao hàm SDMA và NOMA như hai trường hợp đặc biệt;\\
+        luận văn giới hạn miền hành động ở $\rho_c\in[0{,}70;\,0{,}99]$};
+  \node[font=\tiny,anchor=east] at (1.5,0) {$\rho_c=p_c/P_{\max}$:};
+\end{scope}
+
+\end{tikzpicture}

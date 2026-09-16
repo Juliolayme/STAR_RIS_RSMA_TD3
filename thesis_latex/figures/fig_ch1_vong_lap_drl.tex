@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+\node[box,text width=2.6cm,minimum height=1.0cm] (env) at (0,0)
+     {Môi trường\\ STAR--RIS--RSMA};
+\node[box,text width=2.4cm,minimum height=1.0cm] (st)  at (3.9,0)
+     {Trạng thái\\ CSI chuẩn hóa};
+\node[box,text width=2.4cm,minimum height=1.0cm] (ac)  at (7.6,0)
+     {Actor\\ (chính sách)};
+\node[box,fill=cChung!10,text width=2.6cm,minimum height=1.0cm] (dec) at (7.6,-2.2)
+     {Bộ giải mã\\ hành động vật lý};
+\node[box,text width=2.6cm,minimum height=1.0cm] (rw)  at (1.9,-2.2)
+     {Tốc độ, QoS\\ và phần thưởng};
+
+\draw[->] (env) -- (st);
+\draw[->] (st)  -- (ac);
+\draw[->] (ac)  -- (dec);
+\draw[->] (dec) -- (rw);
+\draw[->] (rw.north) -- (1.9,-1.05) -- (0,-1.05) -- (env.south);
+\draw[->] (rw.east) -- (4.75,-2.2) -- (4.75,-1.15) -- (7.6,-1.15) -- (ac.south)
+      node[pos=0.62,above,font=\tiny]{tín hiệu học};
+\end{tikzpicture}

@@ -1,0 +1,50 @@
+\begin{tikzpicture}[font=\footnotesize,>=Stealth]
+
+% ---------- vec-to hanh dong, xep doc ----------
+\node[font=\scriptsize,anchor=south] at (0.6,0.45) {$a\in[-1,1]^{d_a}$};
+\foreach \y/\lbl/\dim in {0/{$a_c$}/1, -1.1/{$a_p$}/K, -2.2/{$a_\eta$}/K,
+                          -3.3/{$a_\beta$}/N, -4.40/{$a_{\theta^T}$}/N, -5.05/{$a_{\theta^R}$}/N}{
+   \node[sbox,fill=gray!18,minimum width=1.2cm,minimum height=0.55cm,anchor=west] at (0,\y) {\lbl};
+   \node[font=\tiny,gray!55!black,anchor=east] at (-0.15,\y) {\dim};
+}
+\node[font=\scriptsize,anchor=north] at (0.6,-5.55) {$d_a=2K+1+3N$};
+
+% ---------- khoi giai ma ----------
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d1) at (2.4,0)
+     {Ánh xạ tuyến tính\\ $\rho_c=0{,}70+0{,}29\,\tfrac{a_c+1}{2}$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d2) at (2.4,-1.1)
+     {Softmax độ sắc $\kappa=10$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d3) at (2.4,-2.2)
+     {Chiếu Euclid lên đơn hình $\Delta_K$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d4) at (2.4,-3.3)
+     {Ánh xạ tuyến tính $[-1,1]\to[0,1]$};
+\node[box,anchor=west,text width=4.9cm,font=\scriptsize,minimum height=0.8cm] (d5) at (2.4,-4.725)
+     {Pha tham chiếu $\bar\theta_n=-\angle z_n$\\ cộng phần hiệu chỉnh học được};
+
+% ---------- bien vat ly ----------
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v1) at (8.1,0)
+     {$p_c=\rho_c P_{\max}$, \ $\rho_c\in[0{,}70;\,0{,}99]$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v2) at (8.1,-1.1)
+     {$p_k=(1-\rho_c)P_{\max}w_k$ \ (gần one-hot)};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v3) at (8.1,-2.2)
+     {$\eta_k\ge 0$, \ $\textstyle\sum_k \eta_k = 1$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v4) at (8.1,-3.3)
+     {$\beta^T_n\in[0,1]$, \ $\beta^R_n=1-\beta^T_n$};
+\node[sbox,anchor=west,fill=blue!10,text width=5.3cm,font=\scriptsize,minimum height=0.8cm] (v5) at (8.1,-4.725)
+     {$\theta^T_n,\ \theta^R_n=\bar\theta_n+0{,}25\pi\,a_{\theta}$};
+
+% ---------- noi day: hang ngang, khong cat nhau ----------
+\foreach \i/\y in {1/0, 2/-1.1, 3/-2.2, 4/-3.3}{
+   \draw[->] (1.2,\y) -- (d\i.west);
+}
+\draw (1.2,-4.40) -- (1.85,-4.40);
+\draw (1.2,-5.05) -- (1.85,-5.05);
+\draw (1.85,-4.40) -- (1.85,-5.05);
+\draw[->] (1.85,-4.725) -- (d5.west);
+
+\foreach \i in {1,...,5}{ \draw[->] (d\i.east) -- (v\i.west); }
+
+\node[font=\scriptsize,anchor=north west,text width=13.4cm] at (0,-6.05)
+  {Mọi ràng buộc công suất, đơn hình và bảo toàn năng lượng được bảo đảm ngay tại bộ giải mã,
+   nên không cần phép chiếu hay hạng phạt bổ sung sau khi hành động đã được sinh.};
+\end{tikzpicture}

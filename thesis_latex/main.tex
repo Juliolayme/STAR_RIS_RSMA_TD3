@@ -1,0 +1,54 @@
+% =====================================================================
+%  LUẬN VĂN THẠC SĨ
+%  Tối ưu phân bổ tài nguyên sử dụng học tăng cường sâu
+%  trong mạng STAR-RIS hỗ trợ RSMA
+%
+%  Biên dịch:  xelatex main -> biber main -> xelatex main -> xelatex main
+% =====================================================================
+\documentclass[12pt,a4paper,oneside]{report}
+\usepackage{uththesis}
+\usepackage{tikz}
+\input{figures/tikz_defs}
+
+% Thông tin trang bìa
+\newcommand{\UniversityName}{TRƯỜNG ĐẠI HỌC GIAO THÔNG VẬN TẢI\\THÀNH PHỐ HỒ CHÍ MINH}
+\newcommand{\AuthorName}{NGUYỄN DUY THANH}
+\newcommand{\StudentID}{2480101831}
+\newcommand{\ClassName}{KM2402}
+\newcommand{\MajorName}{Khoa học máy tính}
+\newcommand{\MajorCode}{8480101}
+\newcommand{\ThesisTitle}{TỐI ƯU PHÂN BỔ TÀI NGUYÊN SỬ DỤNG HỌC TĂNG CƯỜNG SÂU TRONG MẠNG STAR-RIS HỖ TRỢ RSMA}
+\newcommand{\SupervisorOne}{TS. TRẦN THIÊN THANH}
+\newcommand{\SupervisorTwo}{TS. NGÔ HOÀNG TÚ}
+\newcommand{\CompletionPlace}{Thành phố Hồ Chí Minh}
+\newcommand{\CompletionYear}{2026}
+
+\addbibresource{references.bib}
+
+\begin{document}
+\selectlanguage{vietnamese}
+\pagenumbering{gobble}
+\input{frontmatter}
+
+\clearpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapters/mo-dau}
+\input{chapters/chapter1}
+% \input{chapters/chapter2}
+% \input{chapters/chapter3}
+% \input{chapters/chapter4}
+% \input{chapters/ket-luan}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{chapter}{TÀI LIỆU THAM KHẢO}
+\begin{sloppypar}
+\printbibliography[title={TÀI LIỆU THAM KHẢO}]
+\end{sloppypar}
+
+% \appendix
+% \input{appendices/appendices}
+
+\end{document}

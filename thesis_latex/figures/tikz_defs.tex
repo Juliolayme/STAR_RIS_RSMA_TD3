@@ -1,0 +1,39 @@
+% Dinh nghia TikZ dung chung cho moi hinh trong luan van
+\definecolor{cUEa}{RGB}{217,119,6}     % UE1
+\definecolor{cUEb}{RGB}{13,148,136}    % UE2
+\definecolor{cUEc}{RGB}{37,99,235}     % UE3
+\definecolor{cUEd}{RGB}{124,58,237}    % UE4
+\definecolor{cChung}{RGB}{190,24,93}   % luong chung
+\definecolor{cKenh}{RGB}{22,101,52}    % kenh / STAR-RIS
+
+\usetikzlibrary{positioning,fit,shapes.geometric,shapes.symbols,backgrounds,
+                arrows.meta,calc,decorations.pathreplacing,patterns}
+
+\tikzset{
+  bx/.style   ={draw,fill=gray!12,align=center,inner sep=2.5pt,font=\scriptsize,line width=0.5pt},
+  box/.style  ={draw,fill=gray!12,align=center,inner sep=3pt,font=\scriptsize,line width=0.5pt},
+  sm/.style   ={draw,fill=gray!12,align=center,inner sep=2pt,font=\tiny,line width=0.4pt},
+  sbox/.style ={draw,align=center,inner sep=3pt,font=\scriptsize,line width=0.5pt},
+  vbox/.style ={box,rotate=90},
+  ue/.style   ={draw,circle,inner sep=0pt,minimum size=0.48cm,font=\tiny,line width=0.5pt},
+  tit/.style  ={font=\small\bfseries,anchor=north west},
+  note/.style ={font=\tiny,align=left,anchor=north west,text width=7.0cm},
+  ant/.pic={
+    \draw[line width=0.7pt,blue!70!black] (0,-0.15)--(0,0.15);
+    \fill[blue!65] (0,-0.15) -- (0,0.15) -- (0.28,0) -- cycle;
+  },
+}
+\newcommand{\grp}[6]{%
+  \node[draw=#5,line width=0.9pt,fill=#5!8,rounded corners=2pt,inner sep=0pt,
+        fit={(#1,#2)(#3,#4)}] {};
+  \node[anchor=south west,inner sep=2pt,font=\tiny] at (#1,#2) {#6};
+}
+\newcommand{\risbar}[2]{%
+  \foreach \i in {0,...,9}{
+     \fill[#2!25] (#1-0.11,0.42+\i*0.29) rectangle ++(0.22,0.23);
+     \draw[#2!70!black,line width=0.35pt] (#1-0.11,0.42+\i*0.29) rectangle ++(0.22,0.23);
+  }
+  \draw[#2!70!black,line width=0.7pt] (#1,0.34) -- (#1,3.38);
+}
+\newcommand{\lbm}[1]{\textcolor{orange!75!black}{$#1$}}
+\newcommand{\sgm}[1]{\textcolor{blue!60!black}{$#1$}}
