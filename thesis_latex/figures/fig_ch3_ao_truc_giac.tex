@@ -12,18 +12,16 @@
 
   % --- truoc khi can pha ---
   \node[font=\scriptsize,anchor=west] at (0,3.72) {Trước: mỗi phần tử một hướng pha};
-  \begin{scope}[shift={(0.55,2.45)}]
-    \draw[gray!45,->] (-0.45,0)--(2.30,0);
-    \draw[gray!45,->] (0,-0.85)--(0,0.95);
-    \draw[cUEc,line width=0.9pt,->] (0,0) -- ++(20:0.46);
-    \draw[cUEc,line width=0.9pt,->] (20:0.46) -- ++(100:0.46);
-    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)$) -- ++(175:0.46);
-    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)+(175:0.46)$) -- ++(250:0.46);
-    \draw[cUEc,line width=0.9pt,->] ($(20:0.46)+(100:0.46)+(175:0.46)+(250:0.46)$) -- ++(320:0.46);
-    \coordinate (R1) at ($(20:0.46)+(100:0.46)+(175:0.46)+(250:0.46)+(320:0.46)$);
-    \draw[red!75!black,line width=1.3pt,->] (0,0) -- (R1);
-    \node[font=\tiny,red!75!black,anchor=west] at (0.25,-0.70)
-         {tổng ngắn $\Rightarrow$ độ lợi kênh thấp};
+  \begin{scope}[shift={(1.35,2.45)}]
+    \draw[gray!40,line width=0.4pt] (0,0) circle (0.68);
+    \draw[gray!45,->] (-0.95,0)--(0.95,0);
+    \draw[gray!45,->] (0,-0.95)--(0,0.95);
+    \foreach \a in {15,70,135,190,245,300,340}{
+       \draw[cUEc,line width=0.9pt,->] (0,0) -- (\a:0.62);
+    }
+    \draw[red!75!black,line width=1.4pt,->] (0,0) -- (0.393,-0.237);
+    \node[font=\tiny,red!75!black,anchor=west,align=left] at (0.82,-0.42)
+         {tổng $\big|\sum_n\big|$\\ rất ngắn};
   \end{scope}
 
   % --- phep can pha ---
@@ -34,15 +32,13 @@
 
   % --- sau khi can pha ---
   \node[font=\scriptsize,anchor=west] at (0,-0.08) {Sau: mọi mũi tên cùng hướng};
-  \begin{scope}[shift={(0.55,-1.02)}]
-    \draw[gray!45,->] (-0.45,0)--(2.75,0);
-    \draw[gray!45,->] (0,-0.75)--(0,0.75);
-    \foreach \i in {0,1,2,3,4}{
-      \draw[cUEc,line width=0.9pt,->] (\i*0.46,0.26) -- (\i*0.46+0.46,0.26);
+  \begin{scope}[shift={(0.45,-1.05)}]
+    \foreach \i in {0,...,6}{
+       \draw[cUEc,line width=0.9pt,->] (0,0.62-\i*0.088) -- ++(0.62,0);
     }
-    \draw[red!75!black,line width=1.3pt,->] (0,-0.26) -- (2.30,-0.26);
-    \node[font=\tiny,red!75!black,anchor=north] at (1.15,-0.34)
-         {tổng dài $\Rightarrow$ độ lợi kênh cao};
+    \draw[red!75!black,line width=1.4pt,->] (0.78,0.31) -- ++(2.30,0);
+    \node[font=\tiny,red!75!black,anchor=north] at (1.93,0.22)
+         {tổng $\big|\sum_n\big|$ dài gấp nhiều lần};
   \end{scope}
 
   \node[note,text width=4.4cm] at (0,-2.62)

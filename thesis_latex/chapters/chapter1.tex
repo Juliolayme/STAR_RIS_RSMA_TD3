@@ -254,6 +254,21 @@ AnalyticalRIS là đối chiếu nhẹ hơn: sử dụng một quy tắc căn ph
 ưu lặp đầy đủ. Nó có độ trễ thấp nhưng không tối ưu đồng thời tất cả biến RSMA và
 STAR--RIS.
 
+Hình~\ref{fig:ch1-ao-truc-giac} minh họa cơ chế của ba phương pháp này. Điểm chung là cả
+ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn nhau:
+AnalyticalRIS dùng một công thức đóng, AO--SCA dò độ dốc bằng sai phân rồi đi từng bước
+ngắn, còn AO--Grid thử hết các mốc rời rạc rồi nhảy tới mốc tốt nhất. Chênh lệch về số
+lần tính lại hàm mục tiêu chính là nguồn gốc của khác biệt độ trễ được báo cáo ở
+Chương~\ref{chap:ket-qua}.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_ch3_ao_truc_giac}}
+\caption{Cơ chế hoạt động của AnalyticalRIS, AO--SCA và AO--Grid}
+\label{fig:ch1-ao-truc-giac}
+\figuresource{Tác giả xây dựng theo mã nguồn và \cite{Scutari2017SCA} (2026)}
+\end{figure}
+
 \section{Các nghiên cứu liên quan}
 \label{sec:nghien-cuu-lien-quan}
 
