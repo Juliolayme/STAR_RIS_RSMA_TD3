@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{Độ trễ ra quyết định trên bộ xử lý trung tâm một luồng, giá trị trung vị (ms)}
+\label{tab:ch4-do-tre}
+\footnotesize
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+$N$ & \textbf{TD3} & \textbf{DDPG} & \textbf{PPO} & \textbf{AO--SCA} & \textbf{AO--Grid} & \textbf{AnalyticalRIS} \\
+\midrule
+$16$ & 0,3389 & 0,3435 & 0,5645 & 830,4545 & 188,5626 & 0,2031 \\
+$32$ & 0,3660 & 0,3652 & 0,5847 & 1064,7201 & 320,0277 & 0,2094 \\
+$64$ & 0,3934 & 0,3930 & 0,6237 & 1861,6429 & 579,2715 & 0,2209 \\
+$96$ & 0,4343 & 0,4328 & 0,6850 & 2543,5247 & 881,0458 & 0,2230 \\
+$128$ & 0,4519 & 0,4459 & 0,7252 & 3606,3791 & 1204,7310 & 0,2349 \\
+\bottomrule
+\end{tabular}
+\tablesource{Tác giả tổng hợp từ phép đo trên bộ xử lý trung tâm một luồng (2026)}
+\end{table}

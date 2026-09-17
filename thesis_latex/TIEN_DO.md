@@ -9,12 +9,13 @@ Nguồn dựng lại: `Luan_van_STAR_RIS_RSMA_DRL_ban_review.pdf` (102 trang, bi
 - Chương 1 đầy đủ 8 mục, kèm Bảng 1.1 và bốn hình
 - Chương 2 đầy đủ 10 mục, 36 công thức đánh số, bốn hình
 - Chương 3 đầy đủ 13 mục, 25 công thức, sáu hình, Bảng 3.1 và Thuật toán 1
+- Chương 4 đầy đủ 15 mục, năm bảng và năm hình. Bảng 4.2-4.5 và toàn bộ hình
+  được sinh tự động từ results/physical_v6_full_r2/tables/ nên không gõ tay
 - Mọi hình dùng bản TikZ mới vẽ lại
 
 ## Chưa xong
 
 - Mở đầu (đang là chỗ giữ chỗ)
-- Chương 4
 - Kết luận và ba phụ lục
 - Các dòng `\input` tương ứng trong `main.tex` đang được chú thích
 

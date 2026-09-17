@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\small]
+\begin{semilogxaxis}[
+  width=13cm, height=8cm,
+  xlabel={Độ trễ ra quyết định (ms, thang log)},
+  ylabel={Tổng tốc độ (bit/s/Hz)},
+  xmin=0.1, xmax=20000, ymin=0, ymax=26,
+  grid=both, grid style={gray!25},
+  minor grid style={gray!12},
+  tick label style={font=\small}, label style={font=\small},
+]
+\addplot[only marks,cUEc,mark=*,mark size=3.4pt] coordinates {(0.4519,20.9195)};
+\node[font=\small,cUEc,anchor=east,xshift=-6pt,yshift=-9pt,inner sep=1pt] at (axis cs:0.4519,20.9195) {TD3};
+\addplot[only marks,cUEa,mark=square*,mark size=3.4pt] coordinates {(0.4459,20.9890)};
+\node[font=\small,cUEa,anchor=east,xshift=-6pt,yshift=9pt,inner sep=1pt] at (axis cs:0.4459,20.9890) {DDPG};
+\addplot[only marks,cUEb,mark=triangle*,mark size=3.4pt] coordinates {(0.7252,21.0201)};
+\node[font=\small,cUEb,anchor=west,xshift=6pt,yshift=0pt,inner sep=1pt] at (axis cs:0.7252,21.0201) {PPO};
+\addplot[only marks,cUEd,mark=diamond*,mark size=3.4pt] coordinates {(3606.3791,21.6095)};
+\node[font=\small,cUEd,anchor=north,xshift=0pt,yshift=-8pt,inner sep=1pt] at (axis cs:3606.3791,21.6095) {AO--SCA};
+\addplot[only marks,cChung,mark=pentagon*,mark size=3.4pt] coordinates {(1204.7310,22.3918)};
+\node[font=\small,cChung,anchor=south,xshift=0pt,yshift=8pt,inner sep=1pt] at (axis cs:1204.7310,22.3918) {AO--Grid};
+\addplot[only marks,cKenh,mark=o,mark size=3.4pt] coordinates {(0.2349,1.9821)};
+\node[font=\small,cKenh,anchor=west,xshift=8pt,yshift=0pt,inner sep=1pt] at (axis cs:0.2349,1.9821) {AnalyticalRIS};
+\draw[gray!55,dashed] (axis cs:1,0) -- (axis cs:1,26);
+\node[font=\scriptsize,gray!45!black,anchor=south,rotate=90] at (axis cs:0.92,7.5) {ngưỡng $1$ ms};
+\node[font=\scriptsize,gray!45!black,anchor=north west] at (axis cs:0.11,25.6) {vùng độ trễ thấp};
+\node[font=\scriptsize,gray!45!black,anchor=north east] at (axis cs:18000,18.6) {vùng độ trễ cao};
+\draw[gray!50,-{Stealth}] (axis cs:2.0,4.2) -- (axis cs:700,4.2);
+\node[font=\scriptsize,gray!45!black,anchor=south] at (axis cs:38,4.3)
+     {chậm hơn ba đến bốn bậc độ lớn};
+\end{semilogxaxis}
+\end{tikzpicture}

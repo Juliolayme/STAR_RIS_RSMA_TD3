@@ -1,0 +1,354 @@
+\chapter{MÔ PHỎNG, KẾT QUẢ VÀ THẢO LUẬN}
+\label{chap:ket-qua}
+
+\section{Mục tiêu và nguyên tắc đánh giá}
+\label{sec:muc-tieu-danh-gia}
+
+Chương này đánh giá sáu phương pháp trên cùng mô hình vật lý: TD3, DDPG, PPO, AO--SCA,
+AO--Grid và AnalyticalRIS. Thay vì tìm một phương pháp thắng duy nhất, kết quả được đọc
+theo hai nhóm chính. Nhóm DRL gồm hai thuật toán học ngoài chính sách là DDPG và TD3, cùng
+một thuật toán học theo chính sách hiện hành là PPO. Nhóm tối ưu lặp gồm AO--SCA và
+AO--Grid. AnalyticalRIS được giữ như một đối chiếu giải tích nhẹ, có chi phí tính toán rất
+thấp nhưng không tối ưu đầy đủ.
+
+Ba câu hỏi đánh giá được đặt ra. Thứ nhất, khi dùng cùng biểu diễn hành động có cấu trúc,
+các thuật toán DRL đạt mức tổng tốc độ và QoS như thế nào, và có khác biệt ổn định giữa
+hai nhóm học ngoài chính sách và học theo chính sách hiện hành hay không? Thứ hai, chất
+lượng nghiệm của nhóm DRL cách nhóm AO bao xa? Thứ ba, đổi lại cho chênh lệch chất lượng
+đó, độ trễ ra quyết định giảm được bao nhiêu khi dùng một lượt truyền xuôi của mạng thay
+cho tối ưu lặp.
+
+Mọi so sánh chất lượng dùng cùng $1.000$ kịch bản kiểm thử tại từng $N$. Đối với DRL, báo
+cáo chính là trung bình của năm hạt giống huấn luyện. Với AO và AnalyticalRIS, phương pháp
+là xác định nên không có biến thiên do huấn luyện; độ biến thiên của chúng đến từ kịch bản
+kênh. Hai loại bất định này được giữ tách biệt trong phần diễn giải thống kê.
+
+\section{Thiết lập mô phỏng}
+\label{sec:thiet-lap-mo-phong}
+
+Bảng~\ref{tab:ch4-thiet-lap} tóm tắt cấu hình đã mô tả ở Chương~\ref{chap:phuong-phap}.
+Các giá trị được giữ cố định cho tất cả phương pháp khi có ý nghĩa tương ứng.
+
+\begin{table}[htbp]
+\centering
+\caption{Thiết lập mô phỏng chính}
+\label{tab:ch4-thiet-lap}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}X l@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Số UE & $4$ \\
+Số phần tử STAR--RIS & $16,\ 32,\ 64,\ 96,\ 128$ \\
+Công suất phát chuẩn hóa & $1$ \\
+Công suất tạp âm & $10^{-3}$ \\
+QoS tối thiểu mỗi UE & $0,5$ bit/s/Hz \\
+Hệ số tỷ lệ kênh trực tiếp, BS--RIS và RIS--UE & $0,35 / 1,0 / 0,75$ \\
+Ngân hàng huấn luyện, xác thực và kiểm thử & $10.000 / 1.000 / 1.000$ kịch bản \\
+Số hạt giống huấn luyện cho mỗi thuật toán DRL & $5$ \\
+Ngân sách mỗi hạt giống & $100.000$ tương tác môi trường \\
+Chu kỳ xác thực & $5.000$ bước \\
+Số mẫu đánh giá kiểm thử & $1.000$ kịch bản trên mỗi $N$ \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu hình và ngân hàng kịch bản của thí nghiệm (2026)}
+\end{table}
+
+Một điểm quan trọng của giao thức là các kịch bản kiểm thử được ghép cặp giữa các phương
+pháp. Nghĩa là nếu một kịch bản cụ thể có kênh thuận lợi hoặc khó, tất cả phương pháp đều
+được đánh giá trên đúng kịch bản đó. Cách làm này giúp phép so sánh theo kịch bản loại bớt
+một phần biến thiên do dữ liệu.
+
+\section{Diễn biến trên tập xác thực trong quá trình huấn luyện}
+\label{sec:duong-cong-xac-thuc}
+
+Trước khi so sánh chất lượng cuối, Hình~\ref{fig:ch4-duong-cong} cho thấy diễn biến tổng
+tốc độ trên tập xác thực theo số bước huấn luyện. Mỗi đường là trung bình của năm hạt
+giống, còn dải tô nhạt là khoảng giữa giá trị nhỏ nhất và lớn nhất trong năm hạt giống đó.
+
+Ba khung cho thấy ba dáng học khác nhau. TD3 tăng rất nhanh trong khoảng $5.000$ bước đầu
+rồi gần như đi ngang, với dải hạt giống hẹp ở mọi kích thước. DDPG cũng lên nhanh nhưng
+xuất hiện vài lần sụt giảm rồi hồi phục ở giai đoạn giữa và cuối, dấu hiệu quen thuộc của
+việc Critic đánh giá quá cao trong một số lần cập nhật. PPO đi lên chậm và đều hơn, cần
+gần như toàn bộ ngân sách $100.000$ bước để tiến tới vùng bão hòa, và có dải hạt giống
+rộng nhất trong giai đoạn đầu.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_ch4_duong_cong_xac_thuc}}
+\caption{Diễn biến tổng tốc độ trên tập xác thực trong quá trình huấn luyện}
+\label{fig:ch4-duong-cong}
+\figuresource{Tác giả vẽ từ dữ liệu xác thực định kỳ của năm hạt giống (2026)}
+\end{figure}
+
+Điểm chung là cả ba thuật toán đều đạt vùng ổn định trước khi hết ngân sách huấn luyện, vì
+vậy kết quả kiểm thử ở các mục sau không phải là ảnh chụp của một quá trình còn dang dở.
+
+\section{Độ ổn định của nhóm DRL qua các hạt giống huấn luyện}
+\label{sec:do-on-dinh}
+
+Trước khi so sánh với AO, cần xem bản thân các phương pháp DRL ổn định đến đâu giữa năm
+hạt giống. Bảng~\ref{tab:ch4-do-lech} trình bày độ lệch chuẩn của tổng tốc độ theo trung
+bình của từng hạt giống. Giá trị nhỏ cho thấy kết quả ít phụ thuộc khởi tạo ngẫu nhiên;
+giá trị lớn cho thấy các lần huấn luyện có thể hội tụ về chất lượng rất khác nhau.
+
+\input{figures/bang_ch4_do_lech_chuan}
+
+Kết quả cho thấy PPO biến thiên lớn tại $N = 16$ và $N = 32$, sau đó ổn định rõ khi $N \ge
+64$. TD3 và DDPG nhìn chung có độ lệch chuẩn thấp hơn trong hầu hết cấu hình. Tuy nhiên,
+từ $N = 64$ trở lên, cả ba phương pháp đều có độ biến thiên tương đối nhỏ so với mức tổng
+tốc độ khoảng $19$ đến $21$ bit/s/Hz. Điều này cho thấy khi biểu diễn hành động có cấu
+trúc tạo được một miền học thuận lợi, khác biệt giữa các thuật toán giảm đáng kể ở kích
+thước STAR--RIS lớn hơn.
+
+Không nên diễn giải Bảng~\ref{tab:ch4-do-lech} thành kết luận rằng nhóm học ngoài chính
+sách luôn ổn định hơn nhóm học theo chính sách hiện hành. PPO ở $N = 64$ đến $128$ đã có
+độ lệch chuẩn cùng bậc với TD3 và DDPG. Kết luận phù hợp hơn là PPO nhạy hơn ở các cấu
+hình nhỏ trong bộ thí nghiệm này, còn tại $N$ lớn không có sự chênh lệch ổn định đủ lớn để
+khẳng định một họ thuật toán luôn ưu thế.
+
+\section{Hiệu năng tổng tốc độ trên tập kiểm thử}
+\label{sec:hieu-nang-tong-toc-do}
+
+Bảng~\ref{tab:ch4-tong-toc-do} trình bày tổng tốc độ trung bình của sáu phương pháp. Đây
+là bảng chính để đánh giá chất lượng nghiệm.
+
+\input{figures/bang_ch4_tong_toc_do}
+
+Hình~\ref{fig:ch4-tong-toc-do} thể hiện cùng dữ liệu dưới dạng đồ thị. Có ba xu hướng dễ
+nhận thấy. Thứ nhất, tổng tốc độ của hầu hết phương pháp tối ưu và học đều tăng theo $N$,
+phản ánh lợi ích của việc có nhiều phần tử STAR--RIS hơn để tạo kênh hiệu dụng mạnh. Thứ
+hai, AO--Grid đạt tổng tốc độ cao nhất tại cả năm kích thước. Thứ ba, ba thuật toán DRL
+tiến rất gần nhau ở $N \ge 64$ và không có một thuật toán luôn cao nhất.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_ch4_tong_toc_do}}
+\caption{Tổng tốc độ của sáu phương pháp theo số phần tử STAR--RIS}
+\label{fig:ch4-tong-toc-do}
+\figuresource{Tác giả vẽ từ dữ liệu kiểm thử (2026)}
+\end{figure}
+
+AnalyticalRIS gần như không thay đổi theo $N$ và chỉ đạt khoảng $1,98$ bit/s/Hz. Kết quả
+này cho thấy quy tắc căn pha đơn giản dùng làm khởi tạo không đủ để khai thác đồng thời
+công suất, phân bổ tốc độ luồng chung và QoS. Vì vậy, AnalyticalRIS phù hợp như một đối
+chiếu cực nhẹ hơn là một bộ giải chất lượng cao.
+
+\section{So sánh trong nội bộ nhóm DRL}
+\label{sec:so-sanh-drl}
+
+Tại $N = 16$, TD3 và DDPG đạt khoảng $14,5$ bit/s/Hz trong khi PPO chỉ khoảng $10$
+bit/s/Hz. Tại $N = 32$, DDPG cao nhất trong nhóm DRL. Từ $N = 64$ trở lên, PPO và DDPG
+nhỉnh hơn TD3 một lượng nhỏ nhưng khoảng cách chỉ vài phần trăm bit/s/Hz.
+
+Các phép so sánh theo $1.000$ kịch bản có thể cho giá trị $p$ rất nhỏ vì mỗi kịch bản được
+ghép cặp và số mẫu lớn. Tuy nhiên, một tuyên bố về thuật toán phải tính đến biến thiên
+huấn luyện chỉ có năm hạt giống. Ví dụ tại $N = 32$, chênh lệch giữa TD3 và DDPG là khoảng
+$-0,525$ bit/s/Hz theo trung bình; phép kiểm định theo kịch bản cho kết quả rất rõ, nhưng
+kiểm định theo năm hạt giống không còn mạnh sau hiệu chỉnh nhiều so sánh. Vì vậy, luận văn
+không kết luận DDPG tốt hơn TD3 một cách tổng quát từ một kích thước duy nhất.
+
+Quan sát đáng chú ý hơn là cả ba thuật toán DRL cùng đạt vùng $20$ đến $21$ bit/s/Hz ở
+$N = 96$ và $N = 128$. Điều này phù hợp với giả thuyết rằng bộ giải mã hành động đã mã hóa
+một phần lớn cấu trúc khó của bài toán. Khi miền hành động trở nên thuận lợi hơn, khác
+biệt giữa hai cách cập nhật chính sách không còn chi phối tuyệt đối chất lượng cuối.
+
+\section{So sánh nhóm DRL với nhóm tối ưu lặp}
+\label{sec:so-sanh-drl-ao}
+
+AO--Grid cao hơn tất cả các phương pháp DRL ở mọi $N$. AO--SCA cũng cao hơn DRL tại $N \ge
+32$, trong khi ở $N = 16$ thì TD3 và DDPG có trung bình nhỉnh hơn AO--SCA một lượng nhỏ.
+
+Kết quả này phù hợp với bản chất hai nhóm phương pháp. AO nhận một CSI và dành nhiều phép
+đánh giá hàm mục tiêu để điều chỉnh trực tiếp biến vật lý; nó còn tìm kiếm trên miền rộng
+hơn bộ giải mã có cấu trúc của DRL, vì vậy có khả năng đi tới các nghiệm mà Actor không
+biểu diễn được. Ngược lại, DRL dành chi phí lớn ở giai đoạn huấn luyện nhưng tại thời điểm
+sử dụng chỉ thực hiện một lượt mạng nơ-ron và bộ giải mã.
+
+Để tránh hiểu nhầm, AO--SCA và AO--Grid trong luận văn không được xem là cận trên hay
+nghiệm tối ưu toàn cục. Chúng là các bộ giải cục bộ mạnh trong giao thức hiện tại. Việc
+AO--Grid cao hơn AO--SCA cũng không mâu thuẫn với lý thuyết: bài toán phi lồi có nhiều
+miền cục bộ, và tìm kiếm lưới với các bước lớn, khả năng tắt luồng bằng giá trị $0$ cùng
+thứ tự quét thuận nghịch có thể tìm được vùng tốt hơn gradient lân cận.
+
+\section{Đánh giá chất lượng dịch vụ}
+\label{sec:danh-gia-qos}
+
+Bảng~\ref{tab:ch4-qos} trình bày xác suất tất cả bốn UE cùng đạt yêu cầu $R_k \ge 0,5$
+bit/s/Hz. Đây là chỉ số khắt khe hơn tỷ lệ UE đạt QoS vì chỉ cần một UE vi phạm thì kịch
+bản được tính là không đạt toàn bộ.
+
+\input{figures/bang_ch4_qos}
+
+Hình~\ref{fig:ch4-qos} cho thấy rõ sự hội tụ về vùng QoS cao khi $N$ tăng. Tại $N = 16$,
+PPO là trường hợp yếu nhất với khoảng $77,9\%$ kịch bản đạt đồng thời QoS, trong khi TD3,
+DDPG và AO--SCA đều trên $94\%$. Từ $N = 32$, hầu hết phương pháp đều vượt $98,9\%$.
+AO--Grid đạt $100\%$ trong toàn bộ bộ kết quả báo cáo. AnalyticalRIS không đạt yêu cầu
+đồng thời cho cả bốn UE trong bất kỳ kịch bản tổng hợp nào, nên được lược khỏi hình để
+giữ thang trục dễ đọc; điều này nhấn mạnh rằng căn pha đơn thuần không đủ nếu không phối
+hợp với phân bổ RSMA.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_ch4_qos}}
+\caption{Xác suất tất cả UE đạt QoS của các phương pháp có chất lượng cạnh tranh}
+\label{fig:ch4-qos}
+\figuresource{Tác giả vẽ từ dữ liệu kiểm thử (2026)}
+\end{figure}
+
+Kết quả QoS cũng giúp giải thích vì sao chỉ nhìn tổng tốc độ là chưa đủ. Một phương pháp
+có thể đạt tổng tốc độ cao bằng cách dồn tài nguyên cho UE mạnh, nhưng nếu xác suất đạt
+QoS đồng thời thấp thì không phù hợp mục tiêu. Bộ chọn điểm lưu mô hình của DRL ưu tiên
+tính khả thi QoS trước khi tối đa hóa tổng tốc độ nhằm hạn chế hiện tượng này.
+
+\section{Độ trễ ra quyết định}
+\label{sec:do-tre}
+
+Bảng~\ref{tab:ch4-do-tre} trình bày độ trễ tính toán trên cùng một bộ xử lý trung tâm
+(Central Processing Unit, CPU) một luồng. Giá trị báo cáo là trung vị trên $100$ lần đo cho
+mỗi cấu hình. Đây là thời gian của chính sách hoặc bộ giải, không phải độ trễ đầu cuối của
+hệ thống vô tuyến.
+
+\input{figures/bang_ch4_do_tre}
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_ch4_do_tre}}
+\caption{Độ trễ ra quyết định khi số phần tử STAR--RIS tăng}
+\label{fig:ch4-do-tre}
+\figuresource{Tác giả vẽ từ phép đo trên bộ xử lý trung tâm một luồng (2026)}
+\end{figure}
+
+Ba thuật toán DRL đều duy trì độ trễ dưới $1$ ms ở toàn bộ miền $N$. DDPG và TD3 gần như
+tương đương vì dùng cùng kiến trúc Actor xác định. PPO chậm hơn một chút do xử lý chính
+sách Gaussian nhưng vẫn ở mức dưới một mili giây. AO--Grid cần từ khoảng $189$ ms đến hơn
+$1,2$ giây; AO--SCA từ khoảng $0,83$ giây đến $3,61$ giây. AnalyticalRIS nhanh nhất vì chỉ
+thực hiện công thức giải tích và các ánh xạ đơn giản.
+
+Kết luận hợp lý không phải là DRL nhanh nhất, bởi AnalyticalRIS còn nhanh hơn. Kết luận là
+DRL tạo được vùng đánh đổi hấp dẫn: chất lượng tổng tốc độ gần AO hơn rất nhiều so với
+AnalyticalRIS, trong khi độ trễ lại gần AnalyticalRIS hơn nhiều so với AO.
+
+\section{Đánh đổi giữa chất lượng và độ trễ}
+\label{sec:danh-doi}
+
+Hình~\ref{fig:ch4-danh-doi} đặt tổng tốc độ và độ trễ cạnh nhau tại $N = 128$. Trục ngang
+dùng thang logarit để thể hiện khoảng cách vài bậc độ lớn giữa DRL và AO.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_ch4_danh_doi}}
+\caption{Không gian đánh đổi giữa tổng tốc độ và độ trễ tại $N = 128$}
+\label{fig:ch4-danh-doi}
+\figuresource{Tác giả vẽ từ dữ liệu kiểm thử và phép đo độ trễ (2026)}
+\end{figure}
+
+Hình cho thấy không có một phương pháp trội hoàn toàn trên cả hai trục. AO--Grid nằm cao
+nhất về tổng tốc độ nhưng xa về bên phải do độ trễ lớn. AnalyticalRIS nằm rất gần bên trái
+nhưng thấp về chất lượng. Ba thuật toán DRL tạo thành một cụm ở vùng phía trên bên trái:
+tổng tốc độ khoảng $21$ bit/s/Hz với thời gian dưới $1$ ms. Điểm của TD3 và DDPG gần như
+trùng nhau vì độ trễ chỉ lệch $0,006$ ms và tổng tốc độ lệch $0,07$ bit/s/Hz. Vì vậy, nếu
+ứng dụng có chu kỳ CSI ngắn, DRL có thể là lựa chọn thực tế dù không đạt tổng tốc độ cao
+nhất.
+
+\section{Khả năng mở rộng theo số phần tử STAR--RIS}
+\label{sec:kha-nang-mo-rong}
+
+Khi $N$ tăng từ $16$ lên $128$, số chiều hành động tăng từ $57$ lên $393$ và số chiều
+trạng thái cũng tăng đáng kể. Dù vậy, độ trễ của Actor DRL chỉ tăng khoảng vài phần mười
+mili giây vì phép tính chủ yếu là hai lớp kết nối đầy đủ có kích thước cố định $256$, còn
+lớp đầu và lớp cuối mới thay đổi theo số chiều. Ngược lại, thời gian của AO tăng mạnh vì
+số tọa độ STAR--RIS cần thử hoặc tính gradient tăng, và mỗi vòng lặp cần nhiều lần đánh
+giá hàm vật lý.
+
+Tổng tốc độ của nhóm DRL và AO đều tăng theo $N$. Điều này cho thấy việc thêm phần tử
+STAR--RIS vẫn mang lại lợi ích trong mô hình. Khoảng cách tuyệt đối giữa AO--Grid và cụm
+DRL tại $N = 128$ vào khoảng $1,37$ đến $1,47$ bit/s/Hz, trong khi chênh lệch độ trễ là ba
+đến bốn bậc độ lớn. Đây là bằng chứng trực quan nhất cho lập luận về đánh đổi giữa chất
+lượng và độ trễ của luận văn.
+
+\section{Phân tích thống kê và phạm vi diễn giải}
+\label{sec:phan-tich-thong-ke}
+
+Bộ kết quả lưu cả so sánh ghép cặp theo kịch bản và so sánh theo hạt giống huấn luyện. Hai
+đơn vị này trả lời hai câu hỏi khác nhau. Phép ghép cặp theo $1.000$ kịch bản hỏi rằng với
+các chính sách đã huấn luyện và cố định, phương pháp A có thường cho kết quả cao hơn B
+trên cùng kênh hay không. Phép so sánh theo năm hạt giống hỏi rằng nếu xem quá trình huấn
+luyện là nguồn ngẫu nhiên, chênh lệch giữa hai thuật toán có ổn định qua các lần huấn
+luyện hay không.
+
+Ví dụ tại $N = 16$, TD3 cao hơn DDPG trung bình khoảng $0,060$ bit/s/Hz. Với $1.000$ kịch
+bản ghép cặp, phép kiểm định $t$ cho giá trị nhỏ và có thể xem chênh lệch của hai chính
+sách là có hệ thống. Tuy nhiên, khi ghép theo năm hạt giống, giá trị $p$ lớn và không còn
+ý nghĩa sau hiệu chỉnh Holm. Vì vậy, luận văn không chuyển kết quả ở mức kịch bản thành
+kết luận rằng TD3 tốt hơn DDPG như một thuật toán.
+
+Tại $N = 32$, AO--Grid cao hơn cả TD3 và DDPG khoảng $2,18$ và $1,65$ bit/s/Hz. Chênh lệch
+này đủ lớn để tồn tại cả ở phân tích theo kịch bản và theo hạt giống. Đây là trường hợp có
+thể kết luận mạnh hơn rằng trong giao thức hiện tại, AO--Grid cho chất lượng tổng tốc độ
+cao hơn nhóm DRL ở kích thước đó.
+
+Các chỉ số QoS nằm trong $[0, 1]$, trong khi khoảng tin cậy chuẩn có thể vượt ra ngoài
+miền này khi trung bình rất gần $1$. Vì vậy, các khoảng tin cậy trong dữ liệu thô được xem
+là mô tả thống kê chứ không phải xác suất vật lý vượt $100\%$. Nếu mở rộng nghiên cứu, phép
+lấy mẫu lặp hoặc mô hình nhị thức sẽ phù hợp hơn cho các chỉ số tỷ lệ.
+
+Ngoài ra, số hạt giống bằng năm còn tương đối nhỏ cho các tuyên bố tổng quát về khác biệt
+thuật toán. Kết quả đủ để mô tả hành vi trong giao thức luận văn, nhưng chưa đủ để khẳng
+định thứ hạng phổ quát của TD3, DDPG và PPO trên các mô hình kênh khác.
+
+\section{Vai trò của biểu diễn hành động có cấu trúc}
+\label{sec:vai-tro-bieu-dien}
+
+Một dấu hiệu quan trọng là khi dùng chung bộ giải mã, DDPG, TD3 và PPO tiến rất gần nhau
+tại $N$ lớn dù cơ chế cập nhật khác nhau. Điều này ủng hộ nhận định rằng biểu diễn hành
+động có vai trò lớn. Bộ giải mã đã làm ba việc khó thay cho mạng: giới hạn công suất luồng
+chung vào vùng ưu tiên, biến chênh lệch đầu ra thành phân bổ công suất riêng gần như dồn
+hết vào một luồng, và cung cấp pha tham chiếu theo CSI.
+
+Tuy nhiên, kết quả hiện tại chưa phải một phân tích tách thành phần đầy đủ. Các phép thử
+loại bỏ có sẵn gồm không dùng RIS, RIS cố định, RIS ngẫu nhiên và chia công suất đều; chúng
+kiểm tra vai trò của RIS và công suất nhưng chưa tách riêng đóng góp của phần công suất có
+cấu trúc và của riêng pha tham chiếu. Vì vậy, luận văn trình bày vai trò của biểu diễn
+hành động như một kết luận được hỗ trợ bởi phân tích cấu trúc và hành vi thực nghiệm, đồng
+thời coi phép tách theo từng thành phần của bộ giải mã là hướng cần bổ sung.
+
+\section{Khi nào nên dùng DRL và khi nào nên dùng AO}
+\label{sec:khi-nao-dung}
+
+Nếu CSI thay đổi chậm và hệ thống có đủ thời gian tính toán, AO--Grid hoặc AO--SCA có thể
+phù hợp vì đạt tổng tốc độ cao hơn trong thí nghiệm. Nếu CSI thay đổi nhanh hoặc bộ điều
+khiển phải ra quyết định dưới một mili giây, DRL có ưu thế rõ sau khi đã trả chi phí huấn
+luyện ngoại tuyến. Trong các thiết bị có tài nguyên tính toán rất hạn chế và chỉ cần một
+quyết định thô, AnalyticalRIS có thể là lựa chọn nhẹ nhất nhưng phải chấp nhận QoS và tổng
+tốc độ thấp trong cấu hình này.
+
+Do đó, luận văn không đề xuất một thuật toán duy nhất cho mọi tình huống. Kết quả cung cấp
+một bản đồ lựa chọn: AO ở phía chất lượng cao và độ trễ lớn; AnalyticalRIS ở phía độ trễ
+thấp và chất lượng thấp; DRL nằm giữa nhưng nghiêng mạnh về phía độ trễ thấp.
+
+\section{Hạn chế nghiên cứu}
+\label{sec:han-che}
+
+Các hạn chế chính gồm mô hình kênh Gaussian tổng hợp, CSI hoàn hảo, SIC lý tưởng, số UE cố
+định bằng bốn, năm hạt giống huấn luyện, STAR--RIS cho phép pha truyền và pha phản xạ độc
+lập, chưa xét lượng tử hóa pha và phần cứng thực, chưa đo độ trễ đầu cuối, và bộ giải mã
+có cấu trúc thu hẹp miền hành động. Các hằng số $0,70$, $0,99$, $10$ và $0,25\pi$ là lựa
+chọn thiết kế được cố định trước thực nghiệm, chưa có chứng minh tối ưu lý thuyết.
+
+Một hạn chế khác là hai nhóm DRL và AO không tìm kiếm trên đúng cùng một miền hành động.
+AO làm việc trên miền vật lý rộng hơn, còn DRL bị ràng buộc bởi bộ giải mã có cấu trúc.
+Đây không phải lỗi của phép so sánh nếu mục tiêu là đánh giá một chính sách triển khai cụ
+thể, nhưng phải được nêu rõ để không diễn giải khoảng cách tổng tốc độ như thể chỉ do
+thuật toán học kém hơn.
+
+\section{Kết luận chương}
+\label{sec:ch4-ket-luan}
+
+Kết quả mô phỏng cho thấy không có bằng chứng rằng TD3 luôn vượt DDPG hoặc PPO. Ở $N$ lớn,
+ba thuật toán DRL đạt chất lượng rất gần nhau khi dùng cùng biểu diễn hành động có cấu
+trúc. Nhóm AO, đặc biệt là AO--Grid, đạt tổng tốc độ cao hơn nhưng phải trả chi phí tính
+toán lớn hơn nhiều. Nhóm DRL duy trì độ trễ dưới một mili giây trong toàn bộ các kích
+thước khảo sát và giữ QoS cao từ $N = 32$ trở lên. Vì vậy, đóng góp thực nghiệm chính của
+luận văn là làm rõ đánh đổi giữa một chính sách học được có độ trễ thấp và các bộ giải lặp
+có chất lượng nghiệm cao hơn.
