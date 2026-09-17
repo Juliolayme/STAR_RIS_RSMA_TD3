@@ -15,6 +15,8 @@
 \draw[->] (ac)  -- (dec);
 \draw[->] (dec) -- (rw);
 \draw[->] (rw.north) -- (1.9,-1.05) -- (0,-1.05) -- (env.south);
-\draw[->] (rw.east) -- (4.75,-2.2) -- (4.75,-1.15) -- (7.6,-1.15) -- (ac.south)
-      node[pos=0.62,above,font=\tiny]{tín hiệu học};
+% tin hieu hoc: vong phia duoi roi len canh phai, khong cat o nao
+\draw[->] (rw.south) -- (1.9,-3.45) -- (9.55,-3.45) -- (9.55,0.95) -- (7.6,0.95) -- (ac.north);
+\node[font=\tiny,anchor=north,fill=white,inner sep=1.5pt] at (5.7,-3.42)
+     {tín hiệu học (cập nhật trọng số)};
 \end{tikzpicture}
