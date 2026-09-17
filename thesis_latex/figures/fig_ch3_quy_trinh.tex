@@ -1,0 +1,31 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+\node[box,text width=2.9cm,minimum height=1.0cm] (b1) at (0,0)
+     {Tạo và khóa\\ ba ngân hàng kênh\\ \tiny 10.000 / 1.000 / 1.000};
+\node[box,text width=2.9cm,minimum height=1.0cm] (b2) at (4.3,0)
+     {Huấn luyện DRL\\ \tiny 100.000 tương tác};
+\node[box,text width=2.9cm,minimum height=1.0cm] (b3) at (8.6,0)
+     {Xác thực định kỳ\\ \tiny mỗi 5.000 bước};
+\node[box,fill=cChung!10,text width=2.9cm,minimum height=1.0cm] (b4) at (8.6,-2.4)
+     {Chọn điểm lưu\\ \tiny ưu tiên QoS, sau đó tổng tốc độ};
+\node[box,text width=2.9cm,minimum height=1.0cm] (b5) at (4.3,-2.4)
+     {Khóa mô hình\\ đã chọn};
+\node[box,fill=cKenh!10,text width=2.9cm,minimum height=1.0cm] (b6) at (0,-2.4)
+     {Đánh giá kiểm thử\\ \tiny 1.000 kịch bản};
+\node[box,text width=2.9cm,minimum height=0.8cm] (b7) at (0,-4.3)
+     {Bảng, đồ thị và thống kê};
+
+\draw[->] (b1) -- (b2);
+\draw[->] (b2) -- (b3);
+\draw[->] (b3) -- (b4);
+\draw[->] (b4) -- (b5);
+\draw[->] (b5) -- (b6);
+\draw[->] (b6) -- (b7);
+\draw[->] (b3.west) -- (6.45,0) -- (6.45,-1.25) -- (4.3,-1.25) -- (b2.south);
+\node[font=\tiny,anchor=north,fill=white,inner sep=1.5pt] at (5.35,-1.28) {lặp đến hết ngân sách};
+
+\node[box,text width=3.4cm,minimum height=0.8cm] (ao) at (5.2,-4.3)
+     {AO--SCA, AO--Grid, AnalyticalRIS\\ \tiny giải trực tiếp từng kịch bản};
+\draw[->] (ao.west) -- (b7.east);
+\draw[->] (b1.south) -- (0,-0.9) -- (-1.95,-0.9) -- (-1.95,-4.3) -- (b7.west);
+\node[font=\tiny,anchor=east,rotate=90] at (-2.02,-2.4) {ngân hàng kiểm thử};
+\end{tikzpicture}

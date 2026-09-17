@@ -8,7 +8,6 @@
 \documentclass[12pt,a4paper,oneside]{report}
 \usepackage{uththesis}
 \usepackage{tikz}
-\usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \input{figures/tikz_defs}
 
@@ -25,6 +24,11 @@
 \newcommand{\CompletionPlace}{Thành phố Hồ Chí Minh}
 \newcommand{\CompletionYear}{2026}
 
+% Từ khóa tiếng Việt cho khối thuật toán
+\algrenewtext{EndIf}{\textbf{kết thúc nếu}}
+\algrenewtext{EndFor}{\textbf{kết thúc lặp}}
+\algrenewtext{EndWhile}{\textbf{kết thúc lặp}}
+
 \addbibresource{references.bib}
 
 \begin{document}
@@ -39,7 +43,7 @@
 \input{chapters/mo-dau}
 \input{chapters/chapter1}
 \input{chapters/chapter2}
-% \input{chapters/chapter3}
+\input{chapters/chapter3}
 % \input{chapters/chapter4}
 % \input{chapters/ket-luan}
 

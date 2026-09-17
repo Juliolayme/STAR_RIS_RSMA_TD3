@@ -1,0 +1,36 @@
+\begin{tikzpicture}[font=\footnotesize,>=Stealth]
+\def\h{0.85}
+% cac khoi
+\node[sbox,fill=blue!12,  minimum width=2.1cm,minimum height=\h cm,anchor=west] (b1) at (0,0)    {$\mathrm{Re}/\mathrm{Im}\ h_{d,k}$};
+\node[sbox,fill=green!14, minimum width=2.6cm,minimum height=\h cm,anchor=west] (b2) at (2.1,0)  {$\mathrm{Re}/\mathrm{Im}\ g_n$};
+\node[sbox,fill=orange!16,minimum width=5.2cm,minimum height=\h cm,anchor=west] (b3) at (4.7,0)  {$\mathrm{Re}/\mathrm{Im}\ h_{r,k,n}$};
+\node[sbox,fill=violet!14,minimum width=2.3cm,minimum height=\h cm,anchor=west] (b4) at (9.9,0)  {chỉ báo phía $s_k$};
+
+% so chieu duoi tung khoi
+\node[font=\scriptsize,anchor=north] at (1.05,-0.50) {$2K$};
+\node[font=\scriptsize,anchor=north] at (3.40,-0.50) {$2N$};
+\node[font=\scriptsize,anchor=north] at (7.30,-0.50) {$2KN$};
+\node[font=\scriptsize,anchor=north] at (11.05,-0.50) {$K$};
+\node[font=\tiny,anchor=north,gray!60!black] at (1.05,-0.88) {$=8$};
+\node[font=\tiny,anchor=north,gray!60!black] at (3.40,-0.88) {$=64$};
+\node[font=\tiny,anchor=north,gray!60!black] at (7.30,-0.88) {$=256$};
+\node[font=\tiny,anchor=north,gray!60!black] at (11.05,-0.88) {$=4$};
+
+% he so chuan hoa phia tren
+\node[font=\scriptsize,anchor=south] at (1.05,0.52) {$\div\,0{,}35$};
+\node[font=\scriptsize,anchor=south] at (3.40,0.52) {$\div\,1{,}0$};
+\node[font=\scriptsize,anchor=south] at (7.30,0.52) {$\div\,0{,}75$};
+\node[font=\scriptsize,anchor=south] at (11.05,0.52) {$\{0,1\}\!\to\!\{-1,1\}$};
+
+% ngoac tong
+\draw[decorate,decoration={brace,amplitude=5pt,mirror},gray!70]
+      (0,-1.35) -- (12.2,-1.35);
+\node[font=\scriptsize,anchor=north] at (6.1,-1.80)
+     {$d_s = 2(K+N+KN)+K = 332$ \quad với $K=4,\ N=32$};
+
+% buoc cat bien
+\node[box,anchor=west,font=\scriptsize] (clip) at (0,-2.75) {Cắt biên về $[-8,\,8]$};
+\node[box,anchor=west,font=\scriptsize] (net)  at (4.2,-2.75) {Mạng nơ-ron (Actor / Critic)};
+\draw[->] ($(clip.north)+(0,0.60)$) -- (clip.north);
+\draw[->] (clip.east) -- (net.west);
+\end{tikzpicture}

@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+
+\node[bx,text width=2.0cm,minimum height=1.0cm] (csi)  at (0,0)    {CSI\\ $h_d,\ g,\ h_r$};
+\node[bx,text width=2.2cm,minimum height=1.0cm] (st)   at (3.0,0)  {Tạo trạng thái\\ và chuẩn hóa\\ \tiny $s\in\mathbb{R}^{d_s}$};
+\node[bx,text width=2.6cm,minimum height=1.0cm] (net)  at (6.4,0)  {Actor\\ DDPG / TD3 / PPO};
+\node[bx,text width=2.4cm,minimum height=1.0cm] (act)  at (9.8,0)  {Hành động chuẩn hóa\\ $a\in[-1,1]^{d_a}$};
+\node[bx,fill=cChung!10,text width=2.6cm,minimum height=1.0cm] (dec) at (9.8,-2.3)
+      {Bộ giải mã hành động vật lý\\ \tiny $p,\ \eta,\ \beta,\ \theta^T,\ \theta^R$};
+\node[bx,fill=cKenh!10,text width=2.8cm,minimum height=1.0cm] (env) at (5.4,-2.3)
+      {Môi trường\\ STAR--RIS--RSMA};
+\node[bx,text width=2.4cm,minimum height=1.0cm] (rw)  at (1.4,-2.3)
+      {Tốc độ, QoS\\ và phần thưởng};
+
+\draw[->] (csi)  -- (st);
+\draw[->] (st)   -- (net);
+\draw[->] (net)  -- (act);
+\draw[->] (act)  -- (dec);
+\draw[->] (dec)  -- (env);
+\draw[->] (env)  -- (rw);
+\draw[->] (rw.north) -- (1.4,-1.15) -- (6.4,-1.15) -- (net.south);
+\node[font=\tiny,anchor=south] at (3.9,-1.12) {tín hiệu học (cập nhật trọng số)};
+
+\node[note,text width=12.5cm] at (-0.9,-3.30)
+  {Bộ giải mã hành động vật lý \textbf{dùng chung} cho DDPG, TD3 và PPO, nên khác biệt
+   giữa ba thuật toán chỉ nằm ở cách cập nhật chính sách, không nằm ở miền hành động.};
+\end{tikzpicture}

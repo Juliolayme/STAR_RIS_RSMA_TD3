@@ -144,7 +144,7 @@ Trong đó: $p_c$ là công suất luồng chung; $p_k$ là công suất luồng
 là ký hiệu chung; $s_k$ là ký hiệu riêng; các ký hiệu được chuẩn hóa công suất đơn vị.
 
 Công thức~\eqref{eq:tin-hieu-phat} cho thấy BS chỉ có một anten và phát một tín hiệu tổng
-hợp duy nhất. Không có véc-tơ beamforming riêng cho từng UE. Vì vậy, ở một UE bất kỳ, tất
+hợp duy nhất. Không có véc-tơ tạo búp sóng riêng cho từng UE. Vì vậy, ở một UE bất kỳ, tất
 cả luồng riêng đều đi qua cùng một hệ số kênh vô hướng $h^{\mathrm{eff}}_k$. Đây chính là
 nguyên nhân làm nhiễu luồng riêng trở nên đáng chú ý trong hệ SISO.
 
@@ -450,10 +450,10 @@ suất rất nhỏ. Khi giảm rò rỉ công suất sang các luồng riêng kh
 giới hạn do nhiễu liên luồng và tốc độ có thể tăng theo tỷ số tín hiệu trên tạp âm. Đây
 là cơ sở vật lý cho việc dùng softmax có độ sắc cao trong bộ giải mã công suất riêng.
 
-Hình~\ref{fig:ch2-tran-toc-do} minh họa hai kết quả trên. Panel bên trái vẽ $R_{p,k}$
+Hình~\ref{fig:ch2-tran-toc-do} minh họa hai kết quả trên. Khung bên trái vẽ $R_{p,k}$
 theo tỷ số tín hiệu trên tạp âm: đường ứng với $M = 1$ tăng gần tuyến tính theo thang
 decibel, trong khi hai đường ứng với $M = 2$ và $M = 4$ bão hòa ngay từ khoảng mười
-decibel và không vượt được trần của mình dù kênh có tốt đến đâu. Panel bên phải vẽ giá
+decibel và không vượt được trần của mình dù kênh có tốt đến đâu. Khung bên phải vẽ giá
 trị tiệm cận $\log_2\big(M/(M-1)\big)$ theo số luồng riêng hoạt động, cho thấy trần này
 giảm rất nhanh khi $M$ tăng.
 
@@ -465,7 +465,8 @@ giảm rất nhanh khi $M$ tăng.
 \figuresource{Tác giả xây dựng từ công thức \eqref{eq:xap-xi-nhieu}--\eqref{eq:tap-trung-cong-suat} (2026)}
 \end{figure}
 
-Phân tích trên không phải chứng minh rằng nghiệm tối ưu toàn cục luôn chính xác one-hot.
+Phân tích trên không phải chứng minh rằng nghiệm tối ưu toàn cục luôn dồn toàn bộ công suất
+riêng vào đúng một luồng, tức dạng one-hot theo cách gọi trong học máy.
 Khi QoS, luồng chung, tỷ số tín hiệu trên tạp âm hữu hạn và sự thay đổi của kênh được xét
 đầy đủ, một số kịch bản có thể hưởng lợi từ nhiều luồng riêng. Kết luận an toàn là bài
 toán có xu hướng ưu tiên phân bổ riêng tập trung trong nhiều trạng thái kênh SISO, vì vậy
@@ -544,9 +545,9 @@ ràng buộc nhiều UE trong một bước trực giác, pha của từng phầ
 các tích $h^{*}_{r,k^\star,n} g_n e^{j\theta_n}$ có pha gần nhau. Khi đó, các thành phần
 qua STAR--RIS cộng tăng cường thay vì triệt tiêu.
 
-Hình~\ref{fig:ch2-can-pha} minh họa hiệu ứng này. Ở panel bên trái, các thành phần ghép
+Hình~\ref{fig:ch2-can-pha} minh họa hiệu ứng này. Ở khung bên trái, các thành phần ghép
 tầng có pha lệch nhau nên khi cộng tiếp nối, chúng tạo thành một đường gấp khúc gần khép
-kín và véc-tơ tổng rất ngắn. Ở panel bên phải, sau khi mỗi phần tử được xoay về pha tham
+kín và véc-tơ tổng rất ngắn. Ở khung bên phải, sau khi mỗi phần tử được xoay về pha tham
 chiếu, các thành phần nằm thẳng hàng và véc-tơ tổng dài hơn hẳn. Độ dài véc-tơ tổng chính
 là $|h^{\mathrm{eff}}_{k^\star}|$ xuất hiện trong~\eqref{eq:tap-trung-cong-suat}.
 

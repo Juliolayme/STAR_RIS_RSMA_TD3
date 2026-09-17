@@ -46,7 +46,7 @@ lớn và kênh giữa các UE đủ phân biệt, SDMA có thể phục vụ đ
 cùng thời gian--tần số. Tuy nhiên, lợi thế này phụ thuộc trực tiếp vào khả năng tạo phân
 tách không gian. Trong hệ một đầu vào một đầu ra (Single-Input Single-Output, SISO) của luận văn, BS chỉ
 có một anten nên không tồn tại véc-tơ
-beamforming nhiều chiều để tạo các hướng truyền riêng cho từng UE. Đây là khác biệt quan
+tạo búp sóng nhiều chiều để tạo các hướng truyền riêng cho từng UE. Đây là khác biệt quan
 trọng khi phân tích nhiễu của các luồng riêng ở Chương~\ref{chap:mo-hinh-he-thong}.
 
 Đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) cho phép nhiều UE sử
@@ -62,13 +62,13 @@ Hình~\ref{fig:ch1-da-truy-cap} minh họa trực giác của bốn cách tổ c
 UE. Hình không nhằm mô tả đầy đủ mọi biến thể chuẩn hóa, mà tập trung vào cách mỗi kỹ
 thuật xử lý việc nhiều người dùng cùng chia sẻ tài nguyên.
 
-Ở panel OMA, mỗi UE chiếm một khối tài nguyên riêng nên không có nhiễu liên người dùng,
-nhưng mỗi UE chỉ dùng được $1/K$ tài nguyên. Panel SDMA cho thấy BS dùng véc-tơ tiền mã
+Ở khung OMA, mỗi UE chiếm một khối tài nguyên riêng nên không có nhiễu liên người dùng,
+nhưng mỗi UE chỉ dùng được $1/K$ tài nguyên. Khung SDMA cho thấy BS dùng véc-tơ tiền mã
 hóa để tạo búp sóng riêng cho từng UE; điều này đòi hỏi nhiều anten, nên hệ SISO của luận
-văn với một anten duy nhất không tạo được phân tách không gian. Panel NOMA mô tả các UE
+văn với một anten duy nhất không tạo được phân tách không gian. Khung NOMA mô tả các UE
 dùng chung tài nguyên và phân biệt bằng mức công suất, trong đó UE có kênh tốt phải giải
 mã rồi loại lần lượt tín hiệu của các UE khác, với thứ tự giải mã phụ thuộc độ mạnh kênh.
-Panel RSMA cho thấy thông điệp mỗi UE được tách thành phần chung và phần riêng; mọi UE
+Khung RSMA cho thấy thông điệp mỗi UE được tách thành phần chung và phần riêng; mọi UE
 giải luồng chung trước, dùng đúng một tầng SIC để loại luồng chung, rồi mới giải luồng
 riêng của mình.
 
@@ -164,9 +164,9 @@ chuyển chế độ và chuyển theo thời gian; tuy nhiên các cơ chế đ
 mô phỏng của luận văn \cite{Mu2021STARAided, Liu2021STARCoupledPhase,
 Wang2022STAROptimization}.
 
-Hình~\ref{fig:ch1-ris-star} đối chiếu hai loại bề mặt. Ở panel bên trái, mỗi phần tử RIS
+Hình~\ref{fig:ch1-ris-star} đối chiếu hai loại bề mặt. Ở khung bên trái, mỗi phần tử RIS
 chỉ điều chỉnh pha của tín hiệu phản xạ, nên toàn bộ năng lượng quay về nửa không gian
-chứa BS và các UE nằm sau bề mặt không nhận được đường ghép tầng. Ở panel bên phải, mỗi
+chứa BS và các UE nằm sau bề mặt không nhận được đường ghép tầng. Ở khung bên phải, mỗi
 phần tử STAR--RIS chia năng lượng tới thành một phần truyền qua và một phần phản xạ, đồng
 thời điều chỉnh pha độc lập cho hai phía, nhờ đó cả bốn UE đều nhận được đường ghép tầng.
 Khối phóng to phía dưới minh họa một phần tử ở chế độ ES: tín hiệu tới được tách thành
@@ -209,7 +209,7 @@ hiệu để Actor điều chỉnh, còn Actor tạo các hành động mà Crit
 
 DDPG và TD3 là các thuật toán off-policy, nghĩa là có thể học từ dữ liệu được thu thập
 bởi một chính sách hành vi không hoàn toàn giống chính sách hiện tại. Dữ liệu được lưu
-trong bộ nhớ phát lại (Replay Buffer) và có thể được dùng lại nhiều lần, giúp tăng hiệu
+trong bộ nhớ phát lại và có thể được dùng lại nhiều lần, giúp tăng hiệu
 quả sử dụng mẫu. PPO là thuật toán on-policy; dữ liệu mới được thu thập theo chính sách
 hiện hành và được dùng trong một số vòng cập nhật trước khi bị thay bởi lô mới. Sự khác
 nhau này ảnh hưởng đến độ ổn định, hiệu quả mẫu và cách thiết kế quy trình huấn luyện.
@@ -292,20 +292,20 @@ STAR--RIS.
 Hình~\ref{fig:ch1-ao-truc-giac} minh họa cơ chế của ba phương pháp này. Điểm chung là cả
 ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn nhau.
 
-Panel AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép tầng đến từ những
+Khung AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép tầng đến từ những
 phần tử khác nhau có hướng pha tản mát nên véc-tơ tổng rất ngắn, tức độ lợi kênh thấp.
 Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$, mọi thành phần quay về cùng một
 hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần. Đây là một công thức đóng,
 tính đúng một lần cho mỗi CSI, nên nhanh nhất trong bốn phương pháp; bù lại nó chỉ chỉnh
 pha mà không tối ưu đồng thời công suất và tỷ lệ chia năng lượng.
 
-Panel AO--SCA mô tả hai cơ chế cập nhật. Với khối đơn hình, bộ giải chuyển một lượng
+Khung AO--SCA mô tả hai cơ chế cập nhật. Với khối đơn hình, bộ giải chuyển một lượng
 $\delta$ từ thành phần này sang thành phần khác nên tổng không đổi. Với khối STAR--RIS,
 bộ giải thử hai điểm $\theta_n \pm \varepsilon$ để ước lượng độ dốc rồi chỉ đi một bước
 ngắn; nếu bước quá đà thì quay lui và thu nhỏ bước. Vì mỗi biến cần thêm hai lần tính hàm
 mục tiêu, chi phí cho một kịch bản rất lớn.
 
-Panel AO--Grid dùng cùng đường cong mục tiêu để tiện so sánh. Lưới công suất có chứa mức
+Khung AO--Grid dùng cùng đường cong mục tiêu để tiện so sánh. Lưới công suất có chứa mức
 $0$ nên bộ giải có thể tắt hẳn một luồng riêng, điều mà bước cập nhật liên tục khó đạt
 được. Với khối STAR--RIS, bộ giải tính hàm mục tiêu tại mọi mốc rời rạc rồi nhảy thẳng
 tới mốc tốt nhất. Cách này không cần đạo hàm và có thể đi những bước rất xa, nhưng số
@@ -377,7 +377,7 @@ Zhong và cộng sự \cite{Zhong2022HybridRLSTAR}
 \addlinespace
 Ge và cộng sự \cite{Ge2024RSMAMassiveMIMO}
 & STAR--RIS, massive MIMO, RSMA; tối ưu chung
-& Hệ nhiều anten và mục tiêu khác; không phản ánh đặc điểm không có beamforming của SISO. \\
+& Hệ nhiều anten và mục tiêu khác; không phản ánh đặc điểm không có tạo búp sóng của SISO. \\
 \bottomrule
 \end{tabularx}
 \tablesource{Tác giả tổng hợp từ các công trình trích dẫn (2026)}

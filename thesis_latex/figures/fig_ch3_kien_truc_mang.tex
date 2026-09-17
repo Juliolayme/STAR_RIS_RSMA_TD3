@@ -1,0 +1,44 @@
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+\def\bw{3.1}   % be rong mot cot
+\def\bh{0.52}  % chieu cao mot khoi
+
+% ---------- cot 1: Actor xac dinh (DDPG / TD3) ----------
+\begin{scope}[shift={(0,0)}]
+  \node[tit] at (0,0.95) {(a) Actor — DDPG, TD3};
+  \node[sm,anchor=north,text width=\bw cm] (a1) at (1.55,0.25)  {Trạng thái $s$ \ ($d_s$)};
+  \node[sm,anchor=north,text width=\bw cm] (a2) at (1.55,-0.55) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (a3) at (1.55,-1.35) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (a4) at (1.55,-2.15) {FC $d_a$};
+  \node[sm,anchor=north,text width=\bw cm,fill=cChung!10] (a5) at (1.55,-2.95) {Tanh \ $\to$ \ $a\in[-1,1]^{d_a}$};
+  \foreach \i/\j in {a1/a2,a2/a3,a3/a4,a4/a5}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+% ---------- cot 2: Actor ngau nhien (PPO) ----------
+\begin{scope}[shift={(4.9,0)}]
+  \node[tit] at (0,0.95) {(b) Actor — PPO};
+  \node[sm,anchor=north,text width=\bw cm] (b1) at (1.55,0.25)  {Trạng thái $s$ \ ($d_s$)};
+  \node[sm,anchor=north,text width=\bw cm] (b2) at (1.55,-0.55) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (b3) at (1.55,-1.35) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (b4) at (1.55,-2.15) {FC $d_a$ \ $\to$ \ $\mu(s)$};
+  \node[sm,anchor=north,text width=\bw cm] (b5) at (1.55,-2.95) {Lấy mẫu $u\sim\mathcal{N}(\mu,\sigma^2)$\\ \tiny $\log\sigma$ là tham số học riêng};
+  \node[sm,anchor=north,text width=\bw cm,fill=cChung!10] (b7) at (1.55,-3.75) {Tanh \ $\to$ \ $a=\tanh(u)$};
+  \foreach \i/\j in {b1/b2,b2/b3,b3/b4,b4/b5,b5/b7}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+% ---------- cot 3: Critic ----------
+\begin{scope}[shift={(9.8,0)}]
+  \node[tit] at (0,0.95) {(c) Critic};
+  \node[sm,anchor=north,text width=\bw cm] (c1) at (1.55,0.25)  {$[s,a]$ \ ($d_s+d_a$) — DDPG/TD3\\ $s$ \ ($d_s$) — PPO};
+  \node[sm,anchor=north,text width=\bw cm] (c2) at (1.55,-0.80) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (c3) at (1.55,-1.60) {FC 256 \ $\to$ \ LN + ReLU};
+  \node[sm,anchor=north,text width=\bw cm] (c4) at (1.55,-2.40) {FC 1};
+  \node[sm,anchor=north,text width=\bw cm,fill=cKenh!10] (c5) at (1.55,-3.20)
+       {$Q(s,a)$ — DDPG/TD3\\ $V(s)$ — PPO};
+  \foreach \i/\j in {c1/c2,c2/c3,c3/c4,c4/c5}{ \draw[->] (\i.south) -- (\j.north); }
+\end{scope}
+
+\node[note,text width=12.8cm] at (0,-4.55)
+  {Cả ba cột dùng cùng bề rộng ẩn 256 và cùng thứ tự FC $\to$ LN $\to$ ReLU.
+   TD3 dùng hai Critic độc lập có cấu trúc giống cột (c) và lấy giá trị nhỏ hơn khi tạo mục tiêu.
+   Đầu ra của cả hai Actor đều đi vào cùng một bộ giải mã hành động vật lý ở Hình 3.1.};
+\end{tikzpicture}

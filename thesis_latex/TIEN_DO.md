@@ -8,12 +8,13 @@ Nguồn dựng lại: `Luan_van_STAR_RIS_RSMA_DRL_ban_review.pdf` (102 trang, bi
 - `main.tex`, `uththesis.sty`, `frontmatter.tex`, `references.bib`
 - Chương 1 đầy đủ 8 mục, kèm Bảng 1.1 và bốn hình
 - Chương 2 đầy đủ 10 mục, 36 công thức đánh số, bốn hình
+- Chương 3 đầy đủ 13 mục, 25 công thức, sáu hình, Bảng 3.1 và Thuật toán 1
 - Mọi hình dùng bản TikZ mới vẽ lại
 
 ## Chưa xong
 
 - Mở đầu (đang là chỗ giữ chỗ)
-- Chương 3, 4
+- Chương 4
 - Kết luận và ba phụ lục
 - Các dòng `\input` tương ứng trong `main.tex` đang được chú thích
 
@@ -27,6 +28,10 @@ Nguồn dựng lại: `Luan_van_STAR_RIS_RSMA_DRL_ban_review.pdf` (102 trang, bi
 - Thêm gói `icomma` để dấu phẩy thập phân trong công thức không bị giãn.
 - Trích dẫn dùng khóa BibTeX thay vì số cứng, nên chèn thêm tài liệu sẽ không
   làm sai số thứ tự.
+- Hạn chế từ tiếng Anh trong văn bản tiếng Việt: panel thành khung, beamforming
+  thành tạo búp sóng, Replay Buffer thành bộ nhớ phát lại, checkpoint thành điểm
+  lưu mô hình, mini-batch thành lô nhỏ, episode thành giai đoạn, off-policy và
+  on-policy thành học ngoài chính sách và học theo chính sách hiện hành.
 
 ## Sửa lỗi so với bản PDF
 
