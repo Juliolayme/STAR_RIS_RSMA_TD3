@@ -186,7 +186,7 @@ cho việc chọn hệ số độ sắc cao.
 \subsection{Giải mã tỷ lệ phân bổ tốc độ chung}
 \label{ssec:giai-ma-ty-le-toc-do}
 
-Khối $a_\eta$ được đưa từ $[-1,1]^K$ về $[0,1]^K$ rồi chiếu Euclid lên đơn hình:
+Khối $a_\eta$ được đưa từ $[-1,1]^K$ về $[0,1]^K$ rồi chiếu Euclid (Euclidean projection) lên đơn hình:
 \begin{equation}
 \label{eq:eta}
 \boldsymbol{\eta} = \Pi_{\Delta_K}\!\left(\frac{a_\eta + 1}{2}\right),
@@ -314,7 +314,7 @@ mong muốn.
 \label{ssec:phan-thuong-huan-luyen}
 
 Trong quá trình huấn luyện, hệ số tuyến tính không cố định mà được điều khiển bởi một biến
-đối ngẫu $\lambda_t$:
+đối ngẫu (dual variable) $\lambda_t$:
 \begin{equation}
 \label{eq:phan-thuong-huan-luyen}
 r_t = R_{\mathrm{sum}} - \lambda_t V - 8V_2 .
@@ -326,7 +326,7 @@ vi phạm QoS thay đổi theo diễn biến học: nếu chính sách thường
 tăng để Critic xem các hành động đó kém hấp dẫn hơn; nếu vi phạm đã thấp, hệ số không cần
 tăng vô hạn.
 
-Mức vi phạm được làm trơn bằng trung bình mũ:
+Mức vi phạm được làm trơn bằng trung bình mũ (exponential moving average):
 \begin{equation}
 \label{eq:ema}
 \bar{V}_t = \beta_{\mathrm{ema}} \bar{V}_{t-1}
@@ -352,7 +352,7 @@ phép cắt giữ $\lambda$ trong giới hạn cấu hình. Có thể hiểu đ�
 lực QoS: nếu vi phạm trung bình cao hơn mục tiêu, hệ số tăng; nếu thấp hơn, hệ số có thể
 giảm. Cơ chế này được áp dụng chung cho ba thuật toán DRL trong giao thức huấn luyện.
 
-\subsection{Lựa chọn điểm lưu mô hình theo tập xác thực}
+\subsection{Lựa chọn điểm lưu mô hình (checkpoint) theo tập xác thực}
 \label{ssec:chon-diem-luu}
 
 Mô hình không được chọn chỉ bằng phần thưởng hoặc tổng tốc độ. Tại mỗi lần xác thực, hệ
@@ -431,8 +431,8 @@ thưởng hiện tại cộng với giá trị dự kiến của trạng thái t
 hơn mạng chính, giúp mục tiêu học không chạy quá nhanh theo chính mạng đang được cập nhật.
 
 Critic được học để giảm sai số giữa $Q_\psi(s,a)$ và $y$. Actor được cập nhật theo hướng
-làm $Q_\psi(s, \mu_\phi(s))$ tăng. Trong cấu hình cuối, hàm mất mát Critic dùng hàm Huber
-và gradient được cắt chuẩn để hạn chế bước cập nhật quá lớn.
+làm $Q_\psi(s, \mu_\phi(s))$ tăng. Trong cấu hình cuối, hàm mất mát (loss function) Critic dùng hàm Huber (Huber loss)
+và gradient được cắt chuẩn (gradient norm clipping) để hạn chế bước cập nhật quá lớn.
 
 \subsection{TD3}
 \label{ssec:td3}
@@ -477,12 +477,11 @@ mục tiêu học thay đổi êm hơn qua các bước, góp phần ổn địn
 \label{ssec:kham-pha}
 
 Trong $2.000$ bước khởi động đầu, hành động được lấy ngẫu nhiên đều trong $[-1,1]^{d_a}$
-để lấp bộ nhớ phát lại. Sau đó, DDPG và TD3 dùng hành động Actor cộng nhiễu Gaussian khám
-phá. Độ lệch chuẩn nhiễu giảm tuyến tính từ $0,12$ xuống $0,03$ trong $100.000$ bước. Với
+để lấp bộ nhớ phát lại. Sau đó, DDPG và TD3 dùng hành động Actor cộng nhiễu Gaussian khám phá (exploration noise). Độ lệch chuẩn nhiễu giảm tuyến tính từ $0,12$ xuống $0,03$ trong $100.000$ bước. Với
 TD3, nhiễu còn được điều chỉnh theo số chiều hành động bằng hệ số tham chiếu để tránh tổng
 năng lượng nhiễu tăng quá mạnh khi $N$ lớn.
 
-Bộ nhớ phát lại có sức chứa $200.000$ mẫu và lô nhỏ kích thước $256$. Mỗi mẫu có thể được
+Bộ nhớ phát lại có sức chứa $200.000$ mẫu và lô nhỏ (mini-batch) kích thước $256$. Mỗi mẫu có thể được
 sử dụng nhiều lần ở các bước cập nhật khác nhau. Đây là ưu thế điển hình của nhóm học
 ngoài chính sách về hiệu quả sử dụng dữ liệu, nhưng cũng làm Critic phải học từ dữ liệu
 được thu dưới các chính sách cũ.
@@ -510,7 +509,7 @@ L^{\mathrm{clip}}(\theta) = \mathbb{E}_t\Big[
 \mathrm{clip}(r_t(\theta),\ 1-\epsilon,\ 1+\epsilon)\hat{A}_t\big)\Big].
 \end{equation}
 
-Trong đó: $\hat{A}_t$ là lợi thế ước lượng và $\epsilon$ là biên cắt của PPO. Hàm mục tiêu
+Trong đó: $\hat{A}_t$ là lợi thế ước lượng (advantage) và $\epsilon$ là biên cắt của PPO. Hàm mục tiêu
 giới hạn lợi ích của việc thay đổi chính sách quá xa trong một lần cập nhật; có thể hiểu
 đây là cơ chế đi từng bước vừa phải để tránh một lô dữ liệu làm Actor đổi hướng quá mạnh.
 
@@ -553,7 +552,7 @@ Bộ giải thử các hướng chuyển khả thi, chọn hướng có độ d�
 mức $\delta$ trên hướng đó. Với khối STAR--RIS, đạo hàm theo từng biến được xấp xỉ bằng
 sai phân hữu hạn; một bài toán lân cận tạo đề xuất và cơ chế quay lui tăng hệ số lân cận
 nếu đề xuất chưa đủ tốt. Sau mỗi vòng, hai đơn hình được đánh bóng lại và kiểm tra khoảng
-cách đến điều kiện dừng. Cơ chế này làm AO--SCA là một bộ giải cục bộ có kiểm soát tốt hơn
+cách đến điều kiện dừng (stationarity). Cơ chế này làm AO--SCA là một bộ giải cục bộ có kiểm soát tốt hơn
 tại biên đơn hình, nhưng không biến nó thành nghiệm tối ưu toàn cục.
 
 \subsection{AO--Grid}
@@ -581,7 +580,7 @@ kênh. Với mỗi kích thước $N$, ba ngân hàng độc lập được tạ
 luyện, $1.000$ cho xác thực và $1.000$ cho kiểm thử. Mỗi ngân hàng lưu đầy đủ
 $\mathbf{h}_d$, $\mathbf{g}$, $\mathbf{h}_r$, chỉ báo phía UE và siêu dữ liệu.
 
-Các ngân hàng dùng hạt giống sinh ngẫu nhiên cố định và có mã kiểm tra SHA--256. Một hàm
+Các ngân hàng dùng hạt giống (seed) sinh ngẫu nhiên cố định và có mã kiểm tra (checksum) SHA--256. Một hàm
 kiểm tra không trùng lặp duyệt từng kịch bản để bảo đảm ba tập tách biệt. Mục đích không
 phải biến kênh tổng hợp thành dữ liệu thật, mà bảo đảm mọi thuật toán được so sánh trên
 đúng cùng các mẫu kênh và một lần chạy có thể tái tạo đúng tập dữ liệu.
@@ -692,7 +691,7 @@ không có giai đoạn huấn luyện; chúng nhận từng CSI kiểm thử v�
 Để một kết quả có thể kiểm tra, mỗi lần chạy cần đi kèm cấu hình, hạt giống ngẫu nhiên, mã
 kiểm tra ngân hàng kênh, phiên bản mã nguồn, điểm lưu mô hình, dữ liệu huấn luyện và xác
 thực, bảng kiểm thử cùng thông tin phần cứng và phần mềm. Mã nguồn lưu các thông tin này
-trong các tệp kê khai, tệp đo thời gian và bảng dữ liệu. Các ngân hàng kênh được kiểm tra
+trong các tệp kê khai (manifest), tệp đo thời gian và bảng dữ liệu. Các ngân hàng kênh được kiểm tra
 số lượng, kích thước, hạt giống, tính không trùng và mã kiểm tra trước khi chạy.
 
 Luận văn phân biệt rõ ba nguồn bất định. Thứ nhất là biến thiên kênh giữa các kịch bản.

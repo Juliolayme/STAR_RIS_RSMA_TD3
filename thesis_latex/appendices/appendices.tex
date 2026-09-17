@@ -1,0 +1,230 @@
+\chapter{KÝ HIỆU VÀ SỐ CHIỀU CỦA MÔ HÌNH}
+\label{app:ky-hieu}
+
+\section{Danh mục ký hiệu}
+\label{sec:danh-muc-ky-hieu}
+
+Bảng~\ref{tab:a-ky-hieu} tổng hợp các ký hiệu được sử dụng thường xuyên trong luận văn.
+Các ký hiệu được giữ nhất quán giữa mô hình toán học và mã nguồn để thuận tiện cho việc
+đối chiếu.
+
+\begin{longtable}{@{}l p{11.2cm}@{}}
+\caption{Danh mục các ký hiệu chính}
+\label{tab:a-ky-hieu}\\
+\toprule
+\textbf{Ký hiệu} & \textbf{Ý nghĩa vật lý hoặc thuật toán} \\
+\midrule
+\endfirsthead
+\multicolumn{2}{@{}l}{\textit{(tiếp theo trang trước)}}\\
+\toprule
+\textbf{Ký hiệu} & \textbf{Ý nghĩa vật lý hoặc thuật toán} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$K$ & Số thiết bị người dùng trong hệ thống. \\
+$N$ & Số phần tử của STAR--RIS. \\
+$h_{d,k}$ & Hệ số kênh trực tiếp từ trạm gốc đến UE $k$. \\
+$\mathbf{g}$ & Véc-tơ kênh từ trạm gốc đến STAR--RIS. \\
+$\mathbf{h}_{r,k}$ & Véc-tơ kênh từ STAR--RIS đến UE $k$. \\
+$\phi^T_n,\ \phi^R_n$ & Hệ số phức của phần tử STAR--RIS thứ $n$ ở phía truyền và phía phản xạ. \\
+$\beta^T_n,\ \beta^R_n$ & Tỷ lệ năng lượng của phần tử thứ $n$ dành cho phía truyền và phía phản xạ. \\
+$\theta^T_n,\ \theta^R_n$ & Pha điều khiển của phần tử thứ $n$ ở phía truyền và phía phản xạ. \\
+$h^{\mathrm{eff}}_k$ & Kênh hiệu dụng từ trạm gốc đến UE $k$ sau khi cộng đường trực tiếp và đường qua STAR--RIS. \\
+$g_k = |h^{\mathrm{eff}}_k|^2$ & Độ lợi công suất của kênh hiệu dụng UE $k$. \\
+$p_c$ & Công suất phát dành cho luồng chung của RSMA. \\
+$p_k$ & Công suất phát dành cho luồng riêng của UE $k$. \\
+$P_{\max}$ & Tổng công suất phát khả dụng của trạm gốc. \\
+$P_{\mathrm{priv}}$ & Tổng công suất của tất cả luồng riêng. \\
+$\eta_k$ & Tỷ lệ tốc độ luồng chung phân bổ cho UE $k$. \\
+$C_k$ & Phần tốc độ luồng chung thực tế cấp cho UE $k$. \\
+$\gamma_{c,k}$ & SINR khi UE $k$ giải mã luồng chung. \\
+$\gamma_{p,k}$ & SINR khi UE $k$ giải mã luồng riêng của mình sau SIC. \\
+$R_c$ & Tốc độ luồng chung mà tất cả UE đều có thể giải mã. \\
+$R_{p,k}$ & Tốc độ luồng riêng của UE $k$. \\
+$R_k$ & Tổng tốc độ của UE $k$, gồm phần chung được cấp và phần riêng. \\
+$R_{\mathrm{sum}}$ & Tổng tốc độ của tất cả UE. \\
+$R_{\min}$ & Ngưỡng tốc độ tối thiểu dùng để đánh giá QoS. \\
+$V$ & Tổng phần thiếu hụt QoS của các UE. \\
+$V_2$ & Tổng bình phương phần thiếu hụt QoS của các UE. \\
+$\sigma^2$ & Công suất tạp âm. \\
+$s$ & Véc-tơ trạng thái đưa vào mạng học tăng cường sâu. \\
+$a$ & Véc-tơ hành động chuẩn hóa do mạng sinh ra. \\
+$d_s$ & Số chiều trạng thái. \\
+$d_a$ & Số chiều hành động. \\
+$\rho_c$ & Tỷ lệ tổng công suất dành cho luồng chung sau bước giải mã hành động. \\
+$w_k$ & Trọng số chia phần công suất riêng còn lại cho UE $k$. \\
+$\kappa$ & Hệ số độ sắc của hàm softmax dùng cho phân bổ công suất riêng. \\
+$\bar{\theta}_n$ & Pha tham chiếu giải tích của phần tử STAR--RIS thứ $n$. \\
+$\lambda_t$ & Hệ số phạt QoS thích nghi ở bước huấn luyện $t$. \\
+$\gamma$ & Hệ số chiết khấu trong cập nhật giá trị của học tăng cường. \\
+$\tau$ & Hệ số cập nhật mềm của mạng đích. \\
+$Q(s,a)$ & Giá trị hành động ước lượng bởi mạng Critic. \\
+$V(s)$ & Giá trị trạng thái ước lượng bởi mạng giá trị của PPO. \\
+\end{longtable}
+
+\section{Số chiều trạng thái và hành động}
+\label{sec:so-chieu}
+
+Với cách ghép phần thực, phần ảo của ba khối kênh và chỉ báo phía người dùng, số chiều
+trạng thái và số chiều hành động được xác định bởi:
+\begin{equation}
+\label{eq:a-so-chieu}
+d_s = 2(K + N + KN) + K,
+\qquad
+d_a = (K+1) + K + 3N = 2K + 1 + 3N.
+\end{equation}
+
+Trong đó: $d_s$ là số phần tử của véc-tơ trạng thái; $d_a$ là số đầu ra chuẩn hóa của
+chính sách; $K$ là số UE; $N$ là số phần tử STAR--RIS. Thành phần $2(K + N + KN)$ đến từ
+phần thực và phần ảo của kênh trực tiếp, kênh trạm gốc--STAR--RIS và kênh STAR--RIS--UE;
+thành phần $K$ cuối của $d_s$ cho biết mỗi UE nằm ở phía truyền hay phản xạ. Trong $d_a$,
+$K+1$ phần tử dành cho công suất, $K$ phần tử dành cho phân bổ tốc độ chung và $3N$ phần
+tử dành cho chia năng lượng cùng hai véc-tơ pha.
+
+Công thức~\eqref{eq:a-so-chieu} cho thấy khi tăng số phần tử STAR--RIS, cả lượng thông tin
+kênh mà mạng phải quan sát và số quyết định cần tạo đều tăng tuyến tính theo $N$. Đây là
+lý do luận văn đánh giá nhiều giá trị $N$ để kiểm tra khả năng mở rộng của cả DRL và AO.
+
+\begin{table}[htbp]
+\centering
+\caption{Số chiều trạng thái và hành động khi $K = 4$}
+\label{tab:a-so-chieu}
+\footnotesize
+\begin{tabular}{@{}lrr@{}}
+\toprule
+$N$ & $d_s$ & $d_a$ \\
+\midrule
+$16$  & $172$  & $57$  \\
+$32$  & $332$  & $105$ \\
+$64$  & $652$  & $201$ \\
+$96$  & $972$  & $297$ \\
+$128$ & $1292$ & $393$ \\
+\bottomrule
+\end{tabular}
+\tablesource{Tác giả tính từ cấu trúc trạng thái và hành động của mô hình (2026)}
+\end{table}
+
+Bảng~\ref{tab:a-so-chieu} giúp hình dung trực tiếp độ tăng của bài toán. Chẳng hạn, tại
+$N = 32$, Actor nhận $332$ giá trị trạng thái và sinh $105$ giá trị hành động chuẩn hóa.
+Các giá trị hành động này chưa phải biến vật lý cuối cùng mà tiếp tục đi qua bộ giải mã có
+cấu trúc trước khi được dùng để tính kênh và tốc độ.
+
+\chapter{QUY TRÌNH TÁI LẬP VÀ ĐỐI CHIẾU MÃ NGUỒN}
+\label{app:tai-lap}
+
+\section{Nguyên tắc tách dữ liệu}
+\label{sec:tach-du-lieu}
+
+Mỗi kích thước STAR--RIS sử dụng ba ngân hàng kịch bản kênh (scenario bank) độc lập cho huấn luyện, xác
+thực và kiểm thử. Ngân hàng huấn luyện chứa $10.000$ kịch bản, ngân hàng xác thực chứa
+$1.000$ kịch bản và ngân hàng kiểm thử chứa $1.000$ kịch bản. Thông tin mô tả và mã kiểm
+tra SHA--256 được lưu cùng dữ liệu để phát hiện thay đổi ngoài ý muốn. Một bước kiểm tra
+riêng xác nhận các ngân hàng không chứa cùng một kịch bản kênh.
+
+Tập huấn luyện chỉ dùng để cập nhật tham số mạng. Tập xác thực được dùng định kỳ để lựa
+chọn điểm lưu mô hình theo nguyên tắc ưu tiên QoS trước, tổng tốc độ sau. Tập kiểm thử
+được dùng để báo cáo kết quả cuối sau khi quy tắc lựa chọn đã cố định. Khi so sánh phương
+pháp tại cùng $N$, mọi phương pháp đều được đánh giá trên cùng các kịch bản kiểm thử để có
+thể thực hiện so sánh ghép cặp theo trạng thái kênh.
+
+\section{Thông tin cần lưu cho mỗi lần chạy}
+\label{sec:thong-tin-luu}
+
+Mỗi lần huấn luyện DRL cần lưu tối thiểu: tên thuật toán, hạt giống ngẫu nhiên, kích thước
+STAR--RIS, số tương tác môi trường, tệp cấu hình, mã kiểm tra ngân hàng kênh, điểm lưu mô
+hình được chọn, nhật ký huấn luyện, kết quả xác thực, kết quả kiểm thử, thời gian huấn
+luyện và thông tin môi trường phần mềm cùng phần cứng. Việc lưu đồng thời các thành phần
+này cho phép truy ngược một con số trong bảng kết quả về đúng lần chạy đã tạo ra nó.
+
+Đối với các bộ giải xác định như AO--SCA, AO--Grid và AnalyticalRIS, không có biến thiên do
+khởi tạo mạng. Tuy nhiên, vẫn cần lưu cấu hình bộ giải, số lần đánh giá hàm mục tiêu, tiêu
+chí dừng, thời gian xử lý và danh sách kịch bản kiểm thử. Điều này đặc biệt quan trọng khi
+so sánh độ trễ vì một thay đổi nhỏ về số vòng lặp hoặc kích thước lưới có thể làm thời gian
+xử lý thay đổi đáng kể.
+
+\section{Ánh xạ giữa nội dung luận văn và mã nguồn}
+\label{sec:anh-xa-ma-nguon}
+
+Bảng~\ref{tab:b-anh-xa} cho biết vị trí chính trong mã nguồn tương ứng với từng nội dung
+của luận văn. Tên tệp được giữ theo dự án phần mềm để người đọc có thể đối chiếu trực tiếp.
+
+Toàn bộ kết quả báo cáo trong Chương~\ref{chap:ket-qua} được sinh từ nhánh
+\texttt{experiment/}\allowbreak\texttt{physical-v6-full}, mã phiên bản \texttt{fde2fe7},
+với tham số hóa hành động \texttt{physical\_v6\_}\allowbreak\texttt{soft\_anchor}. Dữ liệu tổng hợp nằm tại thư mục
+\texttt{results/physical\_v6\_full\_r2/}. Các nhánh khác của dự án chứa những lần chạy
+trước đó và không dùng để trích dẫn.
+
+\begin{table}[htbp]
+\centering
+\caption{Ánh xạ nội dung luận văn với các tệp mã nguồn chính}
+\label{tab:b-anh-xa}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}X l@{}}
+\toprule
+\textbf{Nội dung} & \textbf{Tệp mã nguồn chính} \\
+\midrule
+Sinh kênh, hệ số STAR--RIS, kênh hiệu dụng, tốc độ RSMA & \texttt{src/star\_ris\_rsma/physics.py} \\
+Trạng thái, chuẩn hóa, QoS và phần thưởng môi trường & \texttt{src/star\_ris\_rsma/env.py} \\
+Bộ giải mã hành động có cấu trúc & \texttt{src/star\_ris\_rsma/action.py} \\
+Kiến trúc Actor và Critic & \texttt{src/star\_ris\_rsma/agents/networks.py} \\
+Cập nhật DDPG & \texttt{src/star\_ris\_rsma/agents/ddpg.py} \\
+Cập nhật TD3 & \texttt{src/star\_ris\_rsma/agents/td3.py} \\
+Cập nhật PPO & \texttt{src/star\_ris\_rsma/agents/ppo.py} \\
+Bộ điều khiển hệ số phạt QoS thích nghi & \texttt{src/star\_ris\_rsma/experiment\_v2.py} \\
+Huấn luyện chung, xác thực và chọn điểm lưu mô hình & \texttt{src/star\_ris\_rsma/experiment\_v3.py} \\
+Ngân hàng kịch bản kênh và mã kiểm tra & \texttt{src/star\_ris\_rsma/scenario\_bank.py} \\
+AO--SCA & \texttt{src/star\_ris\_rsma/baselines/ao\_corrected.py} \\
+AO--Grid & \texttt{src/star\_ris\_rsma/baselines/ao\_grid\_corrected.py} \\
+Các phép loại bỏ thành phần để phân tích & \texttt{src/star\_ris\_rsma/baselines/ablations.py} \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu trúc dự án phần mềm (2026)}
+\end{table}
+
+Các hậu tố trong một số tên tệp là ký hiệu kỹ thuật nội bộ của dự án phần mềm. Ví dụ gồm
+\texttt{experiment\_v2.py}, \texttt{experiment\_v3.py} và \texttt{ao\_corrected.py}. Các
+ký hiệu này không biểu thị các phương pháp khoa học khác nhau trong nội dung luận văn.
+Luận văn chỉ mô tả phương pháp cuối cùng tương ứng với cấu hình và kết quả đã khóa.
+
+\section{Danh sách kiểm tra trước khi sử dụng kết quả}
+\label{sec:danh-sach-kiem-tra}
+
+Trước khi đưa một bảng hoặc đồ thị vào luận văn, cần thực hiện các bước sau:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item Xác nhận ba ngân hàng huấn luyện, xác thực và kiểm thử có đúng số lượng, đúng kích
+      thước $K$ và $N$, đồng thời không trùng kịch bản.
+\item Xác nhận mã kiểm tra của ngân hàng kênh khớp tệp kê khai đã khóa.
+\item Xác nhận đủ năm hạt giống huấn luyện cho mỗi thuật toán DRL và mỗi $N$; không loại
+      một lần chạy chỉ vì kết quả thấp.
+\item Kiểm tra các tệp kết quả thô không chứa giá trị không xác định hoặc vô hạn.
+\item Xác nhận DDPG, TD3, PPO, AO--SCA, AO--Grid và AnalyticalRIS được đánh giá trên cùng
+      $1.000$ kịch bản kiểm thử tại mỗi $N$.
+\item Xác nhận các bảng tổng hợp có thể tái tạo từ dữ liệu thô, không nhập tay số liệu
+      trung gian.
+\item Khi báo cáo độ trễ, xác nhận các phương pháp được đo trên cùng máy, cùng số luồng xử
+      lý, cùng số lần khởi động và số lần lặp đo.
+\item Khi báo cáo kiểm định thống kê, phân biệt rõ đơn vị kịch bản với đơn vị hạt giống
+      huấn luyện; không dùng kết quả theo kịch bản để thay thế biến thiên do huấn luyện.
+\item Kiểm tra mọi công thức và giá trị siêu tham số trong luận văn khớp mã nguồn và cấu
+      hình cuối cùng.
+\item Kiểm tra mọi hình và bảng có nguồn, chú thích, đơn vị và mô tả đủ để đọc độc lập với
+      phần mã nguồn.
+\end{enumerate}
+
+\section{Nguyên tắc đọc kết quả thống kê}
+\label{sec:nguyen-tac-thong-ke}
+
+Đối với DRL, một kịch bản kênh có thể được đánh giá bởi nhiều chính sách đến từ các hạt
+giống huấn luyện khác nhau. Trung bình theo kịch bản cho biết các chính sách đã cố định
+hoạt động thế nào trên các trạng thái kênh chung, còn trung bình theo hạt giống phản ánh
+sự biến thiên của quá trình huấn luyện. Hai đơn vị không thể thay thế cho nhau. Khi số hạt
+giống chỉ bằng năm, luận văn ưu tiên các nhận định về xu hướng và độ lớn hiệu ứng, đồng
+thời tránh kết luận mạnh chỉ dựa trên giá trị xác suất nhỏ từ $1.000$ kịch bản ghép cặp.
+
+Đối với AO--SCA, AO--Grid và AnalyticalRIS, thuật toán là xác định nên không có độ lệch
+chuẩn theo hạt giống huấn luyện. Khoảng biến thiên của chúng chủ yếu phản ánh độ khó khác
+nhau giữa các kịch bản kênh. Vì vậy, độ rộng khoảng tin cậy của AO không được so trực tiếp
+với độ lệch chuẩn theo hạt giống của DRL như thể hai đại lượng cùng biểu diễn một nguồn
+bất định.

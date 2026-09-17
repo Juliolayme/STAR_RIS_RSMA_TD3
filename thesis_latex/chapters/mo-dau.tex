@@ -2,4 +2,212 @@
 \addcontentsline{toc}{chapter}{MỞ ĐẦU}
 \markboth{MỞ ĐẦU}{}
 
-\textit{[Phần Mở đầu sẽ được dựng lại ở bước tiếp theo.]}
+\section*{1. Tính cấp thiết của đề tài}
+\addcontentsline{toc}{section}{1. Tính cấp thiết của đề tài}
+
+Các hệ thống thông tin vô tuyến thế hệ mới phải đồng thời phục vụ số lượng thiết bị ngày
+càng lớn, duy trì tốc độ truyền dữ liệu cao, bảo đảm chất lượng dịch vụ và rút ngắn thời
+gian ra quyết định. Trong bối cảnh phổ tần và công suất phát luôn hữu hạn, việc chỉ tăng
+công suất không còn là giải pháp đủ hiệu quả. Hiệu năng hệ thống phụ thuộc ngày càng
+nhiều vào khả năng quản lý nhiễu giữa các người dùng và khả năng điều khiển môi trường
+truyền sóng.
+
+Khái niệm đa truy cập (Multiple Access, MA) mô tả cách nhiều người dùng cùng khai thác
+tài nguyên vô tuyến. Các kỹ thuật truyền thống như đa truy cập trực giao (Orthogonal
+Multiple Access, OMA), đa truy cập phân chia theo không gian (Space Division Multiple
+Access, SDMA) và đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) giải
+quyết bài toán chia sẻ tài nguyên theo các nguyên lý khác nhau. Tuy nhiên, khi kênh
+truyền, mức nhiễu và yêu cầu của người dùng thay đổi, không có một cơ chế duy nhất luôn
+tối ưu trong mọi tình huống. Đa truy cập phân chia tỷ lệ (Rate-Splitting Multiple Access,
+RSMA) được đề xuất như một cách quản lý nhiễu linh hoạt hơn bằng việc tách thông điệp
+thành phần chung và phần riêng, qua đó cho phép người nhận vừa giải mã một phần nhiễu vừa
+xem phần còn lại như tạp âm \cite{Mao2018RSMABridging, Mao2022RSMAFundamentals}.
+
+Song song với việc thay đổi cách tổ chức tín hiệu ở phía phát, bề mặt phản xạ thông minh
+có thể cấu hình lại (Reconfigurable Intelligent Surface, RIS) cung cấp khả năng điều khiển
+môi trường truyền sóng bằng nhiều phần tử thụ động có thể thay đổi pha. RIS truyền thống
+chủ yếu phản xạ tín hiệu về một nửa không gian. Bề mặt đồng thời truyền và phản xạ
+(Simultaneously Transmitting and Reflecting RIS, STAR--RIS) mở rộng khả năng đó bằng việc
+đồng thời tạo thành phần truyền qua và phản xạ, nhờ đó có thể phục vụ người dùng ở cả hai
+phía của bề mặt \cite{Xu2021STARRIS, Mu2021STARAided}.
+
+Khi STAR--RIS kết hợp với RSMA, số biến điều khiển tăng nhanh. Bộ điều khiển không chỉ
+phải chọn công suất cho luồng chung và các luồng riêng mà còn phải quyết định cách chia
+tốc độ luồng chung cho từng người dùng, cách chia năng lượng truyền và phản xạ trên từng
+phần tử STAR--RIS cùng pha tương ứng của hai phía. Các biến này tác động lẫn nhau thông
+qua kênh hiệu dụng và các biểu thức tỷ số tín hiệu trên nhiễu cộng tạp âm
+(Signal-to-Interference-plus-Noise Ratio, SINR). Vì vậy, bài toán tối ưu có tính phi lồi,
+số chiều cao và phải được giải lại khi thông tin trạng thái kênh (Channel State
+Information, CSI) thay đổi.
+
+Các phương pháp tối ưu lặp như tối ưu luân phiên (Alternating Optimization, AO) có thể
+tìm được nghiệm cục bộ có chất lượng cao, nhưng chi phí tính toán tăng mạnh khi số phần tử
+STAR--RIS tăng. Trong môi trường kênh biến đổi nhanh, việc chạy lại hàng trăm hoặc hàng
+nghìn phép đánh giá hàm mục tiêu cho mỗi CSI có thể trở thành nút thắt về độ trễ.
+
+Một hướng tiếp cận khác là sử dụng học tăng cường sâu (Deep Reinforcement Learning, DRL)
+để học trước ánh xạ từ CSI sang quyết định tài nguyên. Sau giai đoạn huấn luyện, mạng
+nơ-ron chỉ cần một lượt truyền xuôi (forward pass) để tạo hành động, nhờ đó giảm đáng kể
+thời gian tính toán trực tuyến. Tuy nhiên, việc dùng DRL không tự động bảo đảm hiệu quả.
+Nếu không gian hành động được thiết kế quá tổng quát, mạng phải tự học từ dữ liệu cả cấu
+trúc vật lý của bài toán lẫn giá trị quyết định tối ưu. Đối với hệ thống một đầu vào, một
+đầu ra (Single-Input Single-Output, SISO), vấn đề này đặc biệt rõ vì không có tiền mã hóa
+theo không gian để tách các luồng riêng. Nhiều luồng riêng cùng hoạt động có thể gây nhiễu
+lẫn nhau mạnh, nhất là trong miền tỷ số tín hiệu trên tạp âm cao. Phân tích này gợi ý rằng
+việc đưa kiến thức vật lý vào cách biểu diễn hành động có thể quan trọng không kém việc
+lựa chọn thuật toán DRL.
+
+Từ những lý do trên, luận văn nghiên cứu bài toán phân bổ tài nguyên trong hệ thống SISO
+STAR--RIS hỗ trợ RSMA theo hướng kết hợp hai lớp: lớp mô hình vật lý xác định cấu trúc
+hợp lý của hành động và lớp DRL học phần điều chỉnh còn lại theo CSI. Ba thuật toán DRL
+được khảo sát gồm Deep Deterministic Policy Gradient (DDPG), Twin Delayed Deep
+Deterministic Policy Gradient (TD3) và Proximal Policy Optimization (PPO). Các thuật toán
+này được đối chiếu với các phương pháp tối ưu lặp và giải tích để đánh giá đồng thời tổng
+tốc độ, khả năng đáp ứng chất lượng dịch vụ (Quality of Service, QoS), độ ổn định và độ
+trễ ra quyết định.
+
+\section*{2. Vấn đề nghiên cứu}
+\addcontentsline{toc}{section}{2. Vấn đề nghiên cứu}
+
+Trong hệ thống được xét, một trạm gốc (Base Station, BS) SISO truyền dữ liệu đồng thời cho
+bốn thiết bị người dùng (User Equipment, UE) thông qua một STAR--RIS thụ động. RSMA tạo
+một luồng chung được tất cả UE giải mã và bốn luồng riêng tương ứng với bốn UE. Sau khi
+giải mã luồng chung, UE thực hiện khử nhiễu liên tiếp (Successive Interference
+Cancellation, SIC) để loại luồng chung rồi mới giải mã luồng riêng của mình.
+
+Một CSI cụ thể dẫn đến một bài toán quyết định gồm năm nhóm biến vật lý: công suất luồng
+chung và luồng riêng; tỷ lệ phân bổ tốc độ chung; hệ số chia năng lượng truyền và phản xạ;
+pha truyền; và pha phản xạ. Mục tiêu là tăng tổng tốc độ của hệ thống trong khi duy trì
+tốc độ tối thiểu của từng UE. Hai yêu cầu này có thể mâu thuẫn: dồn tài nguyên cho UE có
+kênh tốt làm tổng tốc độ tăng nhanh nhưng có thể khiến UE yếu vi phạm QoS; chia đều tài
+nguyên giúp công bằng hơn nhưng có thể làm tăng nhiễu giữa các luồng riêng và giảm hiệu
+quả sử dụng công suất.
+
+Một câu hỏi quan trọng của luận văn là liệu mạng DRL có nên tự học toàn bộ miền hành động
+vật lý hay nên nhận trước một số cấu trúc có căn cứ từ mô hình. Mã nguồn thực nghiệm cho
+thấy cách biểu diễn hành động có cấu trúc gồm ba ý chính: tỷ lệ công suất luồng chung được
+giới hạn trong một vùng ưu tiên; phần công suất luồng riêng được chia bằng một hàm softmax
+có độ sắc (sharpness) cao để có khả năng tạo phân bổ gần một luồng chiếm ưu thế; và pha STAR--RIS được
+học như phần hiệu chỉnh quanh một pha tham chiếu giải tích phụ thuộc kênh. Các lựa chọn
+này không phải định luật vật lý bắt buộc, mà là các giả thiết thiết kế nhằm thu hẹp miền
+tìm kiếm về vùng có ý nghĩa đối với bài toán đang xét.
+
+Vì vậy, vấn đề nghiên cứu không được đặt theo hướng chứng minh một thuật toán DRL cụ thể
+luôn vượt trội. Thay vào đó, luận văn trả lời ba câu hỏi chính. Thứ nhất, cấu trúc vật lý
+của SISO--RSMA gợi ý điều gì về cách phân bổ công suất và pha? Thứ hai, khi dùng cùng một
+bộ giải mã hành động vật lý, nhóm thuật toán học ngoài chính sách (off-policy) gồm DDPG và
+TD3 khác nhóm học theo chính sách hiện hành (on-policy) là PPO như thế nào? Thứ ba, nhóm
+DRL tạo ra đánh đổi giữa chất lượng nghiệm và độ trễ ra sao so với nhóm tối ưu lặp AO?
+
+\section*{3. Mục tiêu nghiên cứu}
+\addcontentsline{toc}{section}{3. Mục tiêu nghiên cứu}
+
+\subsection*{3.1. Mục tiêu tổng quát}
+
+Mục tiêu tổng quát của luận văn là xây dựng và đánh giá một khung DRL có biểu diễn hành
+động dựa trên cấu trúc vật lý cho bài toán phân bổ tài nguyên trong hệ thống SISO
+STAR--RIS hỗ trợ RSMA, qua đó làm rõ đánh đổi giữa chất lượng nghiệm, khả năng đáp ứng QoS
+và độ trễ ra quyết định.
+
+\subsection*{3.2. Mục tiêu cụ thể}
+
+Các mục tiêu cụ thể gồm:
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item Xây dựng mô hình kênh, tín hiệu RSMA, hệ số STAR--RIS và bài toán tối ưu nhất quán
+      với phần mềm mô phỏng.
+\item Phân tích đặc điểm nhiễu của các luồng riêng trong hệ SISO để giải thích vì sao phân
+      bổ công suất tập trung và tỷ lệ công suất luồng chung cao có thể tạo vùng hành động
+      thuận lợi trong cấu hình nghiên cứu.
+\item Thiết kế bộ giải mã hành động có cấu trúc để biến đầu ra chuẩn hóa của mạng nơ-ron
+      thành các biến vật lý khả thi gồm công suất, phân bổ tốc độ chung, hệ số chia năng
+      lượng và pha STAR--RIS.
+\item Triển khai và đánh giá ba thuật toán DRL gồm DDPG, TD3 và PPO trên cùng mô hình vật
+      lý, cùng không gian hành động và cùng giao thức dữ liệu.
+\item Xây dựng các phương pháp đối chiếu gồm AnalyticalRIS, AO--SCA và AO--Grid; so sánh
+      nhóm DRL với nhóm tối ưu lặp về tổng tốc độ, QoS và độ trễ tính toán.
+\item Thiết kế giao thức thực nghiệm có tập huấn luyện, xác thực và kiểm thử tách biệt, sử
+      dụng cùng các kịch bản kênh khi so sánh phương pháp và lưu thông tin phục vụ tái lập
+      kết quả.
+\end{enumerate}
+
+\section*{4. Đối tượng và phạm vi nghiên cứu}
+\addcontentsline{toc}{section}{4. Đối tượng và phạm vi nghiên cứu}
+
+Đối tượng nghiên cứu thứ nhất là hệ thống truyền xuống SISO STAR--RIS hỗ trợ RSMA với một
+BS, một STAR--RIS thụ động và bốn UE. Đối tượng thứ hai là bài toán phân bổ công suất và
+tốc độ luồng chung trong RSMA. Đối tượng thứ ba là bài toán điều khiển hệ số chia năng
+lượng và pha của STAR--RIS. Đối tượng thứ tư là các thuật toán DRL liên tục và các bộ giải
+tối ưu lặp được dùng để tạo quyết định tài nguyên theo CSI.
+
+Phạm vi nghiên cứu được giới hạn như sau. Kênh được sinh tổng hợp theo phân bố Gaussian
+phức với các hệ số tỷ lệ cố định trong mã nguồn; CSI được giả định biết đầy đủ tại thời
+điểm ra quyết định; SIC được giả định lý tưởng; STAR--RIS hoạt động theo cơ chế chia năng
+lượng (Energy Splitting, ES); số UE cố định bằng bốn; số phần tử STAR--RIS thay đổi trong
+tập $\{16, 32, 64, 96, 128\}$.
+
+Luận văn không xét sai số ước lượng CSI, méo phần cứng, lượng tử hóa pha, nhiều anten tại
+BS, mô hình pha truyền và phản xạ ghép phần cứng hoặc triển khai trên thiết bị vô tuyến
+thực. Các kết luận thực nghiệm vì vậy chỉ có ý nghĩa trong phạm vi mô hình và giao thức đã
+nêu. Đặc biệt, các giá trị như khoảng công suất luồng chung, độ sắc của softmax hoặc biên
+hiệu chỉnh pha là lựa chọn thiết kế cho cấu hình đang nghiên cứu, không được diễn giải như
+hằng số tối ưu chung cho mọi hệ thống STAR--RIS--RSMA.
+
+\section*{5. Phương pháp nghiên cứu}
+\addcontentsline{toc}{section}{5. Phương pháp nghiên cứu}
+
+Luận văn kết hợp nhiều phương pháp. Phương pháp mô hình hóa toán học được dùng để xây dựng
+kênh hiệu dụng, biểu thức SINR, tốc độ và ràng buộc. Phương pháp phân tích xấp xỉ được
+dùng để giải thích hành vi của nhiễu luồng riêng trong miền tỷ số tín hiệu trên tạp âm cao
+và từ đó hình thành trực giác cho biểu diễn hành động. Phương pháp học tăng cường sâu được
+dùng để huấn luyện DDPG, TD3 và PPO. Phương pháp tối ưu số được dùng để xây dựng AO--SCA,
+AO--Grid và AnalyticalRIS làm đối chiếu. Cuối cùng, phương pháp mô phỏng Monte Carlo và
+phân tích thống kê được dùng để đánh giá trên các kịch bản kênh độc lập.
+
+Một nguyên tắc xuyên suốt là mọi công thức, biến, cấu hình mạng và chỉ số đánh giá trong
+luận văn phải truy ngược được về mã nguồn hoặc tài liệu tham khảo. Khi một nhận định chỉ
+là trực giác, xấp xỉ hoặc đề xuất mở rộng, nội dung đó được ghi rõ thay vì trình bày như
+kết quả đã được chứng minh.
+
+\section*{6. Ý nghĩa khoa học và thực tiễn}
+\addcontentsline{toc}{section}{6. Ý nghĩa khoa học và thực tiễn}
+
+Về mặt khoa học, luận văn nhấn mạnh vai trò của biểu diễn hành động trong DRL cho bài toán
+tối ưu vô tuyến. Thay vì xem mạng nơ-ron như một hộp đen phải tự khám phá toàn bộ hình học
+của miền khả thi, nghiên cứu đưa một số cấu trúc từ mô hình SISO--RSMA và căn chỉnh pha
+STAR--RIS vào bộ giải mã. Cách tiếp cận này tạo cầu nối giữa phân tích vật lý và học máy:
+mô hình vật lý xác định vùng tìm kiếm hợp lý, còn mạng nơ-ron học sự thích nghi theo CSI
+trong vùng đó.
+
+Về mặt thực tiễn, kết quả cung cấp một đánh giá rõ về đánh đổi giữa hai nhóm phương pháp.
+Các bộ giải AO có thể đạt tổng tốc độ cao hơn vì thực hiện tối ưu lặp trực tiếp trên mỗi
+CSI và tìm kiếm trên miền vật lý rộng. Ngược lại, DRL sau huấn luyện chỉ cần một lượt
+truyền xuôi qua mạng nơ-ron nên có độ trễ ra quyết định thấp hơn nhiều. Kết quả này giúp
+định vị DRL như một lựa chọn phù hợp cho các tình huống kênh thay đổi nhanh và yêu cầu
+quyết định trực tuyến, thay vì xem DRL là sự thay thế tuyệt đối cho tối ưu số.
+
+\section*{7. Đóng góp của luận văn}
+\addcontentsline{toc}{section}{7. Đóng góp của luận văn}
+
+Các đóng góp chính của luận văn gồm bốn nhóm. Thứ nhất, xây dựng một mô hình tính toán
+thống nhất cho STAR--RIS, RSMA và QoS để các thuật toán học và tối ưu sử dụng cùng một hàm
+đánh giá vật lý. Thứ hai, phân tích cấu trúc nhiễu trong hệ SISO để giải thích xu hướng
+phân bổ luồng riêng tập trung và vai trò của luồng chung trong việc duy trì QoS. Thứ ba,
+xây dựng bộ giải mã hành động có cấu trúc gồm giới hạn tỷ lệ công suất luồng chung, softmax
+có độ sắc cao cho công suất luồng riêng, phép chiếu lên đơn hình (simplex) cho phân bổ tốc độ chung,
+ánh xạ năng lượng khả thi và pha tham chiếu kèm phần hiệu chỉnh học được. Thứ tư, xây dựng
+giao thức thực nghiệm so sánh ba thuật toán DRL với các phương pháp tối ưu lặp trên các
+tập kênh tách biệt, đồng thời báo cáo cả chất lượng nghiệm và độ trễ.
+
+\section*{8. Kết cấu luận văn}
+\addcontentsline{toc}{section}{8. Kết cấu luận văn}
+
+Ngoài phần mở đầu, kết luận, tài liệu tham khảo và phụ lục, luận văn gồm bốn chương.
+Chương~\ref{chap:co-so-ly-thuyet} trình bày nền tảng về đa truy cập, RSMA, RIS và
+STAR--RIS, DRL cùng các phương pháp tối ưu truyền thống; đồng thời tổng hợp nghiên cứu
+liên quan và xác định khoảng trống. Chương~\ref{chap:mo-hinh-he-thong} xây dựng mô hình hệ
+thống, mô hình tín hiệu, bài toán tối ưu và phân tích cấu trúc SISO--RSMA.
+Chương~\ref{chap:phuong-phap} trình bày biểu diễn trạng thái, bộ giải mã hành động có cấu
+trúc, kiến trúc mạng nơ-ron, ba thuật toán DRL, các phương pháp đối chiếu và giao thức
+thực nghiệm. Chương~\ref{chap:ket-qua} trình bày kết quả mô phỏng, so sánh nhóm DRL với
+nhóm tối ưu lặp, đánh giá QoS, độ trễ, khả năng mở rộng và các giới hạn của nghiên cứu.

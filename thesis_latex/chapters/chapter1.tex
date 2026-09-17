@@ -21,7 +21,7 @@ bộ điều khiển.
 Trong luận văn này, chỉ số hiệu năng chính là tổng tốc độ. Tuy nhiên, tổng tốc độ không
 được dùng một cách tách rời. Một nghiệm có tổng tốc độ cao nhưng để một hoặc nhiều UE có
 tốc độ gần bằng không không được xem là nghiệm phù hợp với mục tiêu phục vụ đa người
-dùng. Do đó, QoS được đưa vào cả phát biểu bài toán và hàm phần thưởng dùng cho học tăng cường sâu
+dùng. Do đó, QoS được đưa vào cả phát biểu bài toán và hàm phần thưởng (reward) dùng cho học tăng cường sâu
 (Deep Reinforcement Learning, DRL).
 Cách tiếp cận này phản ánh một yêu cầu vật lý đơn giản: hệ thống chỉ hữu ích khi không
 chỉ truyền nhanh mà còn duy trì mức dịch vụ tối thiểu cho các UE đang được phục vụ.
@@ -46,7 +46,7 @@ lớn và kênh giữa các UE đủ phân biệt, SDMA có thể phục vụ đ
 cùng thời gian--tần số. Tuy nhiên, lợi thế này phụ thuộc trực tiếp vào khả năng tạo phân
 tách không gian. Trong hệ một đầu vào một đầu ra (Single-Input Single-Output, SISO) của luận văn, BS chỉ
 có một anten nên không tồn tại véc-tơ
-tạo búp sóng nhiều chiều để tạo các hướng truyền riêng cho từng UE. Đây là khác biệt quan
+tạo búp sóng (beamforming) nhiều chiều để tạo các hướng truyền riêng cho từng UE. Đây là khác biệt quan
 trọng khi phân tích nhiễu của các luồng riêng ở Chương~\ref{chap:mo-hinh-he-thong}.
 
 Đa truy cập phi trực giao (Non-Orthogonal Multiple Access, NOMA) cho phép nhiều UE sử
@@ -209,7 +209,7 @@ hiệu để Actor điều chỉnh, còn Actor tạo các hành động mà Crit
 
 DDPG và TD3 là các thuật toán off-policy, nghĩa là có thể học từ dữ liệu được thu thập
 bởi một chính sách hành vi không hoàn toàn giống chính sách hiện tại. Dữ liệu được lưu
-trong bộ nhớ phát lại và có thể được dùng lại nhiều lần, giúp tăng hiệu
+trong bộ nhớ phát lại (replay buffer) và có thể được dùng lại nhiều lần, giúp tăng hiệu
 quả sử dụng mẫu. PPO là thuật toán on-policy; dữ liệu mới được thu thập theo chính sách
 hiện hành và được dùng trong một số vòng cập nhật trước khi bị thay bởi lô mới. Sự khác
 nhau này ảnh hưởng đến độ ổn định, hiệu quả mẫu và cách thiết kế quy trình huấn luyện.
@@ -220,7 +220,7 @@ nhau này ảnh hưởng đến độ ổn định, hiệu quả mẫu và cách
 DDPG mở rộng ý tưởng gradient chính sách xác định sang không gian hành động liên tục
 \cite{Lillicrap2015DDPG}. Actor sinh trực tiếp một véc-tơ hành động xác định. Critic ước
 lượng giá trị $Q(s,a)$, tức mức phần thưởng tích lũy dự kiến khi thực hiện hành động $a$
-tại trạng thái $s$. DDPG dùng mạng đích và bộ nhớ phát lại để ổn định học. Điểm yếu điển
+tại trạng thái $s$. DDPG dùng mạng đích (target network) và bộ nhớ phát lại để ổn định học. Điểm yếu điển
 hình là Critic có thể đánh giá quá cao một số hành động, khiến Actor bị đẩy về hướng
 không thực sự tốt.
 
@@ -275,7 +275,7 @@ tự cập nhật và các phép xấp xỉ cục bộ.
 Xấp xỉ lồi liên tiếp (Successive Convex Approximation, SCA) thay một bài toán khó bằng
 chuỗi bài toán xấp xỉ dễ hơn quanh nghiệm hiện tại. Trong mã nguồn của luận văn, tên
 AO--SCA được dùng cho một bộ giải cục bộ trong đó hai khối đơn hình được cập nhật bằng
-chuyển khối khả thi và khối STAR--RIS dùng gradient sai phân hữu hạn kết hợp bước lân
+chuyển khối khả thi và khối STAR--RIS dùng gradient sai phân hữu hạn (finite difference) kết hợp bước lân
 cận. Vì vậy, luận văn mô tả đúng cơ chế triển khai thay vì đồng nhất bộ giải này với mọi
 biến thể SCA trong tài liệu \cite{Scutari2017SCA}.
 

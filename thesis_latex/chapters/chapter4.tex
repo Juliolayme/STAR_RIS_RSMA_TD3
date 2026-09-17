@@ -306,8 +306,7 @@ tại $N$ lớn dù cơ chế cập nhật khác nhau. Điều này ủng hộ n
 chung vào vùng ưu tiên, biến chênh lệch đầu ra thành phân bổ công suất riêng gần như dồn
 hết vào một luồng, và cung cấp pha tham chiếu theo CSI.
 
-Tuy nhiên, kết quả hiện tại chưa phải một phân tích tách thành phần đầy đủ. Các phép thử
-loại bỏ có sẵn gồm không dùng RIS, RIS cố định, RIS ngẫu nhiên và chia công suất đều; chúng
+Tuy nhiên, kết quả hiện tại chưa phải một phân tích tách thành phần đầy đủ. Các phép thử loại bỏ (ablation) có sẵn gồm không dùng RIS, RIS cố định, RIS ngẫu nhiên và chia công suất đều; chúng
 kiểm tra vai trò của RIS và công suất nhưng chưa tách riêng đóng góp của phần công suất có
 cấu trúc và của riêng pha tham chiếu. Vì vậy, luận văn trình bày vai trò của biểu diễn
 hành động như một kết luận được hỗ trợ bởi phân tích cấu trúc và hành vi thực nghiệm, đồng
@@ -319,7 +318,7 @@ thời coi phép tách theo từng thành phần của bộ giải mã là hư�
 Nếu CSI thay đổi chậm và hệ thống có đủ thời gian tính toán, AO--Grid hoặc AO--SCA có thể
 phù hợp vì đạt tổng tốc độ cao hơn trong thí nghiệm. Nếu CSI thay đổi nhanh hoặc bộ điều
 khiển phải ra quyết định dưới một mili giây, DRL có ưu thế rõ sau khi đã trả chi phí huấn
-luyện ngoại tuyến. Trong các thiết bị có tài nguyên tính toán rất hạn chế và chỉ cần một
+luyện ngoại tuyến (offline). Trong các thiết bị có tài nguyên tính toán rất hạn chế và chỉ cần một
 quyết định thô, AnalyticalRIS có thể là lựa chọn nhẹ nhất nhưng phải chấp nhận QoS và tổng
 tốc độ thấp trong cấu hình này.
 
