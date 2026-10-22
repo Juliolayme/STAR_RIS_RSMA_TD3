@@ -25,8 +25,10 @@ def main() -> None:
         for m in ORDER:
             r = t.loc[(m, n)]
             sd = r.sum_rate_std
-            sd_txt = "$<$0,0005" if sd < 0.0005 else vn(sd, 3)
-            cells.append(f"{vn(r.sum_rate_mean, 3)} $\\pm$ {sd_txt}")
+            if sd < 0.0005:
+                cells.append(f"{vn(r.sum_rate_mean, 3)} (SD $<$ 0,0005)")
+            else:
+                cells.append(f"{vn(r.sum_rate_mean, 3)} $\\pm$ {vn(sd, 3)}")
         rows.append(f"${n}$ & " + " & ".join(cells) + r" \\")
     tex = "\n".join([
         r"\begin{table}[htbp]",
@@ -47,8 +49,8 @@ def main() -> None:
         r" trung bình theo hạt giống huấn luyện; với AO--SCA, AO--Grid và AnalyticalRIS (thuật"
         r" toán xác định), độ lệch chuẩn tính giữa $1.000$ kịch bản kiểm thử. Hai đại lượng"
         r" phản ánh hai nguồn bất định khác nhau nên không so sánh trực tiếp với nhau. Độ lệch"
-        r" chuẩn mô tả độ phân tán, không phải khoảng tin cậy. Ký hiệu $<$0,0005 nghĩa là độ"
-        r" lệch chuẩn nhỏ hơn mức làm tròn ba chữ số thập phân (AnalyticalRIS khi $N \ge 32$).}",
+        r" chuẩn mô tả độ phân tán, không phải khoảng tin cậy. Riêng các ô AnalyticalRIS khi"
+        r" $N \ge 32$, độ lệch chuẩn được ghi trong ngoặc vì nhỏ hơn 0,0005.}",
         r"\tablesource{Tác giả tổng hợp từ kết quả kiểm thử đã khóa (2026)}",
         r"\end{table}",
         "",

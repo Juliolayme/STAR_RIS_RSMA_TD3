@@ -42,7 +42,8 @@ phân bổ tốc độ chung được chiếu lên đơn hình; hệ số chia n
 $\pm 0,25\pi$ quanh một pha tham chiếu phụ thuộc kênh. Nhờ cách tổ chức này, mọi hành động
 do mạng sinh ra đều khả thi miền, tức thỏa các ràng buộc công suất, đơn hình, chia năng
 lượng và pha, mà không cần bước chiếu hay hạng phạt bổ sung; ràng buộc QoS vẫn được xử lý
-mềm qua phần thưởng và bộ chọn điểm lưu.
+mềm qua phần thưởng và bộ chọn điểm lưu. Do đó, phương pháp không bảo đảm mọi hiện thực kênh
+đều đạt QoS.
 
 Ba thuật toán DDPG, TD3 và PPO được huấn luyện trên cùng bộ giải mã, cùng ngân hàng kịch
 bản kênh và cùng giao thức lựa chọn mô hình. Kết quả thực nghiệm trên $1.000$ kịch bản
@@ -61,7 +62,8 @@ phù hợp với việc AO tìm kiếm trên miền vật lý rộng hơn và d�
 tiêu hơn cho từng CSI.
 
 Thứ ba, chênh lệch về độ trễ lớn hơn nhiều so với chênh lệch về chất lượng. Ba thuật toán
-DRL giữ độ trễ dưới một mili giây trên toàn bộ miền khảo sát, trong khi AO--Grid cần từ
+DRL có trung vị độ trễ tính toán trên CPU một luồng thấp hơn một mili giây ở cả năm giá trị
+$N$ (không phải bảo đảm độ trễ cực đại hay độ trễ đầu cuối), trong khi AO--Grid cần từ
 $189$ ms đến hơn $1,2$ giây và AO--SCA cần từ $0,83$ đến $3,61$ giây. Tại $N = 128$, độ trễ
 trung vị của TD3 thấp hơn AO--Grid khoảng $2.700$ lần và AO--SCA khoảng $8.000$ lần, đổi lại
 tổng tốc độ thấp hơn AO--Grid $1,47$ bit/s/Hz, tức khoảng $6,6\%$ khi lấy tổng tốc độ của
@@ -76,9 +78,10 @@ tuy nhiên, luận văn chưa có đối chứng để tách riêng đóng góp 
 
 Tổng hợp lại, luận văn không đề xuất một thuật toán duy nhất cho mọi tình huống mà cung
 cấp một bản đồ lựa chọn theo yêu cầu hệ thống. Khi CSI thay đổi chậm và có đủ ngân sách
-tính toán, các bộ giải lặp cho chất lượng cao hơn. Khi kênh biến đổi nhanh và bộ điều
-khiển phải quyết định dưới một mili giây, một chính sách DRL có biểu diễn hành động dựa
-trên cấu trúc vật lý là lựa chọn thực tế hơn.
+tính toán, các bộ giải lặp cho chất lượng cao hơn. Với yêu cầu quyết định nhanh, một chính
+sách DRL có biểu diễn hành động dựa trên cấu trúc vật lý là ứng viên đáng xem xét theo phép
+đo trung vị hiện tại; cần đo đuôi độ trễ và độ trễ đầu cuối trên phần cứng đích trước khi
+khẳng định đáp ứng một hạn cứng $1$ ms.
 
 \section*{2. Hướng phát triển}
 \addcontentsline{toc}{section}{2. Hướng phát triển}

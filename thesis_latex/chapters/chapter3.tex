@@ -32,14 +32,14 @@ tiếp không phụ thuộc hành động, nếu xét theo kỳ vọng với ph�
 sách cố định thì phần giá trị tương lai trong mục tiêu Critic không phụ thuộc hành động hiện
 tại. Đây là tính chất của bài toán lý tưởng, không phải bảo đảm cho Critic xấp xỉ đang học:
 sai số của Critic ở trạng thái kế tiếp và sự thay đổi của chính sách vẫn có thể đưa nhiễu
-vào mục tiêu học. Đây là
-nguyên tắc cần thiết để đánh giá công bằng vai trò của nhóm học ngoài chính sách và nhóm
-học theo chính sách hiện hành.
+vào mục tiêu học. Nhận xét này làm rõ vai trò của giá trị tương lai trong bài toán hiện tại;
+nó không có nghĩa các thuật toán có độ khó học hoặc ngân sách tinh chỉnh hoàn toàn tương
+đương.
 
 \begin{figure}[htbp]
 \centering
 \resizebox{0.95\textwidth}{!}{\input{figures/fig_ch3_khung_drl}}
-\caption{Khung DRL và bộ giải mã hành động vật lý dùng chung}
+\caption[Khung DRL và bộ giải mã hành động vật lý dùng chung]{Khung DRL và bộ giải mã hành động vật lý dùng chung. DDPG, TD3 và PPO dùng chung bộ giải mã và cùng miền biến vật lý; chúng khác nhau ở chính sách, Critic, cơ chế khám phá và quy tắc cập nhật}
 \label{fig:ch3-khung-drl}
 \figuresource{Tác giả xây dựng theo mã nguồn thực nghiệm (2026)}
 \end{figure}
@@ -481,8 +481,9 @@ Gaussian rồi mới đưa qua Tanh để tạo hành động chuẩn hóa $a = 
 mạng giá trị nhận trạng thái $s$ và xuất $V(s)$, không nhận hành động.
 
 Hình~\ref{fig:ch3-kien-truc-mang} trình bày ba kiến trúc cạnh nhau. Cả ba cột dùng cùng bề
-rộng ẩn và cùng thứ tự FC, LayerNorm rồi ReLU, nên khác biệt giữa các thuật toán nằm ở
-đầu ra và ở cách tạo hành động chứ không nằm ở năng lực biểu diễn của mạng.
+rộng ẩn và cùng thứ tự FC, LayerNorm rồi ReLU. Việc giữ cùng hai lớp ẩn $256$ nút kiểm soát
+một phần khác biệt về quy mô kiến trúc, nhưng không đồng nhất hoàn toàn năng lực biểu diễn
+hay động lực huấn luyện của ba thuật toán.
 
 \begin{figure}[htbp]
 \centering
