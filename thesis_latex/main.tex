@@ -55,6 +55,13 @@
 \end{sloppypar}
 
 \appendix
+\renewcommand{\chaptername}{PHỤ LỤC}
+\titleformat{\chapter}[block]
+  {\centering\bfseries\fontsize{14}{17}\selectfont}
+  {PHỤ LỤC~\thechapter.}{0.6em}{\MakeUppercase}
+\addtocontents{toc}{\protect\renewcommand{\protect\cftchappresnum}{PHỤ LỤC~}%
+  \protect\renewcommand{\protect\cftchapaftersnum}{.}%
+  \protect\setlength{\protect\cftchapnumwidth}{6.4em}}
 \input{appendices/appendices}
 
 \end{document}

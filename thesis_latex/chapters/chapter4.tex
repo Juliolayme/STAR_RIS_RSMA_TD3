@@ -129,10 +129,25 @@ tiến rất gần nhau ở $N \ge 64$ và không có một thuật toán luôn 
 \figuresource{Tác giả vẽ từ dữ liệu kiểm thử (2026)}
 \end{figure}
 
-AnalyticalRIS gần như không thay đổi theo $N$ và chỉ đạt khoảng $1,98$ bit/s/Hz. Kết quả
-này cho thấy quy tắc căn pha đơn giản dùng làm khởi tạo không đủ để khai thác đồng thời
-công suất, phân bổ tốc độ luồng chung và QoS. Vì vậy, AnalyticalRIS phù hợp như một đối
-chiếu cực nhẹ hơn là một bộ giải chất lượng cao.
+AnalyticalRIS gần như không thay đổi theo $N$ và bão hòa quanh $1,98$ bit/s/Hz (từ $1,9812$
+tại $N = 16$ đến $1,9821$ tại $N = 128$). Hiện tượng này là minh chứng thực nghiệm trực tiếp
+cho phân tích cấu trúc SISO ở Mục~\ref{sec:phan-tich-cau-truc}. AnalyticalRIS chia đều công suất
+cho năm luồng, $p_c = p_k = 0,2$, nên tăng $N$ chỉ làm tăng độ lợi kênh hiệu dụng
+$|h^{\mathrm{eff}}_k|^2$; nhưng đại lượng này xuất hiện đồng thời ở tử số và ở phần nhiễu
+liên luồng trong mẫu số của~\eqref{eq:sinr-chung} và~\eqref{eq:sinr-rieng}. Với
+$\sigma^2 = 10^{-3}$ nhỏ, độ lợi kênh tự triệt tiêu và các SINR tiến về hằng số: luồng chung
+có $\gamma_c \approx 0,2/0,8 = 1/4$, mỗi luồng riêng có $\gamma_{p,k} \approx 0,2/0,6 = 1/3$.
+Tổng tốc độ vì vậy bị khóa ở trần
+\[
+R_{\mathrm{sum}} \approx \log_2\tfrac{5}{4} + 4\log_2\tfrac{4}{3}
+= \log_2\tfrac{320}{81} \approx 1,982 \text{ bit/s/Hz},
+\]
+khớp với kết quả đo đến ba chữ số thập phân bất kể số phần tử STAR--RIS. Cũng từ trần này,
+mỗi UE chỉ nhận khoảng $\log_2\tfrac{4}{3} + \tfrac{1}{4}\log_2\tfrac{5}{4} \approx 0,496$
+bit/s/Hz, thấp hơn một chút so với $R_{\min} = 0,5$ bit/s/Hz; đó là lý do AnalyticalRIS có
+xác suất đạt QoS bằng $0$ ở Bảng~\ref{tab:ch4-qos}. Kết quả khẳng định rằng căn pha STAR--RIS
+đơn thuần không phát huy tác dụng nếu tách rời khỏi việc điều phối công suất và tốc độ của
+RSMA; AnalyticalRIS vì vậy phù hợp như một đối chiếu cực nhẹ hơn là một bộ giải chất lượng cao.
 
 \section{So sánh trong nội bộ nhóm DRL}
 \label{sec:so-sanh-drl}
@@ -270,32 +285,50 @@ lượng và độ trễ của luận văn.
 \section{Phân tích thống kê và phạm vi diễn giải}
 \label{sec:phan-tich-thong-ke}
 
-Bộ kết quả lưu cả so sánh ghép cặp theo kịch bản và so sánh theo hạt giống huấn luyện. Hai
-đơn vị này trả lời hai câu hỏi khác nhau. Phép ghép cặp theo $1.000$ kịch bản hỏi rằng với
-các chính sách đã huấn luyện và cố định, phương pháp A có thường cho kết quả cao hơn B
-trên cùng kênh hay không. Phép so sánh theo năm hạt giống hỏi rằng nếu xem quá trình huấn
-luyện là nguồn ngẫu nhiên, chênh lệch giữa hai thuật toán có ổn định qua các lần huấn
-luyện hay không.
+Để tránh kết luận quá mức từ số liệu mô phỏng, bộ kết quả tách riêng hai cấp kiểm định: so
+sánh ghép cặp theo kịch bản kênh ($n = 1.000$) và so sánh theo hạt giống huấn luyện
+($n = 5$). Hai cấp này trả lời hai câu hỏi khác nhau:
+\begin{enumerate}
+\item \textbf{Cấp kịch bản kênh ($1.000$ mẫu ghép cặp).} Tương tự việc cho các mô hình đã
+  huấn luyện xong cùng giải một đề thi gồm $1.000$ bài toán kênh cố định. Vì cỡ mẫu lớn và
+  phép ghép cặp loại được biến thiên giữa kênh dễ và kênh khó, chỉ cần hai chính sách đã cố
+  định chênh nhau rất ít về tổng tốc độ trung bình là phép kiểm định $t$ ghép cặp đã cho giá
+  trị $p$ rất nhỏ. Kết quả này chỉ cho biết \textit{các điểm lưu mô hình hiện tại} khác nhau
+  trên tập kiểm thử, chưa phản ánh độ bất định của bản thân quá trình huấn luyện.
+\item \textbf{Cấp hạt giống huấn luyện ($5$ mẫu độc lập).} Mỗi lần chạy lại với một hạt
+  giống khác sẽ khởi tạo trọng số mạng và chuỗi nhiễu khám phá khác, dẫn tới một chính sách
+  hơi khác. Vì mỗi thuật toán chỉ có $5$ hạt giống, cỡ mẫu thực sự đại diện cho khả năng lặp
+  lại của thuật toán chỉ là $n = 5$; đây là đơn vị mà một tuyên bố ``thuật toán A tốt hơn
+  thuật toán B'' phải vượt qua.
+\end{enumerate}
 
-Ví dụ tại $N = 16$, TD3 cao hơn DDPG trung bình khoảng $0,060$ bit/s/Hz. Với $1.000$ kịch
-bản ghép cặp, phép kiểm định $t$ cho giá trị nhỏ và có thể xem chênh lệch của hai chính
-sách là có hệ thống. Tuy nhiên, khi ghép theo năm hạt giống, giá trị $p$ lớn và không còn
-ý nghĩa sau hiệu chỉnh Holm. Vì vậy, luận văn không chuyển kết quả ở mức kịch bản thành
-kết luận rằng TD3 tốt hơn DDPG như một thuật toán.
+Ví dụ, tại $N = 16$ TD3 cao hơn DDPG trung bình $0,060$ bit/s/Hz, còn tại $N = 32$ DDPG cao
+hơn TD3 khoảng $0,525$ bit/s/Hz. Ở cấp kịch bản, cả hai chênh lệch đều có ý nghĩa sau hiệu
+chỉnh Holm. Tuy nhiên, khi kiểm định trên năm giá trị trung bình theo hạt giống, giá trị $p$
+sau hiệu chỉnh Holm là $0,70$ và $0,12$, không đủ nhỏ để bác bỏ giả thuyết hai thuật toán
+tương đương. Nói cách khác, với một bộ năm hạt giống mới, thứ tự nhỉnh hơn giữa TD3 và DDPG ở
+các kích thước này hoàn toàn có thể đảo chiều. Ngoại lệ duy nhất trong cặp này là $N = 64$,
+nơi DDPG cao hơn TD3 khoảng $0,230$ bit/s/Hz và chênh lệch vẫn có ý nghĩa ở cả hai cấp; tuy
+vậy, một kích thước đơn lẻ chưa đủ để kết luận một thuật toán vượt trội về bản chất. Vì vậy,
+luận văn không biến các chênh lệch nhỏ trong nội bộ nhóm DRL thành tuyên bố về thứ hạng
+thuật toán.
 
-Tại $N = 32$, AO--Grid cao hơn cả TD3 và DDPG khoảng $2,18$ và $1,65$ bit/s/Hz. Chênh lệch
-này đủ lớn để tồn tại cả ở phân tích theo kịch bản và theo hạt giống. Đây là trường hợp có
-thể kết luận mạnh hơn rằng trong giao thức hiện tại, AO--Grid cho chất lượng tổng tốc độ
-cao hơn nhóm DRL ở kích thước đó.
+Ngược lại, khoảng cách giữa AO--Grid và nhóm DRL lớn và nhất quán: AO--Grid cao hơn từ khoảng
+$1,37$ bit/s/Hz (PPO, $N = 128$) đến $2,18$ bit/s/Hz (TD3, $N = 32$), riêng PPO tại $N = 16$
+thấp hơn tới $6,62$ bit/s/Hz. AO--Grid cho tổng tốc độ cao hơn trên toàn bộ $1.000$ kịch bản
+kiểm thử và cao hơn trung bình của từng hạt giống DRL ở mọi kích thước $N$. Với TD3 và DDPG ở
+mọi $N$, cùng PPO khi $N \ge 64$, cả hai cấp kiểm định đều đồng thuận. Riêng PPO tại
+$N = 16$ và $N = 32$, kiểm định theo hạt giống không đạt ý nghĩa dù khoảng cách rất lớn, do độ
+lệch chuẩn giữa các hạt giống của PPO cao (Bảng~\ref{tab:ch4-do-lech}). Có thể kết luận chắc
+chắn rằng trong giao thức hiện tại, AO--Grid đạt chất lượng nghiệm cao hơn nhóm DRL, đổi lại
+độ trễ ra quyết định lớn hơn TD3 khoảng $550$ đến $2.700$ lần (Bảng~\ref{tab:ch4-do-tre}).
 
-Các chỉ số QoS nằm trong $[0, 1]$, trong khi khoảng tin cậy chuẩn có thể vượt ra ngoài
-miền này khi trung bình rất gần $1$. Vì vậy, các khoảng tin cậy trong dữ liệu thô được xem
-là mô tả thống kê chứ không phải xác suất vật lý vượt $100\%$. Nếu mở rộng nghiên cứu, phép
-lấy mẫu lặp hoặc mô hình nhị thức sẽ phù hợp hơn cho các chỉ số tỷ lệ.
-
-Ngoài ra, số hạt giống bằng năm còn tương đối nhỏ cho các tuyên bố tổng quát về khác biệt
-thuật toán. Kết quả đủ để mô tả hành vi trong giao thức luận văn, nhưng chưa đủ để khẳng
-định thứ hạng phổ quát của TD3, DDPG và PPO trên các mô hình kênh khác.
+Các chỉ số QoS nằm trong $[0, 1]$, trong khi khoảng tin cậy chuẩn có thể vượt ra ngoài miền
+này khi trung bình rất gần $1$. Vì vậy, các khoảng tin cậy trong dữ liệu thô được xem là mô tả
+thống kê chứ không phải xác suất vật lý vượt $100\%$. Nếu mở rộng nghiên cứu, phép lấy mẫu
+lặp hoặc mô hình nhị thức sẽ phù hợp hơn cho các chỉ số tỷ lệ. Ngoài ra, năm hạt giống đủ để
+mô tả hành vi trong giao thức luận văn nhưng chưa đủ để khẳng định thứ hạng phổ quát của TD3,
+DDPG và PPO trên các mô hình kênh khác.
 
 \section{Vai trò của biểu diễn hành động có cấu trúc}
 \label{sec:vai-tro-bieu-dien}

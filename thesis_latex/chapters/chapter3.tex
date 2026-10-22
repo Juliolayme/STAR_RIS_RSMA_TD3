@@ -123,6 +123,16 @@ cho thấy luồng chung là nguồn tốc độ quan trọng cho UE không đư
 riêng, vì vậy vùng công suất chung cao tạo một điểm xuất phát thuận lợi hơn cho QoS.
 Khoảng này là lựa chọn thiết kế, không phải ràng buộc bắt buộc của RSMA.
 
+Ngưỡng này có thể được ước lượng thô từ phân tích ở Mục~\ref{ssec:quan-he-chung-rieng}.
+Trong hệ SISO với $K = 4$ UE và $R_{\min} = 0,5$ bit/s/Hz, khi công suất riêng tập trung vào
+một UE ưu tiên thì ba UE còn lại phải dựa gần như hoàn toàn vào luồng chung để đạt QoS, đòi
+hỏi $R_c \ge 3R_{\min} = 1,5$ bit/s/Hz. Theo xấp xỉ~\eqref{eq:toc-do-chung-xap-xi}, điều
+kiện $-\log_2(1 - \rho_c) \ge 1,5$ dẫn tới $\rho_c \ge 1 - 2^{-1,5} \approx 0,646$. Cận dưới
+$0,70$ nằm phía trên ngưỡng giải tích này; tại $\rho_c = 0,70$ có
+$R_c \approx -\log_2 0,30 \approx 1,74$ bit/s/Hz, để lại một biên an toàn cho tạp âm hữu hạn
+tại UE yếu nhất. Phép ước lượng này chỉ mang tính định hướng, vì nó dựa trên xấp xỉ tỷ số tín
+hiệu trên tạp âm cao và giả định phân bổ riêng tập trung.
+
 Công suất luồng chung được tính:
 \begin{equation}
 \label{eq:p-c}
@@ -186,19 +196,33 @@ cho việc chọn hệ số độ sắc cao.
 \subsection{Giải mã tỷ lệ phân bổ tốc độ chung}
 \label{ssec:giai-ma-ty-le-toc-do}
 
-Khối $a_\eta$ được đưa từ $[-1,1]^K$ về $[0,1]^K$ rồi chiếu Euclid (Euclidean projection) lên đơn hình:
+Sau khi xác định tốc độ luồng chung $R_c$, bộ điều khiển cần chia quỹ tốc độ này cho $K$ UE
+theo các tỷ lệ $\eta_1, \dots, \eta_K$ sao cho mọi tỷ lệ không âm và tổng đúng bằng một. Tập
+tất cả các véc-tơ thỏa hai điều kiện này là đơn hình xác suất (probability simplex)
+$\Delta_K$. Để chuyển đầu ra $a_\eta \in [-1,1]^K$ của Actor thành một véc-tơ hợp lệ trên
+$\Delta_K$, bộ giải mã trước hết dịch tuyến tính về $[0,1]^K$ rồi áp dụng phép chiếu Euclid
+(Euclidean projection) lên đơn hình, tức tìm điểm của $\Delta_K$ gần nhất theo khoảng cách
+Euclid:
 \begin{equation}
 \label{eq:eta}
-\boldsymbol{\eta} = \Pi_{\Delta_K}\!\left(\frac{a_\eta + 1}{2}\right),
-\qquad
-\Delta_K = \Bigl\{\, x \;\big|\; x_k \ge 0,\ \textstyle\sum_{k} x_k = 1 \,\Bigr\}.
+\begin{aligned}
+\boldsymbol{\eta} &= \Pi_{\Delta_K}\!\left(\frac{a_\eta + 1}{2}\right)
+= \arg\min_{\boldsymbol{\eta}' \in \Delta_K}
+  \left\| \boldsymbol{\eta}' - \frac{a_\eta + 1}{2} \right\|_2^2,\\
+\Delta_K &= \Bigl\{\, x \in \mathbb{R}^K \;\big|\; x_k \ge 0,\ \textstyle\sum_{k=1}^{K} x_k = 1 \,\Bigr\}.
+\end{aligned}
 \end{equation}
 
-Trong đó: $\Pi_{\Delta_K}$ là phép chiếu lên đơn hình xác suất $\Delta_K$ và
-$\boldsymbol{\eta}$ là véc-tơ tỷ lệ phân bổ tốc độ chung. Phép chiếu biến một đầu ra tùy ý
-của mạng thành một quy tắc chia toàn bộ quỹ tốc độ chung: nếu Actor muốn hỗ trợ UE yếu, nó
-tăng thành phần $a_{\eta,k}$ tương ứng, và phép chiếu tự điều chỉnh các thành phần còn lại
-để tổng vẫn bằng một.
+Trong đó: $\Pi_{\Delta_K}$ là phép chiếu lên đơn hình và $\boldsymbol{\eta}$ là véc-tơ tỷ lệ
+phân bổ tốc độ chung. Về trực giác, phép chiếu tìm bộ tỷ lệ hợp lệ gần nhất với mong muốn
+của mạng bằng cách trừ một ngưỡng chung khỏi mọi thành phần rồi cắt các giá trị âm về $0$.
+Nếu Actor muốn hỗ trợ UE yếu, nó tăng thành phần $a_{\eta,k}$ tương ứng, và phép chiếu tự
+điều chỉnh các thành phần còn lại để tổng vẫn bằng một.
+
+Khác với softmax dùng cho khối công suất riêng, phép chiếu Euclid có thể cho giá trị
+$\eta_k = 0$ chính xác tại biên đơn hình. Tính chất này có ý nghĩa vật lý: UE ưu tiên
+$k^\star$ vốn đã có tốc độ cao từ luồng riêng không cần nhận thêm tốc độ chung
+($\eta_{k^\star} = 0$), nhờ đó toàn bộ quỹ $R_c$ được dành để bù QoS cho $K - 1$ UE còn lại.
 
 \subsection{Giải mã hệ số chia năng lượng}
 \label{ssec:giai-ma-chia-nang-luong}
@@ -310,23 +334,28 @@ Khi tất cả UE đạt QoS, $V = V_2 = 0$ nên phần thưởng đúng bằng 
 phạm, giá trị bị trừ để phản ánh rằng tăng tốc độ bằng cách bỏ rơi UE không phải mục tiêu
 mong muốn.
 
-\subsection{Phần thưởng dùng để huấn luyện}
+\subsection{Phần thưởng huấn luyện và cơ chế tự điều chỉnh hệ số phạt QoS}
 \label{ssec:phan-thuong-huan-luyen}
 
-Trong quá trình huấn luyện, hệ số tuyến tính không cố định mà được điều khiển bởi một biến
-đối ngẫu (dual variable) $\lambda_t$:
+Nếu giữ hệ số phạt QoS cố định trong suốt quá trình huấn luyện, việc học thường gặp một đánh
+đổi khó cân bằng: hệ số quá nhỏ khiến chính sách bỏ qua các UE kênh yếu để chạy theo tổng
+tốc độ, còn hệ số quá lớn ngay từ đầu dễ đẩy chính sách vào các nghiệm bảo thủ có tổng tốc
+độ thấp. Vì vậy, trong quá trình huấn luyện, hệ số tuyến tính không cố định mà được điều
+khiển bởi một hệ số thích nghi $\lambda_t$, đóng vai trò tương tự biến đối ngẫu (dual
+variable) của phương pháp Lagrange:
 \begin{equation}
 \label{eq:phan-thuong-huan-luyen}
 r_t = R_{\mathrm{sum}} - \lambda_t V - 8V_2 .
 \end{equation}
 
-Trong đó: $\lambda_t$ là hệ số phạt QoS tuyến tính tại bước huấn luyện $t$; cấu hình khởi
-tạo $\lambda_0 = 8$ và giới hạn trong $[4, 64]$. Cách làm này cho phép mức nghiêm khắc với
-vi phạm QoS thay đổi theo diễn biến học: nếu chính sách thường xuyên vi phạm, $\lambda_t$
-tăng để Critic xem các hành động đó kém hấp dẫn hơn; nếu vi phạm đã thấp, hệ số không cần
-tăng vô hạn.
+Trong đó: $\lambda_t$ là hệ số phạt QoS tuyến tính tại bước huấn luyện $t$, khởi tạo
+$\lambda_0 = 8$ và giới hạn trong $[\lambda_{\min}, \lambda_{\max}] = [4, 64]$; hệ số của
+thành phần bình phương $V_2$ giữ cố định bằng $8$ như trong~\eqref{eq:phan-thuong-moi-truong}.
 
-Mức vi phạm được làm trơn bằng trung bình mũ (exponential moving average):
+Cơ chế điều chỉnh $\lambda_t$ hoạt động như một bộ điều khiển phản hồi dựa trên mức vi phạm
+QoS thực tế của chính sách. Để tránh phản ứng theo một vài mẫu kênh quá xấu hoặc quá tốt đơn
+lẻ, mức vi phạm $V_t$ ở từng bước được làm trơn bằng trung bình trượt hàm mũ (exponential
+moving average, EMA):
 \begin{equation}
 \label{eq:ema}
 \bar{V}_t = \beta_{\mathrm{ema}} \bar{V}_{t-1}
@@ -334,23 +363,32 @@ Mức vi phạm được làm trơn bằng trung bình mũ (exponential moving a
 \qquad \beta_{\mathrm{ema}} = 0,95 .
 \end{equation}
 
-Trong đó: $\bar{V}_t$ là vi phạm làm trơn và $\beta_{\mathrm{ema}}$ là hệ số ghi nhớ của
-trung bình mũ. Phép làm trơn tránh cập nhật hệ số QoS theo một mẫu kênh đơn lẻ có thể quá
-tốt hoặc quá xấu; bộ điều khiển nhìn xu hướng vi phạm gần đây nên phản ứng ổn định hơn.
+Trong đó: $\bar{V}_t$ là vi phạm đã làm trơn và $\beta_{\mathrm{ema}}$ là hệ số ghi nhớ của
+trung bình mũ.
 
-Sau giai đoạn khởi động và theo chu kỳ $1000$ bước, hệ số được cập nhật:
+Sau giai đoạn khởi động và theo chu kỳ $1.000$ bước tương tác, $\lambda_t$ được cập nhật
+bằng cách so sánh $\bar{V}_t$ với mức vi phạm mục tiêu rất nhỏ $V_{\mathrm{tar}}$:
 \begin{equation}
 \label{eq:cap-nhat-lambda}
 \lambda_{t+1} = \mathrm{clip}\!\left[
 \lambda_t + \alpha_\lambda(\bar{V}_t - V_{\mathrm{tar}}),\
 \lambda_{\min},\ \lambda_{\max} \right],
+\qquad \alpha_\lambda = 20,\quad V_{\mathrm{tar}} = 0,001.
 \end{equation}
-trong đó $\alpha_\lambda = 20$ và $V_{\mathrm{tar}} = 0,001$.
 
-Trong đó: $\alpha_\lambda$ là tốc độ cập nhật; $V_{\mathrm{tar}}$ là mức vi phạm mục tiêu;
-phép cắt giữ $\lambda$ trong giới hạn cấu hình. Có thể hiểu đây như một bộ điều chỉnh áp
-lực QoS: nếu vi phạm trung bình cao hơn mục tiêu, hệ số tăng; nếu thấp hơn, hệ số có thể
-giảm. Cơ chế này được áp dụng chung cho ba thuật toán DRL trong giao thức huấn luyện.
+Trong đó: $\alpha_\lambda$ là tốc độ cập nhật và phép cắt giữ $\lambda$ trong giới hạn cấu
+hình. Nguyên lý của~\eqref{eq:cap-nhat-lambda} rất trực quan:
+\begin{itemize}
+\item Khi chính sách còn vi phạm QoS ($\bar{V}_t > V_{\mathrm{tar}}$), hiệu số dương làm
+  $\lambda_{t+1}$ tăng. Áp lực phạt lớn hơn khiến các hành động bỏ rơi UE yếu kém hấp dẫn
+  hơn trong ước lượng giá trị, buộc chính sách ưu tiên công suất chung và tỷ lệ
+  $\boldsymbol{\eta}$ để kéo các UE yếu vượt ngưỡng $R_{\min}$.
+\item Khi chính sách đã thỏa tốt QoS ($\bar{V}_t < V_{\mathrm{tar}}$), hiệu số âm làm
+  $\lambda_{t+1}$ giảm dần về phía cận dưới $\lambda_{\min} = 4$, giúp chính sách bớt bảo thủ
+  và tập trung hơn vào tổng tốc độ $R_{\mathrm{sum}}$.
+\end{itemize}
+Cơ chế này được áp dụng thống nhất cho cả ba thuật toán DDPG, TD3 và PPO trong toàn bộ giao
+thức huấn luyện.
 
 \subsection{Lựa chọn điểm lưu mô hình (checkpoint) theo tập xác thực}
 \label{ssec:chon-diem-luu}
@@ -416,7 +454,7 @@ rộng ẩn và cùng thứ tự FC, LayerNorm rồi ReLU, nên khác biệt gi�
 \label{sec:off-policy}
 
 \subsection{DDPG}
-\label{ssec:ddpg}
+\label{ssec:ch3-ddpg}
 
 DDPG dùng Actor xác định $\mu_\phi(s)$, Critic $Q_\psi(s,a)$, mạng đích và bộ nhớ phát
 lại. Với một mẫu chuyển trạng thái $(s, a, r, s', d)$, mục tiêu Critic là:
@@ -435,7 +473,7 @@ làm $Q_\psi(s, \mu_\phi(s))$ tăng. Trong cấu hình cuối, hàm mất mát (
 và gradient được cắt chuẩn (gradient norm clipping) để hạn chế bước cập nhật quá lớn.
 
 \subsection{TD3}
-\label{ssec:td3}
+\label{ssec:ch3-td3}
 
 TD3 giữ cấu trúc học ngoài chính sách của DDPG nhưng thêm nhiễu làm trơn vào hành động mục
 tiêu:
@@ -520,21 +558,43 @@ tiết triển khai giúp giảm sai lệch số học ở các hành động b�
 \section{Các phương pháp đối chiếu tối ưu truyền thống}
 \label{sec:doi-chieu-ao}
 
+Để đánh giá khách quan hiệu năng và độ trễ của nhóm DRL, luận văn xây dựng ba phương pháp
+đối chiếu không dùng học máy là AnalyticalRIS, AO--SCA và AO--Grid. Khác với DRL vốn dùng bộ
+giải mã thu hẹp miền hành động, các phương pháp này làm việc trực tiếp trên toàn bộ miền vật
+lý khả thi ở Chương~\ref{chap:mo-hinh-he-thong}, tức trên véc-tơ công suất
+$\mathbf{p} = (p_c, p_1, \dots, p_K)$ với tổng bằng $P_{\max}$, véc-tơ $\boldsymbol{\eta}
+\in \Delta_K$ và các tham số STAR--RIS $(\boldsymbol{\beta}, \boldsymbol{\theta}^T,
+\boldsymbol{\theta}^R)$. Hai bộ giải lặp dùng chung hàm đánh giá có xét phạt QoS
+$r_{\mathrm{env}}$ trong~\eqref{eq:phan-thuong-moi-truong} để bảo đảm công bằng khi so sánh
+với DRL. Cơ chế trực quan của ba phương pháp đã được minh họa ở
+Hình~\ref{fig:ch1-ao-truc-giac}; quy trình chung được tóm tắt trong
+Thuật toán~\ref{alg:doi-chieu-ao}.
+
 \subsection{AnalyticalRIS}
 \label{ssec:analytical-ris}
 
-AnalyticalRIS tạo một hành động tham chiếu bằng phân bổ công suất và tốc độ đơn giản, hệ
-số năng lượng $0,5$ và căn pha dựa trên tổng kênh ghép tầng. Phương pháp này không lặp tối
-ưu tất cả khối nên có chi phí thấp. Vai trò chính là tạo điểm khởi đầu có ý nghĩa cho AO
-và cung cấp một đối chiếu về độ trễ rất thấp. Cơ chế của cả ba phương pháp trong mục này
-đã được minh họa ở Hình~\ref{fig:ch1-ao-truc-giac}.
+AnalyticalRIS là phương pháp tham chiếu có chi phí tính toán thấp nhất: nó tạo quyết định
+trong một bước bằng công thức đóng, không có vòng lặp tối ưu. Phương pháp chia đều công suất
+cho $K + 1$ luồng, $p_c = p_k = P_{\max}/(K+1)$, chia đều tốc độ chung $\eta_k = 1/K$ và chia
+đều năng lượng $\beta^T_n = \beta^R_n = 0,5$. Pha của hai phía được đặt bằng
+$\theta^T_n = \theta^R_n = -\angle \sum_{k=1}^{K} h^{*}_{r,k,n} g_n$,
+tức trường hợp riêng của pha tham chiếu~\eqref{eq:theta-ref} khi mọi UE có trọng số như
+nhau, nhằm làm các thành phần ghép tầng qua STAR--RIS cộng thuận về cùng một hướng. Trong
+luận văn, AnalyticalRIS đóng hai vai trò: tạo điểm khởi đầu có ý nghĩa vật lý cho AO--SCA và
+AO--Grid, đồng thời cung cấp một mốc đối chiếu về độ trễ rất thấp.
 
 \subsection{AO--SCA}
 \label{ssec:ao-sca}
 
-AO--SCA dùng AnalyticalRIS làm nghiệm đầu. Khối công suất và khối phân bổ tốc độ chung đều
-có cấu trúc đơn hình. Thay vì thay đổi riêng một tọa độ rồi chiếu lại, mã nguồn chuyển
-trực tiếp một lượng tài nguyên $\delta$ từ phần tử $i$ sang phần tử $j$:
+AO--SCA dùng nghiệm AnalyticalRIS làm điểm khởi đầu rồi tối ưu luân phiên ba khối biến qua
+nhiều vòng lặp: khối công suất $\mathbf{p}$, khối phân bổ tốc độ chung $\boldsymbol{\eta}$
+và khối STAR--RIS $(\boldsymbol{\beta}, \boldsymbol{\theta}^T, \boldsymbol{\theta}^R)$. Tại
+mỗi bước, một khối được cập nhật để tăng $r_{\mathrm{env}}$ trong khi hai khối còn lại giữ cố
+định.
+
+Khối công suất và khối phân bổ tốc độ chung đều có cấu trúc đơn hình. Thay vì thay đổi riêng
+một tọa độ rồi chiếu lại, mã nguồn chuyển trực tiếp một lượng tài nguyên $\delta$ từ phần tử
+$i$ sang phần tử $j$:
 \begin{equation}
 \label{eq:chuyen-khoi}
 x'_i = x_i - \delta,
@@ -542,32 +602,92 @@ x'_i = x_i - \delta,
 x'_j = x_j + \delta .
 \end{equation}
 
-Trong đó: $x$ đại diện một véc-tơ trên đơn hình như công suất hoặc $\boldsymbol{\eta}$;
-$\delta$ không vượt lượng đang có ở phần tử $i$. Phép chuyển giữ tổng tài nguyên không đổi
-ngay trong từng phép thử. Về vật lý, nó giống việc chuyển một ít công suất hoặc tốc độ
-luồng chung từ một luồng sang luồng khác, thay vì tăng một biến rồi sửa toàn bộ véc-tơ
-bằng phép chiếu.
+Trong đó: $x$ đại diện một véc-tơ trên đơn hình như $\mathbf{p}$ hoặc $\boldsymbol{\eta}$;
+$0 < \delta \le x_i$. Phép chuyển giữ tổng tài nguyên không đổi ngay trong từng phép thử. Về
+vật lý, nó tương đương việc rút một phần công suất hoặc tốc độ chung từ luồng này sang luồng
+khác mà không phá vỡ ràng buộc ngân sách. Bộ giải thử một bước dò nhỏ cho mọi cặp $(i, j)$,
+chọn hướng có độ dốc cải thiện lớn nhất, rồi thử nhiều mức $\delta$ trên hướng đó, kể cả mức
+chuyển hết $\delta = x_i$.
 
-Bộ giải thử các hướng chuyển khả thi, chọn hướng có độ dốc cải thiện tốt, sau đó tìm nhiều
-mức $\delta$ trên hướng đó. Với khối STAR--RIS, đạo hàm theo từng biến được xấp xỉ bằng
-sai phân hữu hạn; một bài toán lân cận tạo đề xuất và cơ chế quay lui tăng hệ số lân cận
-nếu đề xuất chưa đủ tốt. Sau mỗi vòng, hai đơn hình được đánh bóng lại và kiểm tra khoảng
-cách đến điều kiện dừng (stationarity). Cơ chế này làm AO--SCA là một bộ giải cục bộ có kiểm soát tốt hơn
-tại biên đơn hình, nhưng không biến nó thành nghiệm tối ưu toàn cục.
+Với khối STAR--RIS, đạo hàm của $r_{\mathrm{env}}$ theo cả $3N$ biến $\beta^T_n,
+\theta^T_n, \theta^R_n$ được xấp xỉ bằng sai phân hữu hạn trung tâm với hai điểm thử
+$\pm\epsilon$, $\epsilon = 10^{-3}$. Từ véc-tơ độ dốc này, một bài toán lân cận tạo bước đề
+xuất cho toàn khối; nếu điểm đề xuất làm giảm hàm mục tiêu, cơ chế quay lui (backtracking)
+nhân đôi hệ số phạt lân cận để thu nhỏ bước. Cuối mỗi vòng, hai khối đơn hình được tinh chỉnh
+lại và kiểm tra khoảng cách đến điều kiện dừng (stationarity). Thuật toán dừng khi thay đổi
+tương đối của hàm mục tiêu nhỏ hơn $10^{-4}$ và hai khối đơn hình đã dừng, hoặc khi đạt tối
+đa $80$ vòng. Cơ chế này làm AO--SCA là một bộ giải cục bộ có kiểm soát tốt tại biên đơn
+hình, nhưng không biến nó thành nghiệm tối ưu toàn cục.
 
 \subsection{AO--Grid}
-\label{ssec:ao-grid}
+\label{ssec:ch3-ao-grid}
 
-AO--Grid sử dụng tập giá trị rời rạc cho từng khối. Lưới công suất cho phép giá trị bằng
-$0$, nhờ đó một luồng riêng có thể được tắt hoàn toàn. Thay vì cập nhật ngay khi gặp cải
-thiện đầu tiên, bộ giải xét các ứng viên và chọn bước cải thiện tốt nhất. Đối với biến
-STAR--RIS, thuật toán thử cả thứ tự quét tọa độ thuận và nghịch rồi giữ kết quả tốt hơn.
-Cách này giảm phụ thuộc vào thứ tự quét nhưng tăng số phép đánh giá.
+AO--SCA dựa trên độ dốc cục bộ nên có thể dừng ở các cực trị địa phương gần nghiệm khởi
+tạo. AO--Grid giữ cấu trúc luân phiên ba khối nhưng thay phép dò đạo hàm bằng tập giá trị
+rời rạc (lưới) cho từng biến, cho phép nhảy xa trong một bước:
+\begin{itemize}
+\item Với khối công suất và khối tỷ lệ tốc độ chung, mỗi thành phần được thử trên lưới
+  $\{0;\ 0,05;\ \dots;\ 0,80\}$ (tám mức, nhân với $P_{\max}$ cho công suất), phần còn lại
+  được phân bổ lại theo tỷ lệ cho các thành phần khác để giữ tổng. Mức $0$ trong lưới cho
+  phép tắt hoàn toàn một luồng gây nhiễu trong hệ SISO. Thay vì cập nhật ngay khi gặp cải
+  thiện đầu tiên, bộ giải xét mọi ứng viên và chọn bước cải thiện tốt nhất.
+\item Với khối STAR--RIS, bộ giải quét lần lượt từng tọa độ: $\beta^T_n$ được thử trên năm
+  mức trong $[0,05;\ 0,95]$, còn $\theta^T_n$ và $\theta^R_n$ được thử trên tám mức pha cách
+  đều trong $[-\pi, \pi)$; mỗi tọa độ nhảy tới mức có $r_{\mathrm{env}}$ cao nhất.
+\end{itemize}
+Mỗi lần chạy gồm tối đa hai vòng và dừng sớm khi thay đổi tương đối nhỏ hơn $10^{-4}$. Toàn
+bộ quy trình được chạy hai lần với thứ tự quét phần tử STAR--RIS thuận ($n = 1, \dots, N$) và
+nghịch ($n = N, \dots, 1$); kết quả cuối được chọn ưu tiên nghiệm đạt QoS cho mọi UE, sau đó
+đến tổng tốc độ cao hơn. Cách này giảm phụ thuộc vào thứ tự quét nhưng tăng số phép đánh giá.
 
-Điểm quan trọng khi so sánh là AO tối ưu trên miền vật lý rộng hơn miền có cấu trúc của
-DRL. Vì vậy, việc AO đạt tổng tốc độ cao hơn không mâu thuẫn với mục tiêu luận văn; nó
-phản ánh việc AO dành nhiều phép tính hơn và có quyền truy cập vùng hành động rộng hơn cho
-từng CSI.
+Điểm quan trọng khi so sánh là nhóm AO tối ưu trên miền vật lý rộng hơn miền có cấu trúc của
+DRL, nhưng phải đánh giá lại hàm vật lý từ hàng nghìn đến hàng chục nghìn lần cho mỗi kịch
+bản CSI mới, và số lần này tăng gần tuyến tính theo $N$. Vì vậy, việc AO đạt tổng tốc độ cao
+hơn nhưng có độ trễ lớn hơn nhiều bậc độ lớn không mâu thuẫn với mục tiêu luận văn; nó phản
+ánh đánh đổi giữa miền tìm kiếm rộng kèm chi phí lặp trực tuyến và suy luận một lượt của mạng
+nơ-ron.
+
+\begin{algorithm}[htbp]
+\caption{Quy trình giải trực tiếp trên từng kịch bản CSI của nhóm phương pháp đối chiếu}
+\label{alg:doi-chieu-ao}
+\begin{algorithmic}[1]
+\Require Một kịch bản CSI kiểm thử $(h_d, g, h_r)$ kèm chỉ báo phía UE,
+         phương pháp $M \in \{$AnalyticalRIS, AO--SCA, AO--Grid$\}$, hàm đánh giá
+         $r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2$, số vòng tối đa $L_{\max}$
+         ($80$ với AO--SCA, $2$ với AO--Grid), ngưỡng dừng $\varepsilon = 10^{-4}$
+\Ensure  Nghiệm vật lý khả thi $\mathcal{A}^\star = (\mathbf{p}^\star, \boldsymbol{\eta}^\star,
+         \boldsymbol{\beta}^\star, \boldsymbol{\theta}^{T\star}, \boldsymbol{\theta}^{R\star})$
+\State Khởi tạo AnalyticalRIS $\mathcal{A}^{(0)}$: $p_c = p_k = P_{\max}/(K+1)$, $\eta_k = 1/K$,
+       $\beta^T_n = 0,5$, $\theta^T_n = \theta^R_n = -\angle \sum_{k} h^{*}_{r,k,n} g_n$
+\If{$M$ là AnalyticalRIS}
+  \State \Return $\mathcal{A}^{(0)}$
+\EndIf
+\State Đặt tập thứ tự quét $\mathcal{O} = \{\text{thuận}\}$ với AO--SCA,
+       $\mathcal{O} = \{\text{thuận}, \text{nghịch}\}$ với AO--Grid
+\For{mỗi thứ tự $o \in \mathcal{O}$}
+  \State $\mathcal{A} \gets \mathcal{A}^{(0)}$
+  \For{$\ell \gets 1$ \textbf{to} $L_{\max}$}
+    \State $J_{\mathrm{cũ}} \gets r_{\mathrm{env}}(\mathcal{A})$
+    \State \textbf{Khối $\mathbf{p}$:} chuyển khối~\eqref{eq:chuyen-khoi} (AO--SCA) hoặc
+           chọn mức lưới tốt nhất (AO--Grid)
+    \State \textbf{Khối $\boldsymbol{\eta}$:} cập nhật tương tự trên $\Delta_K$
+    \State \textbf{Khối STAR--RIS:} giữ cố định $(\mathbf{p}, \boldsymbol{\eta})$
+    \If{$M$ là AO--SCA}
+      \State Ước lượng độ dốc theo $3N$ biến bằng sai phân trung tâm $\pm\epsilon$
+      \State Tạo bước lân cận cho toàn khối, quay lui nếu $r_{\mathrm{env}}$ giảm
+      \State Tinh chỉnh lại hai khối đơn hình, kiểm tra điều kiện dừng
+    \Else
+      \State Quét từng tọa độ $\beta^T_n, \theta^T_n, \theta^R_n$ theo thứ tự $o$, chọn mức lưới tốt nhất
+    \EndIf
+    \If{$\dfrac{|r_{\mathrm{env}}(\mathcal{A}) - J_{\mathrm{cũ}}|}{\max(1, |J_{\mathrm{cũ}}|)} < \varepsilon$ (AO--SCA: và hai khối đơn hình đã dừng)}
+      \State \textbf{thoát vòng lặp}
+    \EndIf
+  \EndFor
+  \State $\mathcal{A}_o \gets \mathcal{A}$
+\EndFor
+\State \Return $\mathcal{A}^\star \gets$ nghiệm tốt nhất trong $\{\mathcal{A}_o\}$ theo QoS rồi tổng tốc độ
+\end{algorithmic}
+\end{algorithm}
 
 \section{Ngân hàng kịch bản kênh và giao thức dữ liệu}
 \label{sec:ngan-hang-kich-ban}

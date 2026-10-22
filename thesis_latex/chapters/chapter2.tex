@@ -486,55 +486,68 @@ hình thực, $\eta$ được tối ưu nên UE đã có tốc độ riêng cao 
 chung lớn. Vì vậy, ngưỡng công suất luồng chung không thể suy ra chỉ từ phân bổ đều mà
 phải xem là một lựa chọn thiết kế được kiểm chứng bằng thực nghiệm.
 
-\subsection{Quan hệ công suất chung và riêng trong miền tỷ số tín hiệu trên tạp âm cao}
+\subsection{Quan hệ bù trừ giữa công suất chung và riêng ở miền tỷ số tín hiệu trên tạp âm cao}
 \label{ssec:quan-he-chung-rieng}
 
-Khi một luồng riêng chiếm ưu thế và UE nút cổ chai của luồng chung vẫn ở vùng tỷ số tín
-hiệu trên tạp âm cao, SINR chung có xấp xỉ:
+Một câu hỏi tự nhiên là: nếu dành phần lớn công suất cho luồng chung $p_c$ để bảo vệ QoS
+của các UE yếu, tổng tốc độ có bị sụt giảm mạnh do luồng riêng thiếu công suất hay không?
+Phân tích xấp xỉ dưới đây cho thấy cấu trúc SISO--RSMA có một tính chất bù trừ thuận lợi
+giữa hai thành phần tốc độ.
+
+Chuẩn hóa $P_{\max} = 1$, khi đó công suất luồng chung là $p_c$ và tổng công suất luồng
+riêng là $P_{\mathrm{priv}} = 1 - p_c$. Giả sử công suất riêng tập trung gần như hoàn toàn
+vào một UE ưu tiên $k^\star$, tức $p_{k^\star} \approx 1 - p_c$ và các luồng riêng khác xấp
+xỉ $0$. Khi mọi UE đều ở miền tỷ số tín hiệu trên tạp âm cao, $g_k (1 - p_c) \gg \sigma^2$,
+thành phần nhiễu do luồng riêng gây ra trong mẫu số của~\eqref{eq:sinr-chung} lớn hơn nhiều
+so với tạp âm $\sigma^2$. Độ lợi kênh $g_k$ ở tử số và mẫu số khi đó tự giản ước, nên SINR
+luồng chung tại mọi UE tiến về cùng một giá trị:
 \begin{equation}
 \label{eq:xap-xi-chung}
-\gamma_c \approx \frac{p_c}{1 - p_c},
+\gamma_{c,k} \approx \gamma_c \approx \frac{p_c}{1 - p_c}, \qquad \forall k.
 \end{equation}
-ở đây đã chuẩn hóa $P_{\max} = 1$.
 
-Trong đó: $p_c$ là tỷ lệ công suất luồng chung và $1 - p_c$ là tổng công suất luồng
-riêng. Công thức cho thấy tăng $p_c$ làm việc giải mã luồng chung dễ hơn rất nhanh khi
-$p_c$ tiến gần một, tạo thêm biên an toàn cho QoS của các UE chủ yếu dựa vào luồng chung.
-
-Khi đó:
+Trong đó: $p_c$ là tỷ lệ công suất luồng chung và $1 - p_c$ là tổng công suất luồng riêng.
+Vì xấp xỉ không còn phụ thuộc $k$, phép lấy nhỏ nhất trong~\eqref{eq:toc-do-chung} không làm
+thay đổi kết quả. Thay~\eqref{eq:xap-xi-chung} vào~\eqref{eq:toc-do-chung-k} và lưu ý
+$1 + \frac{p_c}{1 - p_c} = \frac{1}{1 - p_c}$, tốc độ luồng chung là:
 \begin{equation}
 \label{eq:toc-do-chung-xap-xi}
-R_c \approx -\log_2(1 - p_c).
+R_c \approx \log_2\!\left(\frac{1}{1 - p_c}\right) = -\log_2(1 - p_c).
 \end{equation}
 
-Trong đó: $R_c$ là tốc độ luồng chung trong xấp xỉ khi tạp âm nhỏ so với phần công suất
-riêng tại UE nút cổ chai. Phần tốc độ chung tăng khi phần công suất riêng còn lại giảm;
-đây là một nửa của cơ chế bù trừ giữa tốc độ chung và công suất luồng riêng.
+Trong đó: $R_c$ là tốc độ luồng chung khi tạp âm nhỏ so với phần công suất riêng tại UE nút
+cổ chai. Ý nghĩa vật lý của công thức rất rõ: khi tăng $p_c$, tức giảm phần công suất riêng
+$1 - p_c$, luồng riêng gây nhiễu ít hơn lên luồng chung nên $R_c$ tăng theo hàm logarit và
+tăng rất nhanh khi $p_c$ tiến gần một. Đây là một nửa của cơ chế bù trừ.
 
-Với UE $k^\star$ nhận luồng riêng chính:
+Sau khi loại luồng chung bằng SIC, UE $k^\star$ giải mã luồng riêng của mình mà gần như
+không còn nhiễu từ các luồng riêng khác, nên đạt tốc độ:
 \begin{equation}
 \label{eq:toc-do-rieng-xap-xi}
-R_{p,k^\star} \approx \log_2\!\left(\frac{g_{k^\star}(1 - p_c)}{\sigma^2}\right).
+R_{p,k^\star} \approx \log_2\!\left(1 + \frac{g_{k^\star}(1 - p_c)}{\sigma^2}\right)
+\approx \log_2\!\left(\frac{g_{k^\star}}{\sigma^2}\right) + \log_2(1 - p_c).
 \end{equation}
 
-Trong đó: $g_{k^\star}$ là độ lợi kênh của UE được ưu tiên và $1 - p_c$ là công suất
-riêng còn lại. Khi tăng $p_c$, tốc độ riêng của UE mạnh giảm vì ngân sách riêng nhỏ đi;
-tuy nhiên tốc độ chung tăng theo phần bù tương ứng.
+Trong đó: $g_{k^\star}$ là độ lợi kênh hiệu dụng của UE được ưu tiên và $1 - p_c$ là công
+suất riêng còn lại. Khi tăng $p_c$, tốc độ riêng của UE mạnh giảm vì ngân sách riêng nhỏ đi.
 
-Cộng hai thành phần cho trực giác:
+Cộng~\eqref{eq:toc-do-chung-xap-xi} và~\eqref{eq:toc-do-rieng-xap-xi}, hai hạng
+$-\log_2(1 - p_c)$ và $+\log_2(1 - p_c)$ triệt tiêu nhau:
 \begin{equation}
 \label{eq:tong-hai-thanh-phan}
 R_c + R_{p,k^\star} \approx \log_2\!\left(\frac{g_{k^\star}}{\sigma^2}\right).
 \end{equation}
 
-Trong đó: hai hạng $\log_2(1 - p_c)$ triệt tiêu trong xấp xỉ nên kết quả còn phụ thuộc
-chủ yếu vào độ lợi kênh của UE được chọn và tạp âm.
-
-Công thức~\eqref{eq:tong-hai-thanh-phan} giải thích vì sao trong một vùng công suất chung
-tương đối rộng, tăng $p_c$ có thể cải thiện khả năng cấp QoS cho UE yếu mà không làm tổng
-tốc độ giảm nhiều. Đây là trực giác quan trọng để chọn một miền $p_c$ ưu tiên cao trong
-bộ giải mã. Tuy nhiên, xấp xỉ chỉ đúng khi các giả thiết tỷ số tín hiệu trên tạp âm cao
-và một luồng riêng chiếm ưu thế được thỏa.
+Trong đó: vế phải chỉ còn phụ thuộc độ lợi kênh của UE được chọn và tạp âm, không phụ thuộc
+$p_c$. Công thức~\eqref{eq:tong-hai-thanh-phan} giải thích trực giác quan trọng nhất của bộ
+giải mã hành động: trong miền tỷ số tín hiệu trên tạp âm cao và khi một luồng riêng chiếm
+ưu thế, dịch thêm công suất sang luồng chung làm $R_c$ tăng vừa đủ để bù phần giảm của
+$R_{p,k^\star}$. Nhờ đó, có thể giữ $p_c$ ở vùng cao để dễ cấp QoS cho các UE yếu thông qua
+$C_k = \eta_k R_c$ mà không hy sinh đáng kể tổng tốc độ. Đây là cơ sở để chọn một miền
+$p_c$ ưu tiên cao trong bộ giải mã ở Chương~\ref{chap:phuong-phap}. Tuy nhiên, xấp xỉ chỉ
+đúng khi các giả thiết tỷ số tín hiệu trên tạp âm cao và một luồng riêng chiếm ưu thế được
+thỏa; với UE có kênh rất yếu, tạp âm hữu hạn làm $R_c$ thấp hơn giá trị
+trong~\eqref{eq:toc-do-chung-xap-xi}.
 
 \subsection{Vai trò của căn pha}
 \label{ssec:vai-tro-can-pha}

@@ -4,7 +4,7 @@
 \RequirePackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm,headsep=0.65cm]{geometry}
 \RequirePackage{fontspec}
 % Font theo quy dinh cua truong.
-\setmainfont{Times New Roman}
+\IfFontExistsTF{Times New Roman}{\setmainfont{Times New Roman}}{\setmainfont{Tinos}}
 \RequirePackage[vietnamese,english]{babel}
 \RequirePackage{setspace}
 \RequirePackage{titlesec}
