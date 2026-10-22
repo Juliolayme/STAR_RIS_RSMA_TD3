@@ -18,15 +18,21 @@ giá trên cùng mô hình vật lý, cùng bộ giải mã và cùng ngân sác
 khi vẫn giữ các cơ chế đặc trưng của từng thuật toán: khởi tạo lớp cuối nhỏ cho Actor xác
 định của DDPG và TD3, nhiễu khám phá và nhiễu làm trơn chuẩn hóa theo số chiều hành động
 của TD3, và chính sách Gaussian của PPO. Vì vậy, không thuật toán nào được cấp một miền
-hành động thuận lợi hơn thuật toán khác.
+hành động thuận lợi hơn thuật toán khác. Tuy nhiên, luận văn không khẳng định ngân sách tinh
+chỉnh siêu tham số hay ngân sách tính toán của ba thuật toán là ngang nhau: cấu hình TD3 được
+phát triển trước và kỹ lưỡng hơn, còn DDPG và PPO được cấp các cơ chế ổn định tương ứng
+nhưng không qua một vòng tinh chỉnh riêng có cùng quy mô.
 
 Về bản chất, CSI ở mỗi bước được lấy độc lập từ ngân hàng huấn luyện và không phụ thuộc
 hành động trước đó, nên bài toán là quyết định một bước theo ngữ cảnh (contextual bandit),
 hay tối ưu khấu hao (amortized optimization): chính sách học ánh xạ trực tiếp từ CSI sang
 hành động. Việc tổ chức dữ liệu thành các giai đoạn $32$ bước với $\gamma = 0,99$ là thiết
 lập kỹ thuật để giữ nguyên cấu trúc cập nhật chuẩn của DDPG, TD3 và PPO; vì trạng thái kế
-tiếp không phụ thuộc hành động, phần giá trị tương lai trong mục tiêu Critic xấp xỉ một
-hằng số đối với hành động và không làm thay đổi thứ tự ưu tiên giữa các hành động. Đây là
+tiếp không phụ thuộc hành động, nếu xét theo kỳ vọng với phân bố kênh dừng và một chính
+sách cố định thì phần giá trị tương lai trong mục tiêu Critic không phụ thuộc hành động hiện
+tại. Đây là tính chất của bài toán lý tưởng, không phải bảo đảm cho Critic xấp xỉ đang học:
+sai số của Critic ở trạng thái kế tiếp và sự thay đổi của chính sách vẫn có thể đưa nhiễu
+vào mục tiêu học. Đây là
 nguyên tắc cần thiết để đánh giá công bằng vai trò của nhóm học ngoài chính sách và nhóm
 học theo chính sách hiện hành.
 
@@ -416,8 +422,10 @@ hình. Nguyên lý của~\eqref{eq:cap-nhat-lambda} rất trực quan:
 Cơ chế này được áp dụng thống nhất cho cả ba thuật toán DDPG, TD3 và PPO trong toàn bộ giao
 thức huấn luyện. Cần lưu ý rằng phần thưởng được tính và lưu tại thời điểm thu mẫu, nên các
 mẫu cũ trong bộ nhớ phát lại của DDPG và TD3 giữ mức phạt $\lambda$ tại thời điểm đó; mục
-tiêu học vì vậy không dừng hoàn toàn khi $\lambda_t$ thay đổi. Việc cập nhật thưa, mỗi
-$1.000$ bước, và giới hạn $[4, 64]$ giúp hạn chế ảnh hưởng này.
+tiêu học vì vậy không dừng khi $\lambda_t$ thay đổi. Mã nguồn không có cơ chế riêng để xử lý
+hiện tượng này, chẳng hạn tính lại phần thưởng của mẫu cũ theo $\lambda_t$ hiện hành; việc
+cập nhật thưa, mỗi $1.000$ bước, và giới hạn $[4, 64]$ chỉ làm biên độ thay đổi nhỏ hơn. Đây là
+một hạn chế được công bố của giao thức huấn luyện, không phải vấn đề đã được loại bỏ.
 
 \subsection{Lựa chọn điểm lưu mô hình (checkpoint) theo tập xác thực}
 \label{ssec:chon-diem-luu}
@@ -602,9 +610,10 @@ giải mã thu hẹp miền hành động, các phương pháp này làm việc 
 lý khả thi ở Chương~\ref{chap:mo-hinh-he-thong}, tức trên véc-tơ công suất
 $\mathbf{p} = (p_c, p_1, \dots, p_K)$ với tổng bằng $P_{\max}$, véc-tơ $\boldsymbol{\eta}
 \in \Delta_K$ và các tham số STAR--RIS $(\boldsymbol{\beta}, \boldsymbol{\theta}^T,
-\boldsymbol{\theta}^R)$. Hai bộ giải lặp dùng chung hàm đánh giá có xét phạt QoS
-$r_{\mathrm{env}}$ trong~\eqref{eq:phan-thuong-moi-truong} để bảo đảm công bằng khi so sánh
-với DRL. Cơ chế trực quan của ba phương pháp đã được minh họa ở
+\boldsymbol{\theta}^R)$. Hai bộ giải lặp tối ưu trực tiếp hàm đánh giá có xét phạt QoS $r_{\mathrm{env}}$
+trong~\eqref{eq:phan-thuong-moi-truong}; DRL không tối ưu đúng hàm này mà học từ phần thưởng
+thích nghi $r_t$, còn khi kiểm thử mọi phương pháp được so sánh trên cùng tổng tốc độ và
+chỉ số QoS. Cơ chế trực quan của ba phương pháp đã được minh họa ở
 Hình~\ref{fig:ch1-ao-truc-giac}; quy trình chung được tóm tắt trong
 Thuật toán~\ref{alg:doi-chieu-ao}.
 
@@ -660,7 +669,9 @@ phần mềm; thực chất đây là bộ giải lân cận luân phiên dùng 
 mục tiêu không trơn, vì $r_{\mathrm{env}}$ chứa phép lấy nhỏ nhất của tốc độ chung và
 phép $\max$ trong thiếu hụt QoS. Do đó, các định lý hội tụ về điểm KKT của khung xấp xỉ lồi
 liên tiếp trong~\cite{Scutari2017SCA}, vốn đòi hỏi hàm trơn và hàm thay thế lồi chặt,
-không áp dụng trực tiếp cho bộ giải này.
+không áp dụng trực tiếp cho bộ giải này. Ngoài ra, tiêu chí dừng hiện tại chỉ kiểm tra điều
+kiện dừng cho hai khối đơn hình; với khối STAR--RIS, bộ giải dừng theo thay đổi tương đối của
+hàm mục tiêu và chưa xác nhận điều kiện dừng (stationarity) cho toàn khối.
 
 \subsection{AO--Grid}
 \label{ssec:ch3-ao-grid}
@@ -768,7 +779,8 @@ vậy có thể đánh giá cả hiệu năng lẫn khả năng mở rộng.
 
 Mỗi thuật toán DRL được huấn luyện với năm hạt giống ngẫu nhiên độc lập trên mỗi $N$, mỗi
 lần có ngân sách $100.000$ tương tác môi trường. Tập xác thực được đánh giá định kỳ mỗi
-$5.000$ bước trên $1.000$ kịch bản. Tập kiểm thử gồm $1.000$ kịch bản được dùng để báo cáo
+$5.000$ bước trên $1.000$ kịch bản; với PPO, việc xác thực diễn ra ở cuối đoạn thu thập
+$2.048$ bước đầu tiên vượt qua mỗi bội số $5.000$, ví dụ tại bước $6.144$ và $10.240$. Tập kiểm thử gồm $1.000$ kịch bản được dùng để báo cáo
 chất lượng mô hình đã chọn.
 
 \subsection{Cấu hình chính}
@@ -804,6 +816,14 @@ Hệ số cập nhật mềm $\tau$ & $0,005$ \\
 Tốc độ học Actor của TD3 và DDPG & $10^{-4}$ \\
 Tốc độ học Critic của TD3 và DDPG & $3 \times 10^{-4}$ \\
 Tốc độ học PPO & $3 \times 10^{-4}$ \\
+Độ dài đoạn thu thập của PPO & $2.048$ bước \\
+Số vòng cập nhật / lô nhỏ của PPO & $10$ vòng / $256$ mẫu \\
+Biên cắt tỷ số $\epsilon$ của PPO & $0,2$ \\
+Hệ số GAE $\lambda_{\mathrm{GAE}}$ của PPO & $0,95$ \\
+Hệ số entropy / hàm giá trị của PPO & $10^{-3}$ / $0,5$ \\
+Giá trị khởi tạo $\log\sigma$ của PPO & $-0,5$ \\
+Nhiễu làm trơn đích của TD3 ($\sigma_{\mathrm{tar}}$ / $c$) & $0,15$ / $0,30$ (nhân $\min(1,\sqrt{64/d_a})$) \\
+Chu kỳ trễ cập nhật Actor của TD3 & $2$ \\
 Chu kỳ xác thực & $5.000$ bước (PPO: cuối đoạn thu thập $2.048$ bước đầu tiên vượt mỗi bội số $5.000$) \\
 Nhiễu khám phá của DDPG và TD3 & $0,12 \rightarrow 0,03$ \\
 Hàm mất mát Critic của TD3 và DDPG & Huber \\

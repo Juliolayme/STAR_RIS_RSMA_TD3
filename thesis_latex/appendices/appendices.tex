@@ -174,9 +174,13 @@ Bộ giải không học trên tập kiểm thử & \texttt{c779fa5d8f171a89242d
 Đo độ trễ CPU (Bảng~\ref{tab:ch4-do-tre}) & \texttt{346e125e78fb4d3d6a0f6e62b2590b1ea3eaf711} \\
 Mã nguồn được rà soát cùng bằng chứng & \texttt{9547c6227f588a0b5c2e8ccd5ffd90c847f2234c} \\
 Tổng hợp kết quả và hình (\texttt{experiment/}\allowbreak\texttt{physical-v6-full}) & \texttt{fde2fe7} \\
-Mã nguồn luận văn & nhánh \texttt{thesis/}\allowbreak\texttt{latex-rebuild} \\
+Mã nguồn luận văn bản nộp & thẻ \texttt{thesis-v4} trên nhánh \texttt{thesis/}\allowbreak\texttt{latex-rebuild}$^{*}$ \\
 \bottomrule
 \end{tabularx}
+\par\smallskip
+\parbox{\linewidth}{\footnotesize $^{*}$Một commit không thể chứa mã băm của chính nó, nên
+bản luận văn được khóa bằng thẻ (tag) \texttt{thesis-v4}; mã băm đầy đủ của commit được thẻ
+trỏ tới xem bằng lệnh \texttt{git rev-list -n 1 thesis-v4}.}
 \tablesource{Tác giả tổng hợp từ các tệp kê khai của dự án (2026)}
 \end{table}
 
@@ -249,7 +253,5 @@ giống chỉ bằng năm, luận văn ưu tiên các nhận định về xu hư
 thời tránh kết luận mạnh chỉ dựa trên giá trị xác suất nhỏ từ $1.000$ kịch bản ghép cặp.
 
 Đối với AO--SCA, AO--Grid và AnalyticalRIS, thuật toán là xác định nên không có độ lệch
-chuẩn theo hạt giống huấn luyện. Khoảng biến thiên của chúng chủ yếu phản ánh độ khó khác
-nhau giữa các kịch bản kênh. Vì vậy, độ rộng khoảng tin cậy của AO không được so trực tiếp
-với độ lệch chuẩn theo hạt giống của DRL như thể hai đại lượng cùng biểu diễn một nguồn
-bất định.
+chuẩn theo hạt giống; độ biến thiên của chúng phản ánh độ khó khác nhau giữa các kịch bản
+kênh, nên không được so trực tiếp với độ lệch chuẩn theo hạt giống của DRL.

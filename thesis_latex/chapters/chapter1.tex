@@ -95,7 +95,7 @@ Chương~\ref{chap:phuong-phap}.
 \subsection{Nguyên lý của RSMA}
 \label{ssec:nguyen-ly-rsma}
 
-Đa truy cập phân chia tỷ lệ (Rate-Splitting Multiple Access, RSMA) tiếp cận quản lý
+Đa truy cập phân chia tốc độ (Rate-Splitting Multiple Access, RSMA) tiếp cận quản lý
 nhiễu theo cách mềm hơn. Thông điệp dành cho mỗi UE được chia thành
 hai phần: một phần được gộp vào luồng chung và một phần nằm trong luồng riêng. Mọi UE đều
 giải mã luồng chung trước trong khi xem tất cả luồng riêng như nhiễu. Sau khi luồng chung
@@ -301,8 +301,9 @@ Khung AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép t
 phần tử khác nhau có hướng pha tản mát nên véc-tơ tổng rất ngắn, tức độ lợi kênh thấp.
 Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$ với $z_n = \sum_k h^{*}_{r,k,n} g_n$
 là tổng kênh ghép tầng của mọi UE (một pha neo gộp, không đồng pha riêng cho từng UE và bỏ
-qua đường trực tiếp), mọi thành phần quay về cùng một
-hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần. Đây là một công thức đóng,
+qua đường trực tiếp), chỉ các tổng gộp $z_n$ của mọi phần tử được căn về cùng một
+hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần; kênh của từng UE riêng lẻ
+không nhất thiết được căn pha. Đây là một công thức đóng,
 tính đúng một lần cho mỗi CSI, nên nhanh nhất trong sáu phương pháp được so sánh; bù lại nó chỉ chỉnh
 pha mà không tối ưu đồng thời công suất và tỷ lệ chia năng lượng.
 

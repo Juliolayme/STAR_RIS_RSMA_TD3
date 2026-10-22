@@ -66,7 +66,10 @@ STAR--RIS thứ $n$; $h_{r,k,n}$ là kênh từ phần tử $n$ đến UE $k$; $
 \sigma^2)$ là phân bố Gaussian phức tròn với trung bình bằng không và mức công suất tỷ lệ
 với $\sigma^2$.
 
-Ba công thức trên tạo ba chặng truyền độc lập. Đường trực tiếp được đặt yếu hơn đường đi
+Phương sai của từng hệ số kênh qua STAR--RIS được giữ nguyên khi thay đổi $N$, nên độ lợi
+mảng tăng theo số phần tử mà không chuẩn hóa. Điều này tương ứng việc diện tích hiệu dụng
+của bề mặt tăng theo $N$, chứ không phải giữ cố định diện tích bề mặt rồi chia nhỏ phần tử;
+đây là một giới hạn của mô hình kênh lý tưởng. Ba công thức trên tạo ba chặng truyền độc lập. Đường trực tiếp được đặt yếu hơn đường đi
 qua STAR--RIS để mô phỏng trường hợp bề mặt tái cấu hình có vai trò đáng kể. Sau đó, bộ
 điều khiển không thay đổi các kênh gốc này mà thay đổi cách các thành phần qua STAR--RIS
 cộng lại.
@@ -368,9 +371,12 @@ lượng và miền pha; hành động được gọi là \emph{khả thi QoS} k
 \eqref{eq:rb-qos}. Bốn dòng đầu có thể được bảo đảm trực tiếp bằng cách thiết kế bộ giải
 mã phù hợp, nên mọi hành động do bộ giải mã hoặc các bộ giải AO tạo ra đều khả thi miền.
 Dòng QoS phức tạp hơn vì $R_k$ phụ thuộc đồng thời vào tất cả công suất và biến STAR--RIS.
-Vì vậy, cả DRL lẫn AO đều không áp \eqref{eq:rb-qos} như ràng buộc cứng mà giải một bài
-toán xấp xỉ phạt mềm, tối đa hóa $r_{\mathrm{env}}$ trong~\eqref{eq:phan-thuong-moi-truong};
-tính khả thi QoS được đo và báo cáo riêng qua tỷ lệ UE đạt QoS và xác suất mọi UE đạt QoS.
+Vì vậy, không phương pháp nào trong luận văn áp \eqref{eq:rb-qos} như ràng buộc cứng. AO
+tối ưu trực tiếp hàm phạt mềm $r_{\mathrm{env}}$ trong~\eqref{eq:phan-thuong-moi-truong} cho
+từng CSI. DRL được huấn luyện bằng phần thưởng thích nghi $r_t$ với hệ số phạt $\lambda_t$
+thay đổi theo thời gian (Mục~\ref{ssec:phan-thuong-huan-luyen}); khi kiểm thử, $R_{\mathrm{sum}}$
+và các chỉ số QoS là thước đo chung để so sánh mọi phương pháp. Tính khả thi QoS được báo cáo
+riêng qua tỷ lệ UE đạt QoS và xác suất mọi UE đạt QoS.
 
 \section{Phát biểu bài toán tối ưu}
 \label{sec:phat-bieu-bai-toan}

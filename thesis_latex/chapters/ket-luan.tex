@@ -50,9 +50,10 @@ kiểm thử cho thấy ba điểm chính.
 
 Thứ nhất, không có bằng chứng rằng một thuật toán DRL luôn vượt trội. Tại $N = 16$, PPO
 kém rõ so với TD3 và DDPG, nhưng từ $N = 64$ trở lên ba thuật toán đạt chất lượng rất gần
-nhau, cùng nằm trong vùng $19$ đến $21$ bit/s/Hz. Sự hội tụ này ủng hộ nhận định rằng khi
-biểu diễn hành động đã mã hóa phần lớn cấu trúc khó của bài toán, khác biệt giữa các cơ
-chế cập nhật chính sách giảm đáng kể.
+nhau, cùng nằm trong vùng $19$ đến $21$ bit/s/Hz. Sự gần nhau này tương thích với vai trò
+của bộ giải mã hành động dùng chung, nhưng chưa được kiểm chứng nhân quả bằng phép thử loại
+bỏ từng thành phần; đóng góp của luận văn vì vậy được định vị là một khung phối hợp có cấu
+trúc vật lý.
 
 Thứ hai, nhóm tối ưu lặp đạt tổng tốc độ cao hơn. AO--Grid cao hơn toàn bộ nhóm DRL ở mọi
 kích thước, với khoảng cách tại $N = 128$ vào khoảng $1,37$ đến $1,47$ bit/s/Hz. Điều này
@@ -61,14 +62,17 @@ tiêu hơn cho từng CSI.
 
 Thứ ba, chênh lệch về độ trễ lớn hơn nhiều so với chênh lệch về chất lượng. Ba thuật toán
 DRL giữ độ trễ dưới một mili giây trên toàn bộ miền khảo sát, trong khi AO--Grid cần từ
-$189$ ms đến hơn $1,2$ giây và AO--SCA cần từ $0,83$ đến $3,61$ giây. Khoảng cách ba đến
-bốn bậc độ lớn về thời gian đổi lấy khoảng bảy phần trăm về tổng tốc độ chính là đóng góp
-thực nghiệm trung tâm của luận văn.
+$189$ ms đến hơn $1,2$ giây và AO--SCA cần từ $0,83$ đến $3,61$ giây. Tại $N = 128$, độ trễ
+trung vị của TD3 thấp hơn AO--Grid khoảng $2.700$ lần và AO--SCA khoảng $8.000$ lần, đổi lại
+tổng tốc độ thấp hơn AO--Grid $1,47$ bit/s/Hz, tức khoảng $6,6\%$ khi lấy tổng tốc độ của
+AO--Grid làm mẫu số. Mức chênh tương đối này chỉ đúng tại $N = 128$; ở kích thước nhỏ chênh
+lệch lớn hơn, ví dụ tại $N = 16$ TD3 thấp hơn AO--Grid khoảng $12\%$ và PPO khoảng $40\%$.
+Đánh đổi này là kết quả thực nghiệm trung tâm của luận văn.
 
 Về QoS, nhóm DRL đạt xác suất tất cả bốn người dùng cùng đạt ngưỡng trên $98,9\%$ từ $N =
-32$ trở lên. Kết quả này cho thấy việc ưu tiên tính khả thi QoS trong bước chọn điểm lưu
-mô hình đã phát huy tác dụng, và tỷ lệ công suất luồng chung cao thực sự đóng vai trò mức
-nền dịch vụ như phân tích đã dự đoán.
+32$ trở lên. Kết quả này phù hợp với thiết kế ưu tiên khả thi QoS khi chọn điểm lưu và với
+vai trò mức nền dịch vụ của luồng chung theo phân tích ở Chương~\ref{chap:mo-hinh-he-thong};
+tuy nhiên, luận văn chưa có đối chứng để tách riêng đóng góp của từng cơ chế này.
 
 Tổng hợp lại, luận văn không đề xuất một thuật toán duy nhất cho mọi tình huống mà cung
 cấp một bản đồ lựa chọn theo yêu cầu hệ thống. Khi CSI thay đổi chậm và có đủ ngân sách

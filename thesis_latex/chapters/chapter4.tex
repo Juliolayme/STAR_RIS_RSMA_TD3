@@ -47,7 +47,7 @@ Hệ số tỷ lệ kênh trực tiếp, BS--RIS và RIS--UE & $0,35 / 1,0 / 0,7
 Ngân hàng huấn luyện, xác thực và kiểm thử & $10.000 / 1.000 / 1.000$ kịch bản \\
 Số hạt giống huấn luyện cho mỗi thuật toán DRL & $5$ \\
 Ngân sách mỗi hạt giống & $100.000$ tương tác môi trường \\
-Chu kỳ xác thực & $5.000$ bước \\
+Chu kỳ xác thực & $5.000$ bước (PPO: cuối đoạn thu thập $2.048$ bước, xem Bảng~\ref{tab:ch3-cau-hinh}) \\
 Số mẫu đánh giá kiểm thử & $1.000$ kịch bản trên mỗi $N$ \\
 \bottomrule
 \end{tabularx}
@@ -68,10 +68,13 @@ giống, còn dải tô nhạt là khoảng giữa giá trị nhỏ nhất và l
 
 Ba khung cho thấy ba dáng học khác nhau. TD3 tăng rất nhanh trong khoảng $5.000$ bước đầu
 rồi gần như đi ngang, với dải hạt giống hẹp trong phần lớn quá trình; ngoại lệ đáng kể là
-$N = 128$, nơi ở mốc $95.000$ và $100.000$ bước, mỗi mốc có một hạt giống sụt tạm thời xuống
-khoảng $8,7$ bit/s/Hz, kéo đường trung bình từ $20,87$ xuống $18,45$ rồi $18,42$ bit/s/Hz. DDPG cũng lên nhanh nhưng
-xuất hiện vài lần sụt giảm rồi hồi phục ở giai đoạn giữa và cuối, dấu hiệu quen thuộc của
-việc Critic đánh giá quá cao trong một số lần cập nhật. PPO đi lên chậm và đều hơn, cần
+$N = 128$, nơi ở mốc $95.000$ và $100.000$ bước, mỗi mốc có một hạt giống sụt xuống
+khoảng $8,7$ bit/s/Hz, kéo đường trung bình từ $20,87$ xuống $18,45$ rồi $18,42$ bit/s/Hz.
+Hạt giống $2$ sụt ở mốc $95.000$ đã hồi phục ở mốc $100.000$; hạt giống $4$ sụt ở mốc
+$100.000$ là mốc cuối nên chưa quan sát được hồi phục. DDPG cũng lên nhanh nhưng
+xuất hiện vài lần sụt giảm rồi hồi phục ở giai đoạn giữa và cuối. Một giả thuyết thường gặp
+là Critic đánh giá quá cao trong một số lần cập nhật, nhưng luận văn chưa đo độ lệch của giá
+trị $Q$ nên đây chỉ là giả thuyết. PPO đi lên chậm và đều hơn, cần
 gần như toàn bộ ngân sách $100.000$ bước để tiến tới vùng bão hòa, và có dải hạt giống
 rộng nhất trong giai đoạn đầu.
 
@@ -87,8 +90,9 @@ Cần thừa nhận rằng không phải mọi quỹ đạo đều ổn định 
 $N = 128$ nêu trên, PPO tại $N = 64$ đạt đỉnh trung bình $18,87$ bit/s/Hz ở khoảng
 $55.000$ bước rồi giảm xuống $17,84$ bit/s/Hz ở bước cuối. Tuy vậy, kết quả kiểm thử không
 lấy mô hình ở bước cuối mà lấy điểm lưu tốt nhất trên tập xác thực theo
-Mục~\ref{ssec:chon-diem-luu}. Nhờ đó, mô hình được khóa để kiểm thử vẫn giữ được chất lượng
-cao và độ lệch chuẩn thấp giữa các hạt giống như ở Bảng~\ref{tab:ch4-do-lech}.
+Mục~\ref{ssec:chon-diem-luu}. Nhờ đó, với TD3, DDPG và với PPO khi $N \ge 64$, mô hình được
+khóa để kiểm thử có độ lệch chuẩn thấp giữa các hạt giống như ở Bảng~\ref{tab:ch4-do-lech};
+riêng PPO tại $N = 16$ và $N = 32$ vẫn phân tán lớn.
 
 \section{Độ ổn định của nhóm DRL qua các hạt giống huấn luyện}
 \label{sec:do-on-dinh}
@@ -170,9 +174,9 @@ kiểm định theo năm hạt giống không còn mạnh sau hiệu chỉnh nhi
 không kết luận DDPG tốt hơn TD3 một cách tổng quát từ một kích thước duy nhất.
 
 Quan sát đáng chú ý hơn là cả ba thuật toán DRL cùng đạt vùng $20$ đến $21$ bit/s/Hz ở
-$N = 96$ và $N = 128$. Điều này phù hợp với giả thuyết rằng bộ giải mã hành động đã mã hóa
-một phần lớn cấu trúc khó của bài toán. Khi miền hành động trở nên thuận lợi hơn, khác
-biệt giữa hai cách cập nhật chính sách không còn chi phối tuyệt đối chất lượng cuối.
+$N = 96$ và $N = 128$. Quan sát này tương thích với giả thuyết rằng bộ giải mã dùng chung
+làm giảm vai trò của cơ chế cập nhật chính sách, nhưng chưa phải bằng chứng nhân quả, vì luận
+văn chưa có phép thử loại bỏ từng thành phần của bộ giải mã.
 
 \section{So sánh nhóm DRL với nhóm tối ưu lặp}
 \label{sec:so-sanh-drl-ao}
@@ -234,8 +238,8 @@ trị báo cáo là trung vị. Các phương pháp DRL dùng điểm lưu tốt
 Với DRL, thời gian đo gồm một lượt suy luận của mạng, bước giải mã hành động vật lý và một
 lần tính kênh hiệu dụng cùng tốc độ để kiểm tra; với AO và AnalyticalRIS, thời gian đo là
 toàn bộ lời giải cho một kịch bản. Riêng PPO, hàm suy luận trong lúc đo còn tính phân phối
-Gaussian, log-xác suất và mạng giá trị, nên nếu triển khai thực tế chỉ lấy
-$\tanh(\mu(s))$ thì độ trễ của PPO sẽ gần với TD3 và DDPG. Đây là thời gian của chính sách
+Gaussian, log-xác suất và mạng giá trị; một triển khai chỉ tính $\tanh(\mu(s))$ có thể giảm
+độ trễ của PPO, nhưng phương án này chưa được đo riêng. Đây là thời gian của chính sách
 hoặc bộ giải, không phải độ trễ đầu cuối của hệ thống vô tuyến. Độ trễ của AO còn có đuôi
 dài: tại $N = 128$, AO--SCA có phân vị $95\%$ khoảng $6.856,9$ ms và giá trị lớn nhất khoảng
 $8.699,6$ ms, so với trung vị $3.606,4$ ms.
@@ -288,7 +292,9 @@ nhất.
 Vì số chiều trạng thái $d_s$ và số chiều hành động $d_a$ phụ thuộc tuyến tính vào $N$, mỗi
 kích thước STAR--RIS có một mô hình DRL riêng được huấn luyện từ đầu; kết quả ở mục này vì
 vậy nói về khả năng mở rộng của quy trình huấn luyện, không phải khả năng một mô hình dùng
-chung cho nhiều $N$. Khi $N$ tăng từ $16$ lên $128$, số chiều hành động tăng từ $57$ lên
+chung cho nhiều $N$. Các so sánh độ trễ ở đây là đánh đổi trực tuyến sau khi đã huấn luyện,
+chưa tính chi phí huấn luyện và xác thực phải trả lại cho từng $N$. Khi $N$ tăng từ $16$ lên
+$128$, số chiều hành động tăng từ $57$ lên
 $393$ và số chiều trạng thái cũng tăng đáng kể. Dù vậy, độ trễ của Actor DRL chỉ tăng khoảng vài phần mười
 mili giây vì phép tính chủ yếu là hai lớp kết nối đầy đủ có kích thước cố định $256$, còn
 lớp đầu và lớp cuối mới thay đổi theo số chiều. Ngược lại, thời gian của AO tăng mạnh vì
@@ -296,7 +302,10 @@ số tọa độ STAR--RIS cần thử hoặc tính gradient tăng, và mỗi v�
 giá hàm vật lý.
 
 Tổng tốc độ của nhóm DRL và AO đều tăng theo $N$. Điều này cho thấy việc thêm phần tử
-STAR--RIS vẫn mang lại lợi ích trong mô hình. Khoảng cách tuyệt đối giữa AO--Grid và cụm
+STAR--RIS vẫn mang lại lợi ích trong mô hình, với lưu ý rằng mô hình kênh giữ nguyên phương
+sai của từng phần tử nên diện tích hiệu dụng của bề mặt tăng theo $N$
+(Mục~\ref{ssec:sinh-mau-kenh}); mức tăng này vì vậy không tương ứng trường hợp giữ cố định
+kích thước vật lý của bề mặt. Khoảng cách tuyệt đối giữa AO--Grid và cụm
 DRL tại $N = 128$ vào khoảng $1,37$ đến $1,47$ bit/s/Hz, trong khi chênh lệch độ trễ là ba
 đến bốn bậc độ lớn. Đây là bằng chứng trực quan nhất cho lập luận về đánh đổi giữa chất
 lượng và độ trễ của luận văn.
@@ -343,10 +352,22 @@ lệch chuẩn giữa các hạt giống của PPO cao (Bảng~\ref{tab:ch4-do-l
 chắn rằng trong giao thức hiện tại, AO--Grid đạt chất lượng nghiệm cao hơn nhóm DRL, đổi lại
 độ trễ ra quyết định lớn hơn TD3 khoảng $550$ đến $2.700$ lần (Bảng~\ref{tab:ch4-do-tre}).
 
-Các chỉ số QoS nằm trong $[0, 1]$, trong khi khoảng tin cậy chuẩn có thể vượt ra ngoài miền
-này khi trung bình rất gần $1$. Vì vậy, các khoảng tin cậy trong dữ liệu thô được xem là mô tả
-thống kê chứ không phải xác suất vật lý vượt $100\%$. Nếu mở rộng nghiên cứu, phép lấy mẫu
-lặp hoặc mô hình nhị thức sẽ phù hợp hơn cho các chỉ số tỷ lệ. Ngoài ra, năm hạt giống đủ để
+Về chi tiết kiểm định: ở cấp kịch bản, phép $t$ ghép cặp và phép Wilcoxon được hiệu chỉnh
+Holm trong họ gồm cả $15$ cặp phương pháp tại mỗi $N$. Ở cấp hạt giống, hai thuật toán DRL
+được so sánh bằng phép $t$ ghép cặp theo chỉ số hạt giống $0$ đến $4$; DRL so với bộ giải
+xác định dùng phép $t$ một mẫu so với giá trị cố định của bộ giải; họ hiệu chỉnh Holm gồm
+$12$ cặp có thành phần DRL tại mỗi $N$. Việc ghép theo chỉ số hạt giống có cơ sở vì cùng chỉ
+số hạt giống thì dùng cùng hạt giống khởi tạo và cùng thứ tự lấy kịch bản huấn luyện, nhưng
+mối liên hệ này yếu do mỗi thuật toán tiêu thụ số ngẫu nhiên theo cách khác nhau. Vì vậy, luận
+văn kiểm tra độ nhạy bằng phép Welch trên năm trung bình theo hạt giống: với cặp TD3--DDPG,
+giá trị $p$ sau hiệu chỉnh Holm tại $N = 32$ là $0,124$ (ghép cặp) so với $0,063$ (Welch), tại
+$N = 64$ là $0,026$ so với $0,038$; kết luận đạt hay không đạt ngưỡng $0,05$ không thay đổi.
+
+Độ lệch chuẩn trong Bảng~\ref{tab:ch4-tong-toc-do} và Bảng~\ref{tab:ch4-do-lech} mô tả độ
+phân tán, không phải khoảng tin cậy. Với các chỉ số tỷ lệ nằm trong $[0, 1]$ như xác suất
+mọi UE đạt QoS, khoảng tin cậy chuẩn có thể vượt ra ngoài miền khi tỷ lệ rất gần $0$ hoặc
+$1$; đây là giới hạn của phương pháp, nên luận văn dùng khoảng Wilson làm cách báo cáo chính
+cho các tỷ lệ như ở Mục~\ref{sec:danh-gia-qos}. Ngoài ra, năm hạt giống đủ để
 mô tả hành vi trong giao thức luận văn nhưng chưa đủ để khẳng định thứ hạng phổ quát của TD3,
 DDPG và PPO trên các mô hình kênh khác.
 
@@ -354,8 +375,9 @@ DDPG và PPO trên các mô hình kênh khác.
 \label{sec:vai-tro-bieu-dien}
 
 Một dấu hiệu quan trọng là khi dùng chung bộ giải mã, DDPG, TD3 và PPO tiến rất gần nhau
-tại $N$ lớn dù cơ chế cập nhật khác nhau. Điều này ủng hộ nhận định rằng biểu diễn hành
-động có vai trò lớn. Bộ giải mã đã làm ba việc khó thay cho mạng: giới hạn công suất luồng
+tại $N$ lớn dù cơ chế cập nhật khác nhau. Quan sát này tương thích với nhận định rằng biểu
+diễn hành động có vai trò đáng kể, nhưng tự nó không chứng minh nhận định đó. Về thiết kế, bộ
+giải mã đảm nhận ba việc thay cho mạng: giới hạn công suất luồng
 chung vào vùng ưu tiên, biến chênh lệch đầu ra thành phân bổ công suất riêng gần như dồn
 hết vào một luồng, và cung cấp pha tham chiếu theo CSI.
 
