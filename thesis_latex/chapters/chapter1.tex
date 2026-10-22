@@ -72,10 +72,15 @@ Khung RSMA cho thấy thông điệp mỗi UE được tách thành phần chung
 giải luồng chung trước, dùng đúng một tầng SIC để loại luồng chung, rồi mới giải luồng
 riêng của mình.
 
-Dải nằm ngang ở cuối hình thể hiện quan hệ bao hàm: khi tỷ lệ công suất luồng chung
-$\rho_c$ tiến về $0$, RSMA suy biến thành SDMA vì chỉ còn các luồng riêng; khi $\rho_c$
-tiến về $1$, gần như toàn bộ công suất nằm ở luồng chung nên hệ thống hoạt động giống
-NOMA. Luận văn giới hạn miền hành động ở $\rho_c \in [0,70;\,0,99]$, tức làm việc trong
+Dải nằm ngang ở cuối hình thể hiện hai trường hợp biên của RSMA khi thay đổi tỷ lệ công
+suất luồng chung $\rho_c$. Khi $\rho_c$ tiến về $0$, chỉ còn các luồng riêng và mỗi UE xử
+lý nhiễu từ luồng của UE khác như tạp âm (treating interference as noise, TIN). Khi
+$\rho_c$ tiến về $1$, chỉ còn một luồng chung mà mọi UE cùng giải mã. Trong hệ nhiều anten,
+trường hợp thứ nhất tương ứng SDMA với tiền mã hóa tuyến tính và RSMA còn bao hàm NOMA
+trong một số cấu hình~\cite{Mao2018RSMABridging}; tuy nhiên, hệ SISO của luận văn không có
+phân tách không gian của SDMA, và một luồng chung duy nhất cũng không tạo ra chuỗi SIC
+nhiều tầng của NOMA, nên hai đầu dải được gọi theo đúng cấu trúc tín hiệu thay vì theo tên
+hai kỹ thuật này. Luận văn giới hạn miền hành động ở $\rho_c \in [0,70;\,0,99]$, tức làm việc trong
 vùng công suất chung cao của dải này; lý do của lựa chọn đó được trình bày ở
 Chương~\ref{chap:phuong-phap}.
 
@@ -294,9 +299,11 @@ ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm ng
 
 Khung AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép tầng đến từ những
 phần tử khác nhau có hướng pha tản mát nên véc-tơ tổng rất ngắn, tức độ lợi kênh thấp.
-Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$, mọi thành phần quay về cùng một
+Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$ với $z_n = \sum_k h^{*}_{r,k,n} g_n$
+là tổng kênh ghép tầng của mọi UE (một pha neo gộp, không đồng pha riêng cho từng UE và bỏ
+qua đường trực tiếp), mọi thành phần quay về cùng một
 hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần. Đây là một công thức đóng,
-tính đúng một lần cho mỗi CSI, nên nhanh nhất trong bốn phương pháp; bù lại nó chỉ chỉnh
+tính đúng một lần cho mỗi CSI, nên nhanh nhất trong sáu phương pháp được so sánh; bù lại nó chỉ chỉnh
 pha mà không tối ưu đồng thời công suất và tỷ lệ chia năng lượng.
 
 Khung AO--SCA mô tả hai cơ chế cập nhật. Với khối đơn hình, bộ giải chuyển một lượng

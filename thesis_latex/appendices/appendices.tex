@@ -149,11 +149,36 @@ xử lý thay đổi đáng kể.
 Bảng~\ref{tab:b-anh-xa} cho biết vị trí chính trong mã nguồn tương ứng với từng nội dung
 của luận văn. Tên tệp được giữ theo dự án phần mềm để người đọc có thể đối chiếu trực tiếp.
 
-Toàn bộ kết quả báo cáo trong Chương~\ref{chap:ket-qua} được sinh từ nhánh
-\texttt{experiment/}\allowbreak\texttt{physical-v6-full}, mã phiên bản \texttt{fde2fe7},
-với tham số hóa hành động \texttt{physical\_v6\_}\allowbreak\texttt{soft\_anchor}. Dữ liệu tổng hợp nằm tại thư mục
-\texttt{results/physical\_v6\_full\_r2/}. Các nhánh khác của dự án chứa những lần chạy
-trước đó và không dùng để trích dẫn.
+Kết quả trong Chương~\ref{chap:ket-qua} dùng tham số hóa hành động
+\texttt{physical\_v6\_}\allowbreak\texttt{soft\_anchor}. Dữ liệu tổng hợp nằm tại thư mục
+\texttt{results/physical\_v6\_full\_r2/}, còn dữ liệu thô của ba bộ giải không học nằm tại
+\texttt{results/six\_method\_v2/raw/}. Bảng~\ref{tab:b-commit} liệt kê mã phiên bản (commit)
+của từng tầng kết quả theo các tệp kê khai
+\texttt{PHYSICAL\_V6\_}\allowbreak\texttt{FULL\_}\allowbreak\texttt{AUDIT.json} và
+\texttt{EVIDENCE\_}\allowbreak\texttt{MANIFEST.json}. Giữa mã huấn luyện và mã tổng hợp cuối chỉ khác nhau ở cách
+khai báo kiểu số nguyên của chỉ báo phía UE, cách truyền kênh khi mã hóa ngược hành động và
+tệp cấu hình của một phép thử phụ; các phần mô hình vật lý, bộ giải mã và bộ giải AO không
+đổi. Các nhánh khác của dự án chứa những lần chạy trước đó và không dùng để trích dẫn.
+
+\begin{table}[htbp]
+\centering
+\caption{Mã phiên bản của từng tầng kết quả}
+\label{tab:b-commit}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.6cm}X@{}}
+\toprule
+\textbf{Tầng kết quả} & \textbf{Commit} \\
+\midrule
+Huấn luyện DRL ($75$ lần chạy) & \texttt{3e96df18eab0a8b3a6a3f1006d74c31e09add2a1} \\
+Bộ giải không học trên tập kiểm thử & \texttt{c779fa5d8f171a89242d7e64e8b78356dd2b2542} \\
+Đo độ trễ CPU (Bảng~\ref{tab:ch4-do-tre}) & \texttt{346e125e78fb4d3d6a0f6e62b2590b1ea3eaf711} \\
+Mã nguồn được rà soát cùng bằng chứng & \texttt{9547c6227f588a0b5c2e8ccd5ffd90c847f2234c} \\
+Tổng hợp kết quả và hình (\texttt{experiment/}\allowbreak\texttt{physical-v6-full}) & \texttt{fde2fe7} \\
+Mã nguồn luận văn & nhánh \texttt{thesis/}\allowbreak\texttt{latex-rebuild} \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ các tệp kê khai của dự án (2026)}
+\end{table}
 
 \begin{table}[htbp]
 \centering

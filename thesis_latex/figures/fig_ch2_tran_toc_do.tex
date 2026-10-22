@@ -4,6 +4,7 @@
   xlabel={Tỷ số tín hiệu trên tạp âm $g_kP_{\mathrm{priv}}/\sigma^2$ (dB)},
   ylabel={$R_{p,k}$ (bit/s/Hz)},
   xmin=0,xmax=30, ymin=0, ymax=10.5, ytick={0,2,4,6,8,10},
+  /pgf/number format/use comma,
   grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
   label style={font=\scriptsize},
   legend style={font=\scriptsize,at={(0.03,0.97)},anchor=north west,draw=gray!50},
@@ -22,18 +23,18 @@
    {log2(1 + 10^(x/10)/(3*10^(x/10) + 4))};
 \addlegendentry{$M=4$ (chia đều)}
 % duong tiem can
-\addplot[gray,thin,domain=0:30,samples=2]{1.0};
-\addplot[gray,thin,domain=0:30,samples=2]{0.415};
-\node[font=\tiny,anchor=west,gray!45!black,align=left] at (axis cs:13.5,1.9)
-     {đường xám: trần tiệm cận $\log_2\!\big(M/(M-1)\big)$};
+\addplot[gray,thin,densely dashed,domain=0:30,samples=2]{1.0};
+\addlegendentry{trần $\log_2\!\big(M/(M-1)\big)$}
+\addplot[gray,thin,densely dashed,domain=0:30,samples=2,forget plot]{0.415};
 \end{axis}
 
 \begin{axis}[
-  at={(left.east)}, anchor=west, xshift=1.1cm,
+  at={(left.east)}, anchor=west, xshift=1.9cm,
   width=6.6cm, height=6.0cm,
   xlabel={Số luồng riêng hoạt động $M$},
   ylabel={$R_{p,k}$ tiệm cận (bit/s/Hz)},
   ybar, bar width=9pt, xmin=1.4,xmax=8.6, ymin=0,ymax=1.2,
+  /pgf/number format/use comma,
   xtick={2,3,4,5,6,7,8},
   grid=both, grid style={gray!25}, tick label style={font=\scriptsize},
   label style={font=\scriptsize},

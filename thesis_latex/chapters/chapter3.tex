@@ -13,9 +13,20 @@ $\boldsymbol{\eta}$, $\boldsymbol{\beta}$, $\boldsymbol{\theta}^T$,
 $\boldsymbol{\theta}^R$ thỏa các ràng buộc cơ bản. Lớp cuối là môi trường
 STAR--RIS--RSMA, tính kênh hiệu dụng, tốc độ, QoS và phần thưởng.
 
-Điểm quan trọng là bộ giải mã dùng chung cho DDPG, TD3 và PPO. Vì vậy, khi so sánh ba
-thuật toán, sự khác nhau chủ yếu nằm ở cách chúng cập nhật chính sách chứ không nằm ở
-việc một thuật toán được cấp một miền hành động thuận lợi hơn thuật toán khác. Đây là
+Điểm quan trọng là bộ giải mã dùng chung cho DDPG, TD3 và PPO. Ba thuật toán được đánh
+giá trên cùng mô hình vật lý, cùng bộ giải mã và cùng ngân sách $100.000$ tương tác, trong
+khi vẫn giữ các cơ chế đặc trưng của từng thuật toán: khởi tạo lớp cuối nhỏ cho Actor xác
+định của DDPG và TD3, nhiễu khám phá và nhiễu làm trơn chuẩn hóa theo số chiều hành động
+của TD3, và chính sách Gaussian của PPO. Vì vậy, không thuật toán nào được cấp một miền
+hành động thuận lợi hơn thuật toán khác.
+
+Về bản chất, CSI ở mỗi bước được lấy độc lập từ ngân hàng huấn luyện và không phụ thuộc
+hành động trước đó, nên bài toán là quyết định một bước theo ngữ cảnh (contextual bandit),
+hay tối ưu khấu hao (amortized optimization): chính sách học ánh xạ trực tiếp từ CSI sang
+hành động. Việc tổ chức dữ liệu thành các giai đoạn $32$ bước với $\gamma = 0,99$ là thiết
+lập kỹ thuật để giữ nguyên cấu trúc cập nhật chuẩn của DDPG, TD3 và PPO; vì trạng thái kế
+tiếp không phụ thuộc hành động, phần giá trị tương lai trong mục tiêu Critic xấp xỉ một
+hằng số đối với hành động và không làm thay đổi thứ tự ưu tiên giữa các hành động. Đây là
 nguyên tắc cần thiết để đánh giá công bằng vai trò của nhóm học ngoài chính sách và nhóm
 học theo chính sách hiện hành.
 
@@ -129,8 +140,9 @@ một UE ưu tiên thì ba UE còn lại phải dựa gần như hoàn toàn và
 hỏi $R_c \ge 3R_{\min} = 1,5$ bit/s/Hz. Theo xấp xỉ~\eqref{eq:toc-do-chung-xap-xi}, điều
 kiện $-\log_2(1 - \rho_c) \ge 1,5$ dẫn tới $\rho_c \ge 1 - 2^{-1,5} \approx 0,646$. Cận dưới
 $0,70$ nằm phía trên ngưỡng giải tích này; tại $\rho_c = 0,70$ có
-$R_c \approx -\log_2 0,30 \approx 1,74$ bit/s/Hz, để lại một biên an toàn cho tạp âm hữu hạn
-tại UE yếu nhất. Phép ước lượng này chỉ mang tính định hướng, vì nó dựa trên xấp xỉ tỷ số tín
+$R_c \approx -\log_2 0,30 \approx 1,74$ bit/s/Hz. Điều này tạo dư địa thuận lợi trong cấu
+hình khảo sát, nhưng không bảo đảm QoS cho mọi mẫu kênh Gaussian, nhất là khi $g_{\min}$
+quá nhỏ khiến xấp xỉ tỷ số tín hiệu trên tạp âm cao không còn đúng. Phép ước lượng này chỉ mang tính định hướng, vì nó dựa trên xấp xỉ tỷ số tín
 hiệu trên tạp âm cao và giả định phân bổ riêng tập trung.
 
 Công suất luồng chung được tính:
@@ -224,6 +236,15 @@ $\eta_k = 0$ chính xác tại biên đơn hình. Tính chất này có ý nghĩ
 $k^\star$ vốn đã có tốc độ cao từ luồng riêng không cần nhận thêm tốc độ chung
 ($\eta_{k^\star} = 0$), nhờ đó toàn bộ quỹ $R_c$ được dành để bù QoS cho $K - 1$ UE còn lại.
 
+Cần lưu ý rằng khi công suất và pha đã cố định, khối $\boldsymbol{\eta}$ có lời giải giải
+tích. Đặt phần thiếu hụt của luồng riêng
+$d_k^{\mathrm{priv}} = \max(R_{\min} - R_{p,k}, 0)$; tồn tại một phép chia $\boldsymbol{\eta}$
+khả thi QoS khi và chỉ khi $\sum_k d_k^{\mathrm{priv}} \le R_c$, và khi đó có thể chọn
+$C_k = d_k^{\mathrm{priv}} + q_k\big(R_c - \sum_j d_j^{\mathrm{priv}}\big)$ với $q_k \ge 0$,
+$\sum_k q_k = 1$ tùy ý. Luận văn vẫn để Actor sinh đồng thời $\boldsymbol{\eta}$ trong
+cùng một lượt truyền xuôi nhằm giữ kiến trúc thống nhất cho mọi khối hành động; việc thay
+khối này bằng phép chia giải tích và đối chiếu hai cách là một hướng phát triển.
+
 \subsection{Giải mã hệ số chia năng lượng}
 \label{ssec:giai-ma-chia-nang-luong}
 
@@ -263,7 +284,10 @@ Pha tham chiếu là:
 \end{equation}
 
 Trong đó: $\angle z_n$ là góc pha của số phức $z_n$ và dấu âm dùng để bù pha của đường
-ghép tầng. Pha tham chiếu đóng vai trò tương tự một bước căn pha giải tích: trước khi mạng
+ghép tầng. Cần nhấn mạnh $\bar{\theta}_n$ chỉ là một pha neo đại diện gộp (surrogate): nó
+trộn các UE ở cả hai phía truyền và phản xạ theo trọng số $w_k$, không đồng pha đồng thời
+cho từng UE riêng lẻ và bỏ qua đường trực tiếp $h_{d,k}$. Pha tham chiếu đóng vai trò tương
+tự một bước căn pha giải tích thô: trước khi mạng
 học, mỗi phần tử đã được đặt quanh một hướng có khả năng làm các thành phần ghép tầng cộng
 thuận cho hỗn hợp UE được ưu tiên, nhờ đó giảm gánh nặng phải khám phá toàn bộ vòng pha
 $2\pi$ từ đầu.
@@ -341,8 +365,10 @@ Nếu giữ hệ số phạt QoS cố định trong suốt quá trình huấn lu
 đổi khó cân bằng: hệ số quá nhỏ khiến chính sách bỏ qua các UE kênh yếu để chạy theo tổng
 tốc độ, còn hệ số quá lớn ngay từ đầu dễ đẩy chính sách vào các nghiệm bảo thủ có tổng tốc
 độ thấp. Vì vậy, trong quá trình huấn luyện, hệ số tuyến tính không cố định mà được điều
-khiển bởi một hệ số thích nghi $\lambda_t$, đóng vai trò tương tự biến đối ngẫu (dual
-variable) của phương pháp Lagrange:
+khiển bởi một hệ số thích nghi $\lambda_t$. Về hình thức, $\lambda_t$ giống biến đối
+ngẫu (dual variable) của phương pháp Lagrange, nhưng ở đây nó được dùng như một bộ điều
+khiển phản hồi thực nghiệm (heuristic); luận văn không viện dẫn tính chất hội tụ của phương
+pháp đối ngẫu cho cơ chế này:
 \begin{equation}
 \label{eq:phan-thuong-huan-luyen}
 r_t = R_{\mathrm{sum}} - \lambda_t V - 8V_2 .
@@ -388,16 +414,24 @@ hình. Nguyên lý của~\eqref{eq:cap-nhat-lambda} rất trực quan:
   và tập trung hơn vào tổng tốc độ $R_{\mathrm{sum}}$.
 \end{itemize}
 Cơ chế này được áp dụng thống nhất cho cả ba thuật toán DDPG, TD3 và PPO trong toàn bộ giao
-thức huấn luyện.
+thức huấn luyện. Cần lưu ý rằng phần thưởng được tính và lưu tại thời điểm thu mẫu, nên các
+mẫu cũ trong bộ nhớ phát lại của DDPG và TD3 giữ mức phạt $\lambda$ tại thời điểm đó; mục
+tiêu học vì vậy không dừng hoàn toàn khi $\lambda_t$ thay đổi. Việc cập nhật thưa, mỗi
+$1.000$ bước, và giới hạn $[4, 64]$ giúp hạn chế ảnh hưởng này.
 
 \subsection{Lựa chọn điểm lưu mô hình (checkpoint) theo tập xác thực}
 \label{ssec:chon-diem-luu}
 
 Mô hình không được chọn chỉ bằng phần thưởng hoặc tổng tốc độ. Tại mỗi lần xác thực, hệ
 thống tính tổng tốc độ trung bình, tỷ lệ UE đạt QoS, xác suất tất cả UE đạt QoS và vi phạm
-trung bình. Một điểm lưu mô hình trước hết phải đáp ứng các ngưỡng QoS đã khai báo. Trong
-các điểm lưu khả thi, điểm có tổng tốc độ cao hơn được ưu tiên. Nếu chưa có điểm lưu khả
-thi, bộ chọn ưu tiên điểm có khoảng cách chuẩn hóa đến các ngưỡng QoS nhỏ hơn.
+trung bình. Một điểm lưu mô hình được coi là đạt ngưỡng khi đồng thời có tỷ lệ UE đạt QoS
+trung bình $\ge 0,99$, xác suất tất cả UE đạt QoS $\ge 0,95$ và mức vi phạm trung bình
+$\le 0,02$ bit/s/Hz trên $1.000$ kịch bản xác thực. Trong các điểm lưu đạt ngưỡng, điểm có
+tổng tốc độ cao hơn được ưu tiên. Nếu chưa có điểm lưu nào đạt ngưỡng, bộ chọn ưu tiên điểm
+có tổng khoảng cách chuẩn hóa đến ba ngưỡng nhỏ nhất. Trường hợp này thực sự xảy ra ở PPO
+tại $N = 16$: ba trong năm hạt giống (hạt giống $0$, $3$ và $4$) không có điểm lưu nào đạt
+ngưỡng nên được chọn theo khoảng cách chuẩn hóa; mọi lần chạy còn lại đều chọn được điểm
+lưu đạt ngưỡng.
 
 Cách chọn này giúp tránh trường hợp mạng đạt tổng tốc độ cao bằng cách hy sinh một số UE.
 Đồng thời, việc lựa chọn dựa trên tập xác thực tách biệt giúp giữ tập kiểm thử cho bước
@@ -463,7 +497,7 @@ lại. Với một mẫu chuyển trạng thái $(s, a, r, s', d)$, mục tiêu 
 y = r + \gamma (1 - d)\, Q_{\psi^-}\!\big(s',\ \mu_{\phi^-}(s')\big).
 \end{equation}
 
-Trong đó: $\phi$ và $\psi$ là tham số Actor và Critic; dấu trừ ở trên chỉ mạng đích;
+Trong đó, theo~\cite{Lillicrap2015DDPG}: $\phi$ và $\psi$ là tham số Actor và Critic; dấu trừ ở trên chỉ mạng đích;
 $\gamma$ là hệ số chiết khấu; $d = 1$ khi bước là cuối giai đoạn. Công thức dùng phần
 thưởng hiện tại cộng với giá trị dự kiến của trạng thái tiếp theo. Mạng đích thay đổi chậm
 hơn mạng chính, giúp mục tiêu học không chạy quá nhanh theo chính mạng đang được cập nhật.
@@ -481,11 +515,15 @@ tiêu:
 \label{eq:nhieu-lam-tron}
 \tilde{a}' = \mathrm{clip}\big(\mu_{\phi^-}(s') + \epsilon,\ -1,\ 1\big),
 \qquad
-\epsilon \sim \mathrm{clip}\big(\mathcal{N}(0, \sigma_{\mathrm{tar}}),\ -c,\ c\big).
+\epsilon = \mathrm{clip}(\epsilon_0,\ -c,\ c),
+\qquad
+\epsilon_0 \sim \mathcal{N}(0, \sigma_{\mathrm{tar}}^2 \mathbf{I}).
 \end{equation}
 
 Trong đó: $\tilde{a}'$ là hành động đích đã làm trơn; $\sigma_{\mathrm{tar}}$ là độ lệch
-chuẩn nhiễu đích; $c$ là biên cắt nhiễu. Cơ chế này buộc Critic không chỉ đánh giá tốt một
+chuẩn nhiễu đích; $c$ là biên cắt nhiễu~\cite{Fujimoto2018TD3}. Cấu hình dùng
+$\sigma_{\mathrm{tar}} = 0,15$ và $c = 0,30$, cả hai được nhân với cùng hệ số
+$\min\big(1, \sqrt{64/d_a}\big)$ như nhiễu khám phá ở Mục~\ref{ssec:kham-pha}. Cơ chế này buộc Critic không chỉ đánh giá tốt một
 điểm hành động cực hẹp mà còn phải ổn định trong vùng lân cận, có ích khi hàm giá trị xấp
 xỉ bằng mạng nơ-ron có thể tạo các đỉnh giả.
 
@@ -496,7 +534,7 @@ y = r + \gamma (1 - d) \min_{i \in \{1,2\}} Q_{\psi_i^-}(s',\ \tilde{a}').
 \end{equation}
 
 Trong đó: $Q_{\psi_1^-}$ và $Q_{\psi_2^-}$ là hai Critic đích độc lập; phép lấy nhỏ nhất
-chọn giá trị thận trọng hơn. Điều này giảm nguy cơ một Critic đánh giá quá lạc quan rồi
+chọn giá trị thận trọng hơn~\cite{Fujimoto2018TD3}. Điều này giảm nguy cơ một Critic đánh giá quá lạc quan rồi
 kéo Actor theo một hướng sai; nếu một Critic tạo đỉnh giá trị giả, Critic còn lại có thể
 làm mục tiêu thấp xuống.
 
@@ -516,8 +554,8 @@ mục tiêu học thay đổi êm hơn qua các bước, góp phần ổn địn
 
 Trong $2.000$ bước khởi động đầu, hành động được lấy ngẫu nhiên đều trong $[-1,1]^{d_a}$
 để lấp bộ nhớ phát lại. Sau đó, DDPG và TD3 dùng hành động Actor cộng nhiễu Gaussian khám phá (exploration noise). Độ lệch chuẩn nhiễu giảm tuyến tính từ $0,12$ xuống $0,03$ trong $100.000$ bước. Với
-TD3, nhiễu còn được điều chỉnh theo số chiều hành động bằng hệ số tham chiếu để tránh tổng
-năng lượng nhiễu tăng quá mạnh khi $N$ lớn.
+TD3, nhiễu còn được nhân với hệ số $\min\big(1, \sqrt{64/d_a}\big)$ để tránh tổng năng
+lượng nhiễu tăng quá mạnh khi $N$ lớn; DDPG dùng nhiễu chưa chuẩn hóa theo số chiều.
 
 Bộ nhớ phát lại có sức chứa $200.000$ mẫu và lô nhỏ (mini-batch) kích thước $256$. Mỗi mẫu có thể được
 sử dụng nhiều lần ở các bước cập nhật khác nhau. Đây là ưu thế điển hình của nhóm học
@@ -527,8 +565,8 @@ ngoài chính sách về hiệu quả sử dụng dữ liệu, nhưng cũng làm
 \section{Thuật toán học theo chính sách hiện hành}
 \label{sec:on-policy}
 
-PPO thu thập một đoạn tương tác hiện hành rồi cập nhật nhiều vòng trên chính đoạn đó. Tỷ
-số xác suất giữa chính sách mới và cũ là:
+PPO~\cite{Schulman2017PPO} thu thập một đoạn tương tác hiện hành rồi cập nhật nhiều vòng
+trên chính đoạn đó. Tỷ số xác suất giữa chính sách mới và cũ là:
 \begin{equation}
 \label{eq:ty-so-ppo}
 r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t \mid s_t)} .
@@ -617,7 +655,12 @@ nhân đôi hệ số phạt lân cận để thu nhỏ bước. Cuối mỗi v�
 lại và kiểm tra khoảng cách đến điều kiện dừng (stationarity). Thuật toán dừng khi thay đổi
 tương đối của hàm mục tiêu nhỏ hơn $10^{-4}$ và hai khối đơn hình đã dừng, hoặc khi đạt tối
 đa $80$ vòng. Cơ chế này làm AO--SCA là một bộ giải cục bộ có kiểm soát tốt tại biên đơn
-hình, nhưng không biến nó thành nghiệm tối ưu toàn cục.
+hình, nhưng không biến nó thành nghiệm tối ưu toàn cục. Tên gọi AO--SCA được giữ theo dự án
+phần mềm; thực chất đây là bộ giải lân cận luân phiên dùng sai phân hữu hạn trên một hàm
+mục tiêu không trơn, vì $r_{\mathrm{env}}$ chứa phép lấy nhỏ nhất của tốc độ chung và
+phép $\max$ trong thiếu hụt QoS. Do đó, các định lý hội tụ về điểm KKT của khung xấp xỉ lồi
+liên tiếp trong~\cite{Scutari2017SCA}, vốn đòi hỏi hàm trơn và hàm thay thế lồi chặt,
+không áp dụng trực tiếp cho bộ giải này.
 
 \subsection{AO--Grid}
 \label{ssec:ch3-ao-grid}
@@ -627,7 +670,8 @@ tạo. AO--Grid giữ cấu trúc luân phiên ba khối nhưng thay phép dò �
 rời rạc (lưới) cho từng biến, cho phép nhảy xa trong một bước:
 \begin{itemize}
 \item Với khối công suất và khối tỷ lệ tốc độ chung, mỗi thành phần được thử trên lưới
-  $\{0;\ 0,05;\ \dots;\ 0,80\}$ (tám mức, nhân với $P_{\max}$ cho công suất), phần còn lại
+  $\{0;\ 0,05;\ 0,175;\ 0,30;\ 0,425;\ 0,55;\ 0,675;\ 0,80\}$ (tám mức, nhân với
+$P_{\max}$ cho công suất), phần còn lại
   được phân bổ lại theo tỷ lệ cho các thành phần khác để giữ tổng. Mức $0$ trong lưới cho
   phép tắt hoàn toàn một luồng gây nhiễu trong hệ SISO. Thay vì cập nhật ngay khi gặp cải
   thiện đầu tiên, bộ giải xét mọi ứng viên và chọn bước cải thiện tốt nhất.
@@ -635,14 +679,18 @@ rời rạc (lưới) cho từng biến, cho phép nhảy xa trong một bước
   mức trong $[0,05;\ 0,95]$, còn $\theta^T_n$ và $\theta^R_n$ được thử trên tám mức pha cách
   đều trong $[-\pi, \pi)$; mỗi tọa độ nhảy tới mức có $r_{\mathrm{env}}$ cao nhất.
 \end{itemize}
-Mỗi lần chạy gồm tối đa hai vòng và dừng sớm khi thay đổi tương đối nhỏ hơn $10^{-4}$. Toàn
+AO--Grid vì vậy chỉ duyệt một tập ứng viên rời rạc hữu hạn quanh nghiệm hiện tại, mỗi lần
+thay một tọa độ, chứ không quét vét cạn toàn bộ miền liên tục. Mỗi lần chạy gồm tối đa hai
+vòng và dừng sớm khi thay đổi tương đối nhỏ hơn $10^{-4}$. Toàn
 bộ quy trình được chạy hai lần với thứ tự quét phần tử STAR--RIS thuận ($n = 1, \dots, N$) và
 nghịch ($n = N, \dots, 1$); kết quả cuối được chọn ưu tiên nghiệm đạt QoS cho mọi UE, sau đó
 đến tổng tốc độ cao hơn. Cách này giảm phụ thuộc vào thứ tự quét nhưng tăng số phép đánh giá.
 
 Điểm quan trọng khi so sánh là nhóm AO tối ưu trên miền vật lý rộng hơn miền có cấu trúc của
-DRL, nhưng phải đánh giá lại hàm vật lý từ hàng nghìn đến hàng chục nghìn lần cho mỗi kịch
-bản CSI mới, và số lần này tăng gần tuyến tính theo $N$. Vì vậy, việc AO đạt tổng tốc độ cao
+DRL, nhưng phải đánh giá lại hàm vật lý hàng nghìn đến hàng chục nghìn lần cho mỗi kịch bản
+CSI mới. Trên tập kiểm thử, AO--Grid cần từ $1.954$ lần ($N = 16$) đến $11.362$ lần
+($N = 128$); AO--SCA có trung vị từ khoảng $8.100$ đến $29.000$ lần và tối đa tới $73.789$
+lần, và số lần này tăng theo $N$. Vì vậy, việc AO đạt tổng tốc độ cao
 hơn nhưng có độ trễ lớn hơn nhiều bậc độ lớn không mâu thuẫn với mục tiêu luận văn; nó phản
 ánh đánh đổi giữa miền tìm kiếm rộng kèm chi phí lặp trực tuyến và suy luận một lượt của mạng
 nơ-ron.
@@ -655,7 +703,7 @@ nơ-ron.
          phương pháp $M \in \{$AnalyticalRIS, AO--SCA, AO--Grid$\}$, hàm đánh giá
          $r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2$, số vòng tối đa $L_{\max}$
          ($80$ với AO--SCA, $2$ với AO--Grid), ngưỡng dừng $\varepsilon = 10^{-4}$
-\Ensure  Nghiệm vật lý khả thi $\mathcal{A}^\star = (\mathbf{p}^\star, \boldsymbol{\eta}^\star,
+\Ensure  Nghiệm khả thi miền $\mathcal{A}^\star = (\mathbf{p}^\star, \boldsymbol{\eta}^\star,
          \boldsymbol{\beta}^\star, \boldsymbol{\theta}^{T\star}, \boldsymbol{\theta}^{R\star})$
 \State Khởi tạo AnalyticalRIS $\mathcal{A}^{(0)}$: $p_c = p_k = P_{\max}/(K+1)$, $\eta_k = 1/K$,
        $\beta^T_n = 0,5$, $\theta^T_n = \theta^R_n = -\angle \sum_{k} h^{*}_{r,k,n} g_n$
@@ -756,7 +804,7 @@ Hệ số cập nhật mềm $\tau$ & $0,005$ \\
 Tốc độ học Actor của TD3 và DDPG & $10^{-4}$ \\
 Tốc độ học Critic của TD3 và DDPG & $3 \times 10^{-4}$ \\
 Tốc độ học PPO & $3 \times 10^{-4}$ \\
-Chu kỳ xác thực & $5.000$ bước \\
+Chu kỳ xác thực & $5.000$ bước (PPO: cuối đoạn thu thập $2.048$ bước đầu tiên vượt mỗi bội số $5.000$) \\
 Nhiễu khám phá của DDPG và TD3 & $0,12 \rightarrow 0,03$ \\
 Hàm mất mát Critic của TD3 và DDPG & Huber \\
 Cắt chuẩn gradient & $10$ \\

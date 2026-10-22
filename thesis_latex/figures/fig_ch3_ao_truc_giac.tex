@@ -26,7 +26,7 @@
 
   % --- phep can pha ---
   \node[box,fill=cKenh!12,text width=3.7cm,minimum height=0.72cm] (rule) at (2.05,0.98)
-       {Đặt $\theta_n=\bar\theta_n=-\angle z_n$\\ với $z_n=\sum_k w_k h^{*}_{r,k,n}g_n$};
+       {Đặt $\theta_n=\bar\theta_n=-\angle z_n$\\ với $z_n=\sum_k h^{*}_{r,k,n}g_n$};
   \draw[->,cKenh,line width=0.9pt] (2.05,1.62) -- (rule.north);
   \draw[->,cKenh,line width=0.9pt] (rule.south) -- (2.05,0.22);
 
@@ -96,7 +96,7 @@
   \node[tit] at (0,4.55) {(c) AO--Grid};
 
   % --- luoi cong suat co gia tri 0 ---
-  \node[font=\scriptsize,anchor=west] at (0,3.72) {Lưới công suất: có mức $0$ nên tắt được luồng};
+  \node[font=\scriptsize,anchor=west] at (0,3.72) {Lưới công suất có mức $0$};
   \begin{scope}[shift={(0.35,2.30)}]
     \foreach \i/\hh in {0/1.05, 1/0.70, 2/0.35, 3/0.02}{
       \fill[cUEa!30] (\i*0.62,0) rectangle ++(0.42,\hh);

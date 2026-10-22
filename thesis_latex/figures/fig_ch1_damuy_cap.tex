@@ -11,8 +11,8 @@
      \draw[\c!60!black,line width=0.6pt] (\x,\y) rectangle ++(1.7,1.0);
      \node[font=\scriptsize] at (\x+0.85,\y+0.5) {\lbl};
   }
-  \draw[gray!60,->] (0.5,0.5) -- (4.1,0.5) node[anchor=north,font=\tiny,gray!50!black,midway,yshift=-2pt]{thời gian};
-  \draw[gray!60,->] (0.35,0.7) -- (0.35,2.9) node[anchor=east,font=\tiny,gray!50!black,midway,rotate=90,yshift=6pt]{tần số};
+  \draw[gray!60,->] (0.5,0.5) -- (4.1,0.5) node[anchor=north,font=\scriptsize,gray!50!black,midway,yshift=-2pt]{thời gian};
+  \draw[gray!60,->] (0.35,0.7) -- (0.35,2.9) node[anchor=east,font=\scriptsize,gray!50!black,midway,rotate=90,yshift=6pt]{tần số};
 \end{scope}
 
 % =====================================================================
@@ -45,8 +45,8 @@
      \draw[\c!60!black,line width=0.5pt] (0.45,\y) rectangle ++(0.75,\h);
      \node[font=\tiny] at (0.825,\y+\h/2) {\lbl};
   }
-  \node[font=\tiny,anchor=north,align=center] at (0.825,0.70) {chồng\\ công suất};
-  \draw[gray!60,->] (0.30,0.75) -- (0.30,3.25) node[anchor=east,font=\tiny,gray!50!black,midway,rotate=90,yshift=6pt]{công suất};
+  \node[font=\scriptsize,anchor=north,align=center] at (0.825,0.70) {chồng\\ công suất};
+  \draw[gray!60,->] (0.30,0.75) -- (0.30,3.25) node[anchor=east,font=\scriptsize,gray!50!black,midway,rotate=90,yshift=6pt]{công suất};
 
   % chuoi SIC nhieu tang: mot cot doc, khong cat nhau
   \node[sm,anchor=west,minimum width=1.6cm] (n1) at (2.05,3.05) {Giải mã $s_1$};
@@ -56,7 +56,7 @@
   \node[sm,anchor=west,minimum width=1.6cm] (n5) at (2.05,1.05) {Giải mã $s_k$};
   \foreach \a/\b in {n1/n2, n2/n3, n3/n4, n4/n5}{ \draw[->] (\a.south) -- (\b.north); }
   \draw[decorate,decoration={brace,amplitude=4pt},gray!70] (3.80,3.20) -- (3.80,0.92);
-  \node[font=\tiny,anchor=west,align=left,gray!40!black] at (3.98,2.06) {tối đa\\ $K-1$\\ tầng SIC};
+  \node[font=\scriptsize,anchor=west,align=left,gray!40!black] at (3.98,2.06) {tối đa\\ $K-1$\\ tầng SIC};
 
 \end{scope}
 
@@ -101,14 +101,14 @@
 \begin{scope}[shift={(0,-6.35)}]
   \draw[gray!45,line width=0.9pt,->] (1.6,0) -- (12.2,0);
   \foreach \x in {2.0,11.8}{ \draw[gray!60] (\x,-0.12) -- (\x,0.12); }
-  \node[font=\tiny,anchor=north] at (2.0,-0.18) {$\rho_c\to 0$};
-  \node[font=\tiny,anchor=north] at (11.8,-0.18) {$\rho_c\to 1$};
-  \node[bx,fill=teal!12,anchor=north] at (2.0,-0.55) {SDMA\\ \tiny chỉ luồng riêng};
-  \node[bx,fill=violet!12,anchor=north] at (11.8,-0.55) {NOMA\\ \tiny gần như chỉ luồng chung};
+  \node[font=\scriptsize,anchor=north] at (2.0,-0.18) {$\rho_c\to 0$};
+  \node[font=\scriptsize,anchor=north] at (11.8,-0.18) {$\rho_c\to 1$};
+  \node[bx,fill=teal!12,anchor=north] at (2.0,-0.55) {Chỉ luồng riêng\\ \scriptsize xử lý nhiễu như tạp âm (TIN)};
+  \node[bx,fill=violet!12,anchor=north] at (11.8,-0.55) {Chỉ một luồng chung\\ \scriptsize mọi UE cùng giải mã};
   \fill[magenta!14] (5.0,-0.30) rectangle (9.0,0.30);
   \draw[magenta!60!black,line width=0.6pt] (5.0,-0.30) rectangle (9.0,0.30);
   \node[font=\scriptsize,magenta!60!black] at (7.0,0) {RSMA};
-  \node[font=\tiny,anchor=east] at (1.5,0) {$\rho_c=p_c/P_{\max}$:};
+  \node[font=\scriptsize,anchor=east] at (1.5,0) {$\rho_c=p_c/P_{\max}$:};
 \end{scope}
 
 \end{tikzpicture}

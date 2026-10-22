@@ -36,8 +36,10 @@ kênh khỏi bài toán chọn hành động. Thứ hai, SIC được xem là l�
 được giải mã thành công, phần tín hiệu tương ứng được loại bỏ hoàn toàn trước khi giải mã
 luồng riêng. Thứ ba, STAR--RIS được mô hình hóa thụ động theo chế độ ES; công suất truyền
 và phản xạ của mỗi phần tử có tổng bằng một. Thứ tư, pha truyền và pha phản xạ được phép
-điều khiển độc lập trong mô hình hệ thống. Các ràng buộc ghép pha do phần cứng thực tế
-chưa được xét và được nêu ở mục giới hạn nghiên cứu.
+điều khiển độc lập trong mô hình hệ thống. Đây là giả định lý tưởng hóa: với STAR--RIS
+thụ động không tổn hao, pha truyền và pha phản xạ của cùng một phần tử bị ràng buộc
+ghép~\cite{Liu2021STARCoupledPhase, Wang2022STAROptimization}. Các ràng buộc ghép pha do
+phần cứng thực tế chưa được xét và được nêu ở mục giới hạn nghiên cứu.
 
 Kênh được sinh độc lập theo từng kịch bản. Mỗi hệ số là Gaussian phức không tương quan
 theo mô hình trong tệp \texttt{physics.py}. Ba nhóm đường truyền có hệ số tỷ lệ khác nhau
@@ -141,7 +143,10 @@ x = \sqrt{p_c}\, s_c + \sum_{k=1}^{K} \sqrt{p_k}\, s_k .
 \end{equation}
 
 Trong đó: $p_c$ là công suất luồng chung; $p_k$ là công suất luồng riêng của UE $k$; $s_c$
-là ký hiệu chung; $s_k$ là ký hiệu riêng; các ký hiệu được chuẩn hóa công suất đơn vị.
+là ký hiệu chung; $s_k$ là ký hiệu riêng. Các ký hiệu có trung bình $0$, phương sai đơn
+vị và không tương quan đôi một, tức $\mathbb{E}[s_i s_j^{*}] = 0$ với mọi $i \neq j$, nên
+công suất của các thành phần trong tín hiệu thu cộng được với nhau như trong các công
+thức SINR phía sau.
 
 Công thức~\eqref{eq:tin-hieu-phat} cho thấy BS chỉ có một anten và phát một tín hiệu tổng
 hợp duy nhất. Không có véc-tơ tạo búp sóng riêng cho từng UE. Vì vậy, ở một UE bất kỳ, tất
@@ -159,7 +164,10 @@ Trong đó: $P_{\max}$ là ngân sách công suất phát chuẩn hóa của BS;
 không âm và tổng bằng ngân sách. Công thức thể hiện quy tắc chia một chiếc bánh công
 suất: tăng công suất cho luồng này đồng nghĩa giảm phần còn lại cho các luồng khác. Bộ
 giải mã hành động ở Chương~\ref{chap:phuong-phap} được thiết kế để ràng buộc này luôn
-đúng mà không cần phạt sau khi hành động đã được sinh.
+đúng mà không cần phạt sau khi hành động đã được sinh. Việc viết ràng buộc dưới dạng đẳng
+thức không làm mất tính tổng quát: nếu nhân mọi công suất với cùng một hệ số lớn hơn một
+thì mọi SINR trong mục~\ref{ssec:giai-ma-chung} và~\ref{ssec:sic-giai-ma-rieng} đều tăng vì
+tỷ lệ tạp âm hiệu dụng giảm, nên dùng hết ngân sách luôn có lợi.
 
 Hình~\ref{fig:ch2-kien-truc} trình bày kiến trúc thu--phát tương ứng. Ở phía phát, thông
 điệp của từng UE đi qua bộ tách thông điệp, phần chung được gộp lại thành một luồng, rồi
@@ -353,10 +361,16 @@ Trong đó: $i = 0$ tương ứng luồng chung; $k$ đánh số UE; $n$ đánh 
 các dòng lần lượt là ràng buộc công suất, ràng buộc phân bổ tốc độ chung, ràng buộc chia
 năng lượng, miền pha và QoS.
 
-Năm dòng trên mô tả biên vật lý của bài toán. Bốn dòng đầu có thể được bảo đảm trực tiếp
-bằng cách thiết kế bộ giải mã phù hợp. Dòng QoS phức tạp hơn vì $R_k$ phụ thuộc đồng thời
-vào tất cả công suất và biến STAR--RIS, nên luận văn dùng cả tiêu chí xác thực và hạng
-phạt trong phần thưởng để điều khiển.
+Năm dòng trên mô tả biên vật lý của bài toán. Để tránh nhầm lẫn, luận văn phân biệt hai
+khái niệm. Một hành động được gọi là \emph{khả thi miền} khi thỏa
+\eqref{eq:rb-cong-suat}--\eqref{eq:rb-pha}, tức các ràng buộc công suất, đơn hình, chia năng
+lượng và miền pha; hành động được gọi là \emph{khả thi QoS} khi thỏa thêm
+\eqref{eq:rb-qos}. Bốn dòng đầu có thể được bảo đảm trực tiếp bằng cách thiết kế bộ giải
+mã phù hợp, nên mọi hành động do bộ giải mã hoặc các bộ giải AO tạo ra đều khả thi miền.
+Dòng QoS phức tạp hơn vì $R_k$ phụ thuộc đồng thời vào tất cả công suất và biến STAR--RIS.
+Vì vậy, cả DRL lẫn AO đều không áp \eqref{eq:rb-qos} như ràng buộc cứng mà giải một bài
+toán xấp xỉ phạt mềm, tối đa hóa $r_{\mathrm{env}}$ trong~\eqref{eq:phan-thuong-moi-truong};
+tính khả thi QoS được đo và báo cáo riêng qua tỷ lệ UE đạt QoS và xác suất mọi UE đạt QoS.
 
 \section{Phát biểu bài toán tối ưu}
 \label{sec:phat-bieu-bai-toan}
@@ -438,8 +452,10 @@ một trực giác rất rõ: với hai luồng riêng chia đều, mỗi luồn
 trong miền nhiễu chi phối; với bốn luồng chia đều, mỗi luồng khoảng $\log_2(4/3) \approx
 0,415$ bit/s/Hz. Các giá trị này gần như không phụ thuộc vào kênh khi xấp xỉ đúng.
 
-Ngược lại, nếu chỉ một luồng riêng $k^\star$ mang gần toàn bộ $P_{\mathrm{priv}}$, mẫu số
-của luồng đó gần như chỉ còn tạp âm:
+Ngược lại, nếu chỉ một luồng riêng $k^\star$ mang gần toàn bộ $P_{\mathrm{priv}}$ và phần
+rò sang các luồng riêng khác đủ nhỏ so với tạp âm, tức
+$g_{k^\star} \sum_{j \neq k^\star} p_j \ll \sigma^2$, thì mẫu số của luồng đó gần như chỉ
+còn tạp âm:
 \begin{equation}
 \label{eq:tap-trung-cong-suat}
 \gamma_{p,k^\star} \approx \frac{g_{k^\star} P_{\mathrm{priv}}}{\sigma^2}.
@@ -460,7 +476,7 @@ giảm rất nhanh khi $M$ tăng.
 \begin{figure}[htbp]
 \centering
 \resizebox{\textwidth}{!}{\input{figures/fig_ch2_tran_toc_do}}
-\caption{Trần tốc độ luồng riêng do nhiễu giữa các luồng riêng trong hệ SISO}
+\caption[Trần tốc độ luồng riêng do nhiễu giữa các luồng riêng trong hệ SISO]{Trần tốc độ luồng riêng do nhiễu giữa các luồng riêng trong hệ SISO. Đường nét đứt màu xám ở khung trái là trần tiệm cận $\log_2\big(M/(M-1)\big)$: $1$ bit/s/Hz khi $M = 2$ và khoảng $0,415$ bit/s/Hz khi $M = 4$}
 \label{fig:ch2-tran-toc-do}
 \figuresource{Tác giả xây dựng từ công thức \eqref{eq:xap-xi-nhieu}--\eqref{eq:tap-trung-cong-suat} (2026)}
 \end{figure}
@@ -497,7 +513,11 @@ giữa hai thành phần tốc độ.
 Chuẩn hóa $P_{\max} = 1$, khi đó công suất luồng chung là $p_c$ và tổng công suất luồng
 riêng là $P_{\mathrm{priv}} = 1 - p_c$. Giả sử công suất riêng tập trung gần như hoàn toàn
 vào một UE ưu tiên $k^\star$, tức $p_{k^\star} \approx 1 - p_c$ và các luồng riêng khác xấp
-xỉ $0$. Khi mọi UE đều ở miền tỷ số tín hiệu trên tạp âm cao, $g_k (1 - p_c) \gg \sigma^2$,
+xỉ $0$. Phân tích dưới đây cần hai điều kiện. Thứ nhất, UE nút cổ chai của luồng chung vẫn ở
+miền tỷ số tín hiệu trên tạp âm cao, $g_{\min}(1 - p_c) \gg \sigma^2$ với
+$g_{\min} = \min_k g_k$. Thứ hai, phần rò công suất sang các luồng riêng khác đủ nhỏ so với
+tạp âm tại UE ưu tiên, $g_{k^\star} \sum_{j \neq k^\star} p_j \ll \sigma^2$. Khi điều kiện
+thứ nhất thỏa,
 thành phần nhiễu do luồng riêng gây ra trong mẫu số của~\eqref{eq:sinr-chung} lớn hơn nhiều
 so với tạp âm $\sigma^2$. Độ lợi kênh $g_k$ ở tử số và mẫu số khi đó tự giản ước, nên SINR
 luồng chung tại mọi UE tiến về cùng một giá trị:
@@ -520,8 +540,8 @@ cổ chai. Ý nghĩa vật lý của công thức rất rõ: khi tăng $p_c$, t�
 $1 - p_c$, luồng riêng gây nhiễu ít hơn lên luồng chung nên $R_c$ tăng theo hàm logarit và
 tăng rất nhanh khi $p_c$ tiến gần một. Đây là một nửa của cơ chế bù trừ.
 
-Sau khi loại luồng chung bằng SIC, UE $k^\star$ giải mã luồng riêng của mình mà gần như
-không còn nhiễu từ các luồng riêng khác, nên đạt tốc độ:
+Sau khi loại luồng chung bằng SIC, nhờ điều kiện rò thứ hai, UE $k^\star$ giải mã luồng
+riêng của mình mà gần như không còn nhiễu từ các luồng riêng khác, nên đạt tốc độ:
 \begin{equation}
 \label{eq:toc-do-rieng-xap-xi}
 R_{p,k^\star} \approx \log_2\!\left(1 + \frac{g_{k^\star}(1 - p_c)}{\sigma^2}\right)

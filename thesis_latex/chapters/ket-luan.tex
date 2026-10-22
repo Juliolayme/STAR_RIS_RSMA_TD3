@@ -40,7 +40,9 @@ phần công suất riêng còn lại được chia bằng hàm softmax có hệ
 phân bổ tốc độ chung được chiếu lên đơn hình; hệ số chia năng lượng được ánh xạ tuyến tính
 để tự thỏa ràng buộc bảo toàn; và pha của hai phía được học như phần hiệu chỉnh trong biên
 $\pm 0,25\pi$ quanh một pha tham chiếu phụ thuộc kênh. Nhờ cách tổ chức này, mọi hành động
-do mạng sinh ra đều khả thi về mặt vật lý mà không cần bước chiếu hay hạng phạt bổ sung.
+do mạng sinh ra đều khả thi miền, tức thỏa các ràng buộc công suất, đơn hình, chia năng
+lượng và pha, mà không cần bước chiếu hay hạng phạt bổ sung; ràng buộc QoS vẫn được xử lý
+mềm qua phần thưởng và bộ chọn điểm lưu.
 
 Ba thuật toán DDPG, TD3 và PPO được huấn luyện trên cùng bộ giải mã, cùng ngân hàng kịch
 bản kênh và cùng giao thức lựa chọn mô hình. Kết quả thực nghiệm trên $1.000$ kịch bản
@@ -109,7 +111,6 @@ nhanh, sau đó AO thực hiện một số ít bước tinh chỉnh khi thời 
 này có tiềm năng nằm giữa hai cực: nhanh như chính sách học khi cần quyết định tức thời,
 nhưng có khả năng tiến gần chất lượng AO khi hệ thống có thêm ngân sách tính toán.
 
-Cuối cùng, cần mở rộng đánh giá sang số lượng hạt giống lớn hơn, nhiều mô hình kênh hơn và
-nền tảng phần cứng thực hoặc mô phỏng phần cứng trong vòng lặp. Khi đó, có thể kiểm tra
-không chỉ tổng tốc độ và QoS mà còn mức tiêu thụ năng lượng tính toán, độ trễ đầu cuối, độ
-bền trước sai số CSI và khả năng tổng quát hóa khi cấu hình hệ thống thay đổi.
+Cuối cùng, cần mở rộng đánh giá sang nhiều hạt giống và mô hình kênh hơn, cùng phần cứng
+thực hoặc mô phỏng phần cứng trong vòng lặp, để kiểm tra thêm năng lượng tính toán, độ trễ
+đầu cuối, độ bền trước sai số CSI và khả năng tổng quát hóa.
