@@ -1,152 +1,74 @@
-# STAR-RIS–RSMA TD3 Resource Optimization
+# STAR-RIS–RSMA: phân bổ tài nguyên bằng học tăng cường sâu
 
-Code-only research repository for:
+Mã nguồn, dữ liệu kết quả và luận văn thạc sĩ:
 
-> Tối ưu phân bổ tài nguyên sử dụng học tăng cường sâu trong mạng STAR-RIS hỗ trợ RSMA
+> **Tối ưu phân bổ tài nguyên sử dụng học tăng cường sâu trong mạng STAR-RIS hỗ trợ RSMA**
+> Nguyễn Duy Thành — Trường Đại học Giao thông Vận tải TP. Hồ Chí Minh (2026)
 
-## Frozen comparison design
+| | |
+|---|---|
+| Luận văn (PDF) | [`thesis_latex/main.pdf`](thesis_latex/main.pdf) — bản nộp khóa bằng thẻ `thesis-v6` |
+| Mã LaTeX | [`thesis_latex/`](thesis_latex/) (biên dịch: xelatex → biber → xelatex → xelatex; nhật ký `thesis_latex/build_v6.log`) |
+| Bộ kết quả duy nhất được trích dẫn | [`results/physical_v6_full_r2/`](results/physical_v6_full_r2/) và dữ liệu thô bộ giải không học [`results/six_method_v2/raw/`](results/six_method_v2/raw/) |
+| Tài liệu tham khảo | [`references/`](references/) (xem `references/TLTK_README.md`) |
 
-- **TD3**: primary DRL method.
-- **DDPG, PPO**: DRL baselines.
-- **AO-SCA**: primary conventional optimization baseline.
-- **AO-Grid, AnalyticalRIS**: supplementary references.
-- **NoRIS, FixedRIS, RandomRIS, Equal-Power**: ablations.
-- MADDPG, CTDE and TD3-Matched are intentionally excluded from the main pipeline.
+## Giao thức thực nghiệm V6 (giao thức của luận văn)
 
-All methods share one SISO STAR-RIS energy-splitting environment, one RSMA rate calculator and one locked train/validation/test ScenarioBank protocol.
+- Hệ SISO, `K = 4` UE, STAR-RIS chế độ chia năng lượng, `N = 16, 32, 64, 96, 128`.
+- Tham số hóa hành động `physical_v6_soft_anchor`: bộ giải mã có cấu trúc vật lý dùng chung cho mọi thuật toán DRL (`src/star_ris_rsma/action.py`).
+- Cấu hình: `configs/v3/pilot_v6_soft_anchor_n{16,32,64,96,128}.yaml`.
+- Sáu phương pháp: **TD3, DDPG, PPO** (5 hạt giống × 5 giá trị N = 75 lần huấn luyện, mỗi lần 100.000 tương tác) và ba bộ giải không học **AO–SCA, AO–Grid, AnalyticalRIS** (`src/star_ris_rsma/baselines/ao_corrected.py`, `ao_grid_corrected.py`, `analytical_ris.py`).
+- Ngân hàng kịch bản khóa: huấn luyện 10.000 (seed 11001), xác thực 1.000 (seed 22001), kiểm thử 1.000 (seed 33001); nguồn gốc và checksum ghi trong `results/physical_v6_full_r2/scenario_banks/BANK_PROVENANCE.json`.
+- Chọn điểm lưu chỉ trên tập xác thực; đánh giá xác định trên tập kiểm thử.
+- Độ trễ: CPU một luồng, `--warmup 10 --count 100`, báo cáo trung vị.
 
-> **Protocol note.** Reproduction of the audited six-method benchmark must use `configs/v3/constrained_action_n*.yaml`. The older `configs/siso_n*.yaml` files are historical/backward-compatible configurations and are not the source of `results/six_method_v1/`.
-
-## Install and test
+## Cài đặt và kiểm thử
 
 ```bash
 python -m pip install -e .[dev]
 pytest -q
 ```
 
-## 1. Create locked ScenarioBanks
+## Tái lập
 
-Run this once for each value of `N`:
-
-```bash
-python scripts/create_scenario_banks.py \
-  --config configs/v3/constrained_action_n32.yaml \
-  --output-dir artifacts/scenario_banks \
-  --train-count 10000 \
-  --validation-count 1000 \
-  --test-count 1000
-```
-
-Available constrained v3 scalability configs:
-
-```text
-configs/v3/constrained_action_n16.yaml
-configs/v3/constrained_action_n32.yaml
-configs/v3/constrained_action_n64.yaml
-configs/v3/constrained_action_n96.yaml
-configs/v3/constrained_action_n128.yaml
-```
-
-## 2. Train and select checkpoints using validation only
-
-For the six-method benchmark, use the v3 training entrypoint:
+Repo không chứa ngân hàng kịch bản (`.npz`) và điểm lưu mô hình (`.pt`); chúng được tạo lại như sau.
 
 ```bash
-python scripts/run_train_drl_v3.py \
-  --method td3 \
-  --config configs/v3/constrained_action_n32.yaml \
-  --seed 0 \
+# 1. Ngân hàng kịch bản V6 (kiểm checksum với bản đã khóa)
+python scripts/prepare_v6_scenario_banks.py --output-dir artifacts/scenario_banks
+python scripts/prepare_v6_scenario_banks.py --output-dir artifacts/scenario_banks --verify-existing
+
+# 2. Huấn luyện DRL (lặp cho method ∈ {td3, ddpg, ppo}, seed ∈ {0..4}, N ∈ {16, 32, 64, 96, 128})
+python scripts/run_train_drl_v3.py --method td3 \
+  --config configs/v3/pilot_v6_soft_anchor_n32.yaml --seed 0 \
   --output results/train/td3/N32/seed_0
-```
 
-The historical `scripts/run_train.py` entrypoint is retained for backward compatibility and must not be used to reproduce the frozen six-method benchmark.
+# 3. Bộ giải không học trên 1.000 kịch bản kiểm thử
+python scripts/run_corrected_baseline.py --method ao_grid --n-ris 32 \
+  --start 0 --end 1000 --output results/solvers/N32/ao_grid.csv
 
-The v3 output contains the checkpoint selected using the locked validation bank, training/validation logs and a manifest containing the effective configuration and ScenarioBank identifiers. Use the same command with `--method ddpg` or `--method ppo`.
-
-## 3. Deterministic test evaluation
-
-```bash
-python scripts/run_evaluate.py \
-  --method td3 \
-  --config configs/v3/constrained_action_n32.yaml \
+# 4. Độ trễ CPU một luồng
+python scripts/benchmark_latency_v2.py --method td3 \
+  --config configs/v3/pilot_v6_soft_anchor_n32.yaml \
   --checkpoint results/train/td3/N32/seed_0/best.pt \
-  --bank artifacts/scenario_banks/N32_test.npz \
-  --seed 0 \
-  --output results/test/td3/N32/seed_0.csv
+  --warmup 10 --count 100 --output results/latency/td3_N32.csv
+
+# 5. Sinh Bảng 4.3 của luận văn từ CSV đã khóa (không cần huấn luyện)
+python scripts/make_thesis_table_sum_rate.py
 ```
 
-Evaluation is exploration-free and writes raw per-scenario CSV.
+Lần chạy gốc dùng Kaggle (`scripts/orchestrate_kaggle_v6_full.py`) và được tổng hợp bằng `scripts/build_physical_v6_full_report.py`.
 
-## 4. Conventional methods
+## Truy xuất phiên bản
 
-```bash
-python scripts/run_solver.py --method ao_sca --config configs/v3/constrained_action_n32.yaml \
-  --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
-  --output results/solvers/N32/ao_sca_0_100.csv
+| Tầng | Commit |
+|---|---|
+| Huấn luyện DRL (75 lần chạy) | `3e96df18eab0a8b3a6a3f1006d74c31e09add2a1` |
+| Bộ giải không học trên tập kiểm thử | `c779fa5d8f171a89242d7e64e8b78356dd2b2542` |
+| Đo độ trễ CPU | `346e125e78fb4d3d6a0f6e62b2590b1ea3eaf711` |
+| Tổng hợp kết quả (`experiment/physical-v6-full`) | `fde2fe7798eaf080886b121cb7f66492b4c9bc48` |
+| Luận văn bản nộp | thẻ `thesis-v6` (`git rev-list -n 1 thesis-v6`) |
 
-python scripts/run_solver.py --method ao_grid --config configs/v3/constrained_action_n32.yaml \
-  --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
-  --output results/solvers/N32/ao_grid_0_100.csv
+## Thư mục lịch sử
 
-python scripts/run_solver.py --method analytical_ris --config configs/v3/constrained_action_n32.yaml \
-  --bank artifacts/scenario_banks/N32_test.npz --start 0 --count 100 \
-  --output results/solvers/N32/analytical_ris_0_100.csv
-```
-
-AO-SCA is a local proximal first-order solver, never a global optimum or upper bound. AO-Grid is a deterministic coordinate codebook search, not random perturbation. AnalyticalRIS is a phase-alignment heuristic with equal power/common allocation, not an analytical optimum of the full problem. Mathematical details are in [`docs/METHOD_IMPLEMENTATION.md`](docs/METHOD_IMPLEMENTATION.md).
-
-## 5. Ablations
-
-```bash
-python scripts/run_ablation.py \
-  --method td3 \
-  --config configs/v3/constrained_action_n32.yaml \
-  --checkpoint results/train/td3/N32/seed_0/best.pt \
-  --bank artifacts/scenario_banks/N32_test.npz \
-  --seed 0 \
-  --output results/ablations/N32/seed_0.csv
-```
-
-Definitions:
-
-- `no_ris`: remove the complete indirect STAR-RIS path;
-- `fixed_ris`: beta = 0.5 and zero transmit/reflect phases;
-- `random_ris`: sample once per scenario using a reproducible scenario seed;
-- `equal_power`: override all stream powers equally while retaining the learned RIS/common allocation.
-
-## 6. CPU single-thread decision latency
-
-The frozen result used in the thesis contains **exactly 100 latency samples for every method/N pair**. Reproduce that protocol with `--count 100`:
-
-```bash
-python scripts/benchmark_latency.py \
-  --method td3 \
-  --config configs/v3/constrained_action_n32.yaml \
-  --checkpoint results/train/td3/N32/seed_0/best.pt \
-  --bank artifacts/scenario_banks/N32_test.npz \
-  --warmup 20 --count 100 \
-  --output results/latency/td3_N32_seed0.csv
-```
-
-The benchmark forces one Torch/OMP/MKL CPU thread. The reported quantity is algorithmic decision/inference latency in the stated measurement path, not full end-to-end radio-system latency.
-
-A larger run such as `--count 500` is allowed only as an **additional latency experiment**. It may reduce sampling uncertainty, but it is not the frozen `six_method_v1` protocol and its output must not be mixed with the published 100-sample table. The source of truth for the thesis is `results/six_method_v1/tables/TABLE_SIX_METHOD_CPU_LATENCY.csv`, where every method/N row has `count=100`.
-
-## 7. Six-method benchmark and statistics
-
-The full staged reproduction entrypoint is `scripts/run_drl_stage.py`, which uses the constrained v3 configurations and exactly eight DRL seeds. See [`experiments/six_method/README.md`](experiments/six_method/README.md) for the locked publication protocol.
-
-The published paired analysis averages the eight DRL seeds within each test scenario before pairing, so the paired sample size is 1,000 scenarios rather than 8,000 flattened rows. Statistical claims must be interpreted together with the finite-seed and hyperparameter-tuning limitations documented with the result bundle.
-
-## Kaggle sharding
-
-```bash
-python scripts/make_kaggle_jobs.py \
-  --config configs/v3/constrained_action_n32.yaml \
-  --seeds 0 1 2 3 4 5 6 7 \
-  --scenario-count 1000 \
-  --scenario-shard-size 100 \
-  --output kaggle_jobs_N32.json
-```
-
-Each Kaggle GPU session should run one learned seed. Conventional methods can run in CPU sessions and are sharded by non-overlapping scenario ranges.
+`results/six_method_v1/`, `results/final_thesis_paper_bundle/`, `results/FINAL_RESULTS_*`, các cấu hình `configs/v3/constrained_action_n*.yaml`, `configs/siso_n*.yaml` và README cũ ([`docs/history/README_v3_protocol.md`](docs/history/README_v3_protocol.md)) thuộc các giao thức trước (v1–v3) và **không** được trích dẫn trong luận văn. Chúng được giữ lại để truy vết.
