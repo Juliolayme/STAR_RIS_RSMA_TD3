@@ -31,7 +31,20 @@ pytest -q
 
 ## Tái lập
 
-Repo không chứa ngân hàng kịch bản (`.npz`) và điểm lưu mô hình (`.pt`); chúng được tạo lại như sau.
+### Điểm lưu mô hình (`.pt`) và ngân hàng kịch bản đã khóa
+
+Toàn bộ 75 lưu trữ huấn luyện (mỗi lưu trữ có `best.pt`, `initial.pt`, `latest.pt`, các điểm lưu ứng viên, nhật ký và kết quả kiểm thử) cùng 15 ngân hàng kịch bản (`.npz`) nằm trong GitHub Release [`physical-v6-r2-evidence-9547c62`](https://github.com/Juliolayme/STAR_RIS_RSMA_TD3/releases/tag/physical-v6-r2-evidence-9547c62) (khoảng 2,25 GB). Tải và kiểm SHA-256, rồi kiểm lại số liệu luận văn bằng cách đánh giá lại mọi `best.pt` trên CPU:
+
+```bash
+python results/physical_v6_full_r2/evidence/download_evidence.py --destination artifacts/v6_evidence
+python scripts/verify_v6_release_evidence.py --assets artifacts/v6_evidence
+```
+
+Kết quả kiểm tra gần nhất: [`results/physical_v6_full_r2/evidence/RELEASE_VERIFICATION.md`](results/physical_v6_full_r2/evidence/RELEASE_VERIFICATION.md) (PASS, 75/75 lưu trữ).
+
+### Chạy lại từ đầu
+
+Nếu muốn tạo lại thay vì tải về:
 
 ```bash
 # 1. Ngân hàng kịch bản V6 (kiểm checksum với bản đã khóa)
