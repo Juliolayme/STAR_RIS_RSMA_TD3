@@ -1,3 +1,15 @@
+"""BẢN CŨ (giao thức v1) — KHÔNG dùng cho số liệu luận văn.
+
+Bộ giải AO–SCA của luận văn là ``ao_corrected.py`` (được xuất dưới tên ``ao_sca`` trong
+``baselines/__init__.py`` và dùng bởi ``scripts/run_corrected_baseline.py``; xem Bảng B.2
+của luận văn). Tệp này chỉ còn được giữ vì hai lý do: (1) ``ao_corrected.py`` dùng lại hai
+hàm tiện ích ``_block_gradient`` và ``_proximal_surrogate_maximizer``; (2) truy vết các lần
+chạy cũ (``results/six_method_v1``). Khác biệt so với bản luận văn: chỉ 2 khối (rsma,
+star_ris), cập nhật đơn hình bằng gradient rồi chiếu, ``max_iter=20`` và không kiểm tra
+điều kiện dừng (stationarity) của đơn hình.
+
+LEGACY v1 solver — not used for any thesis number. The thesis AO–SCA is ``ao_corrected.py``.
+"""
 from __future__ import annotations
 
 import numpy as np

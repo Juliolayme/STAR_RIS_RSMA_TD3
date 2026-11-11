@@ -1,3 +1,14 @@
+"""BẢN CŨ (giao thức v1) — KHÔNG dùng cho số liệu luận văn.
+
+Bộ giải AO–Grid của luận văn là ``ao_grid_corrected.py`` (được xuất dưới tên ``ao_grid``
+trong ``baselines/__init__.py`` và dùng bởi ``scripts/run_corrected_baseline.py``; xem Bảng
+B.2 của luận văn). Tệp này chỉ còn được giữ để truy vết các lần chạy cũ
+(``results/six_method_v1``). Khác biệt so với bản luận văn: lưới công suất không có mức 0,
+chỉ quét STAR-RIS theo một thứ tự và cập nhật ngay khi gặp cải thiện đầu tiên.
+
+LEGACY v1 solver — not used for any thesis number. The thesis AO–Grid is
+``ao_grid_corrected.py``.
+"""
 from __future__ import annotations
 
 import numpy as np

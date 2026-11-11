@@ -1,3 +1,7 @@
+"""Bộ giải AO–Grid dùng trong luận văn (giao thức V6; Mục 3.9 và Bảng B.2).
+
+Thesis-protocol AO–Grid solver; the ``*_legacy`` modules are superseded v1 code.
+"""
 from __future__ import annotations
 
 import numpy as np
