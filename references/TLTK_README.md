@@ -1,7 +1,7 @@
 # Tài liệu tham khảo của luận văn (bản v6)
 
 Thư mục `references/pdfs/` chứa PDF của các tài liệu trong `thesis_latex/references.bib`. Tên file dùng
-**số thứ tự nội bộ của dự án** (01–30), **không trùng** với số trích dẫn [n] trong luận văn. Bảng dưới đây
+**số thứ tự nội bộ của dự án** (01–31), **không trùng** với số trích dẫn [n] trong luận văn. Bảng dưới đây
 đối chiếu hai hệ số. Danh mục nguồn tải: `open_access_pdfs.tsv`, `DOWNLOAD_MANIFEST.json`.
 
 | Trích dẫn trong luận văn | Tài liệu | File trong `references/pdfs/` |
@@ -19,8 +19,8 @@ Thư mục `references/pdfs/` chứa PDF của các tài liệu trong `thesis_la
 | [11] | Wang et al. 2022 — STAR-RIS optimization framework | `17_wang_2022_star_optimization_framework.pdf` |
 | [12] | Lillicrap et al. 2015 — DDPG | `28_lillicrap_2015_ddpg.pdf` |
 | [13] | Fujimoto et al. 2018 — TD3 | `27_fujimoto_2018_td3.pdf` |
-| [14] | Schulman et al. 2017 — PPO | **chưa có** (bản mở: https://arxiv.org/abs/1707.06347) |
-| [15] | Meng et al. 2024 — PPO STAR-RSMA (IEEE IoT J.) | **chưa có** (khóa phí) |
+| [14] | Schulman et al. 2017 — PPO | `31_schulman_2017_ppo.pdf` (arXiv v2) |
+| [15] | C. Meng et al. 2024 — Sum-rate maximization in STAR-RIS-assisted RSMA networks: a PPO-based algorithm (IEEE IoT J., vol. 11, no. 4, pp. 5667–5680) | **không đưa vào repo** (bản IEEE khóa phí, giấy phép không cho phát hành lại; đã đối chiếu nội dung với luận văn ngày 13/11/2026) |
 | [16] | Scutari, Facchinei, Lampariello 2017 — SCA Part I (IEEE TSP) | `30_scutari_2017_sca_theory.pdf` (bản tiền xuất bản arXiv:1410.4754, 4 tác giả; tiêu đề và danh sách tác giả khác bản tạp chí) |
 | [17] | Joudeh & Clerckx 2016 — RS sum-rate | `03_joudeh_2016_rsma_sum_rate.pdf` |
 | [18] | Li et al. 2022 — RSMA for 6G Part III (RIS) | `06_li_2022_rsma_ris_interplay.pdf` |
