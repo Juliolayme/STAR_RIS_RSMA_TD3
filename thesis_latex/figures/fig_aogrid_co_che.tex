@@ -1,0 +1,150 @@
+% Hinh: Co che hoat dong cua AO-Grid (doi chieu ma nguon baselines/ao_grid_corrected.py):
+%  khoi tao AnalyticalRIS; moi vong: khoi p va khoi eta tim kiem "tot nhat" tren luoi don hinh
+%  {0; 0,05; 0,175; ...; 0,80} (gan mot thanh phan bang muc luoi, cac thanh phan con lai co gian theo ty le
+%  de giu tong; lap toi da K+1 / K buoc); khoi STAR-RIS quet tung toa do theo khoi beta -> theta^T -> theta^R,
+%  beta tren 5 muc trong [0,05; 0,95], pha tren 8 muc trong [-pi, pi). Toi da 2 vong, dung som khi thay doi
+%  tuong doi < 1e-4. Toan bo quy trinh chay 2 lan (thu tu quet thuan va nghich), chon nghiem uu tien
+%  dat QoS cho moi UE roi den tong toc do. J = r_env.
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt,
+  blk/.style={rounded corners=3pt,line width=0.9pt,fill=white,minimum width=4.3cm,minimum height=6.0cm},
+  num/.style={circle,text=white,font=\scriptsize\bfseries,inner sep=1.2pt,minimum size=0.38cm},
+  cell/.style={draw=gray!60!black,minimum height=0.40cm,inner sep=0pt,font=\scriptsize},
+  on/.style={fill=#1,text=white,rounded corners=1.5pt,inner sep=1.6pt,font=\tiny\bfseries},
+  off/.style={draw=gray!55,dashed,text=gray!55,rounded corners=1.5pt,inner sep=1.6pt,font=\tiny},
+  cand/.style={draw=gray!60!black,fill=white,circle,inner sep=0pt,minimum size=0.16cm},
+  pick/.style={draw=orange!80!black,fill=orange!70,circle,inner sep=0pt,minimum size=0.20cm,line width=0.8pt},
+]
+\colorlet{cB1}{blue!55!black}\colorlet{cB2}{teal!70!black}\colorlet{cB3}{orange!80!black}
+
+% ---------------- tieu de, chu giai ----------------
+\node[anchor=west,font=\small\bfseries] at (0,10.1) {Cơ chế hoạt động của AO--Grid};
+\node[on=cB1,anchor=west] at (12.3,10.1) {khối};  \node[anchor=west] at (12.95,10.1) {đang cập nhật};
+\node[off,anchor=west] at (14.85,10.1) {khối};    \node[anchor=west] at (15.5,10.1) {giữ cố định};
+\node[cand] at (17.45,10.1) {}; \node[pick] at (17.75,10.1) {};
+\node[anchor=west] at (17.95,10.1) {mức lưới / mức được chọn};
+
+% ---------------- khoi tao / lua chon / dau ra ----------------
+\node[draw=gray!60!black,rounded corners=3pt,line width=0.9pt,fill=gray!6,minimum width=2.1cm,minimum height=2.0cm,align=center] (init) at (1.05,6.1)
+  {\tiny\bfseries KHỞI TẠO\\[2pt] \scriptsize\bfseries AnalyticalRIS\\[3pt] \small$\mathcal A^{(0)}$};
+\node[draw,rounded corners=3pt,line width=0.9pt,minimum width=2.4cm,minimum height=2.0cm,align=center] (out) at (20.2,6.1)
+  {\tiny\bfseries ĐẦU RA\\[2pt] \scriptsize\bfseries Nghiệm AO--Grid\\[3pt] \small$\mathcal A^{\star}$};
+\node[draw=cB3,rounded corners=3pt,line width=0.9pt,fill=orange!6,minimum width=2.4cm,align=center,text width=2.25cm,font=\tiny] (sel) at (20.2,1.55)
+  {\textbf{Chọn nghiệm tốt hơn}\\ trong hai lần chạy: ưu tiên đạt QoS cho mọi UE, sau đó tổng tốc độ};
+
+% ---------------- khung hai lan chay ----------------
+\draw[gray!50,dashed,rounded corners=4pt] (2.45,0.15) rectangle (18.65,9.55);
+\node[anchor=west,font=\scriptsize\bfseries,gray!45!black] at (2.65,9.22)
+  {TỐI ƯU LUÂN PHIÊN \ \normalfont $\mathbf p\to\boldsymbol\eta\to(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)\to\mathbf p$};
+\node[anchor=west,gray!45!black] at (10.2,9.22) {chạy $2$ lần: thứ tự quét STAR--RIS thuận và nghịch; $J=r_{\mathrm{env}}$};
+
+\node[blk,draw=cB1] (b1) at (4.85,5.85) {};
+\node[blk,draw=cB2] (b2) at (9.55,5.85) {};
+\node[blk,draw=cB3,minimum width=6.3cm] (b3) at (15.15,5.85) {};
+\draw[->,line width=0.8pt] (init.east) -- (b1.west);
+\draw[->,line width=0.8pt] (b1.east) -- (b2.west);
+\draw[->,line width=0.8pt] (b2.east) -- (b3.west);
+
+% ================= khoi 1: cong suat =================
+\begin{scope}[shift={(2.85,8.55)}]
+  \node[num,fill=cB1] at (0.15,0) {1};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối công suất $\mathbf p$};
+  \node[on=cB1,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  \node[anchor=west,font=\tiny,gray!45!black] at (0,-0.95) {Trước};
+  \node[cell,fill=cChung!70,text=white,minimum width=0.78cm,anchor=west] at (0,-1.30) {$p_c$};
+  \foreach \k/\c [count=\i] in {1/cUEa,2/cUEb,3/cUEc,4/cUEd}{\node[cell,fill=\c!22,minimum width=0.78cm,anchor=west] at (0.78*\i,-1.30) {$p_{\k}$};}
+  % luoi muc cho p_2
+  \draw[gray!50,rounded corners=2pt] (0.05,-2.30) rectangle (3.85,-1.78);
+  \draw[gray!60] (0.30,-2.04) -- (3.60,-2.04);
+  \foreach \v [count=\i from 0] in {0,0.05,0.175,0.30,0.425,0.55,0.675,0.80}{
+     \node[cand] at ({0.30+3.30*\v/0.80},-2.04) {};}
+  \node[pick] at ({0.30+3.30*0.425/0.80},-2.04) {};
+  \node[font=\tiny,anchor=north] at (0.30,-2.30) {$0$};
+  \node[font=\tiny,anchor=north] at (3.60,-2.30) {$0{,}80\,P_{\max}$};
+  \draw[->,cB3,line width=0.7pt] ({0.30+3.30*0.425/0.80},-2.16) to[out=-90,in=60] (1.95,-2.88);
+  \node[anchor=west,font=\tiny,gray!45!black] at (0,-2.70) {Sau};
+  % sau: p2 bang muc chon, con lai co gian theo ty le
+  \node[cell,fill=cChung!70,text=white,minimum width=0.56cm,anchor=west] at (0,-3.10) {$p_c$};
+  \node[cell,fill=cUEa!22,minimum width=0.56cm,anchor=west] at (0.56,-3.10) {$p_1$};
+  \node[cell,fill=cUEb!40,minimum width=1.66cm,anchor=west,line width=0.8pt] at (1.12,-3.10) {$p_2$};
+  \node[cell,fill=cUEc!22,minimum width=0.56cm,anchor=west] at (2.78,-3.10) {$p_3$};
+  \node[cell,fill=cUEd!22,minimum width=0.56cm,anchor=west] at (3.34,-3.10) {$p_4$};
+  \node[anchor=west,font=\tiny] at (0,-3.55) {phần còn lại co giãn theo tỷ lệ, giữ $\sum=P_{\max}$};
+  \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-3.85)
+    {Thử $8$ mức lưới (có mức $0$ để tắt hẳn một luồng) cho từng thành phần, chọn bước cải thiện $J$ tốt nhất trên toàn bộ ứng viên; lặp tối đa $K+1$ bước.};
+\end{scope}
+
+% ================= khoi 2: toc do chung =================
+\begin{scope}[shift={(7.55,8.55)}]
+  \node[num,fill=cB2] at (0.15,0) {2};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối tốc độ chung $\boldsymbol\eta$};
+  \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[on=cB2,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  \node[font=\tiny,gray!45!black] at (0.95,-0.95) {Trước};
+  \node[font=\tiny,gray!45!black] at (2.55,-0.95) {Sau};
+  \draw[gray!60] (0,-2.95) -- (1.90,-2.95) (2.15,-2.95) -- (4.00,-2.95);
+  \foreach \c [count=\i from 0] in {cUEa,cUEb,cUEc,cUEd}{
+     \fill[\c!30] (0.10+0.45*\i,-2.95) rectangle ++(0.36,0.65);
+     \draw[\c!70!black,line width=0.3pt] (0.10+0.45*\i,-2.95) rectangle ++(0.36,0.65);}
+  \foreach \c/\h [count=\i from 0] in {cUEa/0.39,cUEb/0.39,cUEc/1.43,cUEd/0.39}{
+     \fill[\c!30] (2.25+0.45*\i,-2.95) rectangle ++(0.36,\h);
+     \draw[\c!70!black,line width=0.3pt] (2.25+0.45*\i,-2.95) rectangle ++(0.36,\h);}
+  % cot luoi cho UE3 (cung thang do 2,6 cm cho moi don vi ty le)
+  \draw[gray!50,dashed,rounded corners=1.5pt] (3.06,-3.00) rectangle (3.38,-0.80);
+  \foreach \v in {0,0.05,0.175,0.30,0.425,0.55,0.675,0.80}{\node[cand,minimum size=0.13cm] at (3.22,{-2.95+2.6*\v}) {};}
+  \node[pick,minimum size=0.17cm] at (3.22,{-2.95+2.6*0.55}) {};
+  \foreach \k [count=\i from 0] in {1,2,3,4}{
+     \node[font=\tiny] at (0.28+0.45*\i,-3.18) {UE$_{\k}$}; \node[font=\tiny] at (2.43+0.45*\i,-3.18) {UE$_{\k}$};}
+  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau (co giãn theo tỷ lệ)};
+  \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-3.95)
+    {Cùng lưới $8$ mức như khối 1 (có mức $0$): chọn tỷ lệ tốc độ chung tốt nhất cho UE; lặp tối đa $K$ bước.};
+\end{scope}
+
+% ================= khoi 3: STAR-RIS =================
+\begin{scope}[shift={(12.15,8.55)}]
+  \node[num,fill=cB3] at (0.15,0) {3};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
+  \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[on=cB3,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  % thu tu quet toa do
+  \node[anchor=west,font=\tiny,gray!45!black] at (0,-0.98) {Quét từng tọa độ, lần lượt theo khối:};
+  \foreach \lab/\x/\c in {{\beta_1\cdots\beta_N}/0.0/cB3,{\theta^T_1\cdots\theta^T_N}/2.0/cUEb,{\theta^R_1\cdots\theta^R_N}/4.0/cUEc}{
+     \node[draw=\c!80!black,fill=\c!12,rounded corners=1.5pt,minimum width=1.55cm,minimum height=0.40cm,anchor=west,font=\tiny] at (\x,-1.40) {$\lab$};}
+  \draw[->] (1.57,-1.40) -- (1.98,-1.40); \draw[->] (3.57,-1.40) -- (3.98,-1.40);
+  \node[anchor=west,font=\tiny] at (0,-1.85) {thứ tự $n$: thuận $1\to N$ ở lần chạy thứ nhất, nghịch $N\to 1$ ở lần thứ hai};
+  % luoi pha
+  \begin{scope}[shift={(1.20,-3.25)}]
+    \draw[gray!50] (0,0) circle (0.72);
+    \foreach \k in {0,...,7}{\node[cand] at ({-180+45*\k}:0.72) {};}
+    \node[pick] at (-135:0.72) {};
+    \draw[cB3,line width=0.8pt] (0,0) -- (-135:0.66); \fill (0,0) circle (0.04);
+    \node[font=\tiny,anchor=north] at (0,-0.80) {$\theta^T_n,\theta^R_n$: $8$ mức trong $[-\pi,\pi)$};
+  \end{scope}
+  % luoi beta
+  \begin{scope}[shift={(3.35,-3.25)}]
+    \draw[gray!60] (0,0) -- (2.4,0);
+    \draw[gray!60] (0,-0.08) -- (0,0.08) (2.4,-0.08) -- (2.4,0.08);
+    \foreach \v in {0.05,0.275,0.50,0.725,0.95}{\node[cand] at (2.4*\v,0) {};}
+    \node[pick] at (2.4*0.725,0) {};
+    \node[font=\tiny,anchor=south] at (0,0.10) {$0$}; \node[font=\tiny,anchor=south] at (2.4,0.10) {$1$};
+    \node[font=\tiny,anchor=north] at (0.12,-0.12) {$0{,}05$}; \node[font=\tiny,anchor=north] at (2.28,-0.12) {$0{,}95$};
+    \node[font=\tiny,anchor=north] at (1.2,-0.80) {$\beta^T_n$: $5$ mức trong $[0{,}05;\,0{,}95]$};
+  \end{scope}
+  \node[draw=cB3,rounded corners=4pt,line width=0.8pt,font=\tiny\bfseries,inner sep=3pt] at (2.95,-4.95) {Mỗi tọa độ nhảy tới mức lưới có $J$ cao nhất};
+\end{scope}
+
+% ================= kiem tra hoi tu =================
+\node[draw,rounded corners=3pt,line width=0.9pt,minimum width=6.4cm,minimum height=2.25cm] (stop) at (10.55,1.55) {};
+\node[anchor=north west,font=\scriptsize\bfseries] at (7.55,2.55) {Kiểm tra dừng của mỗi lần chạy};
+\node[anchor=west] at (7.60,1.45) {$\dfrac{|J_{\text{mới}}-J_{\text{cũ}}|}{\max(1,|J_{\text{cũ}}|)}<10^{-4}$};
+\node[anchor=west,font=\tiny,align=left] at (10.85,1.45) {hoặc đã đủ\\ tối đa $2$ vòng};
+
+% ---------------- noi ----------------
+\draw[->,line width=0.8pt] (b3.south) |- node[pos=0.25,right,font=\tiny] {sau mỗi vòng 3 khối} ([yshift=0.35cm]stop.east);
+\draw[->,cB3,dashed,line width=0.8pt] (stop.west) -| node[pos=0.75,left,font=\tiny,align=right] {chưa dừng:\\ vòng tiếp theo} (b1.south);
+\draw[->,line width=0.8pt] ([yshift=-0.55cm]stop.east) -- node[pos=0.55,below,font=\tiny,align=center] {dừng: lưu nghiệm của lần chạy\\ (sau cả lần thuận và nghịch)} ([yshift=-0.55cm]sel.west|-stop.east);
+\draw[->,line width=0.8pt] (sel.north) -- (out.south);
+\end{tikzpicture}

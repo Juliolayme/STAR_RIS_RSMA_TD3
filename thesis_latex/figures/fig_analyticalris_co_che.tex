@@ -1,0 +1,126 @@
+% Hinh: Co che hoat dong cua AnalyticalRIS (doi chieu ma nguon baselines/analytical_ris.py):
+%   p_c = p_k = P_max/(K+1); eta_k = 1/K; beta^T_n = beta^R_n = 0,5;
+%   theta^T_n = theta^R_n = -angle( sum_k h*_{r,k,n} g_n ).  Dau ra A^(0) = (p, eta, beta, theta^T, theta^R).
+% Phong cach dung chung tikz_defs.tex.
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt,
+  stepbox/.style={draw=gray!55,rounded corners=3pt,fill=white,minimum width=9.6cm,minimum height=1.85cm},
+  stepcsi/.style={draw=orange!75!black,rounded corners=3pt,fill=orange!6,minimum width=9.6cm,minimum height=1.85cm,line width=0.8pt},
+  tagfix/.style={draw=gray!60!black,rounded corners=1.5pt,inner sep=1.5pt,font=\tiny\bfseries,text=gray!35!black},
+  tagcsi/.style={fill=orange!80!black,rounded corners=1.5pt,inner sep=1.5pt,font=\tiny\bfseries,text=white},
+  num/.style={circle,fill=black!80,text=white,font=\scriptsize\bfseries,inner sep=1.2pt,minimum size=0.38cm},
+  numcsi/.style={circle,fill=orange!80!black,text=white,font=\scriptsize\bfseries,inner sep=1.2pt,minimum size=0.38cm},
+  cell/.style={draw=gray!60!black,minimum height=0.48cm,inner sep=0pt,font=\scriptsize},
+]
+
+% ------------------------- tieu de va chu giai -------------------------
+\node[anchor=west,font=\small\bfseries] at (0,9.05) {Cơ chế hoạt động của AnalyticalRIS};
+\node[tagfix,anchor=west] at (9.0,9.05) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west] at (10.85,9.05) {đặt sẵn, không tối ưu};
+\node[tagcsi,anchor=west] at (13.4,9.05) {TÍNH TỪ CSI};
+\node[anchor=west] at (14.75,9.05) {công thức đóng};
+
+% ------------------------- dau vao -------------------------
+\node[draw,rounded corners=3pt,line width=0.8pt,minimum width=3.3cm,minimum height=3.6cm,anchor=center] (in) at (1.75,4.35) {};
+\node[anchor=north west,font=\tiny\bfseries,gray!50!black] at (0.25,6.0) {ĐẦU VÀO};
+\node[anchor=north west,font=\scriptsize\bfseries,align=left] at (0.25,5.7) {Thông tin kênh (CSI)};
+\begin{scope}[shift={(0.45,3.55)}]
+  % BS
+  \draw[line width=1.6pt] (0,0) -- (0,0.9);
+  \draw[line width=1.6pt] (-0.15,0.9) -- (0.15,0.9);
+  \draw[line width=1.6pt] (-0.15,0) -- (0.15,0);
+  \node[anchor=north,font=\tiny\bfseries] at (0,-0.05) {BS};
+  % STAR-RIS
+  \fill[cKenh!15] (1.30,0.0) rectangle (1.50,1.20);
+  \draw[cKenh!60!black] (1.30,0.0) rectangle (1.50,1.20);
+  \foreach \i in {1,...,5} \draw[cKenh!60!black,line width=0.3pt] (1.30,0.2*\i) -- (1.50,0.2*\i);
+  \node[anchor=north,font=\tiny\bfseries,cKenh!70!black] at (1.40,-0.05) {STAR--RIS};
+  \draw[gray!60!black] (0.15,0.85) -- (1.28,0.70) node[midway,above,font=\tiny] {$g_n$};
+  % UE hai phia
+  \fill (0.95,1.30) circle (0.07); \node[font=\tiny,anchor=east] at (0.88,1.30) {UE$_R$};
+  \fill (2.35,1.25) circle (0.07); \node[font=\tiny,anchor=west] at (2.42,1.25) {UE$_T$};
+  \fill (2.35,0.15) circle (0.07); \node[font=\tiny,anchor=west] at (2.42,0.15) {UE$_T$};
+  \draw[cUEa!80!black] (1.30,1.00) -- (1.01,1.26);
+  \draw[cUEc!80!black] (1.50,0.95) -- (2.28,1.22);
+  \draw[cUEc!80!black] (1.50,0.35) -- (2.28,0.18);
+\end{scope}
+\node[font=\scriptsize] at (1.75,3.05) {CSI dùng: $g_n,\ h_{r,k,n}$};
+\node[font=\tiny,gray!50!black,align=center] at (1.75,2.75) {(không dùng $h_{d,k}$)};
+
+% ------------------------- cac buoc -------------------------
+\foreach \y/\n in {7.65/s1,5.55/s2,3.45/s3}{ \node[stepbox,anchor=west] (\n) at (4.1,\y) {}; }
+\node[stepcsi,anchor=west] (s4) at (4.1,1.35) {};
+
+% buoc 1: phan bo cong suat
+\node[num] at (4.45,8.25) {1};
+\node[anchor=west,font=\scriptsize\bfseries] at (4.7,8.25) {Phân bổ công suất};
+\node[tagfix,anchor=west] at (7.25,8.25) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\small] at (4.3,7.6) {$p_c=p_k=\dfrac{P_{\max}}{K+1}$};
+\node[anchor=west,gray!35!black] at (4.3,6.97) {chia đều cho $K+1$ luồng, không tìm kiếm tối ưu};
+\node[anchor=west,font=\tiny\bfseries] at (10.25,8.30) {Tổng công suất $P_{\max}$};
+\node[cell,minimum width=0.66cm,fill=cChung!70,text=white,anchor=west] (pc) at (10.25,7.82) {$p_c$};
+\foreach \k/\c [count=\i] in {1/cUEa,2/cUEb,3/cUEc,4/cUEd}{
+  \node[cell,minimum width=0.66cm,fill=\c!22,anchor=west] at (10.25+0.66*\i,7.82) {$p_{\k}$};}
+\node[anchor=north west,font=\tiny,gray!45!black] at (10.20,7.52) {luồng chung $+\ 4$ luồng riêng ($K=4$)};
+
+% buoc 2: phan bo toc do chung
+\node[num] at (4.45,6.15) {2};
+\node[anchor=west,font=\scriptsize\bfseries] at (4.7,6.15) {Phân bổ tốc độ chung};
+\node[tagfix,anchor=west] at (7.55,6.15) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\small] at (4.3,5.50) {$\eta_k=\dfrac{1}{K}$};
+\node[anchor=west,gray!35!black] at (4.3,4.87) {chia đều tốc độ chung $R_c$ cho $K$ UE};
+\node[anchor=west,font=\tiny\bfseries] at (10.25,6.20) {Tốc độ luồng chung $R_c$};
+\foreach \k/\c [count=\i from 0] in {1/cUEa,2/cUEb,3/cUEc,4/cUEd}{
+  \node[cell,minimum width=0.825cm,fill=\c!22,anchor=west] at (10.25+0.825*\i,5.72) {UE$_{\k}$};
+  \node[font=\tiny] at (10.66+0.825*\i,5.28) {$1/K$};}
+
+% buoc 3: chia nang luong
+\node[num] at (4.45,4.05) {3};
+\node[anchor=west,font=\scriptsize\bfseries] at (4.7,4.05) {Chia năng lượng};
+\node[tagfix,anchor=west] at (6.95,4.05) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\small] at (4.3,3.40) {$\beta^T_n=\beta^R_n=0{,}5$};
+\node[anchor=west,gray!35!black] at (4.3,2.77) {truyền qua $50\%$, phản xạ $50\%$ năng lượng};
+\begin{scope}[shift={(10.6,3.40)}]
+  \fill[cKenh!15] (0.45,-0.55) rectangle (0.62,0.55);
+  \draw[cKenh!60!black] (0.45,-0.55) rectangle (0.62,0.55);
+  \draw[->,gray!55,line width=0.8pt] (-0.35,0.50) -- (0.43,0.05);
+  \draw[->,cUEa!85!black,line width=0.8pt] (0.43,0.0) -- (-0.30,-0.45) node[anchor=north,font=\tiny] {phản xạ};
+  \draw[->,cUEc!85!black,line width=0.8pt,dashed] (0.64,0.0) -- (1.40,-0.45) node[anchor=north,font=\tiny] {truyền qua};
+  \node[cell,minimum width=0.62cm,fill=cUEc!22,anchor=west] at (1.75,0.12) {$50\%$};
+  \node[cell,minimum width=0.62cm,fill=cUEa!22,anchor=west] at (2.37,0.12) {$50\%$};
+  \node[font=\tiny] at (2.06,-0.32) {$T$};
+  \node[font=\tiny] at (2.68,-0.32) {$R$};
+\end{scope}
+
+% buoc 4: can pha giai tich
+\node[numcsi] at (4.45,1.95) {4};
+\node[anchor=west,font=\scriptsize\bfseries] at (4.7,1.95) {Căn pha giải tích};
+\node[tagcsi,anchor=west] at (7.0,1.95) {TÍNH TỪ CSI};
+\node[anchor=west,font=\small] at (4.3,1.30) {$\theta^T_n=\theta^R_n=-\angle\Big(\sum_{k=1}^{K}h^{*}_{r,k,n}\,g_n\Big)$};
+\node[anchor=west,gray!35!black,align=left] at (4.3,0.68) {tính trực tiếp từ CSI, pha neo gộp các UE, không lặp};
+\begin{scope}[shift={(10.75,1.40)}]
+  \draw[gray!45] (-0.55,0) -- (0.55,0) (0,-0.55) -- (0,0.55);
+  \foreach \a/\l in {20/0.48,85/0.42,140/0.50,210/0.40,265/0.46,320/0.44}{\draw[->,cUEc,line width=0.8pt] (0,0) -- (\a:\l);}
+  \node[font=\tiny,anchor=north] at (0,-0.58) {các $z_n$ lệch pha};
+  \draw[->,orange!80!black,line width=1.4pt] (0.75,0) -- (1.20,0);
+  \foreach \i in {0,...,5}{\draw[->,cUEc,line width=0.8pt] (1.40,0.40-0.12*\i) -- ++(0.45,0);}
+  \draw[->,red!75!black,line width=1.4pt] (1.40,-0.42) -- ++(1.20,0);
+  \node[font=\tiny,anchor=north] at (2.05,-0.56) {các $z_n$ cùng hướng};
+\end{scope}
+
+% ------------------------- noi day -------------------------
+\draw[gray!60!black] (3.40,4.35) -- (3.75,4.35);
+\draw[gray!60!black] (3.75,7.65) -- (3.75,1.35);
+\foreach \y in {7.65,5.55,3.45}{\draw[->,gray!60!black] (3.75,\y) -- (4.08,\y);}
+\draw[->,orange!80!black,line width=0.8pt] (3.75,1.35) -- (4.08,1.35);
+\foreach \y in {7.65,5.55,3.45,1.35}{\draw[gray!60!black] (13.72,\y) -- (14.05,\y);}
+\draw[gray!60!black] (14.05,7.65) -- (14.05,1.35);
+\draw[->,gray!60!black] (14.05,4.55) -- (14.40,4.55);
+
+% ------------------------- dau ra -------------------------
+\node[draw,rounded corners=3pt,line width=0.8pt,minimum width=4.1cm,minimum height=2.0cm,anchor=west] (out) at (14.42,4.55) {};
+\node[anchor=north west,font=\tiny\bfseries,gray!50!black] at (14.60,5.45) {ĐẦU RA};
+\node[anchor=north west,font=\scriptsize\bfseries] at (14.60,5.15) {Nghiệm AnalyticalRIS};
+\node[anchor=west,font=\scriptsize] at (14.55,4.20) {$\mathcal A^{(0)}=(\mathbf p,\boldsymbol\eta,\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
+\node[anchor=north west,font=\tiny,gray!40!black,align=left,text width=4.0cm] at (14.42,3.35)
+  {Dùng làm đối chứng độ trễ rất thấp và làm điểm khởi đầu cho AO--SCA, AO--Grid (Thuật toán~\ref{alg:doi-chieu-ao}).};
+\end{tikzpicture}

@@ -1,0 +1,148 @@
+% Hinh: Co che hoat dong cua AO-SCA (doi chieu ma nguon baselines/ao_corrected.py):
+%  khoi tao AnalyticalRIS; moi vong: khoi p (chuyen cap delta tren don hinh K+1 phan tu, tong P_max),
+%  khoi eta (chuyen cap delta tren don hinh K phan tu, tong 1), khoi STAR-RIS (sai phan trung tam +-eps
+%  cho ca 3N bien, mot buoc lan can cho toan khoi, quay lui nhan doi rho toi da 16 lan),
+%  tinh chinh lai hai khoi don hinh (kiem tra dung); dung khi |J_moi-J_cu|/max(1,|J_cu|)<1e-4 VA
+%  don hinh da dung, toi da 80 vong. J = r_env.
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt,
+  blk/.style={rounded corners=3pt,line width=0.9pt,fill=white,minimum width=4.3cm,minimum height=6.0cm},
+  num/.style={circle,text=white,font=\scriptsize\bfseries,inner sep=1.2pt,minimum size=0.38cm},
+  cell/.style={draw=gray!60!black,minimum height=0.40cm,inner sep=0pt,font=\scriptsize},
+  on/.style={fill=#1,text=white,rounded corners=1.5pt,inner sep=1.6pt,font=\tiny\bfseries},
+  off/.style={draw=gray!55,dashed,text=gray!55,rounded corners=1.5pt,inner sep=1.6pt,font=\tiny},
+]
+\colorlet{cB1}{blue!55!black}\colorlet{cB2}{teal!70!black}\colorlet{cB3}{orange!80!black}
+
+% ---------------- tieu de, chu giai ----------------
+\node[anchor=west,font=\small\bfseries] at (0,10.1) {Cơ chế hoạt động của AO--SCA};
+\node[on=cB1,anchor=west] at (14.6,10.1) {khối};  \node[anchor=west] at (15.25,10.1) {đang cập nhật};
+\node[off,anchor=west] at (17.15,10.1) {khối};    \node[anchor=west] at (17.8,10.1) {giữ cố định};
+
+% ---------------- khoi tao / dau ra ----------------
+\node[draw=gray!60!black,rounded corners=3pt,line width=0.9pt,fill=gray!6,minimum width=2.1cm,minimum height=2.0cm,align=center] (init) at (1.05,6.1)
+  {\tiny\bfseries KHỞI TẠO\\[2pt] \scriptsize\bfseries AnalyticalRIS\\[3pt] \small$\mathcal A^{(0)}$};
+\node[draw,rounded corners=3pt,line width=0.9pt,minimum width=2.1cm,minimum height=2.0cm,align=center] (out) at (20.05,6.1)
+  {\tiny\bfseries ĐẦU RA\\[2pt] \scriptsize\bfseries Nghiệm AO--SCA\\[3pt] \small$\mathcal A^{\star}$};
+
+% ---------------- khung vong lap ----------------
+\draw[gray!50,dashed,rounded corners=4pt] (2.45,0.15) rectangle (18.65,9.55);
+\node[anchor=west,font=\scriptsize\bfseries,gray!45!black] at (2.65,9.22)
+  {TỐI ƯU LUÂN PHIÊN \ \normalfont $\mathbf p\to\boldsymbol\eta\to(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)\to\mathbf p$};
+\node[anchor=west,gray!45!black] at (10.2,9.22) {tối ưu một khối, giữ cố định các khối còn lại; $J=r_{\mathrm{env}}$};
+
+\node[blk,draw=cB1] (b1) at (4.85,5.85) {};
+\node[blk,draw=cB2] (b2) at (9.55,5.85) {};
+\node[blk,draw=cB3,minimum width=6.3cm] (b3) at (15.15,5.85) {};
+\draw[->,line width=0.8pt] (init.east) -- (b1.west);
+\draw[->,line width=0.8pt] (b1.east) -- (b2.west);
+\draw[->,line width=0.8pt] (b2.east) -- (b3.west);
+
+% ================= khoi 1: cong suat =================
+\begin{scope}[shift={(2.85,8.55)}]
+  \node[num,fill=cB1] at (0.15,0) {1};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối công suất $\mathbf p$};
+  \node[on=cB1,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  \node[anchor=west,font=\tiny,gray!45!black] at (0,-0.95) {Trước};
+  \node[cell,fill=cChung!70,text=white,minimum width=0.78cm,anchor=west] at (0,-1.30) {$p_c$};
+  \foreach \k/\c [count=\i] in {1/cUEa,2/cUEb,3/cUEc,4/cUEd}{\node[cell,fill=\c!22,minimum width=0.78cm,anchor=west] at (0.78*\i,-1.30) {$p_{\k}$};}
+  \node[anchor=west,font=\tiny,gray!45!black] at (0,-2.20) {Sau};
+  \node[cell,fill=cChung!70,text=white,minimum width=1.06cm,anchor=west] at (0,-2.55) {$p_c$};
+  \node[cell,fill=cUEa!22,minimum width=0.78cm,anchor=west] at (1.06,-2.55) {$p_1$};
+  \node[cell,fill=cUEb!22,minimum width=0.50cm,anchor=west] at (1.84,-2.55) {$p_2$};
+  \node[cell,fill=cUEc!22,minimum width=0.78cm,anchor=west] at (2.34,-2.55) {$p_3$};
+  \node[cell,fill=cUEd!22,minimum width=0.78cm,anchor=west] at (3.12,-2.55) {$p_4$};
+  \draw[->,line width=0.8pt] (2.05,-2.30) to[out=110,in=60] node[above,font=\tiny] {$\delta$} (0.55,-2.30);
+  \node[font=\tiny,cB1] at (0.53,-2.98) {$+\delta$};  \node[font=\tiny,cB1] at (2.09,-2.98) {$-\delta$};
+  \node[anchor=west,font=\tiny] at (0,-3.40) {giữ tổng $\sum = P_{\max}$ ($K+1$ luồng)};
+  \node[anchor=west] at (0.25,-3.95) {$x'_i=x_i-\delta,\qquad x'_j=x_j+\delta$};
+  \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-4.35)
+    {Dò bước nhỏ cho mọi cặp $(i,j)$, chọn hướng cải thiện $J$ tốt nhất, rồi thử nhiều mức $\delta$ (kể cả chuyển hết $\delta=x_i$).};
+\end{scope}
+
+% ================= khoi 2: toc do chung =================
+\begin{scope}[shift={(7.55,8.55)}]
+  \node[num,fill=cB2] at (0.15,0) {2};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối tốc độ chung $\boldsymbol\eta$};
+  \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[on=cB2,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  \node[font=\tiny,gray!45!black] at (0.95,-0.95) {Trước};
+  \node[font=\tiny,gray!45!black] at (3.05,-0.95) {Sau};
+  \draw[gray!60] (0,-2.75) -- (1.90,-2.75) (2.15,-2.75) -- (4.00,-2.75);
+  \foreach \c [count=\i from 0] in {cUEa,cUEb,cUEc,cUEd}{
+     \fill[\c!30] (0.10+0.45*\i,-2.75) rectangle ++(0.36,1.00);
+     \draw[\c!70!black,line width=0.3pt] (0.10+0.45*\i,-2.75) rectangle ++(0.36,1.00);}
+  \foreach \c/\h [count=\i from 0] in {cUEa/0.55,cUEb/1.00,cUEc/1.45,cUEd/1.00}{
+     \fill[\c!30] (2.25+0.45*\i,-2.75) rectangle ++(0.36,\h);
+     \draw[\c!70!black,line width=0.3pt] (2.25+0.45*\i,-2.75) rectangle ++(0.36,\h);}
+  \draw[->,line width=0.8pt] (2.43,-2.12) to[out=80,in=120] node[above,font=\tiny] {$\delta$} (3.33,-1.25);
+  \node[font=\tiny,cB2] at (2.43,-2.97) {$-$}; \node[font=\tiny,cB2] at (3.33,-2.97) {$+$};
+  \foreach \k [count=\i from 0] in {1,2,3,4}{
+     \node[font=\tiny] at (0.28+0.45*\i,-3.18) {UE$_{\k}$}; \node[font=\tiny] at (2.43+0.45*\i,-3.18) {UE$_{\k}$};}
+  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau (ràng buộc đơn hình)};
+  \node[anchor=west] at (0.25,-4.10) {$\eta'_i=\eta_i-\delta,\qquad \eta'_j=\eta_j+\delta$};
+  \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-4.50)
+    {Cùng phép chuyển cặp như khối 1: điều chỉnh tỷ lệ tốc độ chung giữa các UE trong miền khả thi.};
+\end{scope}
+
+% ================= khoi 3: STAR-RIS =================
+\begin{scope}[shift={(12.15,8.55)}]
+  \node[num,fill=cB3] at (0.15,0) {3};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
+  \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
+  \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
+  \node[on=cB3,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
+  % A: do huong
+  \begin{scope}[shift={(0.05,-2.45)}]
+    \draw[->] (0,0) -- (2.35,0); \draw[->] (0,0) -- (0,1.35) node[anchor=east,font=\tiny] {$J$};
+    \draw[line width=0.8pt,domain=0.05:2.3,samples=60] plot (\x,{0.15+1.0*exp(-((\x-1.45)^2)/0.28)});
+    \pgfmathsetmacro{\ya}{0.15+1.0*exp(-((0.65-1.45)^2)/0.28)}
+    \pgfmathsetmacro{\yb}{0.15+1.0*exp(-((0.95-1.45)^2)/0.28)}
+    \pgfmathsetmacro{\yc}{0.15+1.0*exp(-((1.25-1.45)^2)/0.28)}
+    \draw[cB3,dashed] (0.45,{\ya-0.20*(\yc-\ya)/0.6}) -- (1.45,{\yc+0.20*(\yc-\ya)/0.6});
+    \draw[gray!50,densely dotted] (0.65,0) -- (0.65,\ya) (1.25,0) -- (1.25,\yc) (0.95,0) -- (0.95,\yb);
+    \draw[cB3,fill=white] (0.65,\ya) circle (0.05) (1.25,\yc) circle (0.05);
+    \fill (0.95,\yb) circle (0.055);
+    \draw[<->,cB3] (0.65,0.12) -- (1.25,0.12);
+    \node[font=\tiny,anchor=north] at (0.62,0) {$\theta_n\!-\!\epsilon$};
+    \node[font=\tiny,anchor=north] at (1.28,0) {$\theta_n\!+\!\epsilon$};
+  \end{scope}
+  \node[anchor=north west,align=left,font=\tiny,text width=3.30cm] at (2.65,-1.00)
+    {\textbf{\textcolor{cB3}{A. Dò hướng}}\\ Sai phân hữu hạn trung tâm $\pm\epsilon$, $\epsilon=10^{-3}$, cho cả $3N$ biến cùng lúc.};
+  % B: buoc lan can + quay lui
+  \begin{scope}[shift={(0.05,-4.55)}]
+    \draw[->] (0,0) -- (2.35,0); \draw[->] (0,0) -- (0,1.35) node[anchor=east,font=\tiny] {$J$};
+    \draw[line width=0.8pt,domain=0.05:2.3,samples=60] plot (\x,{0.15+1.0*exp(-((\x-1.15)^2)/0.28)});
+    \pgfmathsetmacro{\ys}{0.15+1.0*exp(-((0.35-1.15)^2)/0.28)}
+    \pgfmathsetmacro{\yt}{0.15+1.0*exp(-((2.05-1.15)^2)/0.28)}
+    \pgfmathsetmacro{\yu}{0.15+1.0*exp(-((1.20-1.15)^2)/0.28)}
+    \fill (0.35,\ys) circle (0.055);
+    \draw[->,gray!60,dashed] (0.38,\ys+0.05) to[out=70,in=110] node[pos=0.55,above,font=\tiny,gray!50!black] {1} (2.02,\yt+0.06);
+    \draw[gray!60,fill=white] (2.05,\yt) circle (0.05);
+    \draw[->,cB3,line width=0.8pt] (0.38,\ys+0.05) to[out=60,in=150] node[pos=0.4,left,font=\tiny] {2} (1.15,\yu+0.07);
+    \fill[cB3] (1.20,\yu) circle (0.06);
+  \end{scope}
+  \node[anchor=north west,align=left,font=\tiny,text width=3.30cm] at (2.65,-3.15)
+    {\textbf{\textcolor{cB3}{B. Bước lân cận}}\\ (1) đề xuất bước cho toàn khối; nếu $J$ giảm thì nhân đôi hệ số lân cận $\rho$ (tối đa $16$ lần) để thu nhỏ bước; (2) nhận bước khi $J$ không giảm.};
+  \node[anchor=north west,align=left,font=\tiny,text width=5.9cm] at (0,-5.15)
+    {Cuối khối: tinh chỉnh lại $\mathbf p$, $\boldsymbol\eta$ và đo khoảng cách tới điều kiện dừng của đơn hình.};
+\end{scope}
+
+% ================= danh gia va dieu kien dung =================
+\node[draw,rounded corners=3pt,line width=0.9pt,minimum width=6.4cm,minimum height=2.25cm] (stop) at (10.55,1.55) {};
+\begin{scope}[shift={(7.65,0.65)}]
+  \draw[->] (0,0) -- (1.55,0) node[anchor=north east,font=\tiny] {vòng lặp};
+  \draw[->] (0,0) -- (0,1.55) node[anchor=east,font=\tiny] {$J$};
+  \draw[cB2,line width=0.8pt,mark=*,mark size=0.9pt] plot coordinates {(0.08,0.20) (0.30,0.72) (0.52,0.98) (0.74,1.12) (0.96,1.20) (1.18,1.24) (1.40,1.26)};
+\end{scope}
+\node[anchor=north west,font=\scriptsize\bfseries] at (9.45,2.55) {Đánh giá $J$ và điều kiện dừng};
+\node[anchor=west] at (9.50,1.60) {$\dfrac{|J_{\text{mới}}-J_{\text{cũ}}|}{\max(1,|J_{\text{cũ}}|)}<10^{-4}$};
+\node[anchor=west,font=\tiny] at (9.50,0.78) {\textbf{và} hai khối đơn hình đã dừng; tối đa $80$ vòng};
+
+% ---------------- noi vong lap ----------------
+\draw[->,line width=0.8pt] (b3.south) |- node[pos=0.25,right,font=\tiny] {sau mỗi vòng 3 khối} ([yshift=0.35cm]stop.east);
+\draw[->,cB3,dashed,line width=0.8pt] (stop.west) -| node[pos=0.75,left,font=\tiny,align=right] {chưa thỏa:\\ vòng tiếp theo} (b1.south);
+\draw[->,line width=0.8pt] ([yshift=-0.55cm]stop.east) -| node[pos=0.30,below,font=\tiny] {thỏa: xuất nghiệm} (out.south);
+\end{tikzpicture}

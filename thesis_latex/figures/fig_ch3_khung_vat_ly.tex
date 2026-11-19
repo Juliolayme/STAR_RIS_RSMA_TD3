@@ -1,0 +1,88 @@
+% =====================================================================
+% Hinh: Khung DRL co nhung cau truc vat ly (tong quan Chuong 3).
+% NGUON THAM KHAO BO CUC (trich khi dua hinh vao luan van):
+%   Phy-DRL (Physics-Regulated Deep Reinforcement Learning: Invariant Embeddings),
+%   Chair of Cyber-Physical Systems in Production Engineering, TU Munich (trang du an):
+%   https://rtsl.cps.mw.tum.de/view_research?id=2
+%   Khoa BibTeX: Cao2024PhyDRL (thesis_latex/references.bib).
+%   Dong nguon de dung:
+%   \figuresource{Tác giả xây dựng, bố cục tham khảo \cite{Cao2024PhyDRL} (2026)}
+% Noi dung la cua luan van: nhung 1 = bo giai ma hanh dong co cau truc (pha neo + hieu chinh hoc duoc),
+% nhung 2 = phan thuong co phat QoS, nhung 3 = trang thai chuan hoa va mang on dinh.
+% =====================================================================
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt,
+  nnbox/.style={draw=gray!60!black,rounded corners=6pt,fill=cUEc!8,minimum width=3.2cm,minimum height=2.5cm},
+  emb/.style={draw=orange!75!black,rounded corners=5pt,fill=orange!8,line width=0.9pt,align=center},
+  phys/.style={draw=gray!70!black,rounded corners=5pt,fill=gray!10,line width=0.9pt,align=center},
+  neu/.style={circle,fill=gray!55,inner sep=0pt,minimum size=0.17cm},
+  big/.style={double,double distance=1.4pt,line width=0.6pt,-{Stealth[length=3.2mm,open]}},
+]
+
+% ---------------- mang no-ron mini ----------------
+\newcommand{\miniNN}[2]{% x, y (tam)
+  \begin{scope}[shift={(#1,#2)}]
+    \foreach \i in {0,1,2}{\node[neu] (a\i) at (-0.85,0.45-0.45*\i) {};}
+    \foreach \i in {0,1,2,3}{\node[neu] (b\i) at (0,0.68-0.45*\i) {};}
+    \foreach \i in {0,1}{\node[neu] (c\i) at (0.85,0.22-0.45*\i) {};}
+    \foreach \i in {0,1,2}{\foreach \j in {0,1,2,3}{\draw[gray!55,line width=0.25pt] (a\i) -- (b\j);}}
+    \foreach \j in {0,1,2,3}{\foreach \k in {0,1}{\draw[gray!55,line width=0.25pt] (b\j) -- (c\k);}}
+  \end{scope}}
+
+% ---------------- khung tac tu ----------------
+\draw[dashed,line width=0.8pt,fill=gray!3] (0,0) rectangle (13.2,9.0);
+\node[font=\small\bfseries] at (6.6,9.35) {Tác tử DRL có nhúng cấu trúc vật lý (DDPG, TD3, PPO)};
+
+% Critic, Actor
+\node[nnbox] (crit) at (2.0,7.35) {}; \node[anchor=north,font=\scriptsize\bfseries] at (2.0,8.55) {Critic};
+\miniNN{2.0}{7.05}
+\node[nnbox] (act) at (6.2,7.35) {};  \node[anchor=north,font=\scriptsize\bfseries] at (6.2,8.55) {Actor};
+\miniNN{6.2}{7.05}
+\draw[->,line width=0.8pt] (crit.east) -- node[above,font=\tiny] {$\nabla_a Q$ / ưu thế} (act.west);
+\node[font=\tiny,gray!45!black] at (4.1,5.85) {2 lớp ẩn $256$, LayerNorm, ReLU};
+
+% Nhung 3: trang thai + mang
+\node[emb] (e3) at (4.1,4.15)
+  {\textbf{\textcolor{orange!75!black}{Nhúng 3:} Trạng thái và mạng có cấu trúc}\\[2pt]
+   trạng thái theo khối $d_s=2(K+N+KN)+K$,\\ chuẩn hóa $\div0{,}35,\ \div1,\ \div0{,}75$, cắt $[-8,8]$;\\
+   lớp cuối Actor khởi tạo nhỏ $\pm3\cdot10^{-3}$};
+\draw[->,line width=0.8pt] (e3.north) to[out=90,in=-90] (crit.south);
+\draw[->,line width=0.8pt] (e3.north) to[out=90,in=-90] (act.south);
+
+% Nhung 2: phan thuong
+\node[emb] (e2) at (4.1,1.30)
+  {\textbf{\textcolor{orange!75!black}{Nhúng 2:} Phần thưởng có phạt QoS}\\[2pt]
+   $r_{\mathrm{env}}=R_{\mathrm{sum}}-8V-8V_2$\\
+   huấn luyện: $r_t=R_{\mathrm{sum}}-\lambda_tV-8V_2$,\\ $\lambda_t\in[4,64]$ tự điều chỉnh};
+\draw[->,line width=0.8pt] (e2.north) -- (e3.south);
+
+% Nhung 1: bo giai ma (hanh dong du)
+\node[emb] (e1) at (10.45,4.35)
+  {\textbf{\textcolor{orange!75!black}{Nhúng 1:} Bộ giải mã có cấu trúc vật lý}\\[2pt]
+   $\rho_c\in[0{,}70;\,0{,}99]$, softmax $\kappa=10$,\\ chiếu $\Pi_{\Delta_K}$ cho $\boldsymbol\eta$, $\beta^R_n=1-\beta^T_n$;\\[2pt]
+   $\theta^X_n=\mathrm{wrap}\big(\underbrace{\bar\theta_n}_{\text{vật lý}}+\underbrace{0{,}25\pi\,a_{\theta^X\!,n}}_{\text{học được}}\big)$};
+\draw[->,line width=0.8pt] (act.east) -| node[pos=0.25,above,font=\tiny,align=center] {đầu ra học được\\ $a\in[-1,1]^{d_a}$} (e1.north);
+
+% Kien thuc vat ly
+\node[phys] (pk) at (10.45,1.30)
+  {\textbf{Kiến thức vật lý (Chương 2)}\\[2pt]
+   SINR của SISO--RSMA, STAR--RIS chế độ ES;\\ pha neo $\bar\theta_n=-\angle z_n$ tính từ CSI};
+\draw[->,line width=0.8pt] (pk.north) -- node[right,font=\tiny,align=left] {pha neo\\ $\bar\theta_n$} (e1.south);
+\draw[->,line width=0.8pt] (pk.west) -- node[above,font=\tiny] {SINR, $V$, $V_2$} (e2.east);
+
+% ---------------- moi truong ----------------
+\node[draw,rounded corners=8pt,line width=0.9pt,fill=gray!6,minimum width=2.9cm,minimum height=4.6cm] (env) at (15.6,4.5) {};
+\node[font=\scriptsize\bfseries,align=center] at (15.6,6.35) {Môi trường\\ STAR--RIS--RSMA};
+\begin{scope}[shift={(15.6,4.15)}]
+  \fill[gray!25] (-0.10,-0.95) -- ++(0.40,0.24) -- ++(0,1.70) -- ++(-0.40,-0.24) -- cycle;
+  \foreach \i in {0,1,2}{\foreach \j in {0,1}{
+     \fill[cKenh!70] ({-0.02+0.17*\j},{-0.78+0.10*\j+0.52*\i}) rectangle ++(0.13,0.36);}}
+  \fill[cUEa] (-0.95,-0.10) circle (0.10); \fill[cUEa] (-1.13,-0.42) arc (180:0:0.18 and 0.20) -- cycle;
+  \fill[cUEc] (1.00,0.30) circle (0.10);  \fill[cUEc] (0.82,-0.02) arc (180:0:0.18 and 0.20) -- cycle;
+  \draw[line width=1.3pt] (-0.95,1.05) -- (-0.95,1.45); \fill[gray!55] (-1.05,1.45) rectangle (-0.85,1.70);
+  \node[font=\tiny] at (0,-1.30) {R \hspace{1.0cm} T};
+\end{scope}
+\draw[big] (env.north west) ++(0,-0.6) -- ++(-1.5,0.9) node[pos=0.55,above,sloped,font=\scriptsize\bfseries] {CSI $s_t$};
+\draw[big] (13.25,4.35) -- (env.west|-13.25,4.35) node[pos=0.5,above,font=\scriptsize\bfseries,align=center] {$(\mathbf p,\boldsymbol\eta,\boldsymbol\beta,\boldsymbol\theta)$};
+\draw[->,line width=0.8pt] (e1.east) -- (13.25,4.35);
+\draw[big] ([yshift=0.5cm]env.south west) -- ([xshift=0.15cm]pk.east) node[pos=0.45,above,sloped,font=\scriptsize\bfseries] {mô hình kênh};
+\end{tikzpicture}
