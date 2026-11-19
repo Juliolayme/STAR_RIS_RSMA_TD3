@@ -1,3 +1,5 @@
+% Sinh tu dong boi scripts/make_thesis_figs_ch4.py tu TABLE_V6_SIX_METHOD_PERFORMANCE.csv.
+% Thanh sai so (TD3, DDPG, PPO): +- do lech chuan giua 5 trung binh theo hat giong.
 \begin{tikzpicture}[font=\small]
 \begin{axis}[
   width=13cm, height=8cm,
@@ -11,11 +13,11 @@
                 legend columns=3,/tikz/every even column/.append style={column sep=10pt}},
   legend cell align=left,
 ]
-\addplot[very thick,cUEc,mark=*,mark size=2pt] coordinates {(16,14.551465) (32,16.326370) (64,18.732389) (96,19.927889) (128,20.919524)};
+\addplot[very thick,cUEc,mark=*,mark size=2pt,error bars/.cd,y dir=both,y explicit,error bar style={line width=0.8pt,cUEc},error mark options={rotate=90,mark size=3pt,cUEc}] coordinates {(16,14.551465) +- (0,0.171255) (32,16.326370) +- (0,0.293066) (64,18.732389) +- (0,0.126525) (96,19.927889) +- (0,0.113414) (128,20.919524) +- (0,0.075502)};
 \addlegendentry{TD3}
-\addplot[very thick,cUEa,mark=square*,mark size=2pt] coordinates {(16,14.491241) (32,16.851819) (64,18.962516) (96,20.091340) (128,20.989047)};
+\addplot[very thick,cUEa,mark=square*,mark size=2pt,error bars/.cd,y dir=both,y explicit,error bar style={line width=0.8pt,cUEa},error mark options={rotate=90,mark size=3pt,cUEa}] coordinates {(16,14.491241) +- (0,0.302823) (32,16.851819) +- (0,0.116573) (64,18.962516) +- (0,0.093925) (96,20.091340) +- (0,0.216155) (128,20.989047) +- (0,0.074836)};
 \addlegendentry{DDPG}
-\addplot[very thick,cUEb,mark=triangle*,mark size=2pt] coordinates {(16,9.963296) (32,15.466326) (64,19.014617) (96,20.132726) (128,21.020078)};
+\addplot[very thick,cUEb,mark=triangle*,mark size=2pt,error bars/.cd,y dir=both,y explicit,error bar style={line width=0.8pt,cUEb},error mark options={rotate=90,mark size=3pt,cUEb}] coordinates {(16,9.963296) +- (0,3.630681) (32,15.466326) +- (0,2.304372) (64,19.014617) +- (0,0.211094) (96,20.132726) +- (0,0.297402) (128,21.020078) +- (0,0.171639)};
 \addlegendentry{PPO}
 \addplot[very thick,cUEd,mark=diamond*,mark size=2pt] coordinates {(16,14.344949) (32,17.725581) (64,19.904969) (96,20.910255) (128,21.609453)};
 \addlegendentry{AO--SCA}

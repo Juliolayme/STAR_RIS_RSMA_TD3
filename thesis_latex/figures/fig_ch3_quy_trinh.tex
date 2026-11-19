@@ -14,6 +14,10 @@
 \node[box,text width=2.9cm,minimum height=0.8cm] (b7) at (0,-4.3)
      {Bảng, đồ thị và thống kê};
 
+\node[box,fill=orange!10,text width=3.6cm,minimum height=0.9cm] (lam) at (4.3,1.75)
+     {Bộ điều khiển phạt QoS $\lambda_t$\\ \tiny EMA $0{,}95$; mỗi 1.000 bước\\ \tiny $\lambda_t\in[4,64]$};
+\draw[->] ([xshift=-0.45cm]b2.north) -- node[left,font=\tiny] {$\bar V_t$} ([xshift=-0.45cm]lam.south);
+\draw[->] ([xshift=0.45cm]lam.south) -- node[right,font=\tiny] {$\lambda_t$ vào $r_t$} ([xshift=0.45cm]b2.north);
 \draw[->] (b1) -- (b2);
 \draw[->] (b2) -- (b3);
 \draw[->] (b3) -- (b4);
