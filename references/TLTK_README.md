@@ -31,6 +31,8 @@ Thư mục `references/pdfs/` chứa PDF của các tài liệu trong `thesis_la
 | [23] | Maghrebi et al. 2024 — Cooperative active STAR-RIS (IEEE WCL) | **chưa có** (khóa phí) |
 | [24] | Zhong et al. 2022 — Hybrid RL STAR-RIS | `19_zhong_2022_hybrid_rl_star.pdf` |
 
+**Tài liệu chuẩn bị cho hình mô hình 3D (chưa trích trong bản v6):** `32_ma_2024_star_ris_key_generation.pdf` — Y. Ma et al., EURASIP JWCN 2024:55, DOI 10.1186/s13638-024-02388-y (CC BY 4.0). Khóa BibTeX `Ma2024STARRISKeyGen`; khi đưa `figures/fig_ch2_mo_hinh_3d.tex` vào luận văn, thêm dòng nguồn `\figuresource{Tác giả xây dựng, bố cục tham khảo \cite{Ma2024STARRISKeyGen} (2026)}`.
+
 Các file còn lại trong `references/pdfs/` (`04_`, `09_`, `10_`, `12_`, `23_`, `26_`, `29_`) có trong `.bib` nhưng
 không được trích dẫn trong luận văn, nên không xuất hiện trong danh mục tài liệu tham khảo của PDF.
 

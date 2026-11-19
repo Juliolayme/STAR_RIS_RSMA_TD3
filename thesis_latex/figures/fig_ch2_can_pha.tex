@@ -1,32 +1,59 @@
-\begin{tikzpicture}[font=\footnotesize,>=Stealth,scale=1.0]
+% Hinh 2.4: y nghia cua can pha doi voi do loi kenh hieu dung (minh hoa cho mot UE k*).
+% Phong cach dung chung tikz_defs.tex: tieu de "tit", mui ten thanh phan cUEc, tong red!75!black,
+% hop cong thuc "box" nen cKenh!12 (giong Hinh 1.4a).
+% Do dai sau thanh phan giong nhau o hai khung; (a) pha khong deu -> tong ngan; (b) cung pha -> tong = tong do dai.
+\begin{tikzpicture}[font=\scriptsize,>=Stealth,line width=0.5pt]
+\def\La{0.95}\def\Lb{0.70}\def\Lc{1.05}\def\Ld{0.80}\def\Le{0.65}\def\Lf{0.85}
 
-% ---------- panel trai: pha lech ----------
+% =====================================================================
+% (a) Pha chua can chinh
+% =====================================================================
 \begin{scope}[shift={(0,0)}]
-  \draw[gray!45,->] (-0.6,0)--(3.6,0);
-  \draw[gray!45,->] (0,-1.9)--(0,1.9);
-  \draw[blue!65,line width=1pt,->] (0,0) -- ++(20:0.75);
-  \draw[blue!65,line width=1pt,->] (20:0.75) -- ++(100:0.75);
-  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)$) -- ++(175:0.75);
-  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)+(175:0.75)$) -- ++(250:0.75);
-  \draw[blue!65,line width=1pt,->] ($(20:0.75)+(100:0.75)+(175:0.75)+(250:0.75)$) -- ++(320:0.75);
-  \coordinate (T1) at ($(20:0.75)+(100:0.75)+(175:0.75)+(250:0.75)+(320:0.75)$);
-  \draw[red!75!black,line width=1.5pt,->] (0,0) -- (T1);
-  \node[font=\scriptsize,red!75!black,anchor=west] at (0.30,-0.30) {$\big|\sum_n\big|$ nhỏ};
-  \node[font=\scriptsize,anchor=north] at (1.3,-2.15) {(a) Pha chưa căn chỉnh};
+  \node[tit] at (0,3.30) {(a) Pha chưa căn chỉnh};
+  \begin{scope}[shift={(1.55,0.95)}]
+    \draw[gray!45,->] (-1.25,0)--(2.35,0);
+    \draw[gray!45,->] (0,-0.55)--(0,1.95);
+    \coordinate (P0) at (0,0);
+    \draw[cUEc,line width=0.9pt,->] (P0) -- ++(8:\La)   coordinate (P1);
+    \draw[cUEc,line width=0.9pt,->] (P1) -- ++(79:\Lb)  coordinate (P2);
+    \draw[cUEc,line width=0.9pt,->] (P2) -- ++(140:\Lc) coordinate (P3);
+    \draw[cUEc,line width=0.9pt,->] (P3) -- ++(212:\Ld) coordinate (P4);
+    \draw[cUEc,line width=0.9pt,->] (P4) -- ++(255:\Le) coordinate (P5);
+    \draw[cUEc,line width=0.9pt,->] (P5) -- ++(350:\Lf) coordinate (P6);
+    \draw[red!75!black,line width=1.4pt,->] (P0) -- (P6);
+    \fill (P0) circle (1.1pt);
+    \node[font=\scriptsize,red!75!black,anchor=west,align=left] at (1.30,0.42)
+         {tổng $\big|\sum_n\big|$\\ rất ngắn};
+  \end{scope}
+  \node[font=\scriptsize,anchor=west] at (0,0.05) {Mỗi phần tử một pha ngẫu nhiên};
 \end{scope}
 
-% ---------- panel phai: da can pha ----------
-\begin{scope}[shift={(6.6,0)}]
-  \draw[gray!45,->] (-0.6,0)--(4.6,0);
-  \draw[gray!45,->] (0,-1.9)--(0,1.9);
-  \foreach \i in {0,1,2,3,4}{
-     \draw[blue!65,line width=1pt,->] (\i*0.75,0.30) -- (\i*0.75+0.75,0.30);
-  }
-  \draw[red!75!black,line width=1.5pt,->] (0,-0.30) -- (3.75,-0.30);
-  \node[font=\scriptsize,red!75!black,anchor=north] at (1.9,-0.38) {$\big|\sum_n\big|$ lớn};
-  \node[font=\scriptsize,anchor=north] at (1.9,-2.15) {(b) Căn pha minh họa cho một UE $k^\star$: $\theta_n=-\angle(h^{*}_{r,k^\star\!,n}g_n)$};
+% =====================================================================
+% (b) Can pha cho UE k*
+% =====================================================================
+\begin{scope}[shift={(4.75,0)}]
+  \node[tit] at (0,3.30) {(b) Căn pha cho UE $k^\star$};
+  \begin{scope}[shift={(0.35,0.95)}]
+    \draw[gray!45,->] (-0.25,0)--(5.45,0);
+    \draw[gray!45,->] (0,-0.55)--(0,1.95);
+    \draw[cUEc,line width=0.9pt,->] (0,1.75) -- ++(0:\La);
+    \draw[cUEc,line width=0.9pt,->] (0,1.47) -- ++(0:\Lb);
+    \draw[cUEc,line width=0.9pt,->] (0,1.19) -- ++(0:\Lc);
+    \draw[cUEc,line width=0.9pt,->] (0,0.91) -- ++(0:\Ld);
+    \draw[cUEc,line width=0.9pt,->] (0,0.63) -- ++(0:\Le);
+    \draw[cUEc,line width=0.9pt,->] (0,0.35) -- ++(0:\Lf);
+    \draw[red!75!black,line width=1.4pt,->] (0,0) -- (5.0,0);
+    \fill (0,0) circle (1.1pt);
+    \draw[gray!55,dashed] (5.0,0.05) -- (5.0,1.85);
+    \node[font=\scriptsize,red!75!black,anchor=north] at (2.55,-0.08)
+         {tổng $\big|\sum_n\big|=\sum_n\big|h^{*}_{r,k^\star\!,n}g_n\big|$ dài gấp nhiều lần};
+    \node[box,fill=cKenh!12,anchor=west] at (1.45,1.25)
+         {Đặt $\theta_n=-\angle\big(h^{*}_{r,k^\star\!,n}g_n\big)$\\[3pt] $\Rightarrow$ mọi mũi tên cùng hướng};
+  \end{scope}
+  \node[font=\scriptsize,anchor=west] at (0,0.05) {Các thành phần vẽ riêng, cùng pha};
 \end{scope}
 
-\node[font=\scriptsize,align=center,anchor=north] at (4.2,-2.75)
-  {Mỗi mũi tên là một thành phần ghép tầng $h^{*}_{r,k^\star\!,n}g_n e^{j\theta_n}$ của UE $k^\star$ qua một phần tử STAR--RIS (bỏ qua đường trực tiếp)};
+\node[note,anchor=north,text width=10.4cm,align=center] at (5.2,-0.25)
+  {Mỗi mũi tên là một thành phần ghép tầng $h^{*}_{r,k^\star\!,n}g_n e^{j\theta_n}$ của UE $k^\star$ qua một phần tử
+   STAR--RIS (bỏ qua đường trực tiếp); độ dài từng mũi tên giống nhau ở hai khung, chỉ khác pha.};
 \end{tikzpicture}
