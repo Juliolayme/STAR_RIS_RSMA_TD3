@@ -307,10 +307,21 @@ Tổng tốc độ của nhóm DRL và AO đều tăng theo $N$. Điều này ch
 STAR--RIS vẫn mang lại lợi ích trong mô hình, với lưu ý rằng mô hình kênh giữ nguyên phương
 sai của từng phần tử nên diện tích hiệu dụng của bề mặt tăng theo $N$
 (Mục~\ref{ssec:sinh-mau-kenh}); mức tăng này vì vậy không tương ứng trường hợp giữ cố định
-kích thước vật lý của bề mặt. Khoảng cách tuyệt đối giữa AO--Grid và cụm
+kích thước vật lý của bề mặt. Hình~\ref{fig:ch4-danh-doi-3d} đặt đồng thời độ trễ, số phần tử
+$N$ và tổng tốc độ của sáu phương pháp: khi $N$ tăng, các đường DRL đi lên theo tổng tốc độ
+nhưng gần như đứng yên trên trục độ trễ, dưới ngưỡng $1$ ms, trong khi hai đường AO vừa đi lên
+vừa trượt sang phải, tức chậm dần theo $N$. Khoảng cách tuyệt đối giữa AO--Grid và cụm
 DRL tại $N = 128$ vào khoảng $1,37$ đến $1,47$ bit/s/Hz, trong khi chênh lệch độ trễ là ba
 đến bốn bậc độ lớn. Đây là bằng chứng trực quan nhất cho lập luận về đánh đổi giữa chất
 lượng và độ trễ của luận văn.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{0.95\textwidth}{!}{\input{figures/fig_ch4_danh_doi_3d}}
+\caption[Tổng tốc độ và độ trễ của sáu phương pháp theo số phần tử STAR--RIS]{Tổng tốc độ và độ trễ của sáu phương pháp theo số phần tử STAR--RIS. Độ trễ là trung vị trên CPU một luồng; đường gióng chấm nối mỗi điểm xuống mặt đáy}
+\label{fig:ch4-danh-doi-3d}
+\figuresource{Tác giả vẽ từ dữ liệu kiểm thử và phép đo độ trễ (2026)}
+\end{figure}
 
 \section{Phân tích thống kê và phạm vi diễn giải}
 \label{sec:phan-tich-thong-ke}

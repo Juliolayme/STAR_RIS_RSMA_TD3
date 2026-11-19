@@ -1,4 +1,5 @@
-"""Sinh Hình 4.1 (đường cong xác thực) và Hình 4.2 (tổng tốc độ theo N) của luận văn từ CSV đã khóa.
+"""Sinh Hình 4.1 (đường cong xác thực), Hình 4.2 (tổng tốc độ theo N) và hình 3D độ trễ–N–tổng tốc độ
+(Mục 4.11) của luận văn từ CSV đã khóa.
 
 Hình 4.1: đường đậm là trung bình 5 hạt giống; dải mờ là khoảng nhỏ nhất – lớn nhất giữa các hạt giống.
 Hình 4.2: thanh sai số của TD3, DDPG, PPO là ± độ lệch chuẩn giữa 5 trung bình theo hạt giống
@@ -83,7 +84,38 @@ def sum_rate_figure() -> str:
     return "\n".join(out) + "\n"
 
 
+def tradeoff_3d_figure() -> str:
+    p = pd.read_csv(TAB / "TABLE_V6_SIX_METHOD_PERFORMANCE.csv")
+    lat = pd.read_csv(TAB / "TABLE_V6_SIX_METHOD_CPU_LATENCY.csv")
+    d = p.merge(lat[["method", "n_ris", "solve_ms_median"]], on=["method", "n_ris"]).sort_values(["method", "n_ris"])
+    spec = [("td3", "cUEc", "*", "TD3"), ("ddpg", "cUEa", "square*", "DDPG"), ("ppo", "cUEb", "triangle*", "PPO"),
+            ("ao_sca", "cUEd", "diamond*", "AO--SCA"), ("ao_grid", "cChung", "pentagon*", "AO--Grid"),
+            ("analytical_ris", "cKenh", "o", "AnalyticalRIS")]
+    out = [r"% Sinh tu dong boi scripts/make_thesis_figs_ch4.py: tong toc do trung binh (TABLE_V6_SIX_METHOD_PERFORMANCE)",
+           r"% theo do tre trung vi (TABLE_V6_SIX_METHOD_CPU_LATENCY) va so phan tu N.",
+           r"\begin{tikzpicture}[font=\small]", r"\begin{axis}[",
+           r"  width=13.5cm, height=9.5cm, view={-38}{24},",
+           r"  xmode=log, xmin=0.1, xmax=20000, ymin=10, ymax=135, ytick={16,32,64,96,128}, zmin=0, zmax=25,",
+           r"  xlabel={Độ trễ (ms, thang log)}, ylabel={Số phần tử $N$}, zlabel={Tổng tốc độ (bit/s/Hz)},",
+           r"  grid=major, grid style={gray!25}, tick label style={font=\scriptsize}, label style={font=\small},",
+           r"  legend style={font=\scriptsize,at={(1.02,1)},anchor=north west,draw=gray!50},",
+           r"  x label style={sloped like x axis}, y label style={sloped like y axis},", r"]"]
+    for m, col, mark, lab in spec:
+        g = d[d.method == m]
+        co = " ".join(f"({r.solve_ms_median:.4f},{int(r.n_ris)},{r.sum_rate_mean:.4f})" for r in g.itertuples())
+        out.append(f"\\addplot3[{col},line width=0.9pt,mark={mark},mark size=2.4pt] coordinates {{{co}}};")
+        out.append(f"\\addlegendentry{{{lab}}}")
+    for r in d.itertuples():
+        out.append(f"\\draw[gray!45,densely dotted] (axis cs:{r.solve_ms_median:.4f},{int(r.n_ris)},0) -- "
+                   f"(axis cs:{r.solve_ms_median:.4f},{int(r.n_ris)},{r.sum_rate_mean:.4f});")
+    out += [r"\draw[gray!55,dashed,line width=0.8pt] (axis cs:1,10,0) -- (axis cs:1,135,0);",
+            r"\node[font=\scriptsize,gray!45!black,anchor=south west] at (axis cs:1,135,0) {ngưỡng $1$ ms};",
+            r"\end{axis}", r"\end{tikzpicture}"]
+    return "\n".join(out) + "\n"
+
+
 if __name__ == "__main__":
     (FIG / "fig_ch4_duong_cong_xac_thuc.tex").write_text(validation_figure(), encoding="utf-8")
     (FIG / "fig_ch4_tong_toc_do.tex").write_text(sum_rate_figure(), encoding="utf-8")
-    print("wrote fig_ch4_duong_cong_xac_thuc.tex, fig_ch4_tong_toc_do.tex")
+    (FIG / "fig_ch4_danh_doi_3d.tex").write_text(tradeoff_3d_figure(), encoding="utf-8")
+    print("wrote fig_ch4_duong_cong_xac_thuc.tex, fig_ch4_tong_toc_do.tex, fig_ch4_danh_doi_3d.tex")

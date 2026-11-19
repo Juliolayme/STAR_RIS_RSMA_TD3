@@ -1,0 +1,57 @@
+% Sinh tu dong boi scripts/make_thesis_figs_ch4.py: tong toc do trung binh (TABLE_V6_SIX_METHOD_PERFORMANCE)
+% theo do tre trung vi (TABLE_V6_SIX_METHOD_CPU_LATENCY) va so phan tu N.
+\begin{tikzpicture}[font=\small]
+\begin{axis}[
+  width=13.5cm, height=9.5cm, view={-38}{24},
+  xmode=log, xmin=0.1, xmax=20000, ymin=10, ymax=135, ytick={16,32,64,96,128}, zmin=0, zmax=25,
+  xlabel={Độ trễ (ms, thang log)}, ylabel={Số phần tử $N$}, zlabel={Tổng tốc độ (bit/s/Hz)},
+  grid=major, grid style={gray!25}, tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={font=\scriptsize,at={(1.02,1)},anchor=north west,draw=gray!50},
+  x label style={sloped like x axis}, y label style={sloped like y axis},
+]
+\addplot3[cUEc,line width=0.9pt,mark=*,mark size=2.4pt] coordinates {(0.3389,16,14.5515) (0.3660,32,16.3264) (0.3934,64,18.7324) (0.4343,96,19.9279) (0.4519,128,20.9195)};
+\addlegendentry{TD3}
+\addplot3[cUEa,line width=0.9pt,mark=square*,mark size=2.4pt] coordinates {(0.3435,16,14.4912) (0.3652,32,16.8518) (0.3930,64,18.9625) (0.4328,96,20.0913) (0.4459,128,20.9890)};
+\addlegendentry{DDPG}
+\addplot3[cUEb,line width=0.9pt,mark=triangle*,mark size=2.4pt] coordinates {(0.5645,16,9.9633) (0.5847,32,15.4663) (0.6237,64,19.0146) (0.6850,96,20.1327) (0.7252,128,21.0201)};
+\addlegendentry{PPO}
+\addplot3[cUEd,line width=0.9pt,mark=diamond*,mark size=2.4pt] coordinates {(830.4545,16,14.3449) (1064.7201,32,17.7256) (1861.6429,64,19.9050) (2543.5247,96,20.9103) (3606.3791,128,21.6095)};
+\addlegendentry{AO--SCA}
+\addplot3[cChung,line width=0.9pt,mark=pentagon*,mark size=2.4pt] coordinates {(188.5626,16,16.5802) (320.0277,32,18.5044) (579.2715,64,20.4401) (881.0458,96,21.5862) (1204.7310,128,22.3918)};
+\addlegendentry{AO--Grid}
+\addplot3[cKenh,line width=0.9pt,mark=o,mark size=2.4pt] coordinates {(0.2031,16,1.9812) (0.2094,32,1.9820) (0.2209,64,1.9821) (0.2230,96,1.9821) (0.2349,128,1.9821)};
+\addlegendentry{AnalyticalRIS}
+\draw[gray!45,densely dotted] (axis cs:0.2031,16,0) -- (axis cs:0.2031,16,1.9812);
+\draw[gray!45,densely dotted] (axis cs:0.2094,32,0) -- (axis cs:0.2094,32,1.9820);
+\draw[gray!45,densely dotted] (axis cs:0.2209,64,0) -- (axis cs:0.2209,64,1.9821);
+\draw[gray!45,densely dotted] (axis cs:0.2230,96,0) -- (axis cs:0.2230,96,1.9821);
+\draw[gray!45,densely dotted] (axis cs:0.2349,128,0) -- (axis cs:0.2349,128,1.9821);
+\draw[gray!45,densely dotted] (axis cs:188.5626,16,0) -- (axis cs:188.5626,16,16.5802);
+\draw[gray!45,densely dotted] (axis cs:320.0277,32,0) -- (axis cs:320.0277,32,18.5044);
+\draw[gray!45,densely dotted] (axis cs:579.2715,64,0) -- (axis cs:579.2715,64,20.4401);
+\draw[gray!45,densely dotted] (axis cs:881.0458,96,0) -- (axis cs:881.0458,96,21.5862);
+\draw[gray!45,densely dotted] (axis cs:1204.7310,128,0) -- (axis cs:1204.7310,128,22.3918);
+\draw[gray!45,densely dotted] (axis cs:830.4545,16,0) -- (axis cs:830.4545,16,14.3449);
+\draw[gray!45,densely dotted] (axis cs:1064.7201,32,0) -- (axis cs:1064.7201,32,17.7256);
+\draw[gray!45,densely dotted] (axis cs:1861.6429,64,0) -- (axis cs:1861.6429,64,19.9050);
+\draw[gray!45,densely dotted] (axis cs:2543.5247,96,0) -- (axis cs:2543.5247,96,20.9103);
+\draw[gray!45,densely dotted] (axis cs:3606.3791,128,0) -- (axis cs:3606.3791,128,21.6095);
+\draw[gray!45,densely dotted] (axis cs:0.3435,16,0) -- (axis cs:0.3435,16,14.4912);
+\draw[gray!45,densely dotted] (axis cs:0.3652,32,0) -- (axis cs:0.3652,32,16.8518);
+\draw[gray!45,densely dotted] (axis cs:0.3930,64,0) -- (axis cs:0.3930,64,18.9625);
+\draw[gray!45,densely dotted] (axis cs:0.4328,96,0) -- (axis cs:0.4328,96,20.0913);
+\draw[gray!45,densely dotted] (axis cs:0.4459,128,0) -- (axis cs:0.4459,128,20.9890);
+\draw[gray!45,densely dotted] (axis cs:0.5645,16,0) -- (axis cs:0.5645,16,9.9633);
+\draw[gray!45,densely dotted] (axis cs:0.5847,32,0) -- (axis cs:0.5847,32,15.4663);
+\draw[gray!45,densely dotted] (axis cs:0.6237,64,0) -- (axis cs:0.6237,64,19.0146);
+\draw[gray!45,densely dotted] (axis cs:0.6850,96,0) -- (axis cs:0.6850,96,20.1327);
+\draw[gray!45,densely dotted] (axis cs:0.7252,128,0) -- (axis cs:0.7252,128,21.0201);
+\draw[gray!45,densely dotted] (axis cs:0.3389,16,0) -- (axis cs:0.3389,16,14.5515);
+\draw[gray!45,densely dotted] (axis cs:0.3660,32,0) -- (axis cs:0.3660,32,16.3264);
+\draw[gray!45,densely dotted] (axis cs:0.3934,64,0) -- (axis cs:0.3934,64,18.7324);
+\draw[gray!45,densely dotted] (axis cs:0.4343,96,0) -- (axis cs:0.4343,96,19.9279);
+\draw[gray!45,densely dotted] (axis cs:0.4519,128,0) -- (axis cs:0.4519,128,20.9195);
+\draw[gray!55,dashed,line width=0.8pt] (axis cs:1,10,0) -- (axis cs:1,135,0);
+\node[font=\scriptsize,gray!45!black,anchor=south west] at (axis cs:1,135,0) {ngưỡng $1$ ms};
+\end{axis}
+\end{tikzpicture}

@@ -13,17 +13,16 @@
 ]
 
 % ------------------------- tieu de va chu giai -------------------------
-\node[anchor=west,font=\small\bfseries] at (0,9.05) {Cơ chế hoạt động của AnalyticalRIS};
-\node[tagfix,anchor=west] at (9.0,9.05) {QUY TẮC CỐ ĐỊNH};
-\node[anchor=west] at (10.85,9.05) {đặt sẵn, không tối ưu};
-\node[tagcsi,anchor=west] at (13.4,9.05) {TÍNH TỪ CSI};
-\node[anchor=west] at (14.75,9.05) {công thức đóng};
+\node[tagfix,anchor=west] (lg1) at (4.1,9.05) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west] (lg2) at ([xshift=2pt]lg1.east) {đặt sẵn, không tối ưu};
+\node[tagcsi,anchor=west] (lg3) at ([xshift=12pt]lg2.east) {TÍNH TỪ CSI};
+\node[anchor=west] at ([xshift=2pt]lg3.east) {công thức đóng};
 
 % ------------------------- dau vao -------------------------
-\node[draw,rounded corners=3pt,line width=0.8pt,minimum width=3.3cm,minimum height=3.6cm,anchor=center] (in) at (1.75,4.35) {};
+\node[draw,rounded corners=3pt,line width=0.8pt,minimum width=3.3cm,minimum height=3.9cm,anchor=center] (in) at (1.75,4.25) {};
 \node[anchor=north west,font=\tiny\bfseries,gray!50!black] at (0.25,6.0) {ĐẦU VÀO};
 \node[anchor=north west,font=\scriptsize\bfseries,align=left] at (0.25,5.7) {Thông tin kênh (CSI)};
-\begin{scope}[shift={(0.45,3.55)}]
+\begin{scope}[shift={(0.35,3.55)}]
   % BS
   \draw[line width=1.6pt] (0,0) -- (0,0.9);
   \draw[line width=1.6pt] (-0.15,0.9) -- (0.15,0.9);
@@ -37,14 +36,14 @@
   \draw[gray!60!black] (0.15,0.85) -- (1.28,0.70) node[midway,above,font=\tiny] {$g_n$};
   % UE hai phia
   \fill (0.95,1.30) circle (0.07); \node[font=\tiny,anchor=east] at (0.88,1.30) {UE$_R$};
-  \fill (2.35,1.25) circle (0.07); \node[font=\tiny,anchor=west] at (2.42,1.25) {UE$_T$};
-  \fill (2.35,0.15) circle (0.07); \node[font=\tiny,anchor=west] at (2.42,0.15) {UE$_T$};
+  \fill (2.20,1.25) circle (0.07); \node[font=\tiny,anchor=west] at (2.27,1.25) {UE$_T$};
+  \fill (2.20,0.15) circle (0.07); \node[font=\tiny,anchor=west] at (2.27,0.15) {UE$_T$};
   \draw[cUEa!80!black] (1.30,1.00) -- (1.01,1.26);
-  \draw[cUEc!80!black] (1.50,0.95) -- (2.28,1.22);
-  \draw[cUEc!80!black] (1.50,0.35) -- (2.28,0.18);
+  \draw[cUEc!80!black] (1.50,0.95) -- (2.13,1.22);
+  \draw[cUEc!80!black] (1.50,0.35) -- (2.13,0.18);
 \end{scope}
-\node[font=\scriptsize] at (1.75,3.05) {CSI dùng: $g_n,\ h_{r,k,n}$};
-\node[font=\tiny,gray!50!black,align=center] at (1.75,2.75) {(không dùng $h_{d,k}$)};
+\node[font=\scriptsize] at (1.75,2.88) {CSI dùng: $g_n,\ h_{r,k,n}$};
+\node[font=\tiny,gray!50!black,align=center] at (1.75,2.55) {(không dùng $h_{d,k}$)};
 
 % ------------------------- cac buoc -------------------------
 \foreach \y/\n in {7.65/s1,5.55/s2,3.45/s3}{ \node[stepbox,anchor=west] (\n) at (4.1,\y) {}; }
@@ -52,20 +51,20 @@
 
 % buoc 1: phan bo cong suat
 \node[num] at (4.45,8.25) {1};
-\node[anchor=west,font=\scriptsize\bfseries] at (4.7,8.25) {Phân bổ công suất};
-\node[tagfix,anchor=west] at (7.25,8.25) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\scriptsize\bfseries] (tt1) at (4.7,8.25) {Phân bổ công suất};
+\node[tagfix,anchor=west] at ([xshift=4pt]tt1.east) {QUY TẮC CỐ ĐỊNH};
 \node[anchor=west,font=\small] at (4.3,7.6) {$p_c=p_k=\dfrac{P_{\max}}{K+1}$};
 \node[anchor=west,gray!35!black] at (4.3,6.97) {chia đều cho $K+1$ luồng, không tìm kiếm tối ưu};
 \node[anchor=west,font=\tiny\bfseries] at (10.25,8.30) {Tổng công suất $P_{\max}$};
 \node[cell,minimum width=0.66cm,fill=cChung!70,text=white,anchor=west] (pc) at (10.25,7.82) {$p_c$};
 \foreach \k/\c [count=\i] in {1/cUEa,2/cUEb,3/cUEc,4/cUEd}{
   \node[cell,minimum width=0.66cm,fill=\c!22,anchor=west] at (10.25+0.66*\i,7.82) {$p_{\k}$};}
-\node[anchor=north west,font=\tiny,gray!45!black] at (10.20,7.52) {luồng chung $+\ 4$ luồng riêng ($K=4$)};
+\node[anchor=north west,font=\tiny,gray!45!black] at (10.20,7.52) {chung $+\ 4$ riêng ($K=4$)};
 
 % buoc 2: phan bo toc do chung
 \node[num] at (4.45,6.15) {2};
-\node[anchor=west,font=\scriptsize\bfseries] at (4.7,6.15) {Phân bổ tốc độ chung};
-\node[tagfix,anchor=west] at (7.55,6.15) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\scriptsize\bfseries] (tt2) at (4.7,6.15) {Phân bổ tốc độ chung};
+\node[tagfix,anchor=west] at ([xshift=4pt]tt2.east) {QUY TẮC CỐ ĐỊNH};
 \node[anchor=west,font=\small] at (4.3,5.50) {$\eta_k=\dfrac{1}{K}$};
 \node[anchor=west,gray!35!black] at (4.3,4.87) {chia đều tốc độ chung $R_c$ cho $K$ UE};
 \node[anchor=west,font=\tiny\bfseries] at (10.25,6.20) {Tốc độ luồng chung $R_c$};
@@ -75,8 +74,8 @@
 
 % buoc 3: chia nang luong
 \node[num] at (4.45,4.05) {3};
-\node[anchor=west,font=\scriptsize\bfseries] at (4.7,4.05) {Chia năng lượng};
-\node[tagfix,anchor=west] at (6.95,4.05) {QUY TẮC CỐ ĐỊNH};
+\node[anchor=west,font=\scriptsize\bfseries] (tt3) at (4.7,4.05) {Chia năng lượng};
+\node[tagfix,anchor=west] at ([xshift=4pt]tt3.east) {QUY TẮC CỐ ĐỊNH};
 \node[anchor=west,font=\small] at (4.3,3.40) {$\beta^T_n=\beta^R_n=0{,}5$};
 \node[anchor=west,gray!35!black] at (4.3,2.77) {truyền qua $50\%$, phản xạ $50\%$ năng lượng};
 \begin{scope}[shift={(10.6,3.40)}]
@@ -93,11 +92,11 @@
 
 % buoc 4: can pha giai tich
 \node[numcsi] at (4.45,1.95) {4};
-\node[anchor=west,font=\scriptsize\bfseries] at (4.7,1.95) {Căn pha giải tích};
-\node[tagcsi,anchor=west] at (7.0,1.95) {TÍNH TỪ CSI};
+\node[anchor=west,font=\scriptsize\bfseries] (tt4) at (4.7,1.95) {Căn pha giải tích};
+\node[tagcsi,anchor=west] at ([xshift=4pt]tt4.east) {TÍNH TỪ CSI};
 \node[anchor=west,font=\small] at (4.3,1.30) {$\theta^T_n=\theta^R_n=-\angle\Big(\sum_{k=1}^{K}h^{*}_{r,k,n}\,g_n\Big)$};
-\node[anchor=west,gray!35!black,align=left] at (4.3,0.68) {tính trực tiếp từ CSI, pha neo gộp các UE, không lặp};
-\begin{scope}[shift={(10.75,1.40)}]
+\node[anchor=west,gray!35!black,align=left] at (4.3,0.68) {tính trực tiếp từ CSI, không lặp};
+\begin{scope}[shift={(10.95,1.40)}]
   \draw[gray!45] (-0.55,0) -- (0.55,0) (0,-0.55) -- (0,0.55);
   \foreach \a/\l in {20/0.48,85/0.42,140/0.50,210/0.40,265/0.46,320/0.44}{\draw[->,cUEc,line width=0.8pt] (0,0) -- (\a:\l);}
   \node[font=\tiny,anchor=north] at (0,-0.58) {các $z_n$ lệch pha};

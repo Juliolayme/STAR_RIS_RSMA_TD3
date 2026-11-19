@@ -44,6 +44,24 @@ nó không có nghĩa các thuật toán có độ khó học hoặc ngân sách
 \figuresource{Tác giả xây dựng theo mã nguồn thực nghiệm (2026)}
 \end{figure}
 
+Hình~\ref{fig:ch3-khung-vat-ly} nhìn cùng khung này theo góc độ kiến thức vật lý được đưa vào
+tác tử ở ba vị trí. Thứ nhất, bộ giải mã hành động có cấu trúc (Mục~\ref{sec:bo-giai-ma})
+bảo đảm khả thi miền và tách pha STAR--RIS thành phần neo vật lý $\bar\theta_n$ tính từ CSI
+cộng phần hiệu chỉnh học được. Thứ hai, phần thưởng có phạt QoS với hệ số thích nghi
+$\lambda_t$ (Mục~\ref{ssec:phan-thuong-huan-luyen}) đưa ràng buộc chất lượng dịch vụ vào tín
+hiệu học. Thứ ba, trạng thái được tổ chức và chuẩn hóa theo khối kênh
+(Mục~\ref{sec:bieu-dien-trang-thai}), kết hợp các cơ chế ổn định mạng. Bố cục này tham khảo
+khung Phy-DRL nhúng kiến thức vật lý vào DRL~\cite{Cao2024PhyDRL}, nhưng nội dung từng khối là
+của bài toán STAR--RIS hỗ trợ RSMA trong luận văn.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_ch3_khung_vat_ly}}
+\caption{Ba vị trí nhúng cấu trúc vật lý vào tác tử DRL}
+\label{fig:ch3-khung-vat-ly}
+\figuresource{Tác giả xây dựng, bố cục tham khảo \cite{Cao2024PhyDRL} (2026)}
+\end{figure}
+
 \section{Biểu diễn trạng thái}
 \label{sec:bieu-dien-trang-thai}
 
@@ -614,12 +632,21 @@ $\mathbf{p} = (p_c, p_1, \dots, p_K)$ với tổng bằng $P_{\max}$, véc-tơ $
 \boldsymbol{\theta}^R)$. Hai bộ giải lặp tối ưu trực tiếp hàm đánh giá có xét phạt QoS $r_{\mathrm{env}}$
 trong~\eqref{eq:phan-thuong-moi-truong}; DRL không tối ưu đúng hàm này mà học từ phần thưởng
 thích nghi $r_t$, còn khi kiểm thử mọi phương pháp được so sánh trên cùng tổng tốc độ và
-chỉ số QoS. Cơ chế trực quan của ba phương pháp đã được minh họa ở
-Hình~\ref{fig:ch1-ao-truc-giac}; quy trình chung được tóm tắt trong
+chỉ số QoS. Cơ chế của từng phương pháp được minh họa ở Hình~\ref{fig:ch3-analyticalris},
+Hình~\ref{fig:ch3-aosca} và Hình~\ref{fig:ch3-aogrid}; quy trình chung được tóm tắt trong
 Thuật toán~\ref{alg:doi-chieu-ao}.
 
 \subsection{AnalyticalRIS}
 \label{ssec:analytical-ris}
+
+\begin{sidewaysfigure}
+\centering
+\resizebox{\textheight}{!}{\input{figures/fig_analyticalris_co_che}}
+\caption{Cơ chế hoạt động của AnalyticalRIS}
+\label{fig:ch3-analyticalris}
+\figuresource{Tác giả xây dựng theo mã nguồn \texttt{baselines/analytical\_ris.py} (2026)}
+\end{sidewaysfigure}
+
 
 AnalyticalRIS là phương pháp tham chiếu có chi phí tính toán thấp nhất: nó tạo quyết định
 trong một bước bằng công thức đóng, không có vòng lặp tối ưu. Phương pháp chia đều công suất
@@ -631,8 +658,10 @@ nhau, nhằm làm các thành phần ghép tầng qua STAR--RIS cộng thuận v
 luận văn, AnalyticalRIS đóng hai vai trò: tạo điểm khởi đầu có ý nghĩa vật lý cho AO--SCA và
 AO--Grid, đồng thời cung cấp một mốc đối chiếu về độ trễ rất thấp.
 
+
 \subsection{AO--SCA}
 \label{ssec:ao-sca}
+
 
 AO--SCA dùng nghiệm AnalyticalRIS làm điểm khởi đầu rồi tối ưu luân phiên ba khối biến qua
 nhiều vòng lặp: khối công suất $\mathbf{p}$, khối phân bổ tốc độ chung $\boldsymbol{\eta}$
@@ -674,8 +703,24 @@ không áp dụng trực tiếp cho bộ giải này. Ngoài ra, tiêu chí dừ
 kiện dừng cho hai khối đơn hình; với khối STAR--RIS, bộ giải dừng theo thay đổi tương đối của
 hàm mục tiêu và chưa xác nhận điều kiện dừng (stationarity) cho toàn khối.
 
+\begin{sidewaysfigure}
+\centering
+\resizebox{\textheight}{!}{\input{figures/fig_aosca_co_che}}
+\caption{Cơ chế hoạt động của AO--SCA}
+\label{fig:ch3-aosca}
+\figuresource{Tác giả xây dựng theo mã nguồn \texttt{baselines/ao\_corrected.py} (2026)}
+\end{sidewaysfigure}
+
 \subsection{AO--Grid}
 \label{ssec:ch3-ao-grid}
+
+\begin{sidewaysfigure}
+\centering
+\resizebox{\textheight}{!}{\input{figures/fig_aogrid_co_che}}
+\caption{Cơ chế hoạt động của AO--Grid}
+\label{fig:ch3-aogrid}
+\figuresource{Tác giả xây dựng theo mã nguồn \texttt{baselines/ao\_grid\_corrected.py} (2026)}
+\end{sidewaysfigure}
 
 AO--SCA dựa trên độ dốc cục bộ nên có thể dừng ở các cực trị địa phương gần nghiệm khởi
 tạo. AO--Grid giữ cấu trúc luân phiên ba khối nhưng thay phép dò đạo hàm bằng tập giá trị

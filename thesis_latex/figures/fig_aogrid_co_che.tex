@@ -17,7 +17,6 @@
 \colorlet{cB1}{blue!55!black}\colorlet{cB2}{teal!70!black}\colorlet{cB3}{orange!80!black}
 
 % ---------------- tieu de, chu giai ----------------
-\node[anchor=west,font=\small\bfseries] at (0,10.1) {Cơ chế hoạt động của AO--Grid};
 \node[on=cB1,anchor=west] at (12.3,10.1) {khối};  \node[anchor=west] at (12.95,10.1) {đang cập nhật};
 \node[off,anchor=west] at (14.85,10.1) {khối};    \node[anchor=west] at (15.5,10.1) {giữ cố định};
 \node[cand] at (17.45,10.1) {}; \node[pick] at (17.75,10.1) {};
@@ -47,7 +46,7 @@
 % ================= khoi 1: cong suat =================
 \begin{scope}[shift={(2.85,8.55)}]
   \node[num,fill=cB1] at (0.15,0) {1};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối công suất $\mathbf p$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối công suất $\mathbf p$};
   \node[on=cB1,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
@@ -70,7 +69,7 @@
   \node[cell,fill=cUEb!40,minimum width=1.66cm,anchor=west,line width=0.8pt] at (1.12,-3.10) {$p_2$};
   \node[cell,fill=cUEc!22,minimum width=0.56cm,anchor=west] at (2.78,-3.10) {$p_3$};
   \node[cell,fill=cUEd!22,minimum width=0.56cm,anchor=west] at (3.34,-3.10) {$p_4$};
-  \node[anchor=west,font=\tiny] at (0,-3.55) {phần còn lại co giãn theo tỷ lệ, giữ $\sum=P_{\max}$};
+  \node[anchor=west,font=\tiny] at (0,-3.55) {phần còn lại co giãn, giữ $\sum=P_{\max}$};
   \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-3.85)
     {Thử $8$ mức lưới (có mức $0$ để tắt hẳn một luồng) cho từng thành phần, chọn bước cải thiện $J$ tốt nhất trên toàn bộ ứng viên; lặp tối đa $K+1$ bước.};
 \end{scope}
@@ -78,7 +77,7 @@
 % ================= khoi 2: toc do chung =================
 \begin{scope}[shift={(7.55,8.55)}]
   \node[num,fill=cB2] at (0.15,0) {2};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối tốc độ chung $\boldsymbol\eta$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối tốc độ chung $\boldsymbol\eta$};
   \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[on=cB2,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
@@ -97,7 +96,7 @@
   \node[pick,minimum size=0.17cm] at (3.22,{-2.95+2.6*0.55}) {};
   \foreach \k [count=\i from 0] in {1,2,3,4}{
      \node[font=\tiny] at (0.28+0.45*\i,-3.18) {UE$_{\k}$}; \node[font=\tiny] at (2.43+0.45*\i,-3.18) {UE$_{\k}$};}
-  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau (co giãn theo tỷ lệ)};
+  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau};
   \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-3.95)
     {Cùng lưới $8$ mức như khối 1 (có mức $0$): chọn tỷ lệ tốc độ chung tốt nhất cho UE; lặp tối đa $K$ bước.};
 \end{scope}
@@ -105,7 +104,7 @@
 % ================= khoi 3: STAR-RIS =================
 \begin{scope}[shift={(12.15,8.55)}]
   \node[num,fill=cB3] at (0.15,0) {3};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
   \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[on=cB3,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
@@ -114,7 +113,7 @@
   \foreach \lab/\x/\c in {{\beta_1\cdots\beta_N}/0.0/cB3,{\theta^T_1\cdots\theta^T_N}/2.0/cUEb,{\theta^R_1\cdots\theta^R_N}/4.0/cUEc}{
      \node[draw=\c!80!black,fill=\c!12,rounded corners=1.5pt,minimum width=1.55cm,minimum height=0.40cm,anchor=west,font=\tiny] at (\x,-1.40) {$\lab$};}
   \draw[->] (1.57,-1.40) -- (1.98,-1.40); \draw[->] (3.57,-1.40) -- (3.98,-1.40);
-  \node[anchor=west,font=\tiny] at (0,-1.85) {thứ tự $n$: thuận $1\to N$ ở lần chạy thứ nhất, nghịch $N\to 1$ ở lần thứ hai};
+  \node[anchor=west,font=\tiny] at (0,-1.85) {thứ tự $n$: thuận $1\to N$ (lần 1), nghịch $N\to 1$ (lần 2)};
   % luoi pha
   \begin{scope}[shift={(1.20,-3.25)}]
     \draw[gray!50] (0,0) circle (0.72);

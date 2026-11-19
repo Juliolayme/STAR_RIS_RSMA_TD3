@@ -294,46 +294,20 @@ AnalyticalRIS là đối chiếu nhẹ hơn: sử dụng một quy tắc căn ph
 ưu lặp đầy đủ. Nó có độ trễ thấp nhưng không tối ưu đồng thời tất cả biến RSMA và
 STAR--RIS.
 
-Hình~\ref{fig:ch1-ao-truc-giac} minh họa cơ chế của ba phương pháp này. Điểm chung là cả
-ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn nhau.
-
-Khung AnalyticalRIS cho thấy trước khi căn pha, các thành phần ghép tầng đến từ những
-phần tử khác nhau có hướng pha tản mát nên véc-tơ tổng rất ngắn, tức độ lợi kênh thấp.
-Sau khi đặt pha theo quy tắc $\theta_n = -\angle z_n$ với $z_n = \sum_k h^{*}_{r,k,n} g_n$
-là tổng kênh ghép tầng của mọi UE (một pha neo gộp, không đồng pha riêng cho từng UE và bỏ
-qua đường trực tiếp), chỉ các tổng gộp $z_n$ của mọi phần tử được căn về cùng một
-hướng và cộng thẳng hàng, cho véc-tơ tổng dài hơn nhiều lần; kênh của từng UE riêng lẻ
-không nhất thiết được căn pha. Đây là một công thức đóng,
-tính đúng một lần cho mỗi CSI, nên nhanh nhất trong sáu phương pháp được so sánh; bù lại nó chỉ chỉnh
-pha mà không tối ưu đồng thời công suất và tỷ lệ chia năng lượng.
-
-Khung AO--SCA mô tả hai cơ chế cập nhật. Với khối đơn hình, bộ giải chuyển một lượng
-$\delta$ từ thành phần này sang thành phần khác nên tổng không đổi. Với khối STAR--RIS,
-bộ giải thử hai điểm $\theta_n \pm \varepsilon$ để ước lượng độ dốc rồi chỉ đi một bước
-ngắn; nếu bước quá đà thì quay lui và thu nhỏ bước. Vì mỗi biến cần thêm hai lần tính hàm
-mục tiêu, chi phí cho một kịch bản rất lớn.
-
-Khung AO--Grid dùng cùng đường cong mục tiêu để tiện so sánh. Lưới công suất có chứa mức
-$0$ nên bộ giải có thể tắt hẳn một luồng riêng, điều mà bước cập nhật liên tục khó đạt
-được. Với khối STAR--RIS, bộ giải tính hàm mục tiêu tại mọi mốc rời rạc rồi nhảy thẳng
-tới mốc tốt nhất. Cách này không cần đạo hàm và có thể đi những bước rất xa, nhưng số
-phép đánh giá tăng nhanh theo số phần tử $N$.
-
-Dải ở cuối hình tóm tắt nguồn gốc của chênh lệch chi phí: trong một vòng cập nhật,
-AnalyticalRIS không phải tính lại hàm mục tiêu lần nào vì dùng công thức đóng, AO--SCA
-cần hai lần cho mỗi biến để lấy sai phân, còn AO--Grid cần đúng bằng số mốc của lưới. Với
-$N = 128$ và nhiều vòng lặp, hai phương pháp AO phải tính lại hàm mục tiêu hàng chục
-nghìn lần cho một kịch bản, trong khi AnalyticalRIS và các chính sách DRL chỉ cần một
-lượt tính duy nhất. Đây chính là nguồn gốc của khác biệt độ trễ được báo cáo ở
-Chương~\ref{chap:ket-qua}.
-
-\begin{figure}[htbp]
-\centering
-\resizebox{\textwidth}{!}{\input{figures/fig_ch3_ao_truc_giac}}
-\caption{Cơ chế hoạt động của AnalyticalRIS, AO--SCA và AO--Grid}
-\label{fig:ch1-ao-truc-giac}
-\figuresource{Tác giả xây dựng theo mã nguồn và \cite{Scutari2017SCA} (2026)}
-\end{figure}
+Điểm chung là cả ba đều làm việc trực tiếp trên miền vật lý, nhưng cách tìm nghiệm khác hẳn
+nhau. AnalyticalRIS đặt pha bằng công thức đóng $\theta_n = -\angle z_n$ với
+$z_n = \sum_k h^{*}_{r,k,n} g_n$ là tổng kênh ghép tầng của mọi UE; chỉ các tổng gộp $z_n$ được
+căn về cùng một hướng, còn kênh của từng UE riêng lẻ không nhất thiết được căn pha. AO--SCA
+chuyển một lượng $\delta$ giữa các thành phần của khối đơn hình và ước lượng độ dốc của khối
+STAR--RIS bằng hai điểm $\pm\varepsilon$, còn AO--Grid thử mọi mức của một lưới rời rạc (có
+mức $0$ để tắt hẳn một luồng) rồi nhảy tới mức tốt nhất. Trong một vòng cập nhật,
+AnalyticalRIS không phải tính lại hàm mục tiêu lần nào, AO--SCA cần hai lần cho mỗi biến để
+lấy sai phân, còn AO--Grid cần đúng bằng số mức của lưới. Với $N = 128$ và nhiều vòng lặp,
+hai phương pháp AO phải tính lại hàm mục tiêu hàng chục nghìn lần cho một kịch bản, trong
+khi AnalyticalRIS và các chính sách DRL chỉ cần một lượt tính duy nhất; đây là nguồn gốc của
+khác biệt độ trễ ở Chương~\ref{chap:ket-qua}. Cơ chế chi tiết của từng phương pháp được
+minh họa ở Hình~\ref{fig:ch3-analyticalris}, Hình~\ref{fig:ch3-aosca} và
+Hình~\ref{fig:ch3-aogrid} trong Mục~\ref{sec:doi-chieu-ao}.
 
 \section{Các nghiên cứu liên quan}
 \label{sec:nghien-cuu-lien-quan}

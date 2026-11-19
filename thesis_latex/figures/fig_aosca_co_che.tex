@@ -14,7 +14,6 @@
 \colorlet{cB1}{blue!55!black}\colorlet{cB2}{teal!70!black}\colorlet{cB3}{orange!80!black}
 
 % ---------------- tieu de, chu giai ----------------
-\node[anchor=west,font=\small\bfseries] at (0,10.1) {Cơ chế hoạt động của AO--SCA};
 \node[on=cB1,anchor=west] at (14.6,10.1) {khối};  \node[anchor=west] at (15.25,10.1) {đang cập nhật};
 \node[off,anchor=west] at (17.15,10.1) {khối};    \node[anchor=west] at (17.8,10.1) {giữ cố định};
 
@@ -40,7 +39,7 @@
 % ================= khoi 1: cong suat =================
 \begin{scope}[shift={(2.85,8.55)}]
   \node[num,fill=cB1] at (0.15,0) {1};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối công suất $\mathbf p$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối công suất $\mathbf p$};
   \node[on=cB1,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
@@ -55,7 +54,7 @@
   \node[cell,fill=cUEd!22,minimum width=0.78cm,anchor=west] at (3.12,-2.55) {$p_4$};
   \draw[->,line width=0.8pt] (2.05,-2.30) to[out=110,in=60] node[above,font=\tiny] {$\delta$} (0.55,-2.30);
   \node[font=\tiny,cB1] at (0.53,-2.98) {$+\delta$};  \node[font=\tiny,cB1] at (2.09,-2.98) {$-\delta$};
-  \node[anchor=west,font=\tiny] at (0,-3.40) {giữ tổng $\sum = P_{\max}$ ($K+1$ luồng)};
+  \node[anchor=west,font=\tiny] at (0,-3.40) {giữ $\sum = P_{\max}$ ($K+1$ luồng)};
   \node[anchor=west] at (0.25,-3.95) {$x'_i=x_i-\delta,\qquad x'_j=x_j+\delta$};
   \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-4.35)
     {Dò bước nhỏ cho mọi cặp $(i,j)$, chọn hướng cải thiện $J$ tốt nhất, rồi thử nhiều mức $\delta$ (kể cả chuyển hết $\delta=x_i$).};
@@ -64,7 +63,7 @@
 % ================= khoi 2: toc do chung =================
 \begin{scope}[shift={(7.55,8.55)}]
   \node[num,fill=cB2] at (0.15,0) {2};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối tốc độ chung $\boldsymbol\eta$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối tốc độ chung $\boldsymbol\eta$};
   \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[on=cB2,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[off,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
@@ -81,7 +80,7 @@
   \node[font=\tiny,cB2] at (2.43,-2.97) {$-$}; \node[font=\tiny,cB2] at (3.33,-2.97) {$+$};
   \foreach \k [count=\i from 0] in {1,2,3,4}{
      \node[font=\tiny] at (0.28+0.45*\i,-3.18) {UE$_{\k}$}; \node[font=\tiny] at (2.43+0.45*\i,-3.18) {UE$_{\k}$};}
-  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau (ràng buộc đơn hình)};
+  \node[anchor=west,font=\tiny] at (0,-3.60) {$\sum_k\eta_k=1$ trước và sau};
   \node[anchor=west] at (0.25,-4.10) {$\eta'_i=\eta_i-\delta,\qquad \eta'_j=\eta_j+\delta$};
   \node[anchor=north west,align=left,font=\tiny,text width=3.95cm] at (0,-4.50)
     {Cùng phép chuyển cặp như khối 1: điều chỉnh tỷ lệ tốc độ chung giữa các UE trong miền khả thi.};
@@ -90,7 +89,7 @@
 % ================= khoi 3: STAR-RIS =================
 \begin{scope}[shift={(12.15,8.55)}]
   \node[num,fill=cB3] at (0.15,0) {3};
-  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Cập nhật khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
+  \node[anchor=west,font=\scriptsize\bfseries] at (0.40,0) {Khối STAR--RIS $(\boldsymbol\beta,\boldsymbol\theta^T,\boldsymbol\theta^R)$};
   \node[off,anchor=west] at (0,-0.48) {$\mathbf p$};
   \node[off,anchor=west] at (0.45,-0.48) {$\boldsymbol\eta$};
   \node[on=cB3,anchor=west] at (0.90,-0.48) {$\boldsymbol\beta,\boldsymbol\theta$};
