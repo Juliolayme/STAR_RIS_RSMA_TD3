@@ -370,13 +370,8 @@ tuyệt đối.
 \subsection{Chỉ số phần thưởng của môi trường}
 \label{ssec:phan-thuong-moi-truong}
 
-Môi trường báo cáo một phần thưởng cơ sở:
-\begin{equation}
-\label{eq:phan-thuong-moi-truong}
-r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2 .
-\end{equation}
-
-Trong đó: $R_{\mathrm{sum}}$ là tổng tốc độ; $V$ và $V_2$ là tổng thiếu hụt QoS tuyến tính
+Môi trường báo cáo phần thưởng cơ sở $r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2$ đã định
+nghĩa ở~\eqref{eq:phan-thuong-moi-truong}, trong đó $V$ và $V_2$ là tổng thiếu hụt QoS tuyến tính
 và bình phương. Công thức cung cấp một chỉ số duy nhất để quan sát chất lượng hành động.
 Khi tất cả UE đạt QoS, $V = V_2 = 0$ nên phần thưởng đúng bằng tổng tốc độ. Khi có vi
 phạm, giá trị bị trừ để phản ánh rằng tăng tốc độ bằng cách bỏ rơi UE không phải mục tiêu
@@ -635,6 +630,31 @@ thích nghi $r_t$, còn khi kiểm thử mọi phương pháp được so sánh 
 chỉ số QoS. Cơ chế của từng phương pháp được minh họa ở Hình~\ref{fig:ch3-analyticalris},
 Hình~\ref{fig:ch3-aosca} và Hình~\ref{fig:ch3-aogrid}; quy trình chung được tóm tắt trong
 Thuật toán~\ref{alg:doi-chieu-ao}.
+Bảng~\ref{tab:ch3-so-sanh-ao} so sánh cơ chế vận hành và chi phí đo được của ba phương pháp.
+
+\begin{table}[htbp]
+\centering
+\caption{So sánh cơ chế vận hành của ba phương pháp đối chiếu}
+\label{tab:ch3-so-sanh-ao}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l Y Y Y@{}}
+\toprule
+\textbf{Đặc tính} & \textbf{AnalyticalRIS} & \textbf{AO--SCA} & \textbf{AO--Grid} \\
+\midrule
+Nguyên lý & Công thức đóng một bước & Tối ưu luân phiên, chuyển khối và dò độ dốc lân cận &
+Tối ưu luân phiên, quét lưới rời rạc \\
+Miền tìm kiếm & Một điểm cố định & Miền vật lý liên tục & Các mức lưới trên miền vật lý
+($\beta^T_n \in [0,05;\,0,95]$) \\
+Tắt luồng riêng & Không (chia đều $0,20$) & Có thể (chuyển hết $\delta = x_i$) & Có (mức $0$ trên
+lưới) \\
+Số vòng lặp tối đa & Không lặp & $80$ & $2$ mỗi lần chạy, chạy $2$ lần (thuận, nghịch) \\
+Số lần đánh giá $r_{\mathrm{env}}$ (trung vị, $N = 16 \to 128$) & $1$ & $8.108 \to 29.042$ &
+$1.954 \to 11.362$ \\
+Độ trễ trung vị tại $N = 128$ & $0,23$ ms & $3.606$ ms & $1.205$ ms \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ mã nguồn, dữ liệu thô kiểm thử và phép đo độ trễ (2026)}
+\end{table}
 
 \subsection{AnalyticalRIS}
 \label{ssec:analytical-ris}

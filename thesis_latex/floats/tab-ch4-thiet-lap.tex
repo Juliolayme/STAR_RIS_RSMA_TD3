@@ -1,0 +1,24 @@
+\begin{table}[htbp]
+\centering
+\caption{Thiết lập mô phỏng chính}
+\label{tab:ch4-thiet-lap}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}X l@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Số UE & $4$ \\
+Số phần tử STAR--RIS & $16,\ 32,\ 64,\ 96,\ 128$ \\
+Công suất phát chuẩn hóa & $1$ \\
+Công suất tạp âm & $10^{-3}$ \\
+QoS tối thiểu mỗi UE & $0,5$ bit/s/Hz \\
+Hệ số tỷ lệ kênh trực tiếp, BS--RIS và RIS--UE & $0,35 / 1,0 / 0,75$ \\
+Ngân hàng huấn luyện, xác thực và kiểm thử & $10.000 / 1.000 / 1.000$ kịch bản \\
+Số hạt giống huấn luyện cho mỗi thuật toán DRL & $5$ \\
+Ngân sách mỗi hạt giống & $100.000$ tương tác môi trường \\
+Chu kỳ xác thực & $5.000$ bước (PPO: cuối đoạn thu thập $2.048$ bước, xem Bảng~\ref{tab:ch3-cau-hinh}) \\
+Số mẫu đánh giá kiểm thử & $1.000$ kịch bản trên mỗi $N$ \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu hình và ngân hàng kịch bản của thí nghiệm (2026)}
+\end{table}

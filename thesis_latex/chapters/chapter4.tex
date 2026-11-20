@@ -105,7 +105,10 @@ giá trị lớn cho thấy các lần huấn luyện có thể hội tụ về 
 \input{figures/bang_ch4_do_lech_chuan}
 
 Kết quả cho thấy PPO biến thiên lớn tại $N = 16$ và $N = 32$, sau đó ổn định rõ khi $N \ge
-64$. TD3 và DDPG nhìn chung có độ lệch chuẩn thấp hơn trong hầu hết cấu hình. Tuy nhiên,
+64$. Tại $N = 16$, ba trong năm hạt giống của PPO (hạt giống $0$, $3$ và $4$) không có điểm lưu nào
+thỏa đồng thời ba tiêu chí QoS trên tập xác thực, nên bộ chọn phải dùng quy tắc dự phòng theo
+khoảng cách chuẩn hóa tới các ngưỡng (Mục~\ref{ssec:chon-diem-luu}); đây là nguồn chính của độ phân
+tán lớn ở cấu hình này. TD3 và DDPG nhìn chung có độ lệch chuẩn thấp hơn trong hầu hết cấu hình. Tuy nhiên,
 từ $N = 64$ trở lên, cả ba phương pháp đều có độ biến thiên tương đối nhỏ so với mức tổng
 tốc độ khoảng $19$ đến $21$ bit/s/Hz. Điều này cho thấy khi biểu diễn hành động có cấu
 trúc tạo được một miền học thuận lợi, khác biệt giữa các thuật toán giảm đáng kể ở kích
@@ -212,8 +215,8 @@ AO--Grid đạt QoS cho mọi UE ở toàn bộ $1.000/1.000$ kịch bản kiể
 lệ quan sát; khoảng tin cậy Wilson $95\%$ hai phía tương ứng là $[0,9962;\ 1]$, nên không
 thể khẳng định xác suất mất dịch vụ trên toàn bộ phân bố kênh bằng $0$ tuyệt đối. AnalyticalRIS không đạt yêu cầu
 đồng thời cho cả bốn UE trong bất kỳ kịch bản tổng hợp nào, nên được lược khỏi hình để
-giữ thang trục dễ đọc; điều này nhấn mạnh rằng căn pha đơn thuần không đủ nếu không phối
-hợp với phân bổ RSMA.
+giữ thang trục dễ đọc; điều này nhấn mạnh rằng căn pha đơn thuần không đủ nếu công suất và tốc độ
+chung chỉ được chia đều mà không thích nghi với nhiễu giữa các luồng riêng.
 
 \begin{figure}[htbp]
 \centering
@@ -284,9 +287,12 @@ Hình cho thấy không có một phương pháp trội hoàn toàn trên cả h
 nhất về tổng tốc độ nhưng xa về bên phải do độ trễ lớn. AnalyticalRIS nằm rất gần bên trái
 nhưng thấp về chất lượng. Ba thuật toán DRL tạo thành một cụm ở vùng phía trên bên trái:
 tổng tốc độ khoảng $21$ bit/s/Hz với độ trễ trung vị dưới $1$ ms. Điểm của TD3 và DDPG gần như
-trùng nhau vì độ trễ chỉ lệch $0,006$ ms và tổng tốc độ lệch $0,07$ bit/s/Hz. Vì vậy, nếu
-ứng dụng có chu kỳ CSI ngắn, DRL có thể là lựa chọn thực tế dù không đạt tổng tốc độ cao
-nhất.
+trùng nhau vì độ trễ chỉ lệch $0,006$ ms và tổng tốc độ lệch $0,07$ bit/s/Hz. So với AnalyticalRIS tại $N = 128$, nhóm DRL nâng tổng tốc độ lên khoảng $10,5$ lần
+($20,92$ so với $1,98$ bit/s/Hz) và đưa tỷ lệ đạt QoS từ $0$ lên trên $99,9\%$, trong khi độ trễ trung vị
+của TD3 chỉ lớn hơn khoảng $0,22$ ms. So với AO--Grid, TD3 thấp hơn khoảng $1,47$ bit/s/Hz (khoảng
+$6,6\%$) nhưng có độ trễ trung vị thấp hơn khoảng $2.700$ lần. Vì vậy, nếu ứng dụng có chu kỳ CSI
+ngắn, DRL có thể là lựa chọn thực tế dù không đạt tổng tốc độ cao nhất; so sánh này là đánh đổi
+trực tuyến sau huấn luyện, chưa tính chi phí huấn luyện.
 
 \section{Khả năng mở rộng theo số phần tử STAR--RIS khi huấn luyện riêng cho từng $N$}
 \label{sec:kha-nang-mo-rong}
@@ -297,11 +303,12 @@ vậy nói về khả năng mở rộng của quy trình huấn luyện, không 
 chung cho nhiều $N$. Các so sánh độ trễ ở đây là đánh đổi trực tuyến sau khi đã huấn luyện,
 chưa tính chi phí huấn luyện và xác thực phải trả lại cho từng $N$. Khi $N$ tăng từ $16$ lên
 $128$, số chiều hành động tăng từ $57$ lên
-$393$ và số chiều trạng thái cũng tăng đáng kể. Dù vậy, độ trễ của Actor DRL chỉ tăng khoảng vài phần mười
-mili giây vì phép tính chủ yếu là hai lớp kết nối đầy đủ có kích thước cố định $256$, còn
-lớp đầu và lớp cuối mới thay đổi theo số chiều. Ngược lại, thời gian của AO tăng mạnh vì
-số tọa độ STAR--RIS cần thử hoặc tính gradient tăng, và mỗi vòng lặp cần nhiều lần đánh
-giá hàm vật lý.
+$393$ và số chiều trạng thái cũng tăng đáng kể. Dù vậy, độ trễ trung vị của TD3 chỉ tăng khoảng $0,11$
+ms (từ $0,339$ lên $0,452$ ms) vì phép tính chủ yếu là hai lớp kết nối đầy đủ có kích thước cố định
+$256$, còn lớp đầu và lớp cuối mới thay đổi theo số chiều. Ngược lại, độ trễ trung vị của AO tăng
+nhiều hơn về giá trị tuyệt đối vì số tọa độ STAR--RIS cần thử hoặc tính gradient tăng: AO--SCA tăng
+khoảng $4,3$ lần (từ $830$ lên $3.606$ ms) và AO--Grid khoảng $6,4$ lần (từ $189$ lên $1.205$ ms) khi $N$
+tăng tám lần.
 
 Tổng tốc độ của nhóm DRL và AO đều tăng theo $N$. Điều này cho thấy việc thêm phần tử
 STAR--RIS vẫn mang lại lợi ích trong mô hình, với lưu ý rằng mô hình kênh giữ nguyên phương

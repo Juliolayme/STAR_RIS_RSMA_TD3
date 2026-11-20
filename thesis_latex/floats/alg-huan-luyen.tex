@@ -1,0 +1,23 @@
+\begin{algorithm}[htbp]
+\caption{Quy trình huấn luyện chung của nhóm DRL}
+\label{alg:huan-luyen}
+\begin{algorithmic}[1]
+\Require Ngân hàng kênh huấn luyện $\mathcal{B}_{\mathrm{tr}}$, ngân hàng xác thực
+         $\mathcal{B}_{\mathrm{val}}$, cấu hình, hạt giống ngẫu nhiên
+\Ensure  Điểm lưu mô hình được lựa chọn theo tập xác thực
+\State Khởi tạo mạng Actor hoặc mạng chính sách, Critic hoặc mạng giá trị và các bộ nhớ cần thiết
+\State Đánh giá mô hình khởi tạo trên $\mathcal{B}_{\mathrm{val}}$ nếu cấu hình yêu cầu
+\For{$t \gets 1$ \textbf{to} $100000$}
+  \State Lấy một kịch bản CSI từ $\mathcal{B}_{\mathrm{tr}}$ và tạo trạng thái chuẩn hóa
+  \State Sinh hành động chuẩn hóa theo DDPG, TD3 hoặc PPO
+  \State Giải mã thành $\mathbf{p}, \boldsymbol{\eta}, \boldsymbol{\beta},
+         \boldsymbol{\theta}^T, \boldsymbol{\theta}^R$
+  \State Tính kênh hiệu dụng, tốc độ, vi phạm QoS và phần thưởng huấn luyện
+  \State Cập nhật bộ điều khiển QoS và tham số thuật toán theo cơ chế tương ứng
+  \If{$t$ đến chu kỳ xác thực}
+    \State Đánh giá chính sách xác định trên $\mathcal{B}_{\mathrm{val}}$
+    \State Lưu điểm ứng viên và cập nhật điểm tốt nhất theo tiêu chí QoS trước, tổng tốc độ sau
+  \EndIf
+\EndFor
+\end{algorithmic}
+\end{algorithm}

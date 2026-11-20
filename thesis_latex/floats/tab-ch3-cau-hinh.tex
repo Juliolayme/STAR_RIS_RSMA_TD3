@@ -1,0 +1,42 @@
+\begin{table}[htbp]
+\centering
+\caption{Cấu hình huấn luyện và đánh giá chính}
+\label{tab:ch3-cau-hinh}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}X l@{}}
+\toprule
+\textbf{Thành phần} & \textbf{Giá trị} \\
+\midrule
+Số UE & $K = 4$ \\
+Số phần tử STAR--RIS & $N \in \{16, 32, 64, 96, 128\}$ \\
+Tổng công suất chuẩn hóa & $P_{\max} = 1$ \\
+Công suất tạp âm & $\sigma^2 = 10^{-3}$ \\
+Tốc độ QoS tối thiểu & $R_{\min} = 0,5$ bit/s/Hz \\
+Độ dài một giai đoạn & $32$ bước \\
+Ngân hàng huấn luyện / xác thực / kiểm thử & $10.000 / 1.000 / 1.000$ kịch bản \\
+Số hạt giống DRL & $5$ mỗi thuật toán và mỗi $N$ \\
+Ngân sách huấn luyện & $100.000$ tương tác mỗi hạt giống và mỗi $N$ \\
+Kích thước bộ nhớ phát lại & $200.000$ \\
+Kích thước lô nhỏ & $256$ \\
+Số nút mỗi lớp ẩn & $256$ \\
+Hệ số chiết khấu $\gamma$ & $0,99$ \\
+Hệ số cập nhật mềm $\tau$ & $0,005$ \\
+Tốc độ học Actor của TD3 và DDPG & $10^{-4}$ \\
+Tốc độ học Critic của TD3 và DDPG & $3 \times 10^{-4}$ \\
+Tốc độ học PPO & $3 \times 10^{-4}$ \\
+Độ dài đoạn thu thập của PPO & $2.048$ bước \\
+Số vòng cập nhật / lô nhỏ của PPO & $10$ vòng / $256$ mẫu \\
+Biên cắt tỷ số $\epsilon$ của PPO & $0,2$ \\
+Hệ số GAE $\lambda_{\mathrm{GAE}}$ của PPO & $0,95$ \\
+Hệ số entropy / hàm giá trị của PPO & $10^{-3}$ / $0,5$ \\
+Giá trị khởi tạo $\log\sigma$ của PPO & $-0,5$ \\
+Nhiễu làm trơn đích của TD3 ($\sigma_{\mathrm{tar}}$ / $c$) & $0,15$ / $0,30$ (nhân $\min(1,\sqrt{64/d_a})$) \\
+Chu kỳ trễ cập nhật Actor của TD3 & $2$ \\
+Chu kỳ xác thực & $5.000$ bước (PPO: cuối đoạn thu thập $2.048$ bước đầu tiên vượt mỗi bội số $5.000$) \\
+Nhiễu khám phá của DDPG và TD3 & $0,12 \rightarrow 0,03$ \\
+Hàm mất mát Critic của TD3 và DDPG & Huber \\
+Cắt chuẩn gradient & $10$ \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tổng hợp từ cấu hình thực nghiệm (2026)}
+\end{table}

@@ -1,0 +1,41 @@
+\begin{algorithm}[htbp]
+\caption{Quy trình giải trực tiếp trên từng kịch bản CSI của nhóm phương pháp đối chiếu}
+\label{alg:doi-chieu-ao}
+\begin{algorithmic}[1]
+\Require Một kịch bản CSI kiểm thử $(h_d, g, h_r)$ kèm chỉ báo phía UE,
+         phương pháp $M \in \{$AnalyticalRIS, AO--SCA, AO--Grid$\}$, hàm đánh giá
+         $r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2$, số vòng tối đa $L_{\max}$
+         ($80$ với AO--SCA, $2$ với AO--Grid), ngưỡng dừng $\varepsilon = 10^{-4}$
+\Ensure  Nghiệm khả thi miền $\mathcal{A}^\star = (\mathbf{p}^\star, \boldsymbol{\eta}^\star,
+         \boldsymbol{\beta}^\star, \boldsymbol{\theta}^{T\star}, \boldsymbol{\theta}^{R\star})$
+\State Khởi tạo AnalyticalRIS $\mathcal{A}^{(0)}$: $p_c = p_k = P_{\max}/(K+1)$, $\eta_k = 1/K$,
+       $\beta^T_n = 0,5$, $\theta^T_n = \theta^R_n = -\angle \sum_{k} h^{*}_{r,k,n} g_n$
+\If{$M$ là AnalyticalRIS}
+  \State \Return $\mathcal{A}^{(0)}$
+\EndIf
+\State Đặt tập thứ tự quét $\mathcal{O} = \{\text{thuận}\}$ với AO--SCA,
+       $\mathcal{O} = \{\text{thuận}, \text{nghịch}\}$ với AO--Grid
+\For{mỗi thứ tự $o \in \mathcal{O}$}
+  \State $\mathcal{A} \gets \mathcal{A}^{(0)}$
+  \For{$\ell \gets 1$ \textbf{to} $L_{\max}$}
+    \State $J_{\mathrm{cũ}} \gets r_{\mathrm{env}}(\mathcal{A})$
+    \State \textbf{Khối $\mathbf{p}$:} chuyển khối~\eqref{eq:chuyen-khoi} (AO--SCA) hoặc
+           chọn mức lưới tốt nhất (AO--Grid)
+    \State \textbf{Khối $\boldsymbol{\eta}$:} cập nhật tương tự trên $\Delta_K$
+    \State \textbf{Khối STAR--RIS:} giữ cố định $(\mathbf{p}, \boldsymbol{\eta})$
+    \If{$M$ là AO--SCA}
+      \State Ước lượng độ dốc theo $3N$ biến bằng sai phân trung tâm $\pm\epsilon$
+      \State Tạo bước lân cận cho toàn khối, quay lui nếu $r_{\mathrm{env}}$ giảm
+      \State Tinh chỉnh lại hai khối đơn hình, kiểm tra điều kiện dừng
+    \Else
+      \State Quét từng tọa độ $\beta^T_n, \theta^T_n, \theta^R_n$ theo thứ tự $o$, chọn mức lưới tốt nhất
+    \EndIf
+    \If{$\dfrac{|r_{\mathrm{env}}(\mathcal{A}) - J_{\mathrm{cũ}}|}{\max(1, |J_{\mathrm{cũ}}|)} < \varepsilon$ (AO--SCA: và hai khối đơn hình đã dừng)}
+      \State \textbf{thoát vòng lặp}
+    \EndIf
+  \EndFor
+  \State $\mathcal{A}_o \gets \mathcal{A}$
+\EndFor
+\State \Return $\mathcal{A}^\star \gets$ nghiệm tốt nhất trong $\{\mathcal{A}_o\}$ theo QoS rồi tổng tốc độ
+\end{algorithmic}
+\end{algorithm}
