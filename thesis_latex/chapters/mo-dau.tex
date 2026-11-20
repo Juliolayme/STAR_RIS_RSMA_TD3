@@ -5,147 +5,164 @@
 \section*{1. Tính cấp thiết của đề tài}
 \addcontentsline{toc}{section}{1. Tính cấp thiết của đề tài}
 
-Sự bùng nổ của các dịch vụ số và mạng thông tin di động thế hệ mới đặt ra yêu cầu ngày càng
-cao về tốc độ truyền dữ liệu, độ trễ thấp và khả năng kết nối đồng thời một lượng lớn thiết bị.
-Trong bối cảnh phổ tần và công suất phát của trạm gốc đều là những tài nguyên hữu hạn, việc
-nâng cao dung lượng mạng không thể chỉ dựa vào tăng công suất phát. Khi mật độ thiết bị ngày
-càng dày đặc, chất lượng mạng phụ thuộc ngày càng nhiều vào khả năng điều phối tài nguyên,
-quản lý nhiễu đa người dùng và chủ động định hình môi trường truyền sóng.
+Sự bùng nổ của các dịch vụ số và mạng thông tin di động thế hệ mới (hướng tới mạng 6G) đang đặt ra
+yêu cầu chưa từng có về tốc độ truyền tải dữ liệu, độ trễ cực thấp và khả năng kết nối đồng thời một
+lượng lớn thiết bị thông minh. Trong bối cảnh tài nguyên phổ tần vô tuyến và năng lượng phát sóng của
+các trạm gốc đều là những giới hạn vật lý hữu hạn, việc nâng cao dung lượng mạng không thể chỉ dựa vào
+việc tăng công suất phát. Khi mật độ thiết bị ngày càng dày đặc, vấn đề cốt lõi quyết định chất lượng
+mạng nằm ở khả năng điều phối, quản lý can nhiễu đa người dùng và việc chủ động định hình môi trường
+truyền sóng vô tuyến.
 
-Nhìn lại quá trình phát triển của các kỹ thuật đa truy cập, mỗi phương pháp truyền thống đều
-có giới hạn riêng khi mật độ kết nối tăng. Đa truy cập trực giao (Orthogonal Multiple Access,
-OMA) như TDMA hay OFDMA có máy thu đơn giản vì phân chia người dùng theo thời gian hoặc tần
-số, nhưng số người dùng phục vụ đồng thời bị giới hạn bởi số khối tài nguyên trực giao. Đa truy
-cập phân chia theo không gian (Space Division Multiple Access, SDMA) tận dụng búp sóng định
-hướng tại trạm gốc nhiều anten, song hiệu năng suy giảm khi kênh của các người dùng tương
-quan mạnh hoặc khi số anten phát bị giới hạn. Đa truy cập phi trực giao (Non-Orthogonal
-Multiple Access, NOMA) cho phép nhiều người dùng chia sẻ cùng tài nguyên nhưng yêu cầu máy
-thu giải mã và loại bỏ nhiễu của người dùng khác qua chuỗi khử nhiễu liên tiếp (Successive
-Interference Cancellation, SIC); số tầng SIC tăng theo số người dùng, và các nghiên cứu tổng
-quan chỉ ra rằng không nên xem NOMA là mặc nhiên vượt trội trong mọi cấu
-hình~\cite{Clerckx2021NOMACritical}.
+Nhìn lại quá trình phát triển của các công nghệ đa truy cập vô tuyến, các phương pháp truyền thống bộc
+lộ những rào cản lớn khi đối mặt với mật độ kết nối cao. Kỹ thuật Đa truy cập phân chia trực giao (OMA)
+như TDMA hay OFDMA tuy có ưu điểm cấu trúc máy thu đơn giản do phân chia rạch ròi người dùng theo thời
+gian hoặc tần số, nhưng lại gây lãng phí nghiêm trọng tài nguyên phổ và không thể đáp ứng nhu cầu kết
+nối khổng lồ. Để nâng cao hiệu quả phổ, kỹ thuật Đa truy cập phân chia theo không gian (SDMA) tận dụng
+búp sóng định hướng tại trạm gốc, song lại đòi hỏi số lượng anten phát rất lớn và hiệu năng bị suy giảm
+nặng nề khi kênh truyền giữa các người dùng bị tương quan hoặc trong các hệ thống trạm phát bị giới hạn
+số anten~\cite{Mao2018RSMABridging}. Trong khi đó, Đa truy cập phi trực giao (NOMA) cho phép nhiều người
+dùng chia sẻ chung tài nguyên nhưng lại dựa trên nguyên lý ép buộc khắt khe: máy thu phải giải mã toàn
+bộ can nhiễu từ các người dùng khác thông qua chuỗi khử nhiễu liên tiếp (SIC). Điều này làm tăng độ phức
+tạp tính toán phần cứng, gây trễ xử lý và khiến hệ thống rất dễ bị tổn thương trước hiện tượng lan
+truyền sai số nếu một mắt xích giải mã thất bại~\cite{Ding2017NOMASurvey, Islam2017PowerDomainNOMA,
+Clerckx2021NOMACritical}.
 
-Để vượt qua những hạn chế mang tính thái cực nêu trên, Đa truy cập phân chia tốc độ
-(Rate-Splitting Multiple Access, RSMA) được đề xuất như một khung quản lý nhiễu linh hoạt
-hơn~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals}. Thay vì buộc phải chọn giữa coi nhiễu
-như tạp âm hoặc giải mã toàn bộ nhiễu, RSMA tách thông điệp của mỗi người dùng thành phần chung
-và phần riêng. Các phần chung được gom lại và mã hóa thành một luồng chung mà mọi người dùng
-đều giải mã được, còn các phần riêng được mã hóa thành các luồng riêng độc lập. Trong kiến trúc
-RSMA một lớp, mỗi người dùng chỉ cần đúng một tầng SIC để loại luồng chung, rồi giải mã luồng
-riêng của mình và xem các luồng riêng còn lại như tạp âm. Nhờ đó, RSMA vừa giữ máy thu đơn giản
-hơn NOMA nhiều tầng, vừa cho phép giải mã một phần nhiễu và xem phần còn lại như tạp âm.
+Để vượt qua những hạn chế mang tính thái cực của các kỹ thuật nêu trên, kỹ thuật Đa truy cập phân chia
+tốc độ (Rate-Splitting Multiple Access -- RSMA) đã ra đời như một giải pháp đột
+phá~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals}. Thay vì buộc phải lựa chọn giữa hai thái cực
+là coi can nhiễu như tạp âm hay giải mã toàn bộ can nhiễu, RSMA phân tách thông điệp của từng người dùng
+thành hai phần: phần chung (common) và phần riêng (private). Tại trạm phát, các phần thông điệp chung
+được gom lại và mã hóa thành một luồng dữ liệu chung duy nhất mà mọi người dùng đều có thể giải mã được;
+trong khi các phần thông điệp riêng được mã hóa thành các luồng riêng độc lập. Tại máy thu, mỗi người
+dùng chỉ cần thực hiện đúng một tầng giải mã SIC đối với luồng chung, loại bỏ nó khỏi tín hiệu thu, rồi
+giải mã luồng riêng của mình và xem các luồng riêng còn lại như tạp âm nền. Nhờ cơ chế bắc cầu mềm dẻo
+này, RSMA vừa giảm thiểu tối đa độ phức tạp của máy thu so với NOMA, vừa duy trì hiệu quả sử dụng phổ
+tần vượt trội và khả năng thích nghi bền vững trước mọi điều kiện kênh truyền.
 
-Bên cạnh quản lý nhiễu tại trạm phát, việc khắc phục suy hao và vùng che khuất của môi trường
-truyền sóng cũng là một thách thức trọng tâm. Bề mặt thông minh tái cấu hình (Reconfigurable
-Intelligent Surface, RIS) truyền thống điều khiển đường truyền bằng các phần tử thụ động không
-cần chuỗi tần số vô tuyến phát~\cite{Wu2019IRSBeamforming, DiRenzo2020SmartRadio}, nhưng chỉ
-phản xạ sóng về nửa không gian phía trước, khiến thiết bị ở nửa không gian phía sau không được
-phục vụ. Bề mặt thông minh đồng thời truyền và phản xạ (Simultaneously Transmitting and
-Reflecting RIS, STAR--RIS) khắc phục hạn chế này bằng cách cho một phần năng lượng truyền xuyên
-qua bề mặt và phần còn lại phản xạ, mở rộng vùng phủ ra cả hai phía bề
-mặt~\cite{Xu2021STARRIS, Mu2021STARAided}.
+Bên cạnh khâu quản lý can nhiễu tại trạm phát, việc khắc phục sự suy hao và các góc che khuất của môi
+trường truyền sóng cũng là một thách thức trọng tâm. Công nghệ Bề mặt phản xạ thông minh (RIS) truyền
+thống đã được nghiên cứu nhằm điều khiển đường truyền thông qua các phần tử thụ
+động~\cite{Wu2019IRSBeamforming, DiRenzo2020SmartRadio}, nhưng lại mắc phải một nhược điểm lớn về mặt
+hình học: RIS chỉ có thể phản xạ sóng điện từ về nửa không gian phía trước (phạm vi 180 độ), khiến các
+thiết bị nằm ở nửa không gian phía sau rơi vào vùng mù tín hiệu. Để giải quyết triệt để hạn chế này,
+công nghệ Bề mặt thông minh tái cấu hình đồng thời truyền và phản xạ (STAR--RIS) đã được đề
+xuất~\cite{Xu2021STARRIS, Mu2021STARAided}. Với khả năng cho phép sóng điện từ vừa truyền xuyên qua bề
+mặt vừa dội ngược lại, STAR--RIS mở rộng phạm vi phục vụ ra toàn không gian 360 độ mà không đòi hỏi các
+bộ khuếch đại công suất tốn kém, đóng vai trò như một chiếc cầu nối vô tuyến thông minh hỗ trợ trạm gốc
+phủ sóng tới mọi ngóc ngách che khuất.
 
-Tuy nhiên, sự kết hợp giữa RSMA và STAR--RIS trong hệ thống trạm gốc một anten phát
-(Single-Input Single-Output, SISO) làm nảy sinh một bài toán phân bổ tài nguyên phi lồi, nhiều
-biến. Trạm phát phải đồng thời quyết định tỷ lệ công suất giữa luồng chung và các luồng riêng,
-cách chia tốc độ luồng chung cho từng người dùng, cùng tỷ lệ chia năng lượng và góc dịch pha
-của các phần tử STAR--RIS. Vì trạm gốc không có bậc tự do không gian để tạo búp sóng định hướng,
-nhiễu giữa các luồng riêng trở nên rất gay gắt. Các phương pháp tối ưu số lặp như tối ưu luân
-phiên (Alternating Optimization, AO) cần đánh giá lại hàm mục tiêu hàng nghìn lần cho mỗi kịch
-bản kênh; trong thí nghiệm của luận văn, độ trễ trung vị của chúng kéo dài từ khoảng $0,19$
-đến $3,6$ giây trên CPU một luồng, khó đáp ứng yêu cầu phân bổ nhanh khi kênh biến đổi.
+Tuy nhiên, sự kết hợp giữa kỹ thuật RSMA và công nghệ STAR--RIS trong hệ thống trạm gốc một anten phát
+(SISO) làm nảy sinh một bài toán tối ưu hóa phân bổ tài nguyên phi lồi, phi tuyến đa biến vô cùng phức
+tạp. Trạm phát phải đồng thời quyết định tỷ lệ phân chia công suất giữa luồng chung và các luồng riêng,
+phân bổ dung lượng luồng chung cho từng người dùng, cùng toàn bộ hệ số phân chia năng lượng và góc dịch
+pha của các phần tử STAR--RIS. Trong hệ thống một anten đơn, do trạm gốc hoàn toàn không có bậc tự do
+không gian để tạo búp sóng định hướng, can nhiễu giữa các luồng riêng diễn ra hết sức gay gắt. Các
+phương pháp tối ưu hóa số lặp truyền thống như Tối ưu luân phiên (AO) hay Xấp xỉ lồi liên tiếp (SCA)
+đòi hỏi hàng nghìn phép tính lặp lại cho mỗi kịch bản kênh, dẫn đến độ trễ tính toán kéo dài từ vài
+trăm mili-giây đến vài giây trong thí nghiệm của luận văn, khó đáp ứng yêu cầu phân bổ nhanh trong môi
+trường kênh vô tuyến di động biến đổi nhanh.
 
-Trong bối cảnh đó, học tăng cường sâu (Deep Reinforcement Learning, DRL) là một hướng tiếp cận
-hứa hẹn: sau khi huấn luyện ngoại tuyến, chính sách chỉ cần một lượt suy luận để đưa ra quyết
-định, với trung vị độ trễ tính toán đo được dưới một mili giây. Tuy nhiên, nếu áp dụng DRL như
-một ``hộp đen'' trên không gian biến vật lý nguyên bản, mạng nơ-ron sẽ phải tự học các quy luật
-bảo toàn năng lượng và các ràng buộc kỹ thuật. Việc xây dựng một bộ giải mã hành động có cấu
-trúc vật lý cho DRL nhằm bảo đảm tính khả thi miền và thu hẹp không gian tìm kiếm vì vậy là một
-hướng đi có ý nghĩa.
+Trong bối cảnh đó, phương pháp Học tăng cường sâu (Deep Reinforcement Learning -- DRL) xuất hiện như một
+hướng tiếp cận đầy hứa hẹn~\cite{Mnih2015DQN}. Sau khi hoàn tất quá trình huấn luyện ngoại tuyến, tác tử
+DRL chỉ cần một lượt tính toán truyền xuôi duy nhất qua mạng nơ-ron để đưa ra quyết định phân bổ tài
+nguyên, với trung vị độ trễ tính toán đo được dưới một mili-giây, phù hợp với yêu cầu ra quyết định
+nhanh. Mặc dù vậy, nếu áp dụng DRL như một mô hình ``hộp đen'' thuần túy trên không gian biến vật lý
+nguyên bản, mạng nơ-ron sẽ gặp rất nhiều khó khăn trong việc tự thỏa mãn các quy luật bảo toàn năng
+lượng và các ràng buộc kỹ thuật khắt khe. Do đó, việc xây dựng một bộ giải mã hành động có cấu trúc vật
+lý tích hợp cho DRL nhằm thu hẹp không gian tìm kiếm và đảm bảo tính khả thi miền của nghiệm là một
+hướng đi mang tính thời sự và cấp thiết cao.
 
-Xuất phát từ các lý do khoa học và thực tiễn trên, học viên lựa chọn đề tài ``Tối ưu phân bổ
-tài nguyên sử dụng học tăng cường sâu trong mạng STAR-RIS hỗ trợ RSMA'' làm nội dung nghiên cứu
-cho luận văn thạc sĩ.
+Xuất phát từ các lý do khoa học và thực tiễn trên, học viên đã lựa chọn đề tài: ``Tối ưu phân bổ tài
+nguyên sử dụng học tăng cường sâu trong mạng STAR-RIS hỗ trợ RSMA'' làm nội dung nghiên cứu cho luận
+văn thạc sĩ của mình.
 
 \section*{2. Mục tiêu nghiên cứu}
 \addcontentsline{toc}{section}{2. Mục tiêu nghiên cứu}
 
-Mục tiêu tổng quát của luận văn là nghiên cứu, xây dựng và đánh giá giải pháp học tăng cường
-sâu tích hợp cơ chế biểu diễn hành động có cấu trúc vật lý cho bài toán phân bổ tài nguyên
-trong mạng SISO STAR--RIS hỗ trợ RSMA; qua đó nâng cao tổng tốc độ của toàn mạng, đưa yêu cầu
-chất lượng dịch vụ (Quality of Service, QoS) của từng người dùng vào quá trình học và đánh giá
-khả năng ra quyết định nhanh. Để đạt mục tiêu tổng quát, luận văn thực hiện các mục tiêu cụ thể
-sau.
+Mục tiêu tổng quát của luận văn là nghiên cứu, xây dựng và đánh giá giải pháp học tăng cường sâu (DRL)
+tích hợp cơ chế biểu diễn hành động có cấu trúc vật lý nhằm tối ưu hóa bài toán phân bổ tài nguyên
+trong mạng vô tuyến SISO STAR--RIS hỗ trợ RSMA; qua đó nâng cao tổng tốc độ truyền dữ liệu của toàn
+mạng, hướng tới bảo đảm yêu cầu chất lượng dịch vụ (QoS) cho mọi người dùng và đáp ứng tốt điều kiện vận
+hành thời gian thực.
 
-Thứ nhất, mô hình hóa hệ thống truyền xuống SISO STAR--RIS hỗ trợ RSMA và thiết lập bài toán
-tối ưu phân bổ tài nguyên có xét yêu cầu QoS tối thiểu cho từng người dùng.
+Để đạt được mục tiêu tổng quát trên, luận văn tập trung thực hiện các mục tiêu cụ thể sau:
 
-Thứ hai, thiết kế cơ chế biểu diễn hành động có cấu trúc vật lý dùng chung cho các thuật toán
-DRL, bảo đảm tính khả thi miền của nghiệm mà không cần bước chiếu hậu kỳ.
+Thứ nhất, nghiên cứu mô hình hóa toán học cho hệ thống truyền thông đường truyền xuống SISO STAR--RIS
+hỗ trợ RSMA, thiết lập bài toán tối ưu hóa phân bổ tài nguyên có xét đến ràng buộc chất lượng dịch vụ tối
+thiểu cho từng thiết bị người dùng.
 
-Thứ ba, xây dựng hàm phần thưởng huấn luyện có hệ số phạt QoS thích nghi và quy trình lựa chọn
-điểm lưu mô hình ưu tiên QoS.
+Thứ hai, nghiên cứu thiết kế cơ chế biểu diễn hành động có cấu trúc vật lý tích hợp cho các thuật toán
+học tăng cường sâu, giúp không gian tìm kiếm phù hợp với các đặc tính truyền dẫn và bảo đảm tính khả thi
+miền của nghiệm mà không phụ thuộc vào các hàm phạt phức tạp.
 
-Thứ tư, mô phỏng và so sánh các thuật toán DRL với các phương pháp tối ưu truyền thống về tổng
-tốc độ, tỷ lệ đạt QoS và độ trễ tính toán.
+Thứ ba, xây dựng hàm phần thưởng huấn luyện thích nghi và quy trình lựa chọn mô hình hướng đến mục tiêu
+đảm bảo sự công bằng và chất lượng dịch vụ cho các thiết bị người dùng trong toàn mạng.
+
+Thứ tư, triển khai mô phỏng, thực nghiệm đánh giá và so sánh toàn diện hiệu năng của các thuật toán học
+tăng cường sâu với các phương pháp tối ưu hóa truyền thống về tổng tốc độ truyền dẫn, tỷ lệ đáp ứng chất
+lượng dịch vụ và độ trễ tính toán ra quyết định.
 
 \section*{3. Đối tượng và phạm vi nghiên cứu}
 \addcontentsline{toc}{section}{3. Đối tượng và phạm vi nghiên cứu}
 
-Đối tượng nghiên cứu là hệ thống truyền xuống SISO hỗ trợ RSMA kết hợp STAR--RIS; bài toán
-phân bổ tài nguyên phi lồi nhiều biến; các thuật toán DRL cho không gian hành động liên tục;
-và các phương pháp tối ưu truyền thống dùng làm đối chiếu.
+Đối tượng nghiên cứu của đề tài là hệ thống truyền thông vô tuyến đường truyền xuống SISO hỗ trợ kỹ thuật
+đa truy cập phân chia tốc độ (RSMA) kết hợp bề mặt thông minh STAR--RIS; bài toán tối ưu hóa phân bổ tài
+nguyên phi lồi đa biến; các thuật toán học tăng cường sâu (DRL) cho không gian hành động liên tục; và
+các phương pháp tối ưu hóa truyền thống phục vụ công tác đối chuẩn.
 
-Phạm vi nghiên cứu được giới hạn như sau: trạm phát một anten phục vụ đồng thời bốn thiết bị
-người dùng ở hai phía bề mặt (hai người dùng phía phản xạ, hai người dùng phía truyền qua);
-STAR--RIS thụ động hoạt động theo cơ chế chia năng lượng (Energy Splitting, ES) với số phần tử
-từ $16$ đến $128$; kênh được sinh theo phân bố Gaussian phức đối xứng tròn (fading Rayleigh)
-với các hệ số tỷ lệ cố định, không mô hình hóa suy hao theo khoảng cách; thông tin trạng thái
-kênh (Channel State Information, CSI) được giả định biết đầy đủ tại thời điểm phân bổ; SIC tại
-máy thu là lý tưởng; độ trễ tính toán được đo trên CPU một luồng.
+Phạm vi nghiên cứu của luận văn được giới hạn trong các điều kiện kỹ thuật cụ thể: trạm phát một anten
+phục vụ đồng thời bốn thiết bị người dùng phân bố ở cả hai nửa không gian (hai người dùng phía truyền và
+hai người dùng phía phản xạ); mảng STAR--RIS thụ động hoạt động theo cơ chế phân chia năng lượng (Energy
+Splitting) với số phần tử khảo sát từ 16 đến 128; kênh truyền Rayleigh (phân bố Gaussian phức đối xứng
+tròn, không mô hình hóa suy hao theo khoảng cách) với giả định thông tin trạng thái kênh (CSI) được trạm
+phát biết đầy đủ tại thời điểm phân bổ; quá trình khử nhiễu liên tiếp SIC tại máy thu là lý tưởng; và
+các thử nghiệm đo lường độ trễ tính toán được chuẩn hóa trên môi trường CPU đơn luồng.
 
 \section*{4. Phương pháp nghiên cứu}
 \addcontentsline{toc}{section}{4. Phương pháp nghiên cứu}
 
-Luận văn kết hợp nghiên cứu lý thuyết và thực nghiệm mô phỏng số. Về lý thuyết, đề tài dùng
-công cụ giải tích và lý thuyết thông tin để mô hình hóa bài toán, phân tích các ràng buộc vật
-lý và xây dựng nguyên lý giải mã hành động cho mạng nơ-ron. Về thực nghiệm, đề tài xây dựng
-môi trường mô phỏng bằng Python và PyTorch, sử dụng các ngân hàng kịch bản kênh độc lập được
-khóa bằng mã băm SHA--256 và đánh giá ghép cặp giữa các thuật toán học máy và các phương pháp
-tối ưu truyền thống trên cùng các kịch bản kiểm thử.
+Luận văn kết hợp chặt chẽ giữa nghiên cứu lý thuyết và thực nghiệm mô phỏng số. Về mặt lý thuyết, đề tài
+sử dụng các công cụ giải tích toán học và lý thuyết thông tin để mô hình hóa bài toán tối ưu phân bổ tài
+nguyên, phân tích các ràng buộc vật lý và xây dựng nguyên lý giải mã hành động cho mạng nơ-ron. Về mặt
+thực nghiệm, đề tài xây dựng môi trường mô phỏng trên ngôn ngữ Python và thư viện PyTorch, áp dụng giao
+thức Ngân hàng kịch bản kênh (ScenarioBank) độc lập được khóa bằng mã băm SHA--256 và thực hiện đánh giá
+kiểm thử ghép cặp khách quan giữa các thuật toán học máy và các phương pháp tối ưu hóa truyền thống.
 
-\section*{5. Ý nghĩa khoa học và thực tiễn}
-\addcontentsline{toc}{section}{5. Ý nghĩa khoa học và thực tiễn}
+\section*{5. Ý nghĩa khoa học và thực tiễn của đề tài}
+\addcontentsline{toc}{section}{5. Ý nghĩa khoa học và thực tiễn của đề tài}
 
-Về khoa học, luận văn đóng góp một cách đưa tri thức vật lý vào thiết kế không gian hành động
-của DRL, giúp mọi hành động sinh ra đều khả thi miền trong một bài toán điều khiển vô tuyến có
-số chiều lớn. Về thực tiễn, kết quả cho thấy chính sách đã huấn luyện có thể đưa ra quyết định
-với trung vị độ trễ tính toán dưới một mili giây trên CPU, là cơ sở để xem xét các bộ điều phối
-tài nguyên nhanh; việc đáp ứng một hạn độ trễ cứng vẫn cần được kiểm chứng trên phần cứng đích.
+Về mặt khoa học, luận văn đóng góp phương pháp luận kết hợp tri thức vật lý vào thiết kế không gian hành
+động của học tăng cường sâu, giúp thuật toán học nhanh, ổn định và luôn sinh ra nghiệm khả thi miền trong
+các bài toán điều khiển vô tuyến số chiều lớn. Về mặt thực tiễn, kết quả nghiên cứu mở ra khả năng triển
+khai các thuật toán điều phối tài nguyên thông minh với trung vị độ trễ tính toán dưới một mili-giây trên
+CPU, làm cơ sở cho việc vận hành các mạng di động 6G thời gian thực; việc đáp ứng một hạn độ trễ cứng vẫn
+cần được kiểm chứng trên phần cứng đích.
 
 \section*{6. Đóng góp mới của luận văn}
 \addcontentsline{toc}{section}{6. Đóng góp mới của luận văn}
 
-Một là, phân tích đặc tính truyền dẫn và cơ chế quản lý nhiễu của RSMA trong hệ SISO kết hợp
-STAR--RIS, làm cơ sở định hướng cho thiết kế bộ giải mã.
+Luận văn đạt được các đóng góp khoa học và kỹ thuật chính như sau:
 
-Hai là, đề xuất bộ giải mã hành động có cấu trúc vật lý dùng chung cho các thuật toán DRL,
-chuyển hành động chuẩn hóa thành các biến vật lý luôn khả thi miền mà không cần bước chiếu hậu
-kỳ; ràng buộc QoS vẫn được xử lý mềm qua phần thưởng.
+Một là, phân tích làm rõ đặc tính truyền dẫn và cơ chế quản lý can nhiễu của kỹ thuật RSMA trong hệ
+thống SISO kết hợp STAR--RIS, cung cấp cơ sở định hướng cho việc tối ưu hóa hệ thống.
 
-Ba là, xây dựng cơ chế điều chỉnh hệ số phạt QoS thích nghi và quy trình lựa chọn điểm lưu mô
-hình ưu tiên QoS.
+Hai là, đề xuất bộ giải mã hành động có cấu trúc vật lý tích hợp cho các thuật toán DRL, chuyển hóa trực
+tiếp hành động chuẩn hóa thành các biến số vật lý khả thi miền một trăm phần trăm mà không cần các bước
+chiếu hậu kỳ hay hàm phạt phức tạp; ràng buộc chất lượng dịch vụ vẫn được xử lý mềm qua phần thưởng.
 
-Bốn là, cung cấp bộ kết quả thực nghiệm định lượng sự đánh đổi giữa tổng tốc độ, tỷ lệ đạt QoS
-và độ trễ tính toán giữa DRL và tối ưu truyền thống, kèm toàn bộ dữ liệu, mã nguồn và điểm lưu
-để tái lập.
+Ba là, xây dựng cơ chế điều chỉnh phạt thích nghi và quy trình lựa chọn điểm lưu mô hình ưu tiên chất
+lượng dịch vụ, hướng tới sự công bằng cho các thiết bị người dùng kênh yếu.
+
+Bốn là, cung cấp bộ kết quả thực nghiệm toàn diện, định lượng sự đánh đổi ba chiều giữa tổng tốc độ, xác
+suất đạt chất lượng dịch vụ và độ trễ tính toán giữa học tăng cường sâu và tối ưu hóa truyền thống.
 
 \section*{7. Bố cục của luận văn}
 \addcontentsline{toc}{section}{7. Bố cục của luận văn}
 
-Ngoài phần Mở đầu, Kết luận và hướng phát triển, Tài liệu tham khảo và Phụ lục, luận văn gồm bốn
-chương. Chương~\ref{chap:co-so-ly-thuyet} trình bày cơ sở lý thuyết về RSMA, STAR--RIS, học tăng
-cường sâu và tổng quan các nghiên cứu liên quan. Chương~\ref{chap:mo-hinh-he-thong} thiết lập mô
-hình hệ thống và bài toán tối ưu. Chương~\ref{chap:phuong-phap} trình bày phương pháp DRL với bộ
-giải mã hành động có cấu trúc vật lý và các thuật toán đối chiếu. Chương~\ref{chap:ket-qua} phân
-tích kết quả mô phỏng và thảo luận sự đánh đổi giữa các phương pháp.
+Ngoài phần Mở đầu, Kết luận và Hướng phát triển cùng Danh mục tài liệu tham khảo, toàn văn luận văn được
+kết cấu thành 4 chương chính: Chương~\ref{chap:co-so-ly-thuyet} trình bày cơ sở lý thuyết về RSMA,
+STAR--RIS, học tăng cường sâu và tổng quan các nghiên cứu liên quan; Chương~\ref{chap:mo-hinh-he-thong}
+thiết lập mô hình hệ thống và bài toán tối ưu phân bổ tài nguyên; Chương~\ref{chap:phuong-phap} trình bày
+phương pháp học tăng cường sâu với bộ giải mã hành động có cấu trúc vật lý và các thuật toán đối chiếu;
+Chương~\ref{chap:ket-qua} phân tích kết quả mô phỏng, đánh giá hiệu năng và thảo luận về sự đánh đổi giữa
+các phương pháp.

@@ -5,96 +5,123 @@
 \section*{1. Kết luận}
 \addcontentsline{toc}{section}{1. Kết luận}
 
-Luận văn đã nghiên cứu, mô hình hóa và giải bài toán phân bổ tài nguyên trong hệ thống truyền xuống
-SISO STAR--RIS hỗ trợ RSMA, trong đó một trạm phát một anten phục vụ đồng thời bốn người dùng ở hai
-nửa không gian truyền qua và phản xạ nhờ một bề mặt đồng thời truyền và phản xạ sóng. Trên cùng một
-mô hình tính toán thống nhất, luận văn đồng thời xác định năm nhóm biến: công suất luồng chung và các
-luồng riêng, tỷ lệ chia tốc độ luồng chung, tỷ lệ chia năng lượng truyền và phản xạ, cùng các góc dịch
-pha của hai phía. Mục tiêu là nâng cao tổng tốc độ, đưa yêu cầu QoS tối thiểu của từng người dùng vào
-quá trình học và đánh giá khả năng ra quyết định nhanh.
+Luận văn đã hoàn thành toàn diện việc nghiên cứu, mô hình hóa và giải quyết bài toán tối ưu phân bổ tài nguyên
+trong hệ thống truyền xuống SISO STAR-RIS hỗ trợ RSMA. Trong mô hình này, một trạm phát trang bị một anten đơn
+đảm nhận nhiệm vụ phục vụ đồng thời bốn thiết bị người dùng phân bố ở cả hai nửa không gian truyền và phản xạ
+thông qua sự trợ giúp của một bề mặt thông minh có khả năng đồng thời truyền và phản xạ sóng điện từ. Trên cùng
+một hệ thống tính toán thống nhất, đề tài đã đồng thời tối ưu hóa năm nhóm biến quyết định bao gồm công suất phát
+phân bổ cho luồng chung và các luồng riêng, tỷ lệ phân chia dung lượng luồng chung cho từng người dùng, hệ số chia
+sẻ năng lượng truyền và phản xạ tại bề mặt, cùng các góc dịch pha độc lập của thành phần sóng truyền và phản xạ.
+Mục tiêu trọng tâm của nghiên cứu là nâng cao tối đa tổng tốc độ truyền dẫn toàn mạng, đồng thời hướng tới bảo đảm
+chỉ tiêu chất lượng dịch vụ tối thiểu cho mọi người dùng và rút ngắn tối đa thời gian tính toán ra quyết định trực
+tuyến.
 
-Về mặt lý thuyết, luận văn phân tích bản chất của hệ một anten phát kết hợp RSMA. Vì BS không có bậc tự
-do không gian để tạo búp sóng riêng cho từng luồng, mọi luồng riêng đến một UE qua cùng một hệ số kênh
-hiệu dụng. Phân tích giải tích cho thấy ở miền tín hiệu trên tạp âm cao, khi nhiều luồng riêng chia đều
-công suất, tổng tốc độ luồng riêng bị chặn bởi một trần gần như không phụ thuộc kênh, và trần này giảm
-khi số luồng hoạt động tăng. Kết quả này giải thích vì sao cấu hình tập trung công suất riêng vào một
-người dùng chiếm ưu thế, kết hợp một luồng chung đủ mạnh để phân phối tốc độ cho các người dùng còn lại,
-có lợi trong hệ SISO; luồng chung chỉ bảo vệ được QoS khi tốc độ chung đủ lớn so với tổng thiếu hụt
-của các người dùng.
+Điểm đột phá về mặt lý thuyết của luận văn bắt nguồn từ việc đi sâu phân tích bản chất toán học và ý nghĩa vật lý
+của cấu trúc hệ thống một anten phát kết hợp với kỹ thuật RSMA. Điểm đặc thù mấu chốt của hệ SISO là việc hoàn toàn
+không có các bậc tự do không gian để tạo búp sóng định hướng riêng cho từng luồng tín hiệu. Khi trạm phát kích hoạt
+đồng thời nhiều luồng riêng trên cùng một tần số, các luồng tín hiệu này sẽ đập vào anten thu của từng người dùng
+qua cùng một hệ số kênh hiệu dụng, khiến các luồng riêng tự chèn ép và phá hủy lẫn nhau. Phân tích giải tích đã chỉ
+ra rõ ràng hiện tượng trần tốc độ do can nhiễu trong miền tỷ số tín hiệu trên tạp âm cao, chỉ ra một nghịch lý rằng
+càng cố gắng chia đều công suất cho nhiều luồng riêng thì tổng dung lượng thu được từ các luồng riêng lại càng suy
+giảm. Phát hiện lý thuyết này giải thích vì sao cấu hình phân bổ công suất riêng tập trung vào một người dùng chiếm
+ưu thế kết hợp với việc duy trì công suất luồng chung ở mức cao đóng vai trò như chiếc van an toàn bảo vệ chất
+lượng dịch vụ cho các người dùng ở xa, mang lại lợi thế cho hệ thống SISO, với điều kiện tốc độ luồng chung đủ lớn so
+với tổng thiếu hụt của các người dùng.
 
-Dựa trên phân tích đó, luận văn đề xuất một bộ giải mã hành động có cấu trúc vật lý dùng chung cho các
-thuật toán DRL. Bộ giải mã nhận véc-tơ hành động chuẩn hóa của Actor và chuyển thành các biến vật lý:
-tỷ lệ công suất luồng chung nằm trong vùng ưu tiên từ $0,70$ đến $0,99$; công suất các luồng riêng được
-phân bổ bằng softmax có độ sắc $\kappa = 10$ để dễ biểu diễn phân bổ tập trung; tỷ lệ chia tốc độ chung
-được chiếu Euclid lên đơn hình; năng lượng STAR--RIS được bảo toàn bằng ánh xạ tuyến tính; và pha của bề
-mặt được học dưới dạng góc hiệu chỉnh trong khoảng $\pm 45^\circ$ quanh một pha tham chiếu tính từ kênh.
-Nhờ đó, mọi hành động sinh ra đều khả thi miền mà không cần bước chiếu hậu kỳ; ràng buộc QoS vẫn được xử
-lý mềm qua phần thưởng nên phương pháp không bảo đảm mọi hiện thực kênh đều đạt QoS.
+Dựa trên nền tảng hiểu biết sâu sắc về cấu trúc vật lý đó, luận văn đã đề xuất một bộ giải mã hành động có cấu trúc
+vật lý dùng chung cho các thuật toán học tăng cường sâu. Thay vì ép mạng nơ-ron phải tự mò mẫm toàn bộ các quy luật
+bảo toàn năng lượng và các ràng buộc biên phức tạp từ con số không, bộ giải mã đóng vai trò như chiếc cầu nối thông
+minh tiếp nhận véc-tơ hành động chuẩn hóa của mạng Actor và chuyển hóa thành các biến số vật lý thông qua các phép
+toán có định hướng. Cụ thể, tỷ lệ công suất luồng chung được định vị trong vùng ưu tiên từ $0,70$ đến $0,99$ để bảo
+đảm mức sàn dịch vụ; công suất các luồng riêng được điều phối thông qua hàm Softmax có độ sắc cao với hệ số bằng
+$10$ nhằm tạo khả năng dồn công suất tập trung; tỷ lệ phân bổ tốc độ chung được chiếu trực giao Euclid lên đơn hình
+xác suất; năng lượng STAR-RIS được bảo toàn tự nhiên bằng ánh xạ tuyến tính; và đặc biệt, các góc dịch pha của bề
+mặt được học dưới dạng các góc lệch tinh chỉnh nhỏ trong khoảng cộng trừ 45 độ xung quanh một pha tham chiếu giải
+tích phụ thuộc kênh. Nhờ thiết kế tinh tế này, mọi hành động do mạng nơ-ron sinh ra luôn bảo đảm tính khả thi miền
+một trăm phần trăm ngay lập tức mà không cần bất kỳ bước chiếu hậu kỳ hay hàm phạt nhân tạo phức tạp nào; ràng buộc
+chất lượng dịch vụ vẫn được xử lý mềm qua phần thưởng.
 
-Thực nghiệm được thực hiện trên các ngân hàng kịch bản kênh độc lập được khóa bằng mã băm, so sánh ghép
-cặp ba thuật toán DRL (TD3, DDPG, PPO) với ba phương pháp truyền thống (AnalyticalRIS, AO--SCA, AO--Grid).
-Bốn kết luận định lượng chính như sau.
+Quy trình thực nghiệm được triển khai nghiêm ngặt trên một ngân hàng kịch bản kênh độc lập và khóa mã băm an toàn,
+thực hiện so sánh ghép cặp giữa ba thuật toán học tăng cường sâu gồm TD3, DDPG, PPO với ba phương pháp tối ưu truyền
+thống gồm AnalyticalRIS, AO-SCA và AO-Grid. Các kết quả mô phỏng số đã mang lại bốn kết luận định lượng cốt lõi như
+sau:
 
-\textbf{Thứ nhất, về nhóm DRL.} Khi dùng chung bộ giải mã có cấu trúc, cả TD3, DDPG và PPO đều đạt tổng
-tốc độ trung bình xấp xỉ nhau, từ $20,92$ đến $21,02$ bit/s/Hz tại $N = 128$, và độ lệch chuẩn giữa hạt
-giống thấp khi $N \ge 64$. Kết quả này phù hợp với giả thuyết rằng biểu diễn hành động có cấu trúc đóng
-vai trò lớn trong chất lượng nghiệm; tuy nhiên, luận văn chưa thực hiện thử nghiệm loại bỏ từng khối của
-bộ giải mã nên chưa tách riêng được tác động nhân quả của từng thành phần. Với năm hạt giống, các chênh
-lệch nhỏ trong nội bộ nhóm DRL chưa đủ để kết luận thứ hạng chung giữa các thuật toán.
+\textbf{Thứ nhất, về sự tương đồng trong nội bộ nhóm DRL:} khi được đặt trên cùng một bộ giải mã hành động có cấu
+trúc vật lý, cả ba thuật toán TD3, DDPG và PPO đều thể hiện khả năng hội tụ ổn định và đạt mức tổng tốc độ xấp xỉ
+nhau từ $20,92$ đến $21,02$ bit/s/Hz khi số phần tử bề mặt tăng lên $128$. Kết quả này phù hợp với giả thuyết rằng
+chính cách biểu diễn hành động có cấu trúc vật lý đóng vai trò lớn trong chất lượng nghiệm, giúp giảm bớt sự phụ thuộc
+nặng nề vào việc lựa chọn thuật toán học máy cụ thể trong các bài toán điều khiển liên tục số chiều lớn; luận văn chưa
+thực hiện thử nghiệm loại bỏ từng khối của bộ giải mã nên chưa tách riêng được tác động nhân quả.
 
-\textbf{Thứ hai, về vai trò của phân bổ thích nghi.} AnalyticalRIS, với công suất và tốc độ chung chia đều
-cố định, có tổng tốc độ bão hòa quanh $1,982$ bit/s/Hz ở mọi $N$ và không đạt QoS cho cả bốn người dùng
-trong bất kỳ kịch bản kiểm thử nào. Kết quả trùng với giới hạn giải tích $\log_2(320/81)$ và cho thấy căn
-pha STAR--RIS đơn thuần không đủ nếu phân bổ công suất và tốc độ không thích nghi với nhiễu giữa các
-luồng riêng.
+\textbf{Thứ hai, về vai trò mấu chốt của cơ chế phân bổ thích nghi trong RSMA:} phương pháp căn pha giải tích
+AnalyticalRIS dù sở hữu tốc độ tính toán tức thời nhưng tổng tốc độ hoàn toàn bị bão hòa ở mức xấp xỉ $1,982$
+bit/s/Hz và thất bại hoàn toàn trước yêu cầu chất lượng dịch vụ tại mọi kích thước mạng. Hiện tượng này khẳng định
+rằng căn pha bề mặt đơn thuần là không đủ nếu công suất và tốc độ chung chỉ được chia đều mà không có cơ chế điều
+phối công suất và quản lý can nhiễu thích nghi của RSMA.
 
-\textbf{Thứ ba, về QoS.} Với phần thưởng có hệ số phạt thích nghi và quy trình chọn điểm lưu ưu tiên QoS,
-tỷ lệ kịch bản mà cả bốn người dùng cùng đạt ngưỡng của nhóm DRL vượt $98,9\%$ từ $N = 32$ và nằm trong
-khoảng $99,94\%$ đến $100\%$ tại $N = 128$. Đây là tỷ lệ quan sát trên tập kiểm thử của một ràng buộc mềm,
-không phải bảo đảm cứng cho mọi hiện thực kênh.
+\textbf{Thứ ba, về năng lực bảo đảm tính công bằng dịch vụ:} nhờ sự kết hợp giữa cơ chế tự điều chỉnh hệ số phạt vi
+phạm thích nghi trong quá trình huấn luyện và quy trình lựa chọn điểm lưu mô hình ưu tiên chất lượng dịch vụ, nhóm
+giải thuật DRL đã đạt xác suất tất cả người dùng cùng thỏa mãn ngưỡng tốc độ trên $98,9\%$ từ quy mô $32$ phần tử
+và tiệm cận mức từ $99,94\%$ đến $100\%$ tại quy mô $128$ phần tử. Đây là tỷ lệ quan sát trên tập kiểm thử của một
+ràng buộc mềm, không phải bảo đảm cứng cho mọi hiện thực kênh.
 
-\textbf{Thứ tư, về đánh đổi giữa chất lượng và độ trễ.} AO--Grid đạt tổng tốc độ trung bình cao nhất ở mọi
-$N$ nhờ lưới có mức $0$ và miền tìm kiếm rộng hơn, đổi lại độ trễ trung vị khoảng $1,2$ giây tại
-$N = 128$ do cần khoảng $11.000$ lần đánh giá hàm mục tiêu (trung vị). Các chính sách DRL chỉ cần một
-lượt suy luận, với trung vị độ trễ tính toán từ $0,34$ đến $0,73$ ms trên CPU một luồng. Tại $N = 128$,
-TD3 thấp hơn AO--Grid khoảng $1,47$ bit/s/Hz (khoảng $6,6\%$) nhưng có độ trễ trung vị thấp hơn khoảng
-$2.700$ lần, và thấp hơn AO--SCA khoảng $8.000$ lần. Đây là đánh đổi trực tuyến sau huấn luyện, chưa tính
-chi phí huấn luyện cho từng $N$; trung vị độ trễ không phải bảo đảm độ trễ cực đại hay độ trễ đầu cuối.
-Với yêu cầu quyết định nhanh, DRL là ứng viên đáng xem xét, nhưng cần đo đuôi độ trễ và độ trễ đầu cuối
-trên phần cứng đích trước khi khẳng định đáp ứng một hạn cứng $1$ ms.
+\textbf{Thứ tư, về bài toán đánh đổi ba chiều giữa chất lượng và độ trễ:} phương pháp tối ưu luân phiên tìm kiếm
+theo lưới AO-Grid đạt tổng tốc độ cao nhất trong các phương pháp khảo sát nhờ khả năng tắt hẳn luồng riêng và không
+gian tìm kiếm rộng hơn, nhưng phải trả giá bằng thời gian tính toán kéo dài hơn $1,2$ giây do phải lặp lại trung vị
+khoảng mười một nghìn bốn trăm phép tính hàm mục tiêu. Trong khi đó, các mô hình DRL sau khi hoàn tất giai đoạn huấn
+luyện ngoại tuyến chỉ mất một lượt truyền xuôi duy nhất qua mạng với thời gian ra quyết định trung vị từ $0,34$ đến
+$0,73$ mili-giây trên CPU đơn luồng tiêu chuẩn. Việc nhóm DRL chỉ chấp nhận hy sinh khoảng $6,6\%$ tổng tốc độ so
+với AO-Grid để đổi lại tốc độ phản ứng nhanh hơn tới $2.700$ lần cho thấy DRL là ứng viên hấp dẫn cho các ứng dụng
+điều khiển nhanh trong các mạng vô tuyến di động thế hệ mới; so sánh này chưa tính chi phí huấn luyện, và việc đáp
+ứng một hạn độ trễ cứng cần được kiểm chứng trên phần cứng đích.
 
-\section*{2. Hướng phát triển}
-\addcontentsline{toc}{section}{2. Hướng phát triển}
+\section*{2. Hướng phát triển của đề tài}
+\addcontentsline{toc}{section}{2. Hướng phát triển của đề tài}
 
-Nghiên cứu còn một số giới hạn xuất phát từ phạm vi mô phỏng và các giả định lý tưởng hóa
-(Mục~\ref{sec:han-che}). Các hướng tiếp theo được đề xuất như sau.
+Mặc dù đã đạt được những kết quả khả quan và hoàn thành các mục tiêu khoa học đề ra, tác giả nhận thức rõ rằng
+nghiên cứu vẫn còn một số giới hạn xuất phát từ phạm vi mô phỏng và các giả định lý tưởng hóa ban đầu
+(Mục~\ref{sec:han-che}). Để tiếp tục hoàn thiện và phát triển đề tài tiệm cận với môi trường triển khai thực tế, các
+hướng nghiên cứu tiếp theo được đề xuất tập trung vào các trọng điểm sau:
 
-\textbf{Thử nghiệm loại bỏ từng khối của bộ giải mã.} Huấn luyện lại với từng khối bị thay bằng phương án
-không cấu trúc (bỏ vùng ưu tiên $p_c$, thay softmax độ sắc cao, bỏ pha tham chiếu, thay $\boldsymbol\eta$
-học được bằng phép chia giải tích) để đo đóng góp riêng của từng thành phần.
+\textbf{Thử nghiệm loại bỏ từng khối của bộ giải mã:} Huấn luyện lại với từng khối bị thay bằng phương án không cấu
+trúc (bỏ vùng ưu tiên công suất chung, thay Softmax độ sắc cao, bỏ pha tham chiếu, thay tỷ lệ tốc độ chung học được
+bằng phép chia giải tích) để đo đóng góp riêng của từng thành phần.
 
-\textbf{Pha tham chiếu riêng cho hai nửa không gian.} Bộ giải mã hiện dùng chung một pha tham chiếu gộp
-cho cả hai phía rồi để Actor học hai góc hiệu chỉnh. Có thể xây dựng hai pha tham chiếu giải tích riêng cho
-nhóm người dùng phía truyền qua và phía phản xạ để phản ánh sát hơn cấu trúc hai phía của STAR--RIS.
+\textbf{Tách biệt pha tham chiếu độc lập cho hai nửa không gian truyền và phản xạ:} Trong thiết kế hiện tại, bộ
+giải mã hành động đang sử dụng chung một véc-tơ pha tham chiếu gộp cho cả hai phía rồi mới để mạng Actor học hai góc
+lệch tinh chỉnh riêng. Hướng phát triển tiếp theo là xây dựng hai công thức tính pha tham chiếu giải tích độc lập,
+tách riêng cho nhóm người dùng phía truyền qua và nhóm người dùng phía phản xạ, nhằm phản ánh chính xác hơn sự phân
+hóa hình học của bề mặt STAR-RIS.
 
-\textbf{Thích nghi các tham số cấu trúc.} Các tham số của bộ giải mã như khoảng $\rho_c \in [0,70; 0,99]$ hay
-độ sắc $\kappa = 10$ hiện được cố định. Chúng có thể được điều chỉnh theo tỷ số tín hiệu trên tạp âm, theo
-mức chênh lệch kênh giữa người dùng, hoặc được học cùng chính sách.
+\textbf{Thích nghi hóa các siêu tham số cấu trúc theo điều kiện môi trường:} Các giá trị tham số cấu trúc trong bộ
+giải mã hiện đang được cố định trước thực nghiệm như khoảng chặn công suất luồng chung từ $0,70$ đến $0,99$ hay hệ số
+độ sắc Softmax bằng $10$. Trong tương lai, các cận biên này có thể được chuyển hóa thành các tham số động có khả năng
+tự điều chỉnh thích nghi theo tỷ số tín hiệu trên tạp âm tức thời, theo mức độ chênh lệch kênh giữa các người dùng
+hoặc được tối ưu hóa đồng thời trong quá trình huấn luyện để tránh việc thu hẹp miền nghiệm quá mức.
 
-\textbf{Phân bổ thưa chính xác.} Softmax chỉ đẩy các trọng số về rất gần $0$ chứ không bằng $0$. Các phép
-biến đổi tạo độ thưa chính xác như sparsemax, hoặc kết hợp chọn người dùng rời rạc với mạng nơ-ron, có thể
-biểu diễn trực tiếp cấu hình tắt hẳn luồng riêng như AO--Grid đã khai thác.
+\textbf{Nghiên cứu cơ chế phân bổ tài nguyên thưa chính xác:} Do hàm Softmax về mặt giải tích chỉ ép các trọng số về
+rất gần $0$ chứ không triệt tiêu tuyệt đối, việc nghiên cứu các hàm biến đổi tạo độ thưa chính xác (như
+Sparsemax~\cite{Martins2016Sparsemax}) hoặc kết hợp cơ chế chọn lọc người dùng rời rạc với mạng nơ-ron sẽ giúp mô
+hình hóa triệt để cấu hình tắt hẳn luồng riêng, tối ưu hóa năng lượng phát sóng của trạm phát.
 
-\textbf{Mở rộng sang hệ nhiều anten.} Khi BS có nhiều anten (MISO hoặc MIMO), tiền mã hóa không gian thay
-đổi căn bản cấu trúc nhiễu; bộ giải mã cần được thiết kế lại để phối hợp tiền mã hóa, quản lý nhiễu RSMA và
-điều khiển STAR--RIS.
+\textbf{Mở rộng mô hình sang hệ thống nhiều anten phát (MISO/MIMO):} Khi trạm gốc được trang bị mảng nhiều anten phát
+theo cấu hình MISO hoặc MIMO khối lượng lớn, sự xuất hiện của các véc-tơ tiền mã hóa không gian sẽ làm thay đổi căn
+bản bản chất của can nhiễu liên người dùng. Khi đó, trạm phát có thể chủ động định hình búp sóng không gian, do đó bộ
+giải mã hành động cần được thiết kế lại để phối hợp đồng thời giữa định hình búp sóng tích cực tại trạm gốc, quản lý
+can nhiễu RSMA và điều khiển bề mặt thụ động STAR-RIS.
 
-\textbf{Ràng buộc phần cứng và kênh thực tế.} Đưa vào CSI không hoàn hảo, mô hình pha ghép giữa truyền và
-phản xạ, pha lượng tử hóa theo số bit điều khiển, suy hao theo khoảng cách và lan truyền lỗi SIC.
+\textbf{Xem xét các ràng buộc phần cứng và kênh truyền thực tế:} Các nghiên cứu tiếp theo cần đưa vào mô hình các
+yếu tố phi lý tưởng như thông tin trạng thái kênh không hoàn hảo do sai số ước lượng và trễ phản hồi, hiện tượng suy
+hao và ghép pha phần cứng giữa thành phần truyền và phản xạ, độ phân giải góc pha bị lượng tử hóa rời rạc bởi số bit
+điều khiển của diode PIN, cùng ảnh hưởng của sai số lan truyền trong quá trình khử nhiễu liên tiếp SIC tại máy thu.
 
-\textbf{Khung lai DRL và tối ưu số.} Dùng chính sách DRL làm bộ khởi tạo tức thời chất lượng cao, sau đó
-một bộ giải lặp chỉ thực hiện một đến hai bước tinh chỉnh cục bộ khi ngân sách thời gian cho phép, để dung
-hòa giữa tốc độ xử lý và chất lượng nghiệm.
+\textbf{Phát triển khung giải pháp phối hợp lai giữa DRL và tối ưu hóa số:} Một hướng tiếp cận giàu triển vọng là kết
+hợp thế mạnh của cả hai trường phái, trong đó mô hình DRL đã được huấn luyện sẽ đóng vai trò như một bộ khởi tạo
+nghiệm tức thời chất lượng cao, sau đó một bộ giải lặp gọn nhẹ chỉ cần thực hiện từ một đến hai bước tinh chỉnh cục
+bộ khi ngân sách thời gian cho phép. Mô hình lai này hứa hẹn sẽ dung hòa trọn vẹn điểm giao thoa giữa tốc độ xử lý
+thời gian thực và độ chính xác tối ưu.
 
-\textbf{Đo trên phần cứng chuyên dụng.} Triển khai trên nền tảng vô tuyến định nghĩa bằng phần mềm hoặc phần
-cứng chuyên dụng để đo độ trễ đầu cuối, đuôi độ trễ và mức tiêu thụ năng lượng thực tế.
+\textbf{Thực nghiệm đo lường trên phần cứng vô tuyến chuyên dụng:} Cuối cùng, việc chuyển đổi thuật toán từ môi trường
+mô phỏng phần mềm sang triển khai thử nghiệm trên các nền tảng vô tuyến định nghĩa bằng phần mềm (SDR) và các vi mạch
+phần cứng chuyên dụng (FPGA, chip AI biên) là bước đi quyết định nhằm kiểm chứng độ trễ truyền thông đầu cuối thực
+tế, đo lường mức tiêu thụ năng lượng và khẳng định giá trị ứng dụng của đề tài trong kỷ nguyên mạng 6G.

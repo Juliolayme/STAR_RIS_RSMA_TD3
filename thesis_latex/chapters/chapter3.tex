@@ -1,44 +1,48 @@
-\chapter{HỌC TĂNG CƯỜNG SÂU VỚI BỘ GIẢI MÃ HÀNH ĐỘNG CÓ CẤU TRÚC VẬT LÝ VÀ CÁC THUẬT TOÁN ĐỐI CHIẾU}
+\chapter{HỌC TĂNG CƯỜNG SÂU VỚI BỘ GIẢI MÃ HÀNH ĐỘNG CÓ CẤU TRÚC VẬT LÝ VÀ CÁC THUẬT TOÁN TỐI ƯU}
 \label{chap:phuong-phap}
 
 \section{Tổng quan khung phương pháp}
 \label{sec:tong-quan-khung}
 
-Chương~\ref{chap:mo-hinh-he-thong} đã thiết lập bài toán phân bổ tài nguyên với đầy đủ ràng buộc vật
-lý. Chương này chuyển bài toán đó thành một quy trình học có thể giải bằng DRL. Nếu xem mạng nơ-ron là
-``hộp đen'' và để nó tự học trên miền biến vật lý nguyên bản, tác tử phải vừa tự tìm ra các quy luật bảo
-toàn năng lượng, vừa thỏa đơn hình phân bổ công suất, vừa tránh nhiễu giữa các luồng riêng của hệ SISO.
-Để giảm gánh nặng đó, luận văn dùng một khung gồm bốn lớp:
+Trong Chương~\ref{chap:mo-hinh-he-thong}, bài toán tối ưu phân bổ tài nguyên mạng SISO STAR--RIS hỗ trợ RSMA
+đã được thiết lập với đầy đủ các ràng buộc vật lý phức tạp. Mục tiêu trọng tâm của Chương~\ref{chap:phuong-phap}
+là chuyển hóa bài toán tối ưu phi lồi nêu trên thành một quy trình học máy có thể giải quyết hiệu quả bằng học
+tăng cường sâu (Deep Reinforcement Learning -- DRL).
+
+Nếu áp dụng DRL theo cách tiếp cận thông thường -- xem mạng nơ-ron như một ``hộp đen'' và ép mạng tự học toàn
+bộ không gian biến vật lý nguyên bản -- tác tử sẽ gặp vô vàn trở ngại: mạng vừa phải tự mò mẫm các quy luật
+bảo toàn năng lượng, vừa phải tìm cách thỏa mãn các đơn hình phân bổ công suất, vừa phải tránh mức can nhiễu
+liên luồng gay gắt của hệ SISO. Để vượt qua thách thức này, luận văn đề xuất một khung kiến trúc phối hợp bốn
+lớp với trọng tâm là bộ giải mã hành động có cấu trúc vật lý dùng chung:
 \begin{enumerate}
-\item \textbf{Thu nhận và chuẩn hóa trạng thái:} nhận CSI tức thời, tách phần thực và phần ảo, chuẩn
-  hóa theo khối và cắt biên để tạo véc-tơ trạng thái ổn định.
-\item \textbf{Mạng chính sách (Actor):} Actor của DDPG, TD3 hoặc PPO xuất một véc-tơ hành động chuẩn
-  hóa trong $[-1, 1]^{d_a}$.
-\item \textbf{Bộ giải mã hành động có cấu trúc vật lý:} biến véc-tơ chuẩn hóa thành bộ biến vật lý đầy
-  đủ. Mọi nghiệm sinh ra đều khả thi miền: thỏa ngay ngân sách công suất, bảo toàn năng lượng bề mặt
-  và đơn hình tỷ lệ tốc độ mà không cần bước chiếu hậu kỳ.
-\item \textbf{Môi trường mô phỏng:} tính SINR, tốc độ, mức vi phạm QoS và phần thưởng để cập nhật mạng.
+\item \textbf{Lớp 1 -- Thu nhận và chuẩn hóa trạng thái:} Tiếp nhận thông tin kênh truyền (CSI) tức thời, tách
+  phần thực và phần ảo, thực hiện chuẩn hóa theo khối và cắt biên an toàn để tạo thành véc-tơ trạng thái đầu
+  vào ổn định.
+\item \textbf{Lớp 2 -- Mạng nơ-ron chính sách (Actor):} Dựa trên trạng thái đầu vào, mạng Actor (của DDPG, TD3
+  hoặc PPO) xuất ra một véc-tơ hành động chuẩn hóa nằm trọn vẹn trong siêu lập phương đơn vị $[-1, 1]$.
+\item \textbf{Lớp 3 -- Bộ giải mã hành động có cấu trúc vật lý:} Đóng vai trò là chiếc cầu nối thông minh,
+  tiếp nhận véc-tơ chuẩn hóa và biến đổi toán học có định hướng để sinh ra bộ thông số vật lý hoàn chỉnh. Mọi
+  nghiệm sinh ra luôn đảm bảo 100\% tính khả thi miền (thỏa mãn tức thì ràng buộc công suất phát, bảo toàn năng
+  lượng bề mặt và đơn hình tỷ lệ tốc độ mà không cần thêm bước chiếu hay hàm phạt phức tạp).
+\item \textbf{Lớp 4 -- Môi trường mô phỏng vô tuyến:} Thực thi các thông số vật lý, tính toán tỷ số SINR, xác
+  định tốc độ truyền dẫn thực tế, đo lường mức độ vi phạm QoS và phản hồi phần thưởng huấn luyện để cập nhật
+  trọng số mạng nơ-ron.
 \end{enumerate}
-Hình~\ref{fig:ch3-khung-drl} tóm tắt khung này.
+Hình~\ref{fig:ch3-khung-drl} tóm tắt khung bốn lớp này.
 
 \input{floats/fig-ch3-khung-drl}
 
-Bộ giải mã được dùng chung cho cả ba thuật toán DDPG, TD3 và PPO, nên không thuật toán nào được cấp một
-miền hành động thuận lợi hơn thuật toán khác; ba thuật toán vẫn khác nhau ở dạng chính sách, Critic, cơ
-chế khám phá và quy tắc cập nhật. Luận văn không khẳng định ngân sách tinh chỉnh của ba thuật toán là
-ngang nhau: cấu hình TD3 được phát triển trước và kỹ lưỡng hơn, còn DDPG và PPO không qua một vòng tinh
-chỉnh riêng cùng quy mô.
+\textbf{Điểm then chốt mang tính nguyên tắc:} Bộ giải mã hành động được thiết kế dùng chung duy nhất một chuẩn
+cho cả ba thuật toán DRL (DDPG, TD3, PPO). Điều này bảo đảm không có thuật toán nào được ưu ái một không gian
+hành động thuận lợi hơn thuật toán khác; ba thuật toán vẫn khác nhau ở dạng chính sách, Critic, cơ chế khám phá
+và quy tắc cập nhật. Luận văn không khẳng định ngân sách tinh chỉnh của ba thuật toán là ngang nhau: cấu hình
+TD3 được phát triển trước và kỹ lưỡng hơn DDPG và PPO.
 
-Về bản chất, CSI ở mỗi bước được lấy độc lập từ ngân hàng huấn luyện và không phụ thuộc hành động trước
-đó, nên bài toán là quyết định một bước theo ngữ cảnh (contextual bandit): chính sách học ánh xạ trực
-tiếp từ CSI sang hành động. Dữ liệu vẫn được tổ chức thành các giai đoạn $32$ bước với $\gamma = 0,99$
-để giữ nguyên cấu trúc cập nhật chuẩn của ba thuật toán.
-
-Hình~\ref{fig:ch3-khung-vat-ly} nhìn cùng khung này theo góc độ tri thức vật lý được đưa vào tác tử ở ba
-vị trí: bộ giải mã hành động có cấu trúc (Mục~\ref{sec:bo-giai-ma}), phần thưởng có phạt QoS thích nghi
-(Mục~\ref{ssec:phan-thuong-huan-luyen}) và trạng thái chuẩn hóa theo khối
-(Mục~\ref{sec:bieu-dien-trang-thai}). Bố cục hình tham khảo khung Phy-DRL nhúng kiến thức vật lý vào
-DRL~\cite{Cao2024PhyDRL}, còn nội dung từng khối là của bài toán trong luận văn.
+Hình~\ref{fig:ch3-khung-vat-ly} nhìn cùng khung này theo góc độ tri thức vật lý được đưa vào tác tử ở ba vị trí:
+bộ giải mã hành động có cấu trúc (Mục~\ref{sec:bo-giai-ma}), phần thưởng có phạt QoS thích nghi
+(Mục~\ref{ssec:phan-thuong-huan-luyen}) và trạng thái chuẩn hóa theo khối (Mục~\ref{sec:bieu-dien-trang-thai}).
+Bố cục hình tham khảo khung Phy-DRL nhúng kiến thức vật lý vào DRL~\cite{Cao2024PhyDRL}, còn nội dung từng khối
+là của bài toán trong luận văn.
 
 \input{floats/fig-ch3-khung-vat-ly}
 
@@ -48,388 +52,480 @@ DRL~\cite{Cao2024PhyDRL}, còn nội dung từng khối là của bài toán tro
 \subsection{Cấu trúc véc-tơ trạng thái}
 \label{ssec:cau-truc-trang-thai}
 
-Trạng thái cần cho mạng một bức tranh đầy đủ về kênh của toàn mạng. Véc-tơ trạng thái ghép bốn thành
-phần: phần thực và phần ảo của $h_{d,k}$ ($2K$ phần tử), của $g_n$ ($2N$ phần tử), của $h_{r,k,n}$
-($2KN$ phần tử) và chỉ báo phía của $K$ UE. Số chiều trạng thái là
+Để mạng nơ-ron có thể đưa ra quyết định phân bổ tối ưu, trạng thái đầu vào phải cung cấp một bức tranh toàn
+diện về điều kiện không gian truyền sóng của toàn mạng. Véc-tơ trạng thái $s$ tại mỗi thời điểm được ghép từ
+bốn thành phần thông tin:
+\begin{itemize}
+\item \textbf{Kênh trực tiếp BS -- UE:} Gồm phần thực và phần ảo của $h_{d,k}$ cho $K$ người dùng (tổng cộng
+  $2K$ phần tử).
+\item \textbf{Kênh BS -- STAR--RIS:} Gồm phần thực và phần ảo của $g_n$ cho $N$ phần tử bề mặt (tổng cộng $2N$
+  phần tử).
+\item \textbf{Kênh STAR--RIS -- UE:} Gồm phần thực và phần ảo của $h_{r,k,n}$ cho $K$ người dùng và $N$ phần tử
+  (tổng cộng $2KN$ phần tử).
+\item \textbf{Chỉ báo vùng người dùng:} Véc-tơ $s_{\mathrm{zone}}$ cho biết vị trí hình học của $K$ người dùng
+  (gồm $K$ phần tử).
+\end{itemize}
+Tổng số chiều của véc-tơ trạng thái đầu vào được tính bằng:
 \begin{equation}
-\label{eq:so-chieu-trang-thai}
 d_s = 2(K + N + KN) + K .
+\label{eq:so-chieu-trang-thai}
 \end{equation}
-Hệ số $2$ xuất hiện vì các lớp nơ-ron tiêu chuẩn không làm việc trực tiếp với số phức nên mỗi hệ số kênh
-được tách thành hai số thực; ví dụ với $K = 4$ và $N = 32$ có $d_s = 332$.
+Trong đó:
+\begin{itemize}
+\item $d_s$: Tổng số chiều của véc-tơ trạng thái đầu vào đưa vào mạng nơ-ron.
+\item $K = 4$: Số lượng thiết bị người dùng trong hệ thống.
+\item $N$: Số lượng phần tử siêu vật liệu của bề mặt STAR--RIS ($N$ thay đổi từ 16 đến 128 phần tử).
+\item \textbf{Hệ số 2:} Xuất hiện do các thư viện học máy phổ biến không hỗ trợ trực tiếp kiểu dữ liệu số phức
+  trên các lớp nơ-ron tiêu chuẩn, buộc ta phải tách mỗi hệ số kênh phức thành hai giá trị thực độc lập (phần
+  thực và phần ảo).
+\item \textbf{$K$ phần tử cuối:} Chỉ báo vị trí hình học của từng UE (phía phản xạ hay phía truyền qua).
+\end{itemize}
 
-\subsection{Chuẩn hóa theo khối}
+\subsection{Chuẩn hóa theo khối (Block-wise Normalization)}
 \label{ssec:chuan-hoa-khoi}
 
-Ba loại kênh có hệ số tỷ lệ khác nhau ($0,35$; $1,0$; $0,75$). Nếu ghép trực tiếp giá trị thô, mạng sẽ
-mất cân bằng gradient giữa các khối. Vì vậy mỗi khối được chia cho hệ số tỷ lệ của nó:
+Do các kênh truyền có độ lệch chuẩn biên độ khác nhau (kênh trực tiếp có độ lệch chuẩn $0,35$; kênh BS--RIS có
+độ lệch chuẩn $1,0$; kênh RIS--UE có độ lệch chuẩn $0,75$), nếu ghép trực tiếp các giá trị thô, mạng nơ-ron sẽ
+bị mất cân bằng gradient. Do đó, véc-tơ trạng thái được xử lý chuẩn hóa theo từng khối riêng biệt:
 \begin{equation}
-\label{eq:chuan-hoa-khoi}
-\tilde{h}_{d,k} = \frac{h_{d,k}}{0,35}, \qquad
-\tilde{g}_n = \frac{g_n}{1,0}, \qquad
+\tilde{h}_{d,k} = \frac{h_{d,k}}{0,35}, \qquad \tilde{g}_n = \frac{g_n}{1,0}, \qquad
 \tilde{h}_{r,k,n} = \frac{h_{r,k,n}}{0,75}.
+\label{eq:chuan-hoa-khoi}
 \end{equation}
-Chỉ báo phía được ánh xạ từ $\{0, 1\}$ sang $\{-1, 1\}$ ($-1$ là phía phản xạ, $+1$ là phía truyền qua).
-Mọi giá trị sau chuẩn hóa được cắt vào $[-8, 8]$ để loại các giá trị ngoại lai hiếm của phân bố Gaussian,
-giúp quá trình huấn luyện ban đầu ổn định hơn. Hình~\ref{fig:ch3-trang-thai} minh họa cấu trúc này.
+Chỉ báo vùng của người dùng được ánh xạ từ tập nhị phân $\{0, 1\}$ sang đoạn đối xứng $\{-1, 1\}$ (với $-1$ đại
+diện cho phía phản xạ và $+1$ đại diện cho phía truyền qua). Toàn bộ các giá trị sau khi chuẩn hóa được đưa qua
+hàm cắt biên trong phạm vi an toàn $[-8, 8]$:
+\begin{equation}
+s_i = \mathrm{clip}(\tilde{s}_i, -8, 8).
+\label{eq:cat-bien}
+\end{equation}
+\textbf{Ý nghĩa vật lý:} Phép chuẩn hóa đưa tất cả các biến kênh về cùng phân bố chuẩn có phương sai đơn vị.
+Phép cắt biên $[-8, 8]$ loại bỏ các giá trị ngoại lai cực đoan hiếm gặp của phân bố Gaussian ngẫu nhiên, giúp
+hạn chế hiện tượng bùng nổ gradient trong những bước đầu huấn luyện. Hình~\ref{fig:ch3-trang-thai} minh họa
+cấu trúc véc-tơ trạng thái.
 
 \input{floats/fig-ch3-trang-thai}
 
 \section{Không gian hành động chuẩn hóa}
 \label{sec:khong-gian-hanh-dong}
 
-Thay vì để Actor xuất trực tiếp công suất hay góc pha (có thang đo và miền rất khác nhau), Actor chỉ xuất
-một véc-tơ chuẩn hóa
+Thay vì ép mạng nơ-ron phải xuất ra trực tiếp các giá trị công suất bằng Watt hay các góc pha tính bằng radian
+(vốn có thang đo và miền ràng buộc rất khác nhau), mạng Actor chỉ xuất ra một véc-tơ hành động chuẩn hóa $a$:
 \begin{equation}
+a = \big[a_c,\ a_p^T,\ a_\eta^T,\ a_\beta^T,\ a_{\theta^T}^T,\ a_{\theta^R}^T\big]^T \in [-1, 1]^{d_a}.
 \label{eq:vec-to-hanh-dong}
-a = \big[\, a_c,\ a_p,\ a_\eta,\ a_\beta,\ a_{\theta^T},\ a_{\theta^R} \,\big] \in [-1,1]^{d_a},
 \end{equation}
-gồm: một giá trị $a_c$ điều khiển công suất luồng chung; $K$ giá trị $a_p$ điều khiển mức ưu tiên công
-suất riêng; $K$ giá trị $a_\eta$ điều khiển tỷ lệ chia tốc độ chung; $N$ giá trị $a_\beta$ điều khiển
-tỷ lệ chia năng lượng; và hai véc-tơ $a_{\theta^T}, a_{\theta^R}$, mỗi véc-tơ $N$ giá trị, là các góc
-hiệu chỉnh pha cho hai phía. Tổng số chiều là $d_a = 2K + 1 + 3N$, từ $57$ tại $N = 16$ đến $393$ tại
-$N = 128$.
+Trong đó:
+\begin{itemize}
+\item $a \in [-1, 1]^{d_a}$: Véc-tơ hành động liên tục chuẩn hóa, trong đó mọi phần tử đều nằm trong khoảng đối
+  xứng $[-1, 1]$ nhờ lớp hàm kích hoạt Tanh ở ngõ ra của Actor.
+\item $a_c \in [-1, 1]$: Một giá trị vô hướng duy nhất, điều khiển việc phân bổ công suất cho luồng chung.
+\item $a_p = [a_{p,1}, \dots, a_{p,K}]^T \in [-1, 1]^K$: Véc-tơ gồm $K$ phần tử, điều khiển mức độ ưu tiên công
+  suất cho các luồng riêng.
+\item $a_\eta = [a_{\eta,1}, \dots, a_{\eta,K}]^T \in [-1, 1]^K$: Véc-tơ gồm $K$ phần tử, điều phối tỷ lệ phân
+  chia quỹ tốc độ chung.
+\item $a_\beta = [a_{\beta,1}, \dots, a_{\beta,N}]^T \in [-1, 1]^N$: Véc-tơ gồm $N$ phần tử, điều khiển tỷ lệ
+  phân chia năng lượng truyền -- phản xạ của STAR--RIS.
+\item $a_{\theta^T}, a_{\theta^R} \in [-1, 1]^N$: Hai véc-tơ độc lập, mỗi véc-tơ gồm $N$ phần tử, dùng để học
+  góc lệch tinh chỉnh pha cho phía truyền qua và phía phản xạ.
+\item $d_a = 2K + 1 + 3N$: Tổng số chiều hành động chuẩn hóa của mạng nơ-ron.
+\end{itemize}
 
-\section{Bộ giải mã hành động có cấu trúc vật lý}
+\section{Bộ giải mã hành động có cấu trúc vật lý (Action Decoder)}
 \label{sec:bo-giai-ma}
 
-Bộ giải mã là đóng góp kiến trúc trung tâm của luận văn. Nó biến véc-tơ chuẩn hóa $a$ thành bộ biến vật lý
-khả thi qua năm khối.
+Bộ giải mã hành động là đóng góp kiến trúc trung tâm của luận văn. Nó chuyển hóa véc-tơ chuẩn hóa $a$ thành bộ
+thông số vật lý khả thi thông qua năm khối chức năng toán học.
 
 \subsection{Giải mã công suất luồng chung}
 \label{ssec:giai-ma-cong-suat-chung}
 
-Giá trị $a_c$ được ánh xạ tuyến tính thành tỷ lệ công suất luồng chung:
+Giá trị đầu ra $a_c \in [-1, 1]$ được ánh xạ tuyến tính thành tỷ lệ công suất luồng chung $\rho_c$ thông qua
+công thức:
 \begin{equation}
+\rho_c = 0,70 + 0,29 \cdot \frac{a_c + 1}{2} \in [0,70;\ 0,99],
 \label{eq:rho-c}
-\rho_c = 0,70 + (0,99 - 0,70)\,\frac{a_c + 1}{2}, \qquad p_c = \rho_c P_{\max}.
 \end{equation}
-Hệ SISO không có búp sóng không gian để tách các luồng riêng; như phân tích ở
-Mục~\ref{ssec:quan-he-chung-rieng}, luồng chung đủ mạnh là kênh phân phối tốc độ cho các UE không được ưu
-tiên công suất riêng. Ước lượng thô: nếu công suất riêng tập trung vào một UE thì ba UE còn lại cần
-$R_c \ge 3R_{\min} = 1,5$ bit/s/Hz; theo~\eqref{eq:toc-do-chung-xap-xi}, điều này đòi hỏi
-$\rho_c \ge 1 - 2^{-1,5} \approx 0,646$. Cận dưới $0,70$ nằm trên ngưỡng này. Đây là lựa chọn thiết kế,
-không phải ràng buộc bắt buộc của RSMA.
+\begin{equation}
+p_c = \rho_c P_{\max}.
+\label{eq:p-c}
+\end{equation}
+Trong đó:
+\begin{itemize}
+\item $\rho_c \in [0,70; 0,99]$: Tỷ lệ phần trăm tổng công suất trạm phát được dành riêng cho luồng chung.
+\item $p_c$: Công suất phát thực tế cấp cho luồng chung.
+\item \textbf{Cơ sở vật lý:} Hệ SISO không có khả năng tạo búp sóng không gian để phân tách các luồng riêng. Nếu
+  phát nhiều luồng riêng với công suất lớn, can nhiễu liên luồng sẽ bóp nghẹt hệ thống. Luồng chung đóng vai trò
+  là ``quỹ cứu trợ công bằng'', giúp các người dùng kênh yếu đạt ngưỡng QoS. Ước lượng thô: nếu công suất riêng
+  tập trung vào một UE thì ba UE còn lại cần $R_c \ge 3R_{\min} = 1,5$ bit/s/Hz; theo~\eqref{eq:toc-do-chung-xap-xi},
+  điều này đòi hỏi $\rho_c \ge 1 - 2^{-1,5} \approx 0,646$. Giới hạn $\rho_c \ge 0,70$ cấy sẵn tri thức vật lý
+  này để mạng DRL luôn duy trì công suất chung đủ lớn, hỗ trợ hệ thống thỏa mãn QoS mà không tốn công mò mẫm;
+  đây là lựa chọn thiết kế, không phải ràng buộc bắt buộc của RSMA.
+\end{itemize}
 
 \subsection{Giải mã công suất luồng riêng}
 \label{ssec:giai-ma-rieng}
 
-Phần công suất còn lại $(1 - \rho_c)P_{\max}$ được chia cho các luồng riêng bằng softmax có độ sắc cao:
+Phần công suất còn lại dành cho toàn bộ các luồng riêng là $P_{\mathrm{priv}} = (1 - \rho_c) P_{\max}$. Để phân
+chia phần công suất này, bộ giải mã sử dụng hàm Softmax có độ sắc cao với hệ số $\kappa = 10$:
 \begin{equation}
+w_k = \frac{\exp(10\, a_{p,k})}{\sum_{j=1}^{K} \exp(10\, a_{p,j})},
 \label{eq:softmax}
-w_k = \frac{\exp(\kappa a_{p,k})}{\sum_{j=1}^{K} \exp(\kappa a_{p,j})}, \qquad \kappa = 10, \qquad
-p_k = (1 - \rho_c) P_{\max} w_k .
 \end{equation}
-Với softmax thông thường ($\kappa = 1$), để tập trung công suất vào một UE, Actor phải đẩy đầu ra tới
-biên và dễ làm hàm Tanh bão hòa. Với $\kappa = 10$, chỉ cần một chênh lệch nhỏ giữa các đầu ra là trọng
-số ưu tiên đã chiếm phần lớn công suất (Hình~\ref{fig:ch3-do-sac}), nên mạng dễ biểu diễn cấu hình gần
-one-hot để giảm nhiễu giữa các luồng riêng.
+\begin{equation}
+p_k = w_k P_{\mathrm{priv}} = w_k (1 - \rho_c) P_{\max}.
+\label{eq:p-k}
+\end{equation}
+Trong đó:
+\begin{itemize}
+\item $w_k \in (0, 1)$: Trọng số phân bổ công suất riêng của người dùng UE$_k$, thỏa mãn tổng các $w_k$ bằng 1.
+\item $\kappa = 10$: Hệ số độ sắc (sharpness factor) của hàm Softmax.
+\item \textbf{Cơ sở vật lý:} Trong hàm Softmax thông thường ($\kappa = 1$), để tập trung công suất cho một người
+  dùng, mạng Actor phải đẩy đầu ra tiến tới vô cùng lớn làm nơ-ron bị bão hòa Tanh. Với $\kappa = 10$, hàm Softmax
+  trở nên rất nhạy: chỉ cần Actor tạo ra chênh lệch nhỏ, trọng số ưu tiên sẽ lập tức tăng vọt lên gần 1 (ví dụ
+  $0,946$ trong Hình~\ref{fig:ch3-do-sac}), ép các trọng số khác về gần 0. Điều này cho phép mạng nơ-ron dễ dàng
+  tạo ra cấu hình phân bổ một luồng riêng chiếm ưu thế (near one-hot) để hạn chế can nhiễu liên luồng trong hệ
+  SISO.
+\end{itemize}
 
 \input{floats/fig-ch3-do-sac}
 
-\subsection{Giải mã tỷ lệ chia tốc độ chung}
+\subsection{Giải mã tỷ lệ phân bổ tốc độ chung}
 \label{ssec:giai-ma-ty-le-toc-do}
 
-Tỷ lệ chia tốc độ chung được lấy bằng phép chiếu Euclid lên đơn hình:
+Quỹ tốc độ chung $R_c$ được chia sẻ cho $K$ người dùng theo véc-tơ tỷ lệ $\boldsymbol{\eta}$ trên đơn hình xác
+suất $\Delta_K$ bằng phép chiếu Euclid trực giao~\cite{Duchi2008Projection}:
 \begin{equation}
+\boldsymbol{\eta} = \Pi_{\Delta_K}\!\left(\frac{a_\eta + 1}{2}\right),
 \label{eq:eta}
-\boldsymbol{\eta} = \Pi_{\Delta_K}\!\left(\frac{a_\eta + 1}{2}\right)
-= \arg\min_{\boldsymbol{\eta}' \in \Delta_K} \left\| \boldsymbol{\eta}' - \frac{a_\eta + 1}{2} \right\|_2^2 ,
 \end{equation}
-với $\Delta_K = \{x \in \mathbb{R}^K \mid x_k \ge 0,\ \sum_k x_k = 1\}$. Phép chiếu tìm điểm gần nhất
-trên đơn hình nên luôn chia hết $100\%$ tốc độ chung; khác với softmax, nó cho phép một số $\eta_k$ bằng
-đúng $0$.
+trong đó $\Pi_{\Delta_K}(\cdot)$ là toán tử tìm điểm gần nhất trên mặt phẳng đơn hình. Cơ chế này tự động bảo
+toàn $100\%$ dung lượng luồng chung mà không làm thất thoát bất kỳ phần dung lượng nào.
 
 \subsection{Giải mã hệ số chia năng lượng STAR--RIS}
 \label{ssec:giai-ma-beta}
 
+Tỷ lệ phân chia năng lượng truyền qua và phản xạ trên từng phần tử STAR--RIS thứ $n$ được tính bằng:
 \begin{equation}
+\beta^T_n = \frac{a_{\beta,n} + 1}{2}, \qquad \beta^R_n = 1 - \beta^T_n = \frac{1 - a_{\beta,n}}{2}.
 \label{eq:beta}
-\beta^T_n = \frac{a_{\beta,n} + 1}{2}, \qquad \beta^R_n = 1 - \beta^T_n ,
 \end{equation}
-nên ràng buộc bảo toàn năng lượng $\beta^T_n + \beta^R_n = 1$ luôn được thỏa.
+Ràng buộc bảo toàn năng lượng thụ động $\beta^T_n + \beta^R_n = 1$ luôn được đảm bảo tuyệt đối ở mọi thời điểm.
 
-\subsection{Pha tham chiếu và hiệu chỉnh học được}
+\subsection{Pha tham chiếu giải tích và học hiệu chỉnh thích nghi}
 \label{ssec:giai-ma-pha}
 
-Thay vì để mạng tìm pha trên toàn vòng tròn, bộ giải mã tính một pha tham chiếu từ kênh, dùng chính
-trọng số công suất riêng $w_k$ làm trọng số người dùng:
+Thay vì bắt mạng nơ-ron tự dò tìm góc pha trong toàn bộ vòng tròn lượng giác, bộ giải mã tính toán pha tham chiếu
+giải tích:
 \begin{equation}
-\label{eq:z-n}
-z_n = \sum_{k=1}^{K} w_k\, h^{*}_{r,k,n}\, g_n ,
-\end{equation}
-\begin{equation}
+z_n = \sum_{k=1}^{K} w_k\, h^{*}_{r,k,n}\, g_n \quad \Longrightarrow \quad \bar{\theta}_n = -\angle z_n .
 \label{eq:theta-ref}
-\bar{\theta}_n = -\angle z_n .
 \end{equation}
-Actor chỉ học hai góc hiệu chỉnh trong khoảng $\pm 45^\circ$ quanh tham chiếu:
-\begin{align}
-\theta^T_n &= \mathrm{wrap}\!\left(\bar{\theta}_n + 0,25\pi\, a_{\theta^T\!,n}\right), \label{eq:theta-T}\\
-\theta^R_n &= \mathrm{wrap}\!\left(\bar{\theta}_n + 0,25\pi\, a_{\theta^R\!,n}\right). \label{eq:theta-R}
-\end{align}
-Công thức giải tích lo phần căn pha thô, còn mạng học phần hiệu chỉnh theo kênh cụ thể. Pha tham chiếu
-gộp chỉ làm các tổng $z_n$ cùng hướng; kênh của từng UE riêng lẻ không nhất thiết được căn pha.
-Hình~\ref{fig:ch3-bo-giai-ma} tóm tắt cả năm khối.
+Mạng Actor chỉ cần học thêm hai góc lệch tinh chỉnh nhỏ trong phạm vi $[-45^\circ, +45^\circ]$:
+\begin{equation}
+\theta^T_n = \mathrm{wrap}\!\left(\bar{\theta}_n + 0,25\pi\, a_{\theta^T\!,n}\right), \qquad
+\theta^R_n = \mathrm{wrap}\!\left(\bar{\theta}_n + 0,25\pi\, a_{\theta^R\!,n}\right).
+\label{eq:theta-TR}
+\end{equation}
+Trong đó $\mathrm{wrap}(\cdot)$ là hàm cuộn góc về miền $[-\pi, \pi)$. Công thức này tạo nên sự kết hợp hài hòa:
+công thức giải tích đảm nhận phần căn pha thô, trong khi mạng DRL đảm nhận phần tinh chỉnh thích nghi còn lại
+theo trạng thái kênh cụ thể. Pha tham chiếu gộp chỉ làm các tổng $z_n$ cùng hướng; kênh của từng UE riêng lẻ không
+nhất thiết được căn pha. Hình~\ref{fig:ch3-bo-giai-ma} tóm tắt năm khối của bộ giải mã.
 
 \input{floats/fig-ch3-bo-giai-ma}
 
-\subsection{Ý nghĩa của việc thu hẹp miền hành động}
-\label{ssec:thu-hep-mien}
-
-Bộ giải mã không bao phủ toàn bộ miền vật lý: $p_c$ chỉ nằm trong một khoảng con và pha chỉ nằm trong
-vùng $\pm\pi/4$ quanh tham chiếu. Đây là một đánh đổi có chủ đích: mạng học dễ hơn và mọi hành động đều
-khả thi miền, nhưng mất khả năng biểu diễn một số nghiệm ở biên miền vật lý mà các bộ giải AO có thể
-khai thác. So sánh giữa DRL và AO vì vậy phải đọc như đánh đổi giữa miền tìm kiếm và số phép đánh giá,
-không phải hai bộ giải có cùng không gian tìm kiếm.
-
-\section{Phần thưởng, bộ điều khiển QoS và lựa chọn mô hình}
-\label{sec:phan-thuong}
-
-\subsection{Phần thưởng huấn luyện có hệ số phạt thích nghi}
+\section{Hàm phần thưởng huấn luyện và cơ chế phạt QoS thích nghi}
 \label{ssec:phan-thuong-huan-luyen}
 
-Môi trường báo cáo hàm đánh giá $r_{\mathrm{env}}$ ở~\eqref{eq:phan-thuong-moi-truong}. Khi huấn luyện
-DRL, hệ số phạt tuyến tính được thay bằng một hệ số thích nghi $\lambda_t$:
+Hàm phần thưởng huấn luyện được thiết lập với hệ số phạt thích nghi $\lambda_t$:
 \begin{equation}
+r_t = R_{\mathrm{sum}} - \lambda_t V - 8 V_2 ,
 \label{eq:phan-thuong-huan-luyen}
-r_t = R_{\mathrm{sum}} - \lambda_t V - 8V_2 .
 \end{equation}
-Hệ số $\lambda_t$ khởi tạo bằng $8$ và được cập nhật mỗi $1.000$ bước theo mức vi phạm trung bình trượt:
+trong đó $V$ là tổng độ thiếu hụt tốc độ tuyến tính, $V_2$ là tổng bình phương độ thiếu hụt. Hệ số $\lambda_t$
+được khởi tạo bằng $8,0$ và được điều chỉnh định kỳ sau mỗi chu kỳ $1.000$ bước theo mức vi phạm trung bình
+trượt:
 \begin{equation}
+\hat{V}_t = 0,95\, \hat{V}_{t-1} + 0,05\, V_t ,
 \label{eq:ema}
-\bar{V}_t = 0,95\, \bar{V}_{t-1} + 0,05\, V_t ,
 \end{equation}
 \begin{equation}
+\lambda_{t+1} = \mathrm{clip}\big(\lambda_t + 20\,(\hat{V}_t - 0,001),\ 4,0,\ 64,0\big).
 \label{eq:cap-nhat-lambda}
-\lambda_{t+1} = \mathrm{clip}\!\left[\lambda_t + 20(\bar{V}_t - 0,001),\ 4,\ 64 \right].
 \end{equation}
-Khi mạng còn để UE vi phạm QoS, $\lambda_t$ tăng và áp lực phạt nặng hơn; khi vi phạm đã thấp, $\lambda_t$
-giảm để mạng tập trung vào tổng tốc độ. Một hệ quả cần nêu rõ: bộ nhớ phát lại lưu phần thưởng đã tính với
-$\lambda_t$ tại thời điểm thu mẫu và mã nguồn không tính lại theo $\lambda$ hiện tại, nên mục tiêu học của
-DDPG và TD3 không hoàn toàn dừng.
+Cơ chế thích nghi này tự động tạo áp lực phạt nặng khi mạng còn để người dùng vi phạm QoS, và tự động nới lỏng áp
+lực khi hệ thống đã đạt chuẩn ổn định để mạng nơ-ron tập trung tối ưu hóa tổng tốc độ. Lưu ý rằng bộ nhớ phát
+lại lưu phần thưởng đã tính với $\lambda_t$ tại thời điểm thu mẫu và không tính lại theo $\lambda$ hiện tại, nên
+mục tiêu học của DDPG và TD3 không hoàn toàn dừng.
 
-\subsection{Lựa chọn điểm lưu mô hình}
-\label{ssec:chon-diem-luu}
-
-Mô hình không được chọn chỉ theo tổng tốc độ. Tại mỗi lần xác thực trên $1.000$ kịch bản, một điểm lưu
-được coi là đạt ngưỡng khi đồng thời: tỷ lệ UE đạt QoS trung bình $\ge 0,99$, xác suất mọi UE đạt QoS
-$\ge 0,95$ và mức vi phạm trung bình $\le 0,02$ bit/s/Hz. Trong các điểm đạt ngưỡng, điểm có tổng tốc độ
-cao hơn được ưu tiên. Nếu chưa có điểm nào đạt ngưỡng, bộ chọn dùng quy tắc dự phòng: ưu tiên điểm có tổng
-khoảng cách chuẩn hóa tới ba ngưỡng nhỏ nhất. Quy tắc này thực sự được dùng ở PPO tại $N = 16$ với ba hạt
-giống ($0$, $3$, $4$); mọi lần chạy còn lại đều chọn được điểm đạt ngưỡng. Cách chọn này hạn chế việc chọn
-mô hình đạt tổng tốc độ cao bằng cách bỏ rơi UE yếu, nhưng QoS vẫn là ràng buộc mềm nên không có bảo đảm
-cứng. Tập kiểm thử không được dùng để chọn mô hình.
-
-\section{Kiến trúc mạng nơ-ron và các thuật toán DRL}
+\section{Kiến trúc mạng nơ-ron và các thuật toán DRL khảo sát}
 \label{sec:kien-truc-mang}
 
-Ba thuật toán dùng cùng cấu trúc perceptron nhiều lớp gồm hai lớp ẩn, mỗi lớp $256$ nút, theo thứ tự
-FC, LayerNorm rồi ReLU (Hình~\ref{fig:ch3-kien-truc-mang}). Việc giữ cùng kiến trúc kiểm soát một phần khác
-biệt về quy mô mạng, nhưng không đồng nhất hoàn toàn năng lực biểu diễn hay động lực huấn luyện của ba
-thuật toán. Lớp ra của Actor DDPG và TD3 được khởi tạo với trọng số nhỏ trong $[-3\cdot10^{-3},
-3\cdot10^{-3}]$ để hành động ban đầu gần tâm miền chuẩn hóa.
+Cả ba thuật toán DDPG, TD3 và PPO đều được xây dựng trên cùng một cấu trúc perceptron đa lớp (MLP) gồm 2 lớp ẩn,
+mỗi lớp gồm $256$ nơ-ron với chuẩn hóa lớp (LayerNorm~\cite{Ba2016LayerNorm}) và hàm kích hoạt ReLU
+(Hình~\ref{fig:ch3-kien-truc-mang}). Lớp ngõ ra của Actor DDPG và TD3 được khởi tạo với trọng số cực nhỏ trong
+đoạn $[-3 \cdot 10^{-3}, 3 \cdot 10^{-3}]$ để đảm bảo trạng thái xuất phát ban đầu có ý nghĩa vật lý an toàn.
+\begin{itemize}
+\item \textbf{DDPG (Lillicrap và cộng sự, 2015)}~\cite{Lillicrap2015DDPG}: Sử dụng mạng Actor xác định và một
+  mạng Critic Q-learning liên tục.
+\item \textbf{TD3 (Fujimoto và cộng sự, 2018)}~\cite{Fujimoto2018TD3}: Sử dụng cặp Critic độc lập lấy giá trị
+  nhỏ nhất $\min(Q_1, Q_2)$, làm trơn hành động đích và cập nhật trễ Actor để giảm hiện tượng ước lượng quá lạc
+  quan.
+\item \textbf{PPO (Schulman và cộng sự, 2017)}~\cite{Schulman2017PPO}: Đại diện nhóm on-policy, tối ưu hóa hàm
+  mục tiêu cắt tỷ số xác suất với biên cắt $\epsilon = 0,20$ trên từng đoạn dữ liệu $2.048$ bước, với ưu thế ước
+  lượng bằng GAE ($\lambda_{\mathrm{GAE}} = 0,95$)~\cite{Schulman2016GAE}.
+\end{itemize}
 
 \input{floats/fig-ch3-kien-truc-mang}
-
-\subsection{DDPG}
-\label{ssec:ch3-ddpg}
-
-DDPG dùng một Actor xác định $\mu_\phi$ và một Critic $Q_\psi$~\cite{Lillicrap2015DDPG}. Với mẫu
-$(s, a, r, s', d)$, mục tiêu của Critic là
-\begin{equation}
-\label{eq:muc-tieu-ddpg}
-y = r + \gamma (1 - d)\, Q_{\psi^-}\!\big(s',\ \mu_{\phi^-}(s')\big),
-\end{equation}
-trong đó dấu trừ chỉ mạng đích và $d = 1$ khi bước là cuối giai đoạn. Mạng đích được cập nhật mềm
-$\vartheta^- \leftarrow (1 - \tau)\vartheta^- + \tau\vartheta$ với $\tau = 0,005$.
-
-\subsection{TD3}
-\label{ssec:ch3-td3}
-
-TD3~\cite{Fujimoto2018TD3} thêm nhiễu làm trơn vào hành động đích
-\begin{equation}
-\label{eq:nhieu-lam-tron}
-\tilde{a}' = \mathrm{clip}\big(\mu_{\phi^-}(s') + \epsilon,\ -1,\ 1\big), \qquad
-\epsilon = \mathrm{clip}(\epsilon_0,\ -c,\ c), \qquad
-\epsilon_0 \sim \mathcal{N}(0, \sigma_{\mathrm{tar}}^2 \mathbf{I}),
-\end{equation}
-với $\sigma_{\mathrm{tar}} = 0,15$ và $c = 0,30$, cả hai nhân hệ số $\min(1, \sqrt{64/d_a})$; rồi lấy nhỏ
-nhất của hai Critic đích:
-\begin{equation}
-\label{eq:muc-tieu-td3}
-y = r + \gamma (1 - d) \min_{i \in \{1,2\}} Q_{\psi_i^-}(s',\ \tilde{a}') .
-\end{equation}
-Actor được cập nhật sau mỗi $2$ lần cập nhật Critic.
-
-\subsection{Khám phá và bộ nhớ phát lại}
-\label{ssec:kham-pha}
-
-Trong $2.000$ bước đầu, hành động được lấy ngẫu nhiên đều để lấp bộ nhớ phát lại. Sau đó DDPG và TD3 cộng
-nhiễu Gaussian khám phá vào hành động của Actor, với độ lệch chuẩn giảm tuyến tính từ $0,12$ xuống $0,03$
-trong $100.000$ bước; riêng TD3 nhân thêm $\min(1, \sqrt{64/d_a})$. Bộ nhớ phát lại chứa $200.000$ mẫu và
-lô nhỏ có kích thước $256$.
-
-\subsection{PPO}
-\label{ssec:ch3-ppo}
-
-PPO~\cite{Schulman2017PPO} thu một đoạn $2.048$ bước bằng chính sách Gaussian hiện hành rồi cập nhật $10$
-vòng trên đoạn đó. Với tỷ số xác suất
-\begin{equation}
-\label{eq:ty-so-ppo}
-r_t(\theta) = \frac{\pi_\theta(a_t \mid s_t)}{\pi_{\theta_{\mathrm{old}}}(a_t \mid s_t)},
-\end{equation}
-hàm mục tiêu cắt là
-\begin{equation}
-\label{eq:muc-tieu-ppo}
-L^{\mathrm{clip}}(\theta) = \mathbb{E}_t\Big[
-\min\big(r_t(\theta)\hat{A}_t,\ \mathrm{clip}(r_t(\theta),\ 1-\epsilon,\ 1+\epsilon)\hat{A}_t\big)\Big],
-\qquad \epsilon = 0,2 ,
-\end{equation}
-với ưu thế $\hat{A}_t$ ước lượng bằng GAE ($\lambda_{\mathrm{GAE}} = 0,95$). Khi đánh giá, PPO dùng hành
-động trung bình của chính sách. Vì PPO chỉ xác thực ở cuối mỗi đoạn thu thập, các mốc xác thực của nó rơi
-vào bội số của $2.048$ đầu tiên vượt mỗi bội số $5.000$ (ví dụ $6.144$, $10.240$).
 
 \section{Các phương pháp đối chiếu tối ưu truyền thống}
 \label{sec:doi-chieu-ao}
 
-Ba phương pháp đối chiếu làm việc trực tiếp trên miền biến vật lý và tối ưu hàm đánh giá có phạt
-$r_{\mathrm{env}}$~\eqref{eq:phan-thuong-moi-truong}; DRL không tối ưu đúng hàm này mà học từ $r_t$, còn
-khi kiểm thử mọi phương pháp được so sánh trên cùng tổng tốc độ và tỷ lệ đạt QoS.
-Bảng~\ref{tab:ch3-so-sanh-ao} so sánh cơ chế và chi phí đo được; Thuật toán~\ref{alg:doi-chieu-ao} tóm tắt
-quy trình chung.
+Để đánh giá khách quan về chất lượng nghiệm và độ trễ tính toán, luận văn xây dựng ba phương pháp đối chiếu cổ
+điển dựa trên tối ưu hóa số: AnalyticalRIS, AO--SCA và AO--Grid. Khác với nhóm DRL hoạt động trên miền hành động
+đã thu hẹp, các phương pháp tối ưu truyền thống tìm kiếm trực tiếp trên miền biến vật lý (AO--Grid trên các mức
+lưới rời rạc) nhằm tối đa hóa hàm mục tiêu trực tiếp:
+\begin{equation}
+r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2 .
+\label{eq:phan-thuong-moi-truong}
+\end{equation}
 
 \begin{table}[htbp]
 \centering
-\caption{So sánh cơ chế vận hành của ba phương pháp đối chiếu}
+\caption{So sánh cơ chế vận hành của ba phương pháp tối ưu truyền thống}
 \label{tab:ch3-so-sanh-ao}
 \footnotesize
 \begin{tabularx}{\textwidth}{@{}l Y Y Y@{}}
 \toprule
 \textbf{Đặc tính} & \textbf{AnalyticalRIS} & \textbf{AO--SCA} & \textbf{AO--Grid} \\
 \midrule
-Nguyên lý & Công thức đóng một bước & Tối ưu luân phiên, chuyển khối và dò độ dốc lân cận &
-Tối ưu luân phiên, quét lưới rời rạc \\
-Miền tìm kiếm & Một điểm cố định & Miền vật lý liên tục & Các mức lưới trên miền vật lý
+Nguyên lý tìm nghiệm & Giải tích đóng một bước & Tối ưu luân phiên dò dốc lân cận & Tối ưu luân phiên quét
+lưới rời rạc \\
+Miền tìm kiếm & Điểm cố định vật lý & Toàn bộ miền vật lý liên tục & Các mốc lưới trên miền vật lý
 ($\beta^T_n \in [0,05;\,0,95]$) \\
-Tắt luồng riêng & Không (chia đều $0,20$) & Có thể (chuyển hết $\delta = x_i$) & Có (mức $0$ trên
-lưới) \\
-Số vòng lặp tối đa & Không lặp & $80$ & $2$ mỗi lần chạy, chạy $2$ lần (thuận, nghịch) \\
-Số lần đánh giá $r_{\mathrm{env}}$ (trung vị, $N = 16 \to 128$) & $1$ & $8.108 \to 29.042$ &
-$1.954 \to 11.362$ \\
-Độ trễ trung vị tại $N = 128$ & $0,23$ ms & $3.606$ ms & $1.205$ ms \\
+Khả năng tắt luồng riêng & Không (chia đều $0,20$) & Có thể (chuyển hết $\delta = x_i$) & Có (nhờ mức $0$
+tuyệt đối trên lưới) \\
+Số lần đánh giá hàm $r_{\mathrm{env}}$ (trung vị, $N = 16 \to 128$) & Đúng 1 lần (không lặp) &
+$8.108 \to 29.042$ lần & $1.954 \to 11.362$ lần \\
+Độ trễ trung vị ($N = 128$) & $0,23$ ms (rất nhanh) & $3.606,38$ ms ($\approx 3,6$ giây) & $1.204,73$ ms
+($\approx 1,2$ giây) \\
 \bottomrule
 \end{tabularx}
 \tablesource{Tác giả tổng hợp từ mã nguồn, dữ liệu thô kiểm thử và phép đo độ trễ (2026)}
 \end{table}
 
-\subsection{AnalyticalRIS}
+\subsection{Thuật toán căn pha giải tích (AnalyticalRIS)}
 \label{ssec:analytical-ris}
 
-AnalyticalRIS tính nghiệm trong đúng một bước bằng công thức đóng, không lặp: chia đều công suất cho $K+1$
-luồng ($p_c = p_k = P_{\max}/(K+1) = 0,20$), chia đều tốc độ chung ($\eta_k = 1/K = 0,25$), chia đều năng
-lượng ($\beta^T_n = \beta^R_n = 0,5$) và đặt pha $\theta^T_n = \theta^R_n = -\angle \sum_{k} h^{*}_{r,k,n}
-g_n$, tức trường hợp riêng của~\eqref{eq:theta-ref} khi mọi UE có trọng số như nhau. Độ phức tạp là
-$O(NK)$ và độ trễ trung vị khoảng $0,2$ ms. Nghiệm này vừa là mốc đối chiếu về độ trễ, vừa là điểm khởi
-đầu cho AO--SCA và AO--Grid (Hình~\ref{fig:ch3-analyticalris}).
+AnalyticalRIS tính toán trực tiếp nghiệm phân bổ tài nguyên chỉ qua đúng một bước bằng công thức đóng, không sử
+dụng vòng lặp. Cụ thể: chia đều công suất phát $p_c = p_k = 0,20$; chia đều tốc độ chung $\eta_k = 0,25$; chia đều
+năng lượng STAR--RIS $\beta^T_n = \beta^R_n = 0,50$; và căn pha ngược giải tích theo kênh tổng gộp
+$\theta^T_n = \theta^R_n = -\angle\big(\sum_k h^{*}_{r,k,n} g_n\big)$ (Hình~\ref{fig:ch3-analyticalris}).
+
+\begin{algorithm}[htbp]
+\caption{Phân bổ tài nguyên bằng căn pha giải tích (AnalyticalRIS)}
+\label{alg:analyticalris}
+\begin{algorithmic}[1]
+\Require Trạng thái kênh CSI $\{h_{d,k}, \mathbf{g}, \mathbf{h}_{r,k}\}$, công suất $P_{\max}$, số phần tử $N$,
+  số người dùng $K = 4$
+\Ensure Cấu hình tài nguyên $\{\mathbf{p}, \boldsymbol{\eta}, \boldsymbol{\beta}^T, \boldsymbol{\theta}^T,
+  \boldsymbol{\theta}^R\}$ và tổng tốc độ $R_{\mathrm{sum}}$
+\State \textbf{Bước 1:} Chia đều công suất phát: $p_c = P_{\max}/(K+1) = 0,20$; $p_k = 0,20$ với mọi
+  $k \in \{1, 2, 3, 4\}$.
+\State \textbf{Bước 2:} Chia đều tỷ lệ tốc độ chung: $\eta_k = 1/K = 0,25$ với mọi $k$.
+\State \textbf{Bước 3:} Chia đều năng lượng STAR--RIS: $\beta^T_n = \beta^R_n = 0,50$ với mọi phần tử
+  $n \in \{1, \dots, N\}$.
+\State \textbf{Bước 4:} Căn pha ngược giải tích: với từng phần tử $n$, tính $z_n = \sum_{k=1}^{K} h^{*}_{r,k,n}
+  g_n$, cài đặt $\theta^T_n = \theta^R_n = -\angle z_n$.
+\State \textbf{Bước 5:} Đánh giá hiệu năng: tính kênh hiệu dụng $h^{\mathrm{eff}}_k$, tỷ số SINR, tốc độ $R_k$,
+  độ vi phạm QoS và tổng tốc độ $R_{\mathrm{sum}}$. Trả về kết quả.
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Ý nghĩa thực tiễn:} AnalyticalRIS có độ phức tạp tính toán nhỏ nhất $O(NK)$, độ trễ thực thi cực thấp
+($\approx 0,2$ ms). Nghiệm này được dùng làm điểm xuất phát ban đầu cho AO--SCA và AO--Grid.
 
 \input{floats/fig-ch3-analyticalris}
 
-\subsection{AO--SCA}
+\subsection{Thuật toán tối ưu luân phiên với cập nhật lân cận (AO--SCA)}
 \label{ssec:ao-sca}
 
-AO--SCA khởi tạo từ AnalyticalRIS rồi tối ưu luân phiên ba khối: công suất $\mathbf{p}$, tỷ lệ tốc độ
-chung $\boldsymbol{\eta}$ và STAR--RIS $(\boldsymbol{\beta}, \boldsymbol{\theta}^T,
-\boldsymbol{\theta}^R)$, mỗi lần giữ cố định hai khối còn lại.
-\begin{itemize}
-\item \textbf{Hai khối đơn hình} được cập nhật bằng phép chuyển khối khả thi
-\begin{equation}
-\label{eq:chuyen-khoi}
-x'_i = x_i - \delta, \qquad x'_j = x_j + \delta ,
-\end{equation}
-  với $0 < \delta \le x_i$: bộ giải thử bước nhỏ cho mọi cặp $(i, j)$, chọn hướng cải thiện tốt nhất rồi
-  thử nhiều mức $\delta$, kể cả chuyển hết $\delta = x_i$.
-\item \textbf{Khối STAR--RIS} được ước lượng độ dốc cho cả $3N$ biến cùng lúc bằng sai phân trung tâm
-  $\pm\epsilon$ với $\epsilon = 10^{-3}$, rồi đi một bước lân cận cho toàn khối; nếu $r_{\mathrm{env}}$
-  giảm, hệ số lân cận được nhân đôi (tối đa $16$ lần) để thu nhỏ bước.
-\item Cuối mỗi vòng, hai khối đơn hình được tinh chỉnh lại và đo khoảng cách tới điều kiện dừng.
-\end{itemize}
-Bộ giải dừng khi thay đổi tương đối $|J_{\text{mới}} - J_{\text{cũ}}|/\max(1, |J_{\text{cũ}}|) < 10^{-4}$
-\textbf{và} hai khối đơn hình đã dừng, hoặc sau tối đa $80$ vòng (Hình~\ref{fig:ch3-aosca}). Điều kiện dừng
-chỉ kiểm tra hai khối đơn hình, chưa xác nhận điểm dừng cho khối STAR--RIS. Vì hàm mục tiêu không trơn, các
-định lý hội tụ của khung SCA~\cite{Scutari2017SCA} không áp dụng trực tiếp; AO--SCA vì vậy không có bảo
-đảm hội tụ về nghiệm dừng. Do cần hai lần đánh giá cho mỗi biến khi lấy sai phân, số lần đánh giá tăng
-nhanh theo $N$.
+AO--SCA khởi tạo từ nghiệm của AnalyticalRIS, sau đó tối ưu hóa luân phiên qua ba khối biến: khối công suất phát
+$\mathbf{p}$, khối phân bổ tốc độ chung $\boldsymbol{\eta}$, và khối tham số STAR--RIS $(\boldsymbol{\beta}^T,
+\boldsymbol{\theta}^T, \boldsymbol{\theta}^R)$. Hai khối đơn hình được cập nhật bằng cơ chế chuyển khối khả thi,
+trong khi khối STAR--RIS được cập nhật bằng sai phân hữu hạn trung tâm và tìm kiếm quay lui
+(Hình~\ref{fig:ch3-aosca}).
+
+\begin{algorithm}[htbp]
+\caption{Tối ưu luân phiên với cập nhật lân cận (AO--SCA)}
+\label{alg:ao-sca}
+\begin{algorithmic}[1]
+\Require Trạng thái kênh CSI, số vòng lặp tối đa $I_{\max} = 80$, ngưỡng hội tụ $10^{-4}$, bước sai phân
+  $\epsilon = 10^{-3}$
+\Ensure Cấu hình tài nguyên tối ưu cục bộ $\{\mathbf{p}^\star, \boldsymbol{\eta}^\star, \boldsymbol{\beta}^\star,
+  \boldsymbol{\theta}^\star\}$
+\State \textbf{Bước 1:} Khởi tạo nghiệm ban đầu từ AnalyticalRIS. Đánh giá hàm mục tiêu
+  $J^{(0)} = r_{\mathrm{env}}(\mathbf{p}^{(0)}, \boldsymbol{\eta}^{(0)}, \boldsymbol{\beta}^{(0)},
+  \boldsymbol{\theta}^{(0)})$. Đặt $i = 0$.
+\State \textbf{Bước 2:} Khối công suất phát $\mathbf{p}$: cố định khối $\boldsymbol{\eta}$ và STAR--RIS. Với mọi
+  cặp $(j, m)$, ước lượng độ dốc cải thiện theo hướng rút $\delta$ từ $p_j$ bù sang $p_m$. Chọn cặp có độ dốc tăng
+  mạnh nhất, dò bước chuyển tối ưu trên tập thử nghiệm (kể cả chuyển hết $\delta = p_j$) để cập nhật
+  $\mathbf{p}^{(i+1)}$.
+\State \textbf{Bước 3:} Khối tỷ lệ tốc độ $\boldsymbol{\eta}$: cố định khối $\mathbf{p}$ và STAR--RIS. Thực hiện
+  chuyển khối khả thi tương tự Bước 2 trên đơn hình xác suất $\Delta_K$ để cập nhật $\boldsymbol{\eta}^{(i+1)}$.
+\State \textbf{Bước 4:} Khối tham số STAR--RIS: cố định $\mathbf{p}^{(i+1)}$ và $\boldsymbol{\eta}^{(i+1)}$. Ước
+  lượng đạo hàm riêng theo từng biến của $3N$ tham số bằng sai phân trung tâm
+  $[r_{\mathrm{env}}(x + \epsilon) - r_{\mathrm{env}}(x - \epsilon)]/(2\epsilon)$. Xác định hướng dốc tổng hợp và
+  đi một bước lân cận cho toàn khối; nếu $r_{\mathrm{env}}$ giảm, nhân đôi hệ số lân cận (tối đa 16 lần) để thu
+  nhỏ bước (quay lui).
+\State \textbf{Bước 5:} Tinh chỉnh lại hai khối đơn hình và đo khoảng cách tới điều kiện dừng của chúng.
+\State \textbf{Bước 6:} Kiểm tra hội tụ: đánh giá $J^{(i+1)}$. Nếu
+  $|J^{(i+1)} - J^{(i)}|/\max(1, |J^{(i)}|) < 10^{-4}$ \textbf{và} hai khối đơn hình đã dừng, hoặc chạm
+  $I_{\max}$, thì dừng; ngược lại tăng $i = i + 1$ và quay lại Bước 2.
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Ý nghĩa thực tiễn:} AO--SCA đảm bảo nghiêm ngặt tính khả thi ở từng bước lặp. Tuy nhiên, việc đánh giá
+hàm $r_{\mathrm{env}}$ hai lần cho từng biến của $3N$ phần tử khiến số lần tính toán bùng nổ mạnh khi $N$ tăng,
+làm độ trễ kéo dài tới vài giây. Do hàm mục tiêu không trơn, AO--SCA không có bảo đảm hội tụ về điểm KKT.
 
 \input{floats/fig-ch3-aosca}
 
-\subsection{AO--Grid}
+\subsection{Thuật toán tối ưu luân phiên tìm kiếm theo lưới rời rạc (AO--Grid)}
 \label{ssec:ch3-ao-grid}
 
-AO--Grid giữ cấu trúc luân phiên ba khối nhưng thay việc dò độ dốc bằng thử trên lưới rời rạc, cho phép
-nhảy xa trong một bước:
-\begin{itemize}
-\item \textbf{Khối công suất và khối tỷ lệ tốc độ chung:} mỗi thành phần được thử trên lưới tám mức
-  $\{0;\ 0,05;\ 0,175;\ 0,30;\ 0,425;\ 0,55;\ 0,675;\ 0,80\}$ (nhân $P_{\max}$ với công suất), phần còn
-  lại co giãn theo tỷ lệ để giữ tổng. Mức $0$ cho phép tắt hẳn một luồng riêng gây nhiễu. Bộ giải xét mọi
-  ứng viên và chọn bước cải thiện tốt nhất, lặp tối đa $K+1$ bước (công suất) hoặc $K$ bước (tốc độ chung).
-\item \textbf{Khối STAR--RIS:} quét lần lượt từng tọa độ theo khối, trước hết $\beta^T_1, \dots, \beta^T_N$,
-  rồi $\theta^T$, rồi $\theta^R$. $\beta^T_n$ được thử trên năm mức trong $[0,05;\ 0,95]$, còn mỗi góc pha
-  được thử trên tám mức cách đều trong $[-\pi, \pi)$; mỗi tọa độ nhảy tới mức có $r_{\mathrm{env}}$ cao nhất.
-\end{itemize}
-Mỗi lần chạy gồm tối đa $2$ vòng và dừng sớm khi thay đổi tương đối nhỏ hơn $10^{-4}$. Toàn bộ quy trình
-được chạy hai lần với thứ tự quét phần tử thuận ($n = 1 \to N$) và nghịch ($n = N \to 1$); nghiệm cuối được
-chọn ưu tiên đạt QoS cho mọi UE, sau đó đến tổng tốc độ cao hơn (Hình~\ref{fig:ch3-aogrid}). AO--Grid chỉ
-duyệt một tập ứng viên rời rạc quanh nghiệm hiện tại, không quét vét cạn miền liên tục.
+AO--Grid giảm nguy cơ mắc kẹt tại cực trị địa phương của việc dò dốc nhỏ bằng cách thử nghiệm trên các mốc lưới
+rời rạc có bước nhảy lớn và thực hiện quét hai chiều độc lập (Thuận: $1 \to N$ và Nghịch: $N \to 1$). Đặc biệt,
+lưới công suất có chứa mức $0$ tuyệt đối, cho phép thuật toán đưa ra quyết định tắt hẳn các luồng riêng gây nhiễu
+mạnh trong hệ SISO (Hình~\ref{fig:ch3-aogrid}).
+
+\begin{algorithm}[htbp]
+\caption{Tối ưu luân phiên tìm kiếm theo lưới (AO--Grid)}
+\label{alg:ao-grid}
+\begin{algorithmic}[1]
+\Require Trạng thái kênh CSI, số vòng lặp tối đa $I_{\max} = 2$ mỗi lượt, lưới công suất và tỷ lệ tốc độ
+  $G_{\mathrm{power}} = \{0;\ 0,05;\ 0,175;\ \dots;\ 0,80\}$ (8 mức), lưới năng lượng $G_\beta$ (5 mức trong
+  $[0,05;\ 0,95]$), lưới góc pha $G_\theta$ (8 mức trong $[-\pi, \pi)$)
+\Ensure Cấu hình tài nguyên $\{\mathbf{p}^\star, \boldsymbol{\eta}^\star, \boldsymbol{\beta}^\star,
+  \boldsymbol{\theta}^\star\}$
+\State \textbf{Bước 1:} Khởi tạo quy trình chạy hai lượt độc lập từ nghiệm AnalyticalRIS: Lượt 1 (chiều thuận
+  $1 \to N$) và Lượt 2 (chiều nghịch $N \to 1$).
+\State \textbf{Bước 2:} Quét lưới công suất phát: thử từng thành phần $p_c, p_k$ lần lượt bằng các mức lưới
+  $v \in G_{\mathrm{power}} \cdot P_{\max}$, tự động co giãn phần còn lại theo tỷ lệ để giữ tổng, chọn bước cải
+  thiện $r_{\mathrm{env}}$ tốt nhất; lặp tối đa $K + 1$ bước.
+\State \textbf{Bước 3:} Quét lưới tỷ lệ tốc độ $\boldsymbol{\eta}$: thử từng thành phần $\eta_k$ trên lưới, tái
+  phân bổ phần dư trên đơn hình xác suất, chọn mức tối đa hóa $r_{\mathrm{env}}$; lặp tối đa $K$ bước.
+\State \textbf{Bước 4:} Quét lưới tham số STAR--RIS theo khối: lần lượt quét $\beta^T_n$ qua 5 mức của $G_\beta$
+  cho mọi $n$, rồi $\theta^T_n$, rồi $\theta^R_n$ qua 8 mức của $G_\theta$, theo thứ tự phần tử của lượt chạy;
+  mỗi tọa độ chọn ngay mức mang lại $r_{\mathrm{env}}$ cao nhất.
+\State \textbf{Bước 5:} Lặp lại tối đa 2 vòng, dừng sớm khi thay đổi tương đối nhỏ hơn $10^{-4}$. Lưu nghiệm của
+  Lượt 1 và Lượt 2.
+\State \textbf{Bước 6:} Chọn lọc nghiệm hai chiều: so sánh nghiệm của hai lượt, ưu tiên phương án đạt QoS cho mọi
+  UE; nếu cùng trạng thái QoS thì chọn phương án có tổng tốc độ $R_{\mathrm{sum}}$ cao hơn.
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Ý nghĩa thực tiễn:} Nhờ lưới công suất có mức $0$ tuyệt đối, AO--Grid có thể tắt hẳn các luồng riêng gây
+nhiễu nội bộ, giúp đạt tổng tốc độ rất cao. Tuy nhiên khối lượng tính toán vẫn lớn (trung vị khoảng $11.400$ lần
+đánh giá hàm môi trường khi $N = 128$).
 
 \input{floats/fig-ch3-aogrid}
-
-\input{floats/alg-doi-chieu-ao}
 
 \section{Giao thức dữ liệu và quy trình huấn luyện, đánh giá}
 \label{sec:giao-thuc-du-lieu}
 
-\subsection{Ngân hàng kịch bản kênh}
+\subsection{Ngân hàng kịch bản kênh (ScenarioBank)}
 \label{ssec:ngan-hang}
 
-Để tránh rò rỉ dữ liệu và bảo đảm tái lập, với mỗi $N \in \{16, 32, 64, 96, 128\}$ luận văn tạo trước ba
-ngân hàng kịch bản kênh độc lập: ngân hàng huấn luyện ($10.000$ kịch bản, hạt giống $11001$) để tác tử
-tương tác; ngân hàng xác thực ($1.000$ kịch bản, hạt giống $22001$) để chọn điểm lưu; và ngân hàng kiểm thử
-($1.000$ kịch bản, hạt giống $33001$) chỉ dùng cho bước đánh giá cuối của cả sáu phương pháp. Mỗi ngân hàng
-được khóa bằng mã băm SHA--256.
+Để tránh rò rỉ dữ liệu và đảm bảo tính tái lập, luận văn xây dựng cấu trúc Ngân hàng kịch bản kênh
+(ScenarioBank). Đối với mỗi kích thước $N \in \{16, 32, 64, 96, 128\}$, ba ngân hàng kịch bản kênh độc lập hoàn
+toàn được tạo ra trước khi tiến hành thực nghiệm:
+\begin{itemize}
+\item \textbf{Ngân hàng huấn luyện ($10.000$ mẫu CSI):} Môi trường tương tác để các tác tử DRL khám phá và cập
+  nhật trọng số mạng.
+\item \textbf{Ngân hàng xác thực ($1.000$ mẫu CSI):} Dùng để đánh giá định kỳ sau mỗi $5.000$ bước huấn luyện
+  (với PPO là cuối đoạn $2.048$ bước đầu tiên vượt mỗi mốc này) nhằm lựa chọn điểm lưu mô hình (checkpoint) tốt
+  nhất.
+\item \textbf{Ngân hàng kiểm thử ($1.000$ mẫu CSI):} Được khóa cố định bằng mã băm SHA--256 và chỉ mở ra duy nhất
+  một lần ở bước đánh giá cuối cùng cho cả sáu phương pháp.
+\end{itemize}
 
-\subsection{Quy trình huấn luyện}
-\label{ssec:quy-trinh-huan-luyen}
+\subsection{Quy trình huấn luyện tổng quát của nhóm DRL}
+\label{ssec:chon-diem-luu}
 
-Mỗi thuật toán DRL được huấn luyện độc lập với năm hạt giống ($0$ đến $4$) cho từng $N$, mỗi lần
-$100.000$ bước tương tác. Mỗi bước gồm: lấy một kịch bản từ ngân hàng huấn luyện và chuẩn hóa thành trạng
-thái; sinh hành động chuẩn hóa; giải mã thành biến vật lý; tính tốc độ, vi phạm QoS và phần thưởng $r_t$;
-cập nhật mạng theo thuật toán tương ứng (DDPG và TD3 lấy lô nhỏ từ bộ nhớ phát lại và cập nhật mềm mạng
-đích; PPO cập nhật ở cuối mỗi đoạn $2.048$ bước); và cập nhật $\lambda_t$. Định kỳ, chính sách xác định
-được đánh giá trên ngân hàng xác thực và điểm lưu tốt nhất được cập nhật theo Mục~\ref{ssec:chon-diem-luu}.
-Hình~\ref{fig:ch3-quy-trinh} và Thuật toán~\ref{alg:huan-luyen} tóm tắt quy trình; Bảng~\ref{tab:ch3-cau-hinh}
-liệt kê cấu hình.
+Mỗi thuật toán DRL (TD3, DDPG, PPO) được huấn luyện độc lập với 5 hạt giống ngẫu nhiên (seeds: 0, 1, 2, 3, 4) cho
+từng kích thước $N$, với ngân sách cố định là $100.000$ bước tương tác. Quy trình huấn luyện khép kín được mô tả
+trong Thuật toán~\ref{alg:huan-luyen-drl} và Hình~\ref{fig:ch3-quy-trinh}; cấu hình chi tiết ở
+Bảng~\ref{tab:ch3-cau-hinh}.
+
+\begin{algorithm}[htbp]
+\caption{Quy trình huấn luyện tổng quát nhóm DRL với bộ giải mã hành động}
+\label{alg:huan-luyen-drl}
+\begin{algorithmic}[1]
+\Require Ngân hàng huấn luyện ($10.000$ mẫu), ngân hàng xác thực ($1.000$ mẫu), số bước tối đa
+  $T_{\max} = 100.000$, chu kỳ xác thực $T_{\mathrm{val}} = 5.000$, chu kỳ phạt $T_\lambda = 1.000$
+\Ensure Điểm lưu mô hình Actor $\phi^\star$ được chọn theo tiêu chí QoS trên tập xác thực
+\State \textbf{Bước 1:} Khởi tạo trọng số Actor, Critic và mạng đích. Khởi tạo lớp ngõ ra Actor (DDPG, TD3) trong
+  đoạn $[-3 \cdot 10^{-3}, 3 \cdot 10^{-3}]$. Khởi tạo bộ nhớ phát lại (DDPG/TD3), hệ số $\lambda_0 = 8,0$, vi phạm
+  trượt $\hat{V}_0 = 0$.
+\State \textbf{Bước 2:} Vòng lặp huấn luyện ($t = 1 \to T_{\max}$): lấy mẫu kênh CSI ngẫu nhiên từ tập huấn luyện,
+  chuẩn hóa theo khối và cắt biên $[-8, 8]$ để thu véc-tơ trạng thái $s_t \in \mathbb{R}^{d_s}$.
+\State \textbf{Bước 3:} Sinh hành động chuẩn hóa $a_t \in [-1, 1]^{d_a}$ từ Actor (cộng nhiễu khám phá suy giảm dần
+  với DDPG/TD3 hoặc lấy mẫu phân phối với PPO).
+\State \textbf{Bước 4:} Giải mã hành động vật lý qua bộ giải mã: công suất chung $p_c$ ($\rho_c \in [0,70; 0,99]$),
+  công suất riêng $p_k$ (Softmax độ sắc $\kappa = 10$), tỷ lệ tốc độ $\boldsymbol{\eta}$ (chiếu Euclid đơn hình),
+  năng lượng STAR--RIS $\boldsymbol{\beta}$ và góc dịch pha $\boldsymbol{\theta}$ (pha tham chiếu giải tích + góc
+  lệch học được).
+\State \textbf{Bước 5:} Thực thi trên môi trường mạng: tính kênh hiệu dụng $h^{\mathrm{eff}}_k$, SINR, tốc độ
+  $R_k$, độ vi phạm QoS $(V, V_2)$, tổng tốc độ $R_{\mathrm{sum}}$ và phần thưởng
+  $r_t = R_{\mathrm{sum}} - \lambda_t V - 8V_2$. Lưu chuyển trạng thái vào bộ nhớ.
+\State \textbf{Bước 6:} Cập nhật mạng nơ-ron theo thuật toán tương ứng: DDPG/TD3 lấy mẫu mini-batch từ bộ nhớ
+  phát lại để cập nhật Critic và Actor, rồi cập nhật mềm các mạng đích; PPO cập nhật ở cuối mỗi đoạn $2.048$ bước.
+\State \textbf{Bước 7:} Cập nhật phạt thích nghi: $\hat{V}_t = 0,95\hat{V}_{t-1} + 0,05 V_t$. Định kỳ mỗi $1.000$
+  bước, điều chỉnh $\lambda_{t+1} = \mathrm{clip}(\lambda_t + 20(\hat{V}_t - 0,001),\ 4,0,\ 64,0)$.
+\State \textbf{Bước 8:} Xác thực định kỳ: tắt nhiễu khám phá, chạy mạng Actor trên toàn bộ $1.000$ kịch bản xác
+  thực. Nếu mô hình thỏa mãn đồng thời bộ ba tiêu chí cứng QoS ($\mathrm{QoS}_{\mathrm{user}} \ge 99\%$,
+  $\mathrm{QoS}_{\mathrm{all}} \ge 95\%$, $\hat{V}_{\mathrm{val}} \le 0,02$ bit/s/Hz) và có $R_{\mathrm{sum}}$ cao
+  hơn kỷ lục cũ thì cập nhật $\phi^\star = \phi$. Nếu chưa có điểm lưu nào đạt ngưỡng, ưu tiên điểm có tổng khoảng
+  cách chuẩn hóa tới ba ngưỡng nhỏ nhất.
+\State \textbf{Bước 9:} Kết thúc: trả về điểm lưu mô hình tối ưu nhất $\phi^\star$.
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Ý nghĩa thực tiễn:} Bộ giải mã cấy sẵn tri thức vật lý giúp hành động sinh ra luôn khả thi miền 100\%. Cơ
+chế lọc checkpoint theo tiêu chí QoS hạn chế việc chọn mô hình đạt tổng tốc độ cao bằng cách hy sinh người dùng
+kênh yếu, dù QoS vẫn là ràng buộc mềm nên không có bảo đảm cứng. Trong thực nghiệm, quy tắc dự phòng chỉ được dùng
+cho ba hạt giống của PPO tại $N = 16$.
 
 \input{floats/fig-ch3-quy-trinh}
 
-\input{floats/alg-huan-luyen}
-
 \input{floats/tab-ch3-cau-hinh}
 
-\subsection{Đánh giá kiểm thử ghép cặp}
+\subsection{Nguyên tắc đánh giá kiểm thử ghép cặp (Paired Testing)}
 \label{ssec:kiem-thu-ghep-cap}
 
-Cả sáu phương pháp giải đúng cùng $1.000$ kịch bản trong ngân hàng kiểm thử. Ghép cặp như vậy loại biến
-thiên giữa kênh dễ và kênh khó ra khỏi phép so sánh, cho phép dùng phép kiểm định $t$ ghép cặp và
-Wilcoxon với hiệu chỉnh Holm (Mục~\ref{sec:phan-tich-thong-ke}). Toàn bộ mã nguồn, cấu hình, dữ liệu thô và
-điểm lưu mô hình được lưu cùng mã băm để tái lập (Phụ lục B).
+Để so sánh công bằng, toàn bộ $1.000$ kịch bản trong Ngân hàng kiểm thử được khóa cố định. Cả sáu phương pháp
+(TD3, DDPG, PPO, AO--Grid, AO--SCA, AnalyticalRIS) đều phải giải quyết trên đúng cùng một kịch bản kênh đơn lẻ
+($i = 1, \dots, 1.000$). Cơ chế ghép cặp này loại bỏ biến thiên giữa kênh dễ và kênh khó khỏi phép so sánh, cho
+phép áp dụng các phép kiểm định thống kê ghép cặp (Paired Student's $t$-test và Wilcoxon signed-rank test với hiệu
+chỉnh Holm~\cite{Holm1979}) để kiểm tra ý nghĩa thống kê của chênh lệch giữa các giải thuật.
 
 \section{Kết luận chương}
 \label{sec:ket-luan-ch3}
 
-Chương~\ref{chap:phuong-phap} đã xây dựng giải pháp DRL với bộ giải mã hành động có cấu trúc vật lý dùng
-chung cho DDPG, TD3 và PPO. Năm khối giải mã (vùng công suất chung $[0,70; 0,99]$, softmax độ sắc
-$\kappa = 10$, chiếu Euclid lên đơn hình, bảo toàn năng lượng bề mặt và pha tham chiếu cộng hiệu chỉnh)
-bảo đảm mọi nghiệm khả thi miền. Phần thưởng có hệ số phạt thích nghi và quy tắc chọn điểm lưu ưu tiên QoS
-đưa yêu cầu chất lượng dịch vụ vào quá trình học như một ràng buộc mềm. Ba phương pháp đối chiếu
-AnalyticalRIS, AO--SCA và AO--Grid được mô tả đúng theo mã nguồn, cùng giao thức dữ liệu có ngân hàng kịch
-bản khóa mã băm và kiểm thử ghép cặp. Chương~\ref{chap:ket-qua} trình bày kết quả mô phỏng.
+Chương~\ref{chap:phuong-phap} đã hoàn thành trọn vẹn việc xây dựng giải pháp học tăng cường sâu với bộ giải mã
+hành động có cấu trúc vật lý cho mạng SISO STAR--RIS hỗ trợ RSMA:
+\begin{itemize}
+\item \textbf{Thiết kế bộ giải mã hành động vật lý dùng chung:} Năm khối chức năng toán học (công suất chung
+  $[0,70; 0,99]$, Softmax độ sắc cao $\kappa = 10$, chiếu Euclid lên đơn hình, bảo toàn năng lượng bề mặt và kết
+  hợp pha tham chiếu giải tích với góc lệch học được) đảm bảo mọi nghiệm sinh ra luôn khả thi miền 100\%.
+\item \textbf{Hàm phần thưởng thích nghi và tiêu chí chọn checkpoint:} Cơ chế phạt thích nghi $\lambda_t$ cùng quy
+  trình lựa chọn điểm lưu mô hình ưu tiên chất lượng dịch vụ hướng tới tính công bằng cho các thiết bị kênh yếu.
+\item \textbf{Chuẩn hóa các phương pháp đối chiếu tối ưu truyền thống:} Chi tiết hóa thuật toán cho AnalyticalRIS
+  (giải tích một bước), AO--SCA (dò dốc lân cận) và AO--Grid (tìm kiếm lưới rời rạc có khả năng tắt luồng riêng).
+\item \textbf{Giao thức thực nghiệm chuẩn mực:} Xây dựng Ngân hàng kịch bản kênh (ScenarioBank) độc lập được khóa
+  bằng SHA--256 và quy trình kiểm thử ghép cặp công bằng trên từng kịch bản kênh đơn lẻ.
+\end{itemize}
+Toàn bộ khung thuật toán và các mô hình huấn luyện đã hoàn tất ở chương này là tiền đề vững chắc để
+Chương~\ref{chap:ket-qua} bước vào phần thực nghiệm mô phỏng quy mô lớn, phân tích chi tiết hiệu năng tổng tốc độ,
+xác suất thỏa mãn QoS và làm rõ bài toán đánh đổi giữa chất lượng truyền dẫn với độ trễ tính toán.

@@ -4,49 +4,62 @@
 \section{Kiến trúc hệ thống}
 \label{sec:kien-truc-he-thong}
 
-Luận văn xét một mạng thông tin di động tế bào đường xuống (downlink) hoạt động ở chế độ một đầu
-vào--một đầu ra (SISO). Hệ thống gồm ba thực thể:
+Trong khuôn khổ của đề tài, chúng ta xem xét một mô hình mạng thông tin di động tế bào đường xuống
+(downlink) hoạt động ở chế độ đơn đầu vào -- đơn đầu ra (SISO -- Single-Input Single-Output). Cấu trúc vật
+lý của mạng bao gồm ba thực thể chính:
 \begin{enumerate}
-\item \textbf{Trạm gốc (BS)} có duy nhất một anten phát, chịu trách nhiệm xử lý tập trung và phân bổ
-  công suất phát.
-\item \textbf{STAR--RIS} hoạt động hoàn toàn thụ động, gồm $N$ phần tử ($n \in \{1, \dots, N\}$), được
-  đặt ở ranh giới giữa hai khu vực để mở rộng vùng phủ ra cả hai phía bề mặt.
-\item \textbf{Các thiết bị người dùng (UE)}: hệ thống phục vụ đồng thời $K = 4$ UE một anten
-  ($k \in \{1, 2, 3, 4\}$), chia thành hai nhóm theo vị trí so với bề mặt:
+\item \textbf{Trạm gốc (Base Station -- BS):} Được trang bị duy nhất một anten phát vô hướng, chịu trách
+  nhiệm xử lý tập trung và phân bổ công suất phát.
+\item \textbf{Bề mặt thông minh đồng thời truyền và phản xạ (STAR--RIS):} Hoạt động hoàn toàn thụ động, bao
+  gồm một mảng phẳng gồm $N$ phần tử siêu vật liệu ($n \in \{1, 2, \dots, N\}$). Bề mặt được đặt ở ranh giới
+  giữa hai khu vực nhằm mở rộng vùng phủ sóng toàn không gian 360 độ.
+\item \textbf{Các thiết bị người dùng (User Equipment -- UE):} Hệ thống phục vụ đồng thời $K = 4$ người dùng
+  đơn anten ($k \in \{1, 2, 3, 4\}$). Dựa trên vị trí không gian hình học so với tấm panel STAR--RIS, người
+  dùng được chia thành hai nhóm tự nhiên:
   \begin{itemize}
-  \item \textbf{Nhóm phản xạ (R)} nằm cùng phía với BS, nhận tín hiệu phản xạ từ bề mặt; trong mã
-    nguồn, chỉ báo phía được gán luân phiên nên nhóm này gồm UE$_1$ và UE$_3$.
-  \item \textbf{Nhóm truyền qua (T)} nằm ở phía đối diện, sau bề mặt, nhận tín hiệu truyền xuyên
-    qua bề mặt; nhóm này gồm UE$_2$ và UE$_4$.
+  \item \textbf{Nhóm người dùng phản xạ (Reflection users -- R-users):} Nằm cùng phía với trạm gốc so với bề
+    mặt STAR--RIS (trong kịch bản mô phỏng gồm UE1 và UE3), nhận tín hiệu dội ngược từ bề mặt.
+  \item \textbf{Nhóm người dùng truyền qua (Transmission users -- T-users):} Nằm ở phía đối diện, đằng sau bề
+    mặt STAR--RIS (trong kịch bản mô phỏng gồm UE2 và UE4), nhận tín hiệu truyền xuyên qua bề mặt.
   \end{itemize}
 \end{enumerate}
 
-Tại mỗi thời điểm, BS dùng RSMA một lớp để phát đồng thời dữ liệu cho cả bốn UE. Tín hiệu từ BS
-đến mỗi UE đi theo hai đường song song. \textbf{Đường trực tiếp} BS--UE tồn tại với mọi UE, kể cả
-các UE ở phía truyền qua. \textbf{Đường ghép tầng} đi từ BS đến STAR--RIS, được $N$ phần tử thụ
-động chia biên độ và dịch pha, rồi phản xạ hoặc truyền xuyên qua tới UE. STAR--RIS không khuếch đại
-công suất và không giải mã tín hiệu, mà chỉ tái định hình biên độ tương đối và pha của sóng tới; vì
-vậy hiệu quả của nó thể hiện qua việc thay đổi kênh hiệu dụng mà RSMA nhìn thấy.
-Hình~\ref{fig:ch2-mo-hinh} minh họa mô hình hệ thống và các kênh; đường liền nét là đường ghép tầng
-qua bề mặt, đường nét đứt là đường trực tiếp.
+Tại mỗi thời điểm truyền dẫn, trạm gốc áp dụng kỹ thuật Đa truy cập phân chia tốc độ một lớp (1-layer
+RSMA) để phát đồng thời dữ liệu cho toàn bộ bốn người dùng. Sóng điện từ từ trạm gốc lan truyền đến từng
+thiết bị người dùng thông qua hai con đường song song:
+\begin{itemize}
+\item \textbf{Đường trực tiếp (Direct link):} Tín hiệu vô tuyến truyền thẳng trong không gian từ trạm gốc
+  đến thiết bị người dùng UE$_k$. Cần lưu ý rằng đường truyền trực tiếp tồn tại đối với tất cả các người dùng
+  trong hệ thống (kể cả các người dùng nằm ở phía truyền qua đằng sau bề mặt STAR--RIS).
+\item \textbf{Đường ghép tầng gián tiếp (Cascaded link):} Sóng mang tín hiệu từ trạm gốc truyền đến bề mặt
+  STAR--RIS, được $N$ phần tử thụ động phân chia biên độ và điều chỉnh góc dịch pha, sau đó phản xạ hoặc
+  truyền xuyên qua để hướng về phía các UE$_k$.
+\end{itemize}
+STAR--RIS đóng vai trò như một bộ điều phối môi trường thụ động, không trang bị các bộ khuếch đại công suất
+và không giải mã tín hiệu mà chỉ tái định hình biên độ và pha của sóng tới. Hình~\ref{fig:ch2-mo-hinh} minh
+họa mô hình hệ thống; đường liền nét là đường ghép tầng qua bề mặt, đường nét đứt là đường trực tiếp.
 
 \input{floats/fig-ch2-mo-hinh}
 
 \section{Các giả định nghiên cứu}
 \label{sec:gia-dinh}
 
-Để mô hình toán học rõ ràng và tập trung vào bài toán phân bổ tài nguyên, luận văn dùng bốn giả
-định:
+Để xây dựng một mô hình toán học rõ ràng, chặt chẽ và tập trung đúng vào trọng tâm của bài toán phân bổ tài
+nguyên, luận văn xác lập bốn giả định nền tảng:
 \begin{enumerate}
-\item \textbf{CSI hoàn hảo.} BS biết đầy đủ và chính xác kênh tức thời của mọi liên kết tại thời điểm
-  ra quyết định. Giả định này tách bài toán phân bổ tài nguyên khỏi bài toán ước lượng kênh.
-\item \textbf{SIC lý tưởng.} Sau khi giải mã thành công luồng chung, UE loại hoàn toàn thành phần
-  này khỏi tín hiệu thu trước khi giải mã luồng riêng, không có lan truyền lỗi.
-\item \textbf{Chia năng lượng thụ động không tổn hao.} Mọi phần tử STAR--RIS hoạt động ở chế độ ES
-  và tổng tỷ lệ năng lượng truyền qua và phản xạ của mỗi phần tử luôn bằng một.
-\item \textbf{Pha truyền và phản xạ độc lập.} Pha của hai phía được giả định điều khiển độc lập. Đây
-  là một giả định lý tưởng hóa: với STAR--RIS thụ động không tổn hao, pha truyền và pha phản xạ của
-  cùng một phần tử bị ràng buộc ghép~\cite{Liu2021STARCoupledPhase, Wang2022STAROptimization}.
+\item \textbf{Thông tin trạng thái kênh truyền (CSI) hoàn hảo:} Giả định trạm gốc nắm bắt đầy đủ và chính
+  xác thông tin kênh truyền tức thời của toàn bộ các liên kết tại thời điểm đưa ra quyết định. Giả định này
+  giúp tách biệt bài toán phân bổ tài nguyên ra khỏi bài toán ước lượng kênh phức tạp.
+\item \textbf{Khử nhiễu liên tiếp (SIC) lý tưởng:} Tại mỗi thiết bị thu, sau khi luồng thông tin chung được
+  giải mã thành công, toàn bộ năng lượng của luồng chung sẽ được trừ khử hoàn toàn khỏi tín hiệu thu trước
+  khi giải mã luồng riêng, không để lại sai số lan truyền.
+\item \textbf{Cơ chế phân chia năng lượng (Energy Splitting -- ES) thụ động không tổn hao:} Từng phần tử
+  STAR--RIS hoạt động độc lập ở chế độ ES. Tổng tỷ lệ năng lượng dành cho truyền qua và phản xạ trên mỗi
+  phần tử luôn bằng đúng 1.
+\item \textbf{Pha truyền và phản xạ độc lập:} Pha truyền và pha phản xạ của từng phần tử được giả định có
+  thể điều chỉnh độc lập trong mô hình lý thuyết hệ thống nhằm khai thác tối đa bậc tự do của bề mặt. Đây là
+  một giả định lý tưởng hóa: với STAR--RIS thụ động không tổn hao, pha truyền và pha phản xạ của cùng một
+  phần tử bị ràng buộc ghép~\cite{Liu2021STARCoupledPhase, Wang2022STAROptimization}.
 \end{enumerate}
 
 \section{Mô hình kênh và kênh hiệu dụng}
@@ -55,393 +68,574 @@ qua bề mặt, đường nét đứt là đường trực tiếp.
 \subsection{Sinh mẫu kênh phức}
 \label{ssec:sinh-mau-kenh}
 
-Kênh được mô hình hóa bằng các biến ngẫu nhiên Gaussian phức đối xứng tròn:
+Môi trường truyền sóng vô tuyến được mô hình hóa toán học thông qua các biến ngẫu nhiên phức tuân theo phân
+bố Gaussian phức tròn:
 \begin{align}
-h_{d,k} &\sim \mathcal{CN}(0, \sigma_d^2), & \sigma_d &= 0,35, \label{eq:kenh-truc-tiep}\\
-g_n &\sim \mathcal{CN}(0, \sigma_g^2), & \sigma_g &= 1,0, \label{eq:kenh-bs-ris}\\
-h_{r,k,n} &\sim \mathcal{CN}(0, \sigma_r^2), & \sigma_r &= 0,75. \label{eq:kenh-ris-ue}
+h_{d,k} &\sim \mathcal{CN}(0, \sigma_d^2) = \mathcal{CN}(0, 0,35^2), \label{eq:kenh-truc-tiep}\\
+g_n &\sim \mathcal{CN}(0, \sigma_g^2) = \mathcal{CN}(0, 1,0^2), \label{eq:kenh-bs-ris}\\
+h_{r,k,n} &\sim \mathcal{CN}(0, \sigma_r^2) = \mathcal{CN}(0, 0,75^2). \label{eq:kenh-ris-ue}
 \end{align}
+Trong đó:
+\begin{itemize}
+\item $h_{d,k} \in \mathbb{C}$: Hệ số kênh truyền trực tiếp từ trạm gốc (BS) đến người dùng thứ $k$
+  (UE$_k$), đặc trưng cho độ suy hao biên độ và dịch pha của sóng truyền thẳng.
+\item $g_n \in \mathbb{C}$: Hệ số kênh truyền từ trạm gốc đến phần tử thứ $n$ của bề mặt STAR--RIS.
+\item $h_{r,k,n} \in \mathbb{C}$: Hệ số kênh truyền từ phần tử thứ $n$ của STAR--RIS đến người dùng thứ $k$
+  (UE$_k$).
+\item $\mathcal{CN}(\mu, \sigma^2)$: Ký hiệu phân bố Gaussian phức chuẩn (Circularly Symmetric Complex
+  Gaussian) với giá trị kỳ vọng (trung bình) bằng $\mu$ và phương sai công suất bằng $\sigma^2$.
+\item $\sigma_d = 0,35$; $\sigma_g = 1,0$; $\sigma_r = 0,75$: Độ lệch chuẩn biên độ tương ứng của các liên
+  kết vô tuyến. Tích độ lệch chuẩn của đường ghép tầng qua STAR--RIS ($\sigma_g \cdot \sigma_r = 0,75$) lớn
+  hơn hẳn so với đường trực tiếp ($\sigma_d = 0,35$), phản ánh kịch bản đường truyền trực tiếp yếu (bị che
+  khuất một phần), làm nổi bật vai trò hỗ trợ truyền dẫn của bề mặt.
+\end{itemize}
+Đây là các hệ số tỷ lệ của mô phỏng, không phải mô hình suy hao theo khoảng cách. Phương sai của từng phần
+tử được giữ cố định khi $N$ thay đổi, nên khi tăng $N$ thì diện tích hiệu dụng của bề mặt cũng tăng theo.
 
-Trong đó: $h_{d,k} \in \mathbb{C}$ là hệ số kênh trực tiếp từ BS đến UE $k$; $g_n \in \mathbb{C}$ là
-hệ số kênh từ BS đến phần tử thứ $n$; $h_{r,k,n} \in \mathbb{C}$ là hệ số kênh từ phần tử thứ $n$
-đến UE $k$; $\mathcal{CN}(\mu, \sigma^2)$ là phân bố Gaussian phức đối xứng tròn với trung bình $\mu$
-và phương sai $\sigma^2$; $\sigma_d, \sigma_g, \sigma_r$ là các hệ số tỷ lệ (độ lệch chuẩn) của ba
-loại liên kết. Mỗi thành phần ghép tầng $h^{*}_{r,k,n} g_n$ có độ lệch chuẩn $\sigma_g \sigma_r =
-0,75$, lớn hơn độ lệch chuẩn của đường trực tiếp ($0,35$), phản ánh kịch bản đường trực tiếp yếu.
-
-Đây là các hệ số tỷ lệ của mô phỏng, không phải mô hình suy hao theo khoảng cách. Phương sai của
-từng phần tử được giữ cố định khi $N$ thay đổi, nên khi tăng $N$, diện tích hiệu dụng của bề mặt
-cũng tăng theo; mức tăng tổng tốc độ theo $N$ trong Chương~\ref{chap:ket-qua} vì vậy không tương ứng
-trường hợp giữ cố định kích thước vật lý của bề mặt. Để thuận tiện, các hệ số được gom thành véc-tơ
-$\mathbf{g} = [g_1, \dots, g_N]^T \in \mathbb{C}^{N\times 1}$ và
-$\mathbf{h}_{r,k} = [h_{r,k,1}, \dots, h_{r,k,N}]^T \in \mathbb{C}^{N\times 1}$.
+Gom các hệ số thành các véc-tơ để thuận tiện cho các phép toán đại số:
+\begin{itemize}
+\item $\mathbf{g} = [g_1, g_2, \dots, g_N]^T \in \mathbb{C}^{N \times 1}$: Véc-tơ kênh từ trạm gốc đến toàn
+  bộ $N$ phần tử STAR--RIS (trong đó $[\cdot]^T$ là phép chuyển vị véc-tơ).
+\item $\mathbf{h}_{r,k} = [h_{r,k,1}, h_{r,k,2}, \dots, h_{r,k,N}]^T \in \mathbb{C}^{N \times 1}$: Véc-tơ
+  kênh từ $N$ phần tử STAR--RIS đến người dùng thứ $k$.
+\end{itemize}
 
 \subsection{Hệ số truyền và phản xạ của STAR--RIS}
 \label{ssec:he-so-star}
 
-Tác động của phần tử thứ $n$ lên sóng truyền qua (T) và sóng phản xạ (R) được mô tả bởi
+Tác động điện từ của phần tử thứ $n$ ($n \in \{1, \dots, N\}$) đối với sóng truyền qua (ký hiệu T) và sóng
+phản xạ (ký hiệu R) được xác định bởi hai hệ số phức:
 \begin{equation}
-\phi^T_n = \sqrt{\beta^T_n}\,e^{j\theta^T_n}, \qquad
-\phi^R_n = \sqrt{1 - \beta^T_n}\,e^{j\theta^R_n}.
+\phi^T_n = \sqrt{\beta^T_n}\, e^{j\theta^T_n}, \qquad
+\phi^R_n = \sqrt{1 - \beta^T_n}\, e^{j\theta^R_n}.
 \label{eq:he-so-star}
 \end{equation}
-
-Trong đó: $\beta^T_n \in [0, 1]$ là tỷ lệ năng lượng truyền qua và $\beta^R_n = 1 - \beta^T_n$ là tỷ
-lệ năng lượng phản xạ, nên $\beta^T_n + \beta^R_n = 1$ luôn được thỏa; $\theta^T_n, \theta^R_n \in
-[-\pi, \pi)$ là góc dịch pha cho hai phía; $j$ là đơn vị ảo; $e^{j\theta} = \cos\theta + j\sin\theta$.
-Ma trận truyền qua và ma trận phản xạ của bề mặt là $\boldsymbol{\Phi}_T = \mathrm{diag}(\phi^T_1,
-\dots, \phi^T_N)$ và $\boldsymbol{\Phi}_R = \mathrm{diag}(\phi^R_1, \dots, \phi^R_N)$. Hàm
-$\mathrm{wrap}(\cdot)$ được dùng ở Chương~\ref{chap:phuong-phap} để đưa mọi góc pha về miền
-$[-\pi, \pi)$.
+Trong đó:
+\begin{itemize}
+\item $\phi^T_n \in \mathbb{C}$: Hệ số truyền qua phức của phần tử thứ $n$, đặc trưng cho khả năng điều tiết
+  biên độ và góc xoay pha của sóng điện từ khi truyền xuyên qua bề mặt ra không gian phía sau.
+\item $\phi^R_n \in \mathbb{C}$: Hệ số phản xạ phức của phần tử thứ $n$, đặc trưng cho khả năng điều tiết
+  biên độ và góc xoay pha của sóng điện từ khi dội ngược lại không gian phía trước.
+\item $\beta^T_n \in [0, 1]$: Tỷ lệ phân bổ năng lượng cho phía truyền qua, đóng vai trò như một van điều
+  tiết quyết định phần trăm công suất sóng tới được phép xuyên qua bề mặt.
+\item $\beta^R_n = 1 - \beta^T_n \in [0, 1]$: Tỷ lệ phân bổ năng lượng cho phía phản xạ, tự động thỏa mãn
+  định luật bảo toàn năng lượng thụ động $\beta^T_n + \beta^R_n = 1$.
+\item $\theta^T_n \in [-\pi, \pi)$: Góc dịch pha cài đặt cho sóng truyền qua tại phần tử $n$, có chức năng
+  như một núm xoay pha nhằm định hướng búp sóng truyền về phía người dùng mục tiêu.
+\item $\theta^R_n \in [-\pi, \pi)$: Góc dịch pha cài đặt cho sóng phản xạ tại phần tử $n$, làm nhiệm vụ xoay
+  hướng pha của sóng dội lại nhằm tạo ra hiện tượng giao thoa cộng tăng cường tại phía người dùng phản xạ.
+\item $j$: Đơn vị ảo trong tập số phức, thỏa mãn $j^2 = -1$.
+\item $e^{j\theta} = \cos\theta + j\sin\theta$: Toán tử quay pha Euler.
+\item $\boldsymbol{\Phi}_T = \mathrm{diag}(\phi^T_1, \dots, \phi^T_N) \in \mathbb{C}^{N \times N}$: Ma trận
+  truyền qua của STAR--RIS, xếp toàn bộ $N$ hệ số truyền qua lên đường chéo chính.
+\item $\boldsymbol{\Phi}_R = \mathrm{diag}(\phi^R_1, \dots, \phi^R_N) \in \mathbb{C}^{N \times N}$: Ma trận
+  phản xạ của STAR--RIS, gom toàn bộ $N$ hệ số phản xạ lên đường chéo chính.
+\item $\mathrm{diag}(\cdot)$: Toán tử toán học chuyển đổi một véc-tơ gồm $N$ phần tử thành một ma trận đường
+  chéo vuông kích thước $N \times N$.
+\item $\mathrm{wrap}(\cdot)$: Hàm chuẩn hóa góc pha toán học, đưa mọi góc pha sau khi tính toán cộng/trừ quay
+  trở về đúng miền xác định vật lý chuẩn $[-\pi, \pi)$ (tương đương $[-180^\circ, 180^\circ)$).
+\end{itemize}
 
 \subsection{Kênh hiệu dụng}
 \label{ssec:kenh-hieu-dung}
 
-Tín hiệu tại UE $k$ là tổng của đường trực tiếp và $N$ thành phần qua STAR--RIS. Kênh hiệu dụng là
+Tín hiệu sóng tới máy thu UE$_k$ là sự giao thoa cộng dồn giữa đường trực tiếp và toàn bộ các thành phần sóng
+thứ cấp truyền qua/phản xạ từ $N$ phần tử STAR--RIS. Kênh truyền tổng thể mà người dùng UE$_k$ thực sự cảm
+nhận được -- gọi là kênh hiệu dụng -- được biểu diễn bằng:
 \begin{equation}
 h^{\mathrm{eff}}_k = h_{d,k} + \mathbf{h}_{r,k}^H \boldsymbol{\Phi}_{s_k} \mathbf{g}
 = h_{d,k} + \sum_{n=1}^{N} h^{*}_{r,k,n}\, \phi^{s_k}_n\, g_n .
 \label{eq:kenh-hieu-dung}
 \end{equation}
-
-Trong đó: $s_k \in \{T, R\}$ là chỉ báo phía của UE $k$ ($s_k = R$ với UE$_1$, UE$_3$ và $s_k = T$ với
-UE$_2$, UE$_4$); $\boldsymbol{\Phi}_{s_k}$ và $\phi^{s_k}_n$ là ma trận và hệ số của phía tương ứng;
-$(\cdot)^H$ là chuyển vị liên hợp và $(\cdot)^*$ là liên hợp phức. Độ lợi công suất kênh hiệu dụng
-được ký hiệu $g_k = |h^{\mathrm{eff}}_k|^2$.
+Trong đó:
+\begin{itemize}
+\item $h^{\mathrm{eff}}_k \in \mathbb{C}$: Hệ số kênh truyền hiệu dụng vô hướng tại thiết bị người dùng UE$_k$.
+\item $h_{d,k}$: Hệ số kênh truyền trực tiếp từ trạm gốc đến UE$_k$.
+\item $\mathbf{h}_{r,k}^H$: Véc-tơ chuyển vị liên hợp phức (Hermitian transpose) của véc-tơ kênh
+  $\mathbf{h}_{r,k}$.
+\item $h^{*}_{r,k,n}$: Số phức liên hợp (conjugate) của hệ số kênh $h_{r,k,n}$.
+\item $s_k \in \{T, R\}$: Chỉ số định danh khu vực hình học của người dùng $k$: $s_k = R$ nếu UE$_k$ nằm ở
+  phía phản xạ (UE1, UE3); $s_k = T$ nếu UE$_k$ nằm ở phía truyền qua (UE2, UE4).
+\item $\boldsymbol{\Phi}_{s_k}$: Ma trận đường chéo hệ số STAR--RIS tương ứng với khu vực của UE$_k$
+  ($\boldsymbol{\Phi}_R$ hoặc $\boldsymbol{\Phi}_T$).
+\item $\phi^{s_k}_n$: Hệ số phức của phần tử thứ $n$ tương ứng với khu vực $s_k$ ($\phi^R_n$ hoặc $\phi^T_n$).
+\item $g_n$: Hệ số kênh truyền từ trạm gốc đến phần tử STAR--RIS thứ $n$.
+\item $g_k = |h^{\mathrm{eff}}_k|^2$: Độ lợi công suất kênh truyền hiệu dụng của người dùng UE$_k$ (đại lượng
+  vô hướng thực không âm).
+\end{itemize}
 
 \section{Mô hình tín hiệu RSMA}
 \label{sec:mo-hinh-rsma}
 
-\subsection{Tín hiệu phát}
+\subsection{Tín hiệu phát tại trạm gốc}
 \label{ssec:tin-hieu-phat}
 
-Theo RSMA một lớp, các thông điệp $\{W_1, \dots, W_K\}$ được tách thành một phần chung $W_c$, mã hóa
-thành ký hiệu luồng chung $s_c$, và $K$ phần riêng, mã hóa thành các ký hiệu luồng riêng $s_1, \dots,
-s_K$. Các ký hiệu độc lập đôi một với công suất trung bình chuẩn hóa $\mathbb{E}[|s_c|^2] =
-\mathbb{E}[|s_k|^2] = 1$. Tín hiệu phát của BS một anten là
+Theo kiến trúc RSMA một lớp (1-layer RS)~\cite{Mao2018RSMABridging}, thông điệp dự định truyền cho $K$ người
+dùng $\{W_1, \dots, W_K\}$ được bộ phân tách thông điệp chia thành:
+\begin{itemize}
+\item Một phần chung $W_c$ gộp từ các mảnh thông điệp của mọi người dùng, được mã hóa thành ký hiệu luồng
+  chung duy nhất $s_c$.
+\item $K$ phần riêng biệt, được điều chế độc lập thành $K$ ký hiệu luồng riêng
+  $s_1, \dots, s_K$ dành riêng cho từng UE.
+\end{itemize}
+Các luồng tín hiệu $s_c, s_1, \dots, s_K$ là các biến ngẫu nhiên phức độc lập đôi một, có công suất trung bình
+chuẩn hóa bằng 1: $\mathbb{E}[|s_c|^2] = 1$, $\mathbb{E}[|s_k|^2] = 1$, $\mathbb{E}[s_i s_j^*] = 0$ (với mọi
+$i \neq j$, toán tử $\mathbb{E}[\cdot]$ là kỳ vọng thống kê). Tín hiệu phát tổng hợp tại trạm gốc đơn anten
+(SISO) là:
 \begin{equation}
-x = \sqrt{p_c}\, s_c + \sum_{k=1}^{K} \sqrt{p_k}\, s_k,
-\qquad p_c + \sum_{k=1}^{K} p_k = P_{\max},\quad p_c, p_k \ge 0 .
+x = \sqrt{p_c}\, s_c + \sum_{k=1}^{K} \sqrt{p_k}\, s_k .
 \label{eq:tin-hieu-phat}
 \end{equation}
+Ràng buộc về ngân sách công suất phát tối đa $P_{\max}$ của trạm gốc được mô tả bởi:
+\begin{equation}
+p_c + \sum_{k=1}^{K} p_k = P_{\max}, \qquad p_c \ge 0,\ p_k \ge 0\ \ (\forall k \in \{1, \dots, K\}).
+\label{eq:ngan-sach-cong-suat}
+\end{equation}
+Trong đó:
+\begin{itemize}
+\item $x \in \mathbb{C}$: Tín hiệu vô hướng băng gốc phát đi từ anten duy nhất của trạm gốc.
+\item $s_c \in \mathbb{C}$: Ký hiệu thông tin của luồng chung (mang dữ liệu gộp của tất cả người dùng).
+\item $s_k \in \mathbb{C}$: Ký hiệu thông tin của luồng riêng dành cho người dùng thứ $k$.
+\item $p_c \ge 0$: Công suất phát được phân bổ cho luồng chung.
+\item $p_k \ge 0$: Công suất phát được phân bổ cho luồng riêng của người dùng thứ $k$.
+\item $P_{\max}$: Tổng ngân sách công suất phát khả dụng của trạm gốc (trong thực nghiệm chuẩn hóa bằng
+  $1,0$).
+\end{itemize}
 
-Trong đó: $p_c$ và $p_k$ là công suất luồng chung và luồng riêng của UE $k$; $P_{\max}$ là tổng công
-suất phát (chuẩn hóa bằng $1$ trong thực nghiệm). Vì BS chỉ có một anten, $x$ là đại lượng vô hướng:
-luồng chung và mọi luồng riêng đi qua cùng một hệ số kênh $h^{\mathrm{eff}}_k$ để đến UE $k$, không
-có véc-tơ tạo búp sóng để tách các luồng như trong hệ MISO hoặc MIMO.
+\textbf{Nhận xét đặc thù SISO:} Vì trạm gốc chỉ có một anten, tín hiệu $x$ là một đại lượng vô hướng. Khi
+rời khỏi trạm phát, toàn bộ luồng chung và các luồng riêng đều truyền qua cùng một hệ số kênh hiệu dụng
+$h^{\mathrm{eff}}_k$ để đến UE$_k$, hoàn toàn không có véc-tơ tạo búp sóng không gian đa chiều để phân tách
+các luồng như trong hệ MISO/MIMO.
 
-\subsection{Tín hiệu thu}
+\subsection{Tín hiệu thu tại máy thu}
 \label{ssec:tin-hieu-thu}
 
-Tín hiệu băng gốc tại UE $k$ là
+Tín hiệu băng gốc thu được tại thiết bị người dùng UE$_k$ là:
 \begin{equation}
-y_k = h^{\mathrm{eff}}_k \sqrt{p_c}\, s_c + h^{\mathrm{eff}}_k \sqrt{p_k}\, s_k
-+ \sum_{j \neq k} h^{\mathrm{eff}}_k \sqrt{p_j}\, s_j + n_k ,
+y_k = h^{\mathrm{eff}}_k x + n_k
+= h^{\mathrm{eff}}_k \sqrt{p_c}\, s_c + h^{\mathrm{eff}}_k \sqrt{p_k}\, s_k
++ \sum_{j \neq k} h^{\mathrm{eff}}_k \sqrt{p_j}\, s_j + n_k .
 \label{eq:tin-hieu-thu}
 \end{equation}
-
-trong đó ba hạng đầu lần lượt là luồng chung, luồng riêng mong muốn và nhiễu từ các luồng riêng của
-UE khác, còn $n_k \sim \mathcal{CN}(0, \sigma^2)$ là tạp âm với $\sigma^2 = 10^{-3}$ trong mô phỏng.
-Hình~\ref{fig:ch2-kien-truc} tóm tắt kiến trúc thu--phát RSMA một lớp cho $K$ UE trong hệ SISO.
+Trong đó:
+\begin{itemize}
+\item $y_k \in \mathbb{C}$: Tín hiệu điện toán băng gốc nhận được tại anten thu của UE$_k$.
+\item $h^{\mathrm{eff}}_k \sqrt{p_c}\, s_c$: Thành phần tín hiệu luồng chung có ích mà mọi UE đều phải giải mã
+  ở giai đoạn 1.
+\item $h^{\mathrm{eff}}_k \sqrt{p_k}\, s_k$: Thành phần tín hiệu luồng riêng mong muốn dành cho chính UE$_k$.
+\item $\sum_{j \neq k} h^{\mathrm{eff}}_k \sqrt{p_j}\, s_j$: Thành phần can nhiễu liên người dùng (nhiễu đồng
+  kênh từ các luồng riêng của các UE khác $j \neq k$).
+\item $n_k \sim \mathcal{CN}(0, \sigma^2)$: Tạp âm nhiệt Gaussian trắng (AWGN) tại máy thu của UE$_k$, với
+  công suất tạp âm $\sigma^2$ (trong mô phỏng $\sigma^2 = 10^{-3}$).
+\end{itemize}
+Hình~\ref{fig:ch2-kien-truc} tóm tắt kiến trúc thu -- phát RSMA một lớp cho $K$ UE trong hệ SISO.
 
 \input{floats/fig-ch2-kien-truc}
 
-\subsection{Giải mã luồng chung}
+\subsection{Giải mã luồng chung (Giai đoạn 1)}
 \label{ssec:giai-ma-chung}
 
-Ở giai đoạn thứ nhất, mọi UE giải mã luồng chung và xem mọi luồng riêng như nhiễu. SINR và tốc độ
-giải mã luồng chung tại UE $k$ là
+Quá trình xử lý tín hiệu tại máy thu UE$_k$ diễn ra qua hai giai đoạn liên tiếp. Ở giai đoạn thứ nhất, mọi
+người dùng UE$_k$ đều tiến hành giải mã luồng chung $s_c$ trước, đồng thời coi toàn bộ $K$ luồng riêng như
+tạp âm can nhiễu. Tỷ số tín hiệu trên nhiễu cộng tạp âm (SINR) khi giải mã luồng chung tại UE$_k$ là:
 \begin{equation}
-\gamma_{c,k} = \frac{g_k\, p_c}{g_k\, P_{\mathrm{priv}} + \sigma^2},
-\qquad R_{c,k} = \log_2(1 + \gamma_{c,k}),
+\gamma_{c,k} = \frac{|h^{\mathrm{eff}}_k|^2 p_c}{|h^{\mathrm{eff}}_k|^2 \sum_{j=1}^{K} p_j + \sigma^2}
+= \frac{g_k\, p_c}{g_k\, P_{\mathrm{priv}} + \sigma^2} .
 \label{eq:sinr-chung}
 \end{equation}
-
-với $P_{\mathrm{priv}} = \sum_{j=1}^{K} p_j = P_{\max} - p_c$. Để mọi UE giải mã được luồng chung, tốc
-độ luồng chung bị giới hạn bởi UE có điều kiện thu kém nhất:
+Tốc độ truyền dẫn tối đa có thể đạt được khi giải mã luồng chung tại UE$_k$ theo định lý Shannon là:
 \begin{equation}
-R_c = \min_{k} R_{c,k} .
+R_{c,k} = \log_2(1 + \gamma_{c,k}) \quad \text{(bit/s/Hz)}.
+\label{eq:toc-do-chung-k}
+\end{equation}
+Để bảo đảm tất cả mọi người dùng trong mạng đều giải mã thành công luồng chung, tốc độ phát thực tế của
+luồng chung phải bị chặn trên bởi người dùng có điều kiện thu kém thuận lợi nhất (người dùng nút cổ chai):
+\begin{equation}
+R_c = \min_{k \in \{1, \dots, K\}} R_{c,k} .
 \label{eq:toc-do-chung}
 \end{equation}
-
-Tốc độ luồng chung được chia cho các UE theo véc-tơ $\boldsymbol{\eta} = [\eta_1, \dots, \eta_K]^T$:
+Sau khi xác định được quỹ tốc độ chung $R_c$, trạm gốc tiến hành phân phối quỹ tốc độ này cho từng UE thông
+qua véc-tơ tỷ lệ phân bổ $\boldsymbol{\eta} = [\eta_1, \dots, \eta_K]^T$:
 \begin{equation}
-C_k = \eta_k R_c, \qquad \eta_k \ge 0, \quad \sum_{k=1}^{K} \eta_k = 1 ,
+C_k = \eta_k R_c, \qquad \eta_k \ge 0, \quad \sum_{k=1}^{K} \eta_k = 1 .
 \label{eq:chia-toc-do-chung}
 \end{equation}
+Trong đó:
+\begin{itemize}
+\item $\gamma_{c,k}$: Tỷ số tín hiệu trên nhiễu cộng tạp âm (SINR) khi giải mã luồng chung tại UE$_k$ (đại
+  lượng không thứ nguyên).
+\item $g_k = |h^{\mathrm{eff}}_k|^2$: Độ lợi công suất kênh truyền hiệu dụng của người dùng $k$.
+\item $P_{\mathrm{priv}} = \sum_{j=1}^{K} p_j = P_{\max} - p_c$: Tổng công suất phát cấp cho toàn bộ các luồng
+  riêng trong hệ thống.
+\item $\sigma^2$: Công suất tạp âm nhiệt tại máy thu.
+\item $R_{c,k}$: Tốc độ giải mã luồng chung cực đại mà liên kết của UE$_k$ có thể hỗ trợ (bit/s/Hz).
+\item $\log_2(\cdot)$: Hàm logarit cơ số 2.
+\item $R_c$: Tốc độ truyền dẫn thực tế của luồng chung trên toàn mạng (bit/s/Hz).
+\item $\min_k(\cdot)$: Toán tử lấy giá trị nhỏ nhất trong tập hợp $K$ người dùng.
+\item $\eta_k$: Tỷ lệ phần trăm quỹ tốc độ chung được phân bổ cho người dùng UE$_k$ (nằm trên đơn hình xác
+  suất).
+\item $C_k$: Tốc độ dữ liệu thực tế trích từ luồng chung cấp cho người dùng UE$_k$ (bit/s/Hz).
+\end{itemize}
 
-trong đó $\boldsymbol{\eta}$ nằm trên đơn hình xác suất $\Delta_K$ và $C_k$ là phần tốc độ chung dành
-cho UE $k$.
-
-\subsection{Khử nhiễu liên tiếp và giải mã luồng riêng}
+\subsection{Khử nhiễu liên tiếp (SIC) và giải mã luồng riêng (Giai đoạn 2)}
 \label{ssec:sic-giai-ma-rieng}
 
-Sau khi giải mã $s_c$, UE $k$ dùng đúng một tầng SIC để loại luồng chung rồi giải mã luồng riêng của
-mình, xem các luồng riêng khác như nhiễu:
+Sau khi giải mã thành công $s_c$, máy thu UE$_k$ sử dụng kỹ thuật khử nhiễu liên tiếp (SIC) với đúng một tầng
+duy nhất để tái tạo dạng sóng $h^{\mathrm{eff}}_k \sqrt{p_c}\, s_c$ và trừ khử hoàn toàn thành phần này ra khỏi
+tín hiệu thu $y_k$. Tín hiệu sau khi khử luồng chung chỉ còn lại luồng riêng của UE$_k$, các luồng riêng của
+các UE khác và tạp âm. Tỷ số SINR khi UE$_k$ giải mã luồng riêng $s_k$ của chính mình là:
 \begin{equation}
-\gamma_{p,k} = \frac{g_k\, p_k}{g_k\,(P_{\mathrm{priv}} - p_k) + \sigma^2},
-\qquad R_{p,k} = \log_2(1 + \gamma_{p,k}) .
+\gamma_{p,k} = \frac{|h^{\mathrm{eff}}_k|^2 p_k}{|h^{\mathrm{eff}}_k|^2 \sum_{j \neq k} p_j + \sigma^2}
+= \frac{g_k\, p_k}{g_k\,(P_{\mathrm{priv}} - p_k) + \sigma^2} .
 \label{eq:sinr-rieng}
 \end{equation}
-
-Tốc độ của UE $k$ và tổng tốc độ của hệ thống là
+Tốc độ đạt được của luồng riêng tại UE$_k$ là:
 \begin{equation}
-R_k = \eta_k R_c + R_{p,k}, \qquad
-R_{\mathrm{sum}} = \sum_{k=1}^{K} R_k = R_c + \sum_{k=1}^{K} R_{p,k},
+R_{p,k} = \log_2(1 + \gamma_{p,k}) \quad \text{(bit/s/Hz)}.
+\label{eq:toc-do-rieng}
+\end{equation}
+Tổng tốc độ truyền dẫn thực tế mà người dùng UE$_k$ nhận được từ cả hai luồng là:
+\begin{equation}
+R_k = C_k + R_{p,k} = \eta_k R_c + R_{p,k},
+\label{eq:toc-do-ue}
+\end{equation}
+và tổng tốc độ của toàn bộ hệ thống (Sum-rate) là:
+\begin{equation}
+R_{\mathrm{sum}} = \sum_{k=1}^{K} R_k = \sum_{k=1}^{K} (\eta_k R_c + R_{p,k})
+= R_c \sum_{k=1}^{K} \eta_k + \sum_{k=1}^{K} R_{p,k} = R_c + \sum_{k=1}^{K} R_{p,k} .
 \label{eq:tong-toc-do}
 \end{equation}
+Trong đó:
+\begin{itemize}
+\item $\gamma_{p,k}$: Tỷ số SINR khi người dùng UE$_k$ giải mã luồng riêng $s_k$ của mình sau khi đã loại bỏ
+  luồng chung.
+\item $p_k$: Công suất phát cấp cho luồng riêng của UE$_k$.
+\item $\sum_{j \neq k} p_j = P_{\mathrm{priv}} - p_k$: Tổng công suất của các luồng riêng còn lại gây can nhiễu
+  lên luồng riêng của UE$_k$.
+\item $R_{p,k}$: Tốc độ dữ liệu thu được từ luồng riêng của người dùng UE$_k$ (bit/s/Hz).
+\item $R_k$: Tổng tốc độ truyền dẫn thực tế mà UE$_k$ nhận được (bit/s/Hz).
+\item $R_{\mathrm{sum}}$: Tổng tốc độ truyền dữ liệu của toàn bộ mạng (Sum-rate, bit/s/Hz).
+\end{itemize}
 
-trong đó đẳng thức cuối dùng $\sum_k \eta_k = 1$.
-
-\section{Chỉ số chất lượng dịch vụ và hàm đánh giá}
+\section{Chỉ số chất lượng dịch vụ (QoS) và độ vi phạm}
 \label{sec:qos}
 
-Bên cạnh tổng tốc độ, hệ thống yêu cầu mỗi UE đạt tốc độ tối thiểu $R_{\min} = 0,5$ bit/s/Hz. Mức
-thiếu hụt của UE $k$ được đo bằng
+Trong các mạng vô tuyến thực tế, bên cạnh mục tiêu gia tăng tốc độ truyền dẫn chung của toàn mạng, việc đảm
+bảo tính công bằng dịch vụ giữa các người dùng là một yêu cầu mang tính sống còn. Do đó, hệ thống đặt ra một
+ngưỡng tốc độ dữ liệu tối thiểu $R_{\min}$ mà mọi người dùng bắt buộc phải đạt được. Để đo lường mức độ đáp
+ứng chỉ tiêu chất lượng dịch vụ (QoS), mức độ thiếu hụt tốc độ của từng người dùng thứ $k$
+($k \in \{1, 2, 3, 4\}$) được xác định thông qua hàm:
 \begin{equation}
-d_k = \max(R_{\min} - R_k, 0),
+d_k = \max(R_{\min} - R_k,\ 0) .
 \label{eq:thieu-hut}
 \end{equation}
-
-với $d_k = 0$ khi UE đạt hoặc vượt ngưỡng và $d_k > 0$ cho biết lượng tốc độ còn thiếu. Mức vi phạm QoS
-của toàn mạng được tổng hợp bằng hai đại lượng
+Trong đó:
+\begin{itemize}
+\item $d_k \ge 0$: Lượng tốc độ bị thiếu hụt so với yêu cầu QoS của người dùng thứ $k$ (đo bằng bit/s/Hz).
+  Nếu người dùng đã đạt hoặc vượt ngưỡng ($R_k \ge R_{\min}$) thì $d_k = 0$ (không vi phạm); ngược lại nếu
+  $R_k < R_{\min}$ thì $d_k > 0$, cho biết hệ thống còn đang nợ người dùng này bao nhiêu tốc độ.
+\item $R_{\min} = 0,5$ bit/s/Hz: Ngưỡng chất lượng dịch vụ tối thiểu do nhà mạng quy định, là mức sàn tốc độ
+  bắt buộc cho mọi thiết bị trong mạng.
+\item $R_k$: Tổng tốc độ thực tế mà người dùng UE$_k$ nhận được từ cả luồng chung và luồng riêng.
+\item $\max(a, b)$: Phép toán lấy giá trị lớn hơn giữa hai số $a$ và $b$, có tác dụng chặn dưới bằng 0 để
+  không ghi nhận giá trị âm khi người dùng đã vượt ngưỡng.
+\end{itemize}
+Để phục vụ cho việc xây dựng hàm phạt và hàm phần thưởng trong thuật toán học tăng cường sâu (DRL), mức độ
+vi phạm QoS của toàn mạng được tổng hợp qua hai đại lượng:
 \begin{equation}
 V = \sum_{k=1}^{K} d_k, \qquad V_2 = \sum_{k=1}^{K} d_k^2 .
 \label{eq:vi-pham}
 \end{equation}
-
-Trong đó: $V$ là tổng thiếu hụt tuyến tính; $V_2$ là tổng bình phương thiếu hụt, phạt nặng hơn khi
-một UE riêng lẻ bị thiếu hụt sâu. Từ đó, luận văn định nghĩa hàm đánh giá có phạt QoS dùng chung cho
-các phương pháp tối ưu lặp:
-\begin{equation}
-r_{\mathrm{env}} = R_{\mathrm{sum}} - 8V - 8V_2 .
-\label{eq:phan-thuong-moi-truong}
-\end{equation}
+Trong đó:
+\begin{itemize}
+\item $V \ge 0$: Tổng độ thiếu hụt tốc độ tuyến tính của toàn mạng, phản ánh tổng số lượng dung lượng đường
+  truyền còn thiếu để tất cả người dùng cùng chạm ngưỡng chất lượng.
+\item $V_2 \ge 0$: Tổng bình phương độ thiếu hụt tốc độ của toàn mạng. Phép bình phương $d_k^2$ tạo ra một mức
+  phạt phi tuyến tính rất nặng khi có một người dùng cá biệt nào đó bị tụt tốc độ quá sâu, răn đe thuật toán
+  DRL không được phép hy sinh bất kỳ người dùng nào để chạy theo tổng tốc độ ảo.
+\end{itemize}
 
 \section{Tập hợp các biến quyết định}
 \label{sec:bien-quyet-dinh}
 
-Tại mỗi lần ra quyết định, bộ điều khiển phải chọn năm nhóm biến liên tục:
+Để vận hành hệ thống SISO STAR--RIS hỗ trợ RSMA, tại mỗi khe thời gian truyền thông, bộ điều khiển trung tâm
+phải đồng thời đưa ra quyết định cho năm nhóm biến vật lý liên tục:
 \begin{enumerate}
-\item công suất luồng chung $p_c \in [0, P_{\max}]$;
-\item véc-tơ công suất luồng riêng $\mathbf{p}_{\mathrm{priv}} = [p_1, \dots, p_K]^T \in
-  \mathbb{R}_{+}^{K}$;
-\item véc-tơ phân bổ tốc độ chung $\boldsymbol{\eta} \in \Delta_K$;
-\item véc-tơ chia năng lượng $\boldsymbol{\beta}^T = [\beta^T_1, \dots, \beta^T_N]^T \in [0, 1]^N$,
-  với $\beta^R_n = 1 - \beta^T_n$;
-\item hai véc-tơ pha $\boldsymbol{\theta}^T, \boldsymbol{\theta}^R \in [-\pi, \pi)^N$.
+\item \textbf{Công suất phát luồng chung ($p_c$):} Là đại lượng vô hướng không âm $p_c \in [0, P_{\max}]$,
+  quyết định độ lớn năng lượng cấp cho thông tin chung $s_c$.
+\item \textbf{Véc-tơ công suất phát luồng riêng ($\mathbf{p}_{\mathrm{priv}}$):}
+  $\mathbf{p}_{\mathrm{priv}} = [p_1, p_2, \dots, p_K]^T \in \mathbb{R}_+^{K \times 1}$, bao gồm $K$ giá trị
+  công suất dành riêng cho $K$ thiết bị người dùng.
+\item \textbf{Véc-tơ phân bổ tốc độ chung ($\boldsymbol{\eta}$):} $\boldsymbol{\eta} = [\eta_1, \eta_2, \dots,
+  \eta_K]^T \in [0, 1]^{K \times 1}$, chia phần trăm quỹ tốc độ chung $R_c$ cho từng người dùng, thỏa mãn
+  $\sum_{k=1}^{K} \eta_k = 1$.
+\item \textbf{Véc-tơ phân chia năng lượng STAR--RIS ($\boldsymbol{\beta}^T$):} $\boldsymbol{\beta}^T =
+  [\beta^T_1, \beta^T_2, \dots, \beta^T_N]^T \in [0, 1]^{N \times 1}$, gồm $N$ hệ số điều khiển tỷ lệ năng
+  lượng truyền qua của $N$ phần tử bề mặt (phần năng lượng phản xạ tự động suy ra $\beta^R_n = 1 - \beta^T_n$).
+\item \textbf{Các véc-tơ góc dịch pha của STAR--RIS ($\boldsymbol{\theta}^T$ và $\boldsymbol{\theta}^R$):}
+  $\boldsymbol{\theta}^T = [\theta^T_1, \dots, \theta^T_N]^T \in [-\pi, \pi)^{N \times 1}$ và
+  $\boldsymbol{\theta}^R = [\theta^R_1, \dots, \theta^R_N]^T \in [-\pi, \pi)^{N \times 1}$, gồm $2N$ góc xoay
+  pha độc lập dành cho thành phần sóng truyền và sóng phản xạ của $N$ phần tử.
 \end{enumerate}
-Tổng số chiều của không gian hành động liên tục là
+Tổng số chiều của không gian hành động vật lý liên tục cần tối ưu là:
 \begin{equation}
 d_a = 1 + K + K + N + N + N = 2K + 1 + 3N .
 \label{eq:so-chieu-hanh-dong}
 \end{equation}
-Với $N = 16$, $d_a = 57$; với $N = 128$, $d_a = 393$ biến liên tục cần quyết định đồng thời, một không
-gian tìm kiếm lớn cho cả phương pháp giải tích lẫn học máy.
+Trong đó:
+\begin{itemize}
+\item $d_a$: Tổng số biến số liên tục độc lập mà bộ điều khiển mạng phải tìm kiếm nghiệm tại mỗi thời điểm.
+\item $K = 4$: Số lượng người dùng trong mạng.
+\item $N$: Số lượng phần tử của bề mặt STAR--RIS (trong các kịch bản mô phỏng thay đổi từ $N = 16$ đến
+  $N = 128$).
+\end{itemize}
+\textbf{Nhận xét:} Khi $N = 16$, số chiều biến là $d_a = 57$; khi tăng lên $N = 128$ phần tử, số chiều hành
+động bùng nổ lên tới $d_a = 393$ biến liên tục cần được tối ưu đồng thời. Đây là một không gian tìm kiếm liên
+tục có số chiều rất lớn, đặt ra thách thức tính toán to lớn cho cả các thuật toán giải tích truyền thống lẫn
+các thuật toán học máy.
 
 \section{Phát biểu bài toán tối ưu}
 \label{sec:phat-bieu}
 
-Mục tiêu là tìm cấu hình công suất, tỷ lệ chia tốc độ chung, tỷ lệ chia năng lượng và pha STAR--RIS
-để tối đa hóa tổng tốc độ, đồng thời thỏa ngân sách công suất, các ràng buộc vật lý của bề mặt và yêu
-cầu QoS:
+Mục tiêu của luận văn là tìm ra bộ cấu hình tối ưu gồm công suất phát, tỷ lệ chia tốc độ chung, tỷ lệ chia
+năng lượng và các góc dịch pha của STAR--RIS nhằm tối đa hóa tổng tốc độ truyền dẫn toàn mạng
+($R_{\mathrm{sum}}$), đồng thời phải bảo đảm không vượt quá ngân sách công suất phát của trạm gốc, tuân thủ
+các quy luật vật lý của bề mặt và thỏa mãn yêu cầu chất lượng dịch vụ tối thiểu ($R_{\min}$) cho tất cả người
+dùng. Bài toán được phát biểu dưới dạng toán học chuẩn tắc như sau:
 \begin{subequations}
 \label{eq:bai-toan}
 \begin{align}
-\max_{p_c, \mathbf{p}_{\mathrm{priv}}, \boldsymbol{\eta}, \boldsymbol{\beta}^T,
-\boldsymbol{\theta}^T, \boldsymbol{\theta}^R} \quad
-& R_{\mathrm{sum}} = R_c + \sum_{k=1}^{K} R_{p,k} \\
-\text{với ràng buộc} \quad
-& p_c + \sum_{k=1}^{K} p_k = P_{\max}, \quad p_c \ge 0,\ p_k \ge 0, \label{eq:rb-cong-suat}\\
-& \sum_{k=1}^{K} \eta_k = 1, \quad \eta_k \ge 0, \\
-& 0 \le \beta^T_n \le 1, \quad \beta^R_n = 1 - \beta^T_n, \\
-& -\pi \le \theta^T_n < \pi, \quad -\pi \le \theta^R_n < \pi, \label{eq:rb-pha}\\
-& R_k \ge R_{\min}, \quad \forall k . \label{eq:rb-qos}
+\max_{p_c, \mathbf{p}_{\mathrm{priv}}, \boldsymbol{\eta}, \boldsymbol{\beta}^T, \boldsymbol{\theta}^T,
+\boldsymbol{\theta}^R} \quad & R_{\mathrm{sum}} = R_c + \sum_{k=1}^{K} R_{p,k} \label{eq:bt-muc-tieu}\\
+\text{thỏa mãn các ràng buộc:}\quad & p_c + \sum_{k=1}^{K} p_k = P_{\max}, \label{eq:bt-cong-suat}\\
+& p_c \ge 0,\ p_k \ge 0, \quad \forall k \in \{1, \dots, K\}, \label{eq:bt-khong-am}\\
+& \sum_{k=1}^{K} \eta_k = 1,\ \eta_k \ge 0, \quad \forall k \in \{1, \dots, K\}, \label{eq:bt-eta}\\
+& 0 \le \beta^T_n \le 1, \quad \forall n \in \{1, \dots, N\}, \label{eq:bt-beta}\\
+& \beta^R_n = 1 - \beta^T_n, \quad \forall n \in \{1, \dots, N\}, \label{eq:bt-beta-r}\\
+& -\pi \le \theta^T_n < \pi,\ -\pi \le \theta^R_n < \pi, \quad \forall n \in \{1, \dots, N\}, \label{eq:bt-pha}\\
+& R_k \ge R_{\min}, \quad \forall k \in \{1, \dots, K\}. \label{eq:bt-qos}
 \end{align}
 \end{subequations}
+Trong đó:
+\begin{itemize}
+\item \textbf{Biểu thức~\eqref{eq:bt-muc-tieu}:} Hàm mục tiêu: Tối đa hóa tổng tốc độ dữ liệu của toàn bộ hệ
+  thống (gồm tốc độ luồng chung $R_c$ cộng với tổng tốc độ các luồng riêng $\sum R_{p,k}$).
+\item \textbf{Ràng buộc~\eqref{eq:bt-cong-suat} và~\eqref{eq:bt-khong-am}:} Ràng buộc ngân sách công suất
+  phát: Tổng năng lượng phân bổ cho luồng chung và các luồng riêng không được vượt quá công suất tối đa
+  $P_{\max}$ của trạm phát, các mức công suất phải không âm.
+\item \textbf{Ràng buộc~\eqref{eq:bt-eta}:} Ràng buộc bảo toàn tỷ lệ tốc độ chung: Toàn bộ $100\%$ dung lượng
+  của luồng chung phải được chia hết cho các người dùng, không được để thất thoát hay tạo ra giá trị âm.
+\item \textbf{Ràng buộc~\eqref{eq:bt-beta} và~\eqref{eq:bt-beta-r}:} Ràng buộc bảo toàn năng lượng bề mặt
+  thụ động: Năng lượng sóng tới tại mỗi phần tử STAR--RIS chỉ được chia sang hai phía truyền qua và phản xạ mà
+  không có nguồn năng lượng tự thân bổ sung.
+\item \textbf{Ràng buộc~\eqref{eq:bt-pha}:} Ràng buộc miền dịch pha vật lý: Giới hạn góc quay pha của phần tử
+  nằm trọn vẹn trong một vòng tròn lượng giác $[-\pi, \pi)$.
+\item \textbf{Ràng buộc~\eqref{eq:bt-qos}:} Ràng buộc chất lượng dịch vụ (QoS): Đòi hỏi tốc độ truyền dẫn
+  thực tế của từng người dùng $R_k$ phải luôn lớn hơn hoặc bằng mức sàn kỹ thuật $R_{\min}$.
+\end{itemize}
 
-Các ràng buộc lần lượt là ngân sách công suất, bảo toàn tỷ lệ tốc độ chung, bảo toàn năng lượng của
-bề mặt thụ động, miền pha và yêu cầu QoS. Bài toán~\eqref{eq:bai-toan} phi lồi vì ba lý do: các biến
-công suất xuất hiện ở cả tử số và mẫu số của SINR; $R_c$ chứa phép lấy nhỏ nhất nên hàm mục tiêu
-không trơn; và các biến pha nằm trong số mũ phức, chịu phép lấy bình phương độ lớn trong
-$|h^{\mathrm{eff}}_k|^2$, tạo nhiều cực trị địa phương.
-
-Trong thực nghiệm, không phương pháp nào giải trực tiếp bài toán có ràng buộc cứng~\eqref{eq:rb-qos}.
-Các bộ giải AO tối ưu trực tiếp hàm đánh giá có phạt $r_{\mathrm{env}}$
-trong~\eqref{eq:phan-thuong-moi-truong}; các thuật toán DRL học từ một phần thưởng huấn luyện có hệ số
-phạt thích nghi (Mục~\ref{ssec:phan-thuong-huan-luyen}); còn khi kiểm thử, mọi phương pháp được so sánh
-trên cùng tổng tốc độ và tỷ lệ đạt QoS. Ràng buộc QoS vì vậy được xử lý mềm.
+\textbf{Độ phức tạp và khó khăn toán học của bài toán:} Bài toán~\eqref{eq:bai-toan} thuộc lớp bài toán quy
+hoạch phi tuyến, phi lồi (non-convex) vì ba rào cản toán học:
+\begin{enumerate}
+\item \textbf{Biến số đan xen ở mẫu số và tử số:} Các biến công suất phát $p_c, p_k$ cùng xuất hiện ở cả phần
+  tín hiệu mong muốn và phần nhiễu cộng tạp âm trong các biểu thức SINR ($\gamma_{c,k}$, $\gamma_{p,k}$).
+\item \textbf{Hàm mục tiêu không trơn và không khả vi:} Tốc độ luồng chung $R_c = \min_k R_{c,k}$ chứa toán tử
+  lấy giá trị nhỏ nhất phi tuyến, không thể lấy đạo hàm trực tiếp theo các biến thành phần.
+\item \textbf{Ràng buộc pha nằm sâu trong số phức:} Các biến góc pha $\theta_n$ nằm trong số phức mũ
+  $e^{j\theta_n}$ và chịu phép lấy mô-đun bình phương $|h^{\mathrm{eff}}_k|^2$, tạo nên một bề mặt hàm mục
+  tiêu có nhiều cực trị địa phương (local optima).
+\end{enumerate}
+Trong thực nghiệm, không phương pháp nào giải trực tiếp bài toán với ràng buộc QoS cứng~\eqref{eq:bt-qos}:
+các bộ giải tối ưu lặp tối ưu hàm đánh giá có phạt QoS $r_{\mathrm{env}}$ (Mục~\ref{sec:doi-chieu-ao}), các
+thuật toán DRL học từ phần thưởng huấn luyện có hệ số phạt thích nghi (Mục~\ref{ssec:phan-thuong-huan-luyen}),
+còn khi kiểm thử, mọi phương pháp được so sánh trên cùng tổng tốc độ và tỷ lệ đạt QoS. Ràng buộc QoS vì vậy
+được xử lý mềm.
 
 \section{Phân tích cấu trúc SISO--RSMA}
 \label{sec:phan-tich-cau-truc}
 
-Mục này phân tích bản chất toán học và vật lý của hệ SISO kết hợp RSMA và STAR--RIS, làm cơ sở cho
-việc thiết kế bộ giải mã hành động có cấu trúc thay vì để DRL tự học trên miền hành động nguyên bản.
+Để hiểu rõ tại sao luận văn lại đề xuất bộ giải mã hành động có cấu trúc vật lý thay vì để thuật toán học
+tăng cường sâu tự mò mẫm, mục này đi sâu vào phân tích bản chất toán học và vật lý của mạng SISO khi kết hợp
+với RSMA và STAR--RIS.
 
-\subsection{Trần tốc độ do nhiễu luồng riêng trong hệ SISO}
+\subsection{Hiện tượng trần tốc độ do nhiễu luồng riêng trong hệ SISO}
 \label{ssec:nhieu-luong-rieng}
 
-Trong hệ một anten phát, BS không có bậc tự do không gian để tạo búp sóng riêng cho từng luồng: mọi
-luồng riêng đến UE $k$ qua cùng một hệ số $h^{\mathrm{eff}}_k$. Giả sử có $M \le K$ luồng riêng hoạt
-động và chia đều công suất, $p_k = P_{\mathrm{priv}}/M$. Khi đó~\eqref{eq:sinr-rieng} trở thành
+Một nét đặc thù quan trọng của hệ thống một anten phát (SISO) là: Trạm phát không có các bậc tự do không gian
+để tạo búp sóng định hướng riêng cho từng luồng tín hiệu. Mọi luồng riêng phát đi đều đập vào anten thu của
+từng người dùng qua cùng một hệ số kênh hiệu dụng $h^{\mathrm{eff}}_k$.
+
+Giả sử trạm gốc kích hoạt đồng thời $M$ luồng riêng ($M \le K$) và chia đều công suất cho các luồng này:
+$p_k = P_{\mathrm{priv}}/M$. Khi đó, với mỗi người dùng đang nhận luồng riêng, họ sẽ phải hứng chịu can nhiễu
+từ $M - 1$ luồng riêng còn lại. Tỷ số SINR giải mã luồng riêng theo công thức~\eqref{eq:sinr-rieng} trở
+thành:
 \begin{equation}
-\gamma_{p,k} = \frac{g_k\, P_{\mathrm{priv}}/M}{g_k\, \frac{M-1}{M} P_{\mathrm{priv}} + \sigma^2}.
+\gamma_{p,k} = \frac{g_k\, (P_{\mathrm{priv}}/M)}{g_k\, \frac{M-1}{M} P_{\mathrm{priv}} + \sigma^2} .
 \label{eq:sinr-m-luong}
 \end{equation}
-
-Khi nhiễu luồng riêng lấn át tạp âm, tức $g_k \frac{M-1}{M} P_{\mathrm{priv}} \gg \sigma^2$, độ lợi
-$g_k$ ở tử và mẫu triệt tiêu nhau:
+Khi công suất phát đủ lớn hoặc hệ thống hoạt động ở vùng tỷ số tín hiệu trên tạp âm (SNR) cao (nghĩa là
+thành phần nhiễu lấn át hoàn toàn tạp âm: $g_k \frac{M-1}{M} P_{\mathrm{priv}} \gg \sigma^2$), thành phần tạp
+âm $\sigma^2$ có thể bỏ qua và độ lợi kênh $g_k$ ở cả tử số lẫn mẫu số tự động triệt tiêu cho nhau:
 \begin{equation}
-\gamma_{p,k} \approx \frac{1}{M-1}, \qquad
-R_{p,k} \approx \log_2\!\left(\frac{M}{M-1}\right), \qquad
+\gamma_{p,k} \approx \frac{1/M}{(M-1)/M} = \frac{1}{M-1} .
+\label{eq:sinr-tiem-can}
+\end{equation}
+Khi đó, tốc độ của mỗi luồng riêng bị chặn trên bởi một ngưỡng cố định:
+\begin{equation}
+R_{p,k} = \log_2(1 + \gamma_{p,k}) \approx \log_2\!\left(1 + \frac{1}{M-1}\right)
+= \log_2\!\left(\frac{M}{M-1}\right),
+\label{eq:toc-do-tiem-can}
+\end{equation}
+và tổng tốc độ thu được từ toàn bộ $M$ luồng riêng bị giới hạn bởi một trần tốc độ vật lý:
+\begin{equation}
 \sum_{k=1}^{M} R_{p,k} \approx M \log_2\!\left(\frac{M}{M-1}\right).
 \label{eq:xap-xi-nhieu}
 \end{equation}
-
-Bảng~\ref{tab:ch2-tran} tổng hợp trần tổng tốc độ luồng riêng theo số luồng hoạt động $M$.
+Bảng~\ref{tab:ch2-tran} tổng hợp giới hạn trần tổng tốc độ luồng riêng theo số lượng luồng hoạt động $M$
+trong hệ thống SISO.
 
 \begin{table}[htbp]
 \centering
-\caption{Trần tốc độ luồng riêng theo số luồng riêng hoạt động $M$ trong hệ SISO}
+\caption{Giới hạn trần tổng tốc độ luồng riêng theo số lượng luồng hoạt động $M$}
 \label{tab:ch2-tran}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}X c c c@{}}
+\begin{tabularx}{\textwidth}{@{}Y c c c@{}}
 \toprule
-\textbf{Số luồng riêng hoạt động $M$} & \textbf{SINR tiệm cận} & \textbf{Tốc độ mỗi luồng} &
-\textbf{Trần tổng tốc độ riêng} \\
+\textbf{Số luồng riêng hoạt động ($M$)} & \textbf{SINR tối đa ($\gamma_{p,k}$)} &
+\textbf{Tốc độ mỗi luồng ($R_{p,k}$)} & \textbf{Trần tổng tốc độ ($\sum R_{p,k}$)} \\
 \midrule
-$M = 1$ & không có nhiễu luồng riêng & tăng theo SNR & không bị chặn bởi nhiễu \\
-$M = 2$ & $1$ & $1,00$ bit/s/Hz & $2,00$ bit/s/Hz \\
-$M = 3$ & $0,50$ & $\approx 0,58$ bit/s/Hz & $\approx 1,75$ bit/s/Hz \\
-$M = 4$ & $\approx 0,33$ & $\approx 0,41$ bit/s/Hz & $\approx 1,66$ bit/s/Hz \\
+$M = 1$ (Chỉ 1 luồng duy nhất) & Không có nhiễu liên luồng & Phụ thuộc SNR (rất cao) & Không bị chặn trần \\
+$M = 2$ & $1/(2-1) = 1,00$ & $\log_2(2) = 1,00$ bit/s/Hz & $2 \times 1,00 = 2,00$ bit/s/Hz \\
+$M = 3$ & $1/(3-1) = 0,50$ & $\log_2(1,5) \approx 0,58$ bit/s/Hz & $3 \times 0,58 \approx 1,75$ bit/s/Hz \\
+$M = 4$ (Cả 4 luồng cùng phát) & $1/(4-1) = 0,33$ & $\log_2(1,33) \approx 0,41$ bit/s/Hz &
+$4 \times 0,41 \approx 1,66$ bit/s/Hz \\
 \bottomrule
 \end{tabularx}
 \tablesource{Tác giả tính từ công thức~\eqref{eq:xap-xi-nhieu} (2026)}
 \end{table}
 
-Bảng~\ref{tab:ch2-tran} cho thấy một đặc điểm ngược trực giác của hệ SISO: càng bật nhiều luồng riêng
-chia đều thì tổng tốc độ thu được từ các luồng riêng càng giảm, từ $2,00$ xuống $1,66$ bit/s/Hz khi tăng
-từ hai lên bốn luồng. Với $M = 4$, mỗi luồng riêng chỉ đạt khoảng $0,41$ bit/s/Hz, thấp hơn cả ngưỡng
-$R_{\min} = 0,5$ bit/s/Hz nếu chỉ dựa vào luồng riêng. Ngược lại, nếu chỉ một luồng riêng $k^\star$
-mang gần toàn bộ $P_{\mathrm{priv}}$ và phần rò sang các luồng khác đủ nhỏ so với tạp âm, mẫu số của
-luồng đó gần như chỉ còn tạp âm và
-\begin{equation}
-\gamma_{p,k^\star} \approx \frac{g_{k^\star} P_{\mathrm{priv}}}{\sigma^2},
-\label{eq:tap-trung-cong-suat}
-\end{equation}
-nên tốc độ của UE được chọn tăng theo tỷ số tín hiệu trên tạp âm. Hình~\ref{fig:ch2-tran-toc-do} minh
-họa hai trường hợp này: đường $M = 1$ tăng theo SNR, còn các đường $M = 2$ và $M = 4$ bão hòa ở trần
-của mình.
+\textbf{Ý nghĩa vật lý:} Kết quả từ Bảng~\ref{tab:ch2-tran} bộc lộ một nghịch lý trong hệ SISO: Càng cố gắng
+bật nhiều luồng riêng cùng lúc thì tổng tốc độ thu được từ các luồng riêng lại càng sụt giảm (giảm từ $2,00$
+xuống $1,66$ bit/s/Hz khi tăng từ 2 lên 4 luồng) do các luồng tự chèn ép và triệt tiêu lẫn nhau. Đặc biệt khi
+$M = 4$, tốc độ của mỗi luồng riêng chỉ đạt tối đa $\approx 0,41$ bit/s/Hz, nhỏ hơn cả ngưỡng yêu cầu chất
+lượng dịch vụ $R_{\min} = 0,5$ bit/s/Hz. Điều này giải thích tại sao một tác tử DRL nếu không có hiểu biết vật
+lý có thể dễ rơi vào bẫy: cố gắng chia đều công suất cho cả 4 người dùng khiến mạng bị nghẽn trong mức nhiễu
+liên người dùng nghiêm trọng. Hình~\ref{fig:ch2-tran-toc-do} minh họa hai trường hợp: đường $M = 1$ tăng theo
+SNR, còn các đường $M = 2$ và $M = 4$ bão hòa ở trần của mình. Phân tích này không chứng minh nghiệm tối ưu
+toàn cục luôn dồn toàn bộ công suất riêng vào đúng một luồng; nó cho thấy một tham số hóa dễ biểu diễn phân bổ
+tập trung là hợp lý trong hệ SISO.
 
 \input{floats/fig-ch2-tran-toc-do}
 
-Phân tích trên không chứng minh rằng nghiệm tối ưu toàn cục luôn dồn toàn bộ công suất riêng vào đúng
-một luồng. Khi xét đầy đủ QoS, luồng chung, SNR hữu hạn và sự thay đổi của kênh, một số kịch bản có thể
-hưởng lợi từ nhiều luồng riêng. Kết luận an toàn là bài toán có xu hướng ưu tiên phân bổ riêng tập
-trung trong nhiều trạng thái kênh SISO, nên một tham số hóa có khả năng biểu diễn phân bổ gần
-one-hot là hợp lý.
-
-\subsection{Quan hệ bù trừ giữa luồng chung và luồng riêng}
+\subsection{Cơ chế bù trừ công suất giữa luồng chung và luồng riêng}
 \label{ssec:quan-he-chung-rieng}
 
-Giả sử chỉ một UE $k^\star$ có luồng riêng, $p_{k^\star} = P_{\mathrm{priv}} = P_{\max} - p_c$ và
-$p_j = 0$ với $j \neq k^\star$. Khi đó luồng riêng của $k^\star$ không chịu nhiễu từ luồng riêng khác:
+Xuất phát từ rào cản trần nhiễu nêu trên, một chiến lược truyền dẫn thông minh trong hệ SISO là: Hệ thống chỉ
+nên chọn ra duy nhất một người dùng có điều kiện kênh truyền tốt nhất (ký hiệu là $k^\star$) để cấp luồng
+riêng, trong khi tắt hoàn toàn luồng riêng của các người dùng còn lại ($p_{k^\star} = P_{\mathrm{priv}}$, còn
+$p_j = 0$ với mọi $j \neq k^\star$). Khi chỉ có đúng một luồng riêng hoạt động ($M = 1$):
+\begin{itemize}
+\item Luồng riêng của người dùng $k^\star$ hoàn toàn không phải chịu bất kỳ một chút can nhiễu liên người dùng
+  nào từ các luồng riêng khác.
+\item Tỷ số SINR của luồng riêng này trở thành: $\gamma_{p,k^\star} = \dfrac{g_{k^\star} p_{k^\star}}{\sigma^2}
+  = \dfrac{g_{k^\star}(P_{\max} - p_c)}{\sigma^2}$.
+\item Tốc độ luồng riêng đạt được là: $R_{p,k^\star} = \log_2\!\left[1 + \dfrac{g_{k^\star}(P_{\max} -
+  p_c)}{\sigma^2}\right]$.
+\end{itemize}
+Mặt khác, đối với người dùng $k^\star$, tốc độ luồng chung giải mã được theo công thức~\eqref{eq:sinr-chung} là:
 \begin{equation}
-R_{p,k^\star} = \log_2\!\left(1 + \frac{g_{k^\star}(P_{\max} - p_c)}{\sigma^2}\right),
-\label{eq:toc-do-rieng-k-sao}
-\end{equation}
-và tốc độ giải mã luồng chung tại chính UE này theo~\eqref{eq:sinr-chung} là
-\begin{equation}
-R_{c,k^\star} = \log_2\!\left(\frac{g_{k^\star} P_{\max} + \sigma^2}
-{g_{k^\star}(P_{\max} - p_c) + \sigma^2}\right).
+R_{c,k^\star} = \log_2\!\left[1 + \frac{g_{k^\star} p_c}{g_{k^\star}(P_{\max} - p_c) + \sigma^2}\right]
+= \log_2\!\left[\frac{g_{k^\star} P_{\max} + \sigma^2}{g_{k^\star}(P_{\max} - p_c) + \sigma^2}\right].
 \label{eq:toc-do-chung-k-sao}
 \end{equation}
-Cộng hai biểu thức, phần phụ thuộc $p_c$ triệt tiêu:
+Khi chúng ta cộng tổng tốc độ của luồng chung và luồng riêng tại người dùng $k^\star$, một hiện tượng toán
+học triệt tiêu xuất hiện:
 \begin{equation}
-R_{c,k^\star} + R_{p,k^\star} = \log_2\!\left(1 + \frac{g_{k^\star} P_{\max}}{\sigma^2}\right).
+\begin{aligned}
+R_{c,k^\star} + R_{p,k^\star}
+&= \log_2\!\left[\frac{g_{k^\star} P_{\max} + \sigma^2}{g_{k^\star}(P_{\max} - p_c) + \sigma^2}\right]
++ \log_2\!\left[\frac{g_{k^\star}(P_{\max} - p_c) + \sigma^2}{\sigma^2}\right]\\
+&= \log_2\!\left(1 + \frac{g_{k^\star} P_{\max}}{\sigma^2}\right).
+\end{aligned}
 \label{eq:tong-hai-thanh-phan}
 \end{equation}
-
-Vế phải là dung lượng của liên kết không nhiễu khi dồn toàn bộ $P_{\max}$ cho UE $k^\star$. Ngoài
-ra, khi mọi UE ở miền tín hiệu trên tạp âm cao, tức $g_k(P_{\max} - p_c) \gg \sigma^2$ với mọi $k$, độ
-lợi kênh trong~\eqref{eq:sinr-chung} tự giản ước và với $P_{\max} = 1$:
+Trong đó, tổng tốc độ $(R_{c,k^\star} + R_{p,k^\star})$ chính là dung lượng kênh Shannon cực đại của liên kết
+không nhiễu khi dồn toàn bộ công suất phát $P_{\max}$ cho người dùng $k^\star$. Ngoài ra, khi mọi người dùng ở
+miền tín hiệu trên tạp âm cao, $g_k(P_{\max} - p_c) \gg \sigma^2$, độ lợi kênh tự giản ước trong~\eqref{eq:sinr-chung}
+và với $P_{\max} = 1$:
 \begin{equation}
-R_c \approx \log_2\!\left(1 + \frac{p_c}{1 - p_c}\right) = -\log_2(1 - p_c),
+R_c \approx \log_2\!\left(1 + \frac{p_c}{1 - p_c}\right) = -\log_2(1 - p_c).
 \label{eq:toc-do-chung-xap-xi}
 \end{equation}
-tức tốc độ luồng chung tăng nhanh khi $p_c$ tiến gần một. Tại UE này,
-tăng $p_c$ làm phần tốc độ chung tăng đúng bằng phần tốc độ riêng giảm. Tuy nhiên, tốc độ luồng chung
-thực tế là $R_c = \min_k R_{c,k} \le R_{c,k^\star}$, nên quan hệ bù trừ chỉ đúng chính xác khi
-$k^\star$ cũng là UE nút cổ chai của luồng chung; với các UE kênh yếu hơn, $R_c$ nhỏ hơn và tổng tốc
-độ giảm khi chuyển công suất sang luồng chung. Luồng chung vì vậy là công cụ phân phối dịch vụ có cái
-giá: BS có thể chuyển công suất từ luồng riêng của UE mạnh sang luồng chung để chia lại cho các UE yếu
-qua $C_k = \eta_k R_c$. Với cấu hình một luồng riêng như trên, mọi UE đạt QoS khi và chỉ khi có thể chọn
-$\boldsymbol{\eta} \in \Delta_K$ sao cho $\eta_k R_c + R_{p,k} \ge R_{\min}$ với mọi $k$, tương đương
+
+\textbf{Ý nghĩa vật lý:} Kết quả~\eqref{eq:tong-hai-thanh-phan} phản ánh một mối quan hệ bù trừ công suất tại
+người dùng $k^\star$: nếu ta tăng công suất luồng chung $p_c$ lên để cứu các người dùng kênh yếu (giúp $R_c$
+tăng), thì tốc độ luồng riêng $R_{p,k^\star}$ sẽ giảm đi một lượng tương ứng; ngược lại, nếu giảm $p_c$ để tăng
+tốc cho luồng riêng, thì luồng chung sẽ giảm. Tuy nhiên, tốc độ luồng chung thực tế là
+$R_c = \min_k R_{c,k} \le R_{c,k^\star}$, nên quan hệ bù trừ chỉ chính xác khi $k^\star$ cũng là người dùng nút
+cổ chai; với các người dùng kênh yếu hơn, $R_c$ nhỏ hơn và tổng tốc độ giảm khi chuyển công suất sang luồng
+chung. Luồng chung $s_c$ do đó đóng vai trò như một quỹ cứu trợ có cái giá: trạm gốc có thể trích công suất từ
+người dùng mạnh nhất chuyển hóa thành luồng chung để phân phối lại cho các người dùng yếu hơn qua
+$C_k = \eta_k R_c$. Với cấu hình một luồng riêng như trên, toàn bộ bốn người dùng có thể cùng vượt qua ngưỡng
+$R_{\min}$ khi và chỉ khi có thể chọn $\boldsymbol{\eta}$ trên đơn hình sao cho $\eta_k R_c + R_{p,k} \ge
+R_{\min}$ với mọi $k$, tương đương
 \begin{equation}
 \sum_{k=1}^{K} \max\big(R_{\min} - R_{p,k},\, 0\big) \le R_c .
 \label{eq:dieu-kien-qos}
 \end{equation}
-Điều kiện~\eqref{eq:dieu-kien-qos} cho thấy luồng chung chỉ bảo vệ được QoS khi $R_c$ đủ lớn; đây là cơ
-sở để ưu tiên một vùng $p_c$ cao trong bộ giải mã ở Chương~\ref{chap:phuong-phap}, nhưng đó là một lựa
-chọn thiết kế được kiểm chứng bằng thực nghiệm chứ không phải ràng buộc vật lý của RSMA.
 
-\subsection{Trực giác căn pha của STAR--RIS}
+\subsection{Trực giác căn pha giải tích của STAR--RIS}
 \label{ssec:vai-tro-can-pha}
 
-Sau phân bổ công suất, câu hỏi tiếp theo là điều khiển STAR--RIS thế nào để tăng độ lợi kênh hiệu dụng
-$g_k = |h^{\mathrm{eff}}_k|^2$. Theo~\eqref{eq:kenh-hieu-dung}, $|h^{\mathrm{eff}}_k|$ lớn nhất khi mọi
-thành phần qua STAR--RIS đến UE $k$ cùng pha với đường trực tiếp:
+Sau khi đã làm rõ bài toán phân bổ công suất ở tầng tín hiệu, câu hỏi tiếp theo là: Làm thế nào để điều khiển
+bề mặt STAR--RIS nhằm tối đa hóa độ lợi kênh hiệu dụng $g_k = |h^{\mathrm{eff}}_k|^2$? Theo phương trình kênh
+hiệu dụng~\eqref{eq:kenh-hieu-dung}:
 \begin{equation}
-\angle\big(h^{*}_{r,k,n} g_n\big) + \theta^{s_k}_n = \angle h_{d,k}
-\;\;\Rightarrow\;\;
+h^{\mathrm{eff}}_k = h_{d,k} + \sum_{n=1}^{N} h^{*}_{r,k,n} \sqrt{\beta^{s_k}_n}\, e^{j\theta^{s_k}_n}\, g_n .
+\label{eq:kenh-hieu-dung-khai-trien}
+\end{equation}
+Để độ lớn $|h^{\mathrm{eff}}_k|$ đạt giá trị cực đại, quy luật hình học phức đòi hỏi tất cả các véc-tơ sóng
+thành phần đi qua từng phần tử thứ $n$ khi đến máy thu đều phải xoay về cùng một hướng pha với đường trực tiếp
+$h_{d,k}$ để cộng biên độ thẳng hàng (hiện tượng giao thoa cộng tăng cường hoàn hảo):
+\begin{equation}
+\angle\big(h^{*}_{r,k,n} g_n\big) + \theta^{s_k}_n = \angle h_{d,k} .
+\label{eq:dieu-kien-can-pha}
+\end{equation}
+Từ đó, góc dịch pha tối ưu lý tưởng để phục vụ riêng cho người dùng $k$ có thể tính toán trực tiếp bằng công
+thức giải tích đóng:
+\begin{equation}
 \theta^{\mathrm{ideal}}_{n,k} = \angle h_{d,k} - \angle\big(h^{*}_{r,k,n} g_n\big).
 \label{eq:pha-ly-tuong}
 \end{equation}
+Tuy nhiên, trong mạng đa người dùng, cùng một phần tử STAR--RIS thứ $n$ phải phục vụ đồng thời nhiều người
+dùng ở cùng một phía (ví dụ phía phản xạ có cả UE1 và UE3, phía truyền qua có cả UE2 và UE4). Vì hướng kênh tự
+nhiên của các người dùng là khác nhau, góc pha lý tưởng $\theta^{\mathrm{ideal}}_{n,1}$ sẽ xung đột với
+$\theta^{\mathrm{ideal}}_{n,3}$. Một bề mặt không thể xoay một góc pha mà làm hài lòng tuyệt đối tất cả các
+người dùng cùng một lúc.
 
-Trong mạng nhiều người dùng, cùng một phần tử phải phục vụ đồng thời nhiều UE ở cùng một phía (ví dụ
-UE$_1$ và UE$_3$ ở phía phản xạ). Vì kênh của các UE khác nhau, các pha lý tưởng
-$\theta^{\mathrm{ideal}}_{n,1}$ và $\theta^{\mathrm{ideal}}_{n,3}$ xung đột, và một bề mặt không thể đặt
-một pha làm hài lòng mọi UE cùng lúc.
-
-Hình~\ref{fig:ch2-can-pha} minh họa hiệu ứng căn pha. Trong minh họa chỉ xét một UE $k^\star$ và tạm
-bỏ đường trực tiếp. Ở khung bên trái, các thành phần ghép tầng có pha lệch nhau nên khi cộng tiếp nối,
-chúng tạo thành một đường gấp khúc gần khép kín và véc-tơ tổng rất ngắn. Khi căn pha riêng cho UE này,
-các thành phần ghép tầng cùng hướng và độ lớn của phần kênh qua STAR--RIS tăng, như ở khung bên phải.
-Pha tham chiếu gộp nhiều UE dùng trong Chương~\ref{chap:phuong-phap} không bảo đảm các thành phần của
-từng UE đều thẳng hàng.
+Hình~\ref{fig:ch2-can-pha} minh họa hiệu ứng căn pha. Trong minh họa chỉ xét một UE $k^\star$ và tạm bỏ đường
+trực tiếp. Ở khung bên trái, các thành phần ghép tầng có pha lệch nhau nên khi cộng tiếp nối, véc-tơ tổng rất
+ngắn; khi căn pha riêng cho UE này, các thành phần ghép tầng cùng hướng và độ lớn của phần kênh qua STAR--RIS
+tăng. Pha tham chiếu gộp nhiều UE dùng ở Chương~\ref{chap:phuong-phap} không bảo đảm các thành phần của từng
+UE đều thẳng hàng.
 
 \input{floats/fig-ch2-can-pha}
 
-Đây là điểm tựa cho vai trò của DRL: thay vì để mạng nơ-ron tự học căn pha trên toàn bộ vòng tròn
-lượng giác, có thể dùng công thức giải tích để tính sẵn một pha tham chiếu theo kênh, và để mạng chỉ học
-một góc hiệu chỉnh quanh tham chiếu đó nhằm cân bằng giữa các UE và mục tiêu RSMA.
+Đây chính là điểm tựa để định vị vai trò của học tăng cường sâu (DRL): Thay vì để mạng nơ-ron DRL phải tự học
+cách căn pha từ con số không, chúng ta sử dụng công thức giải tích đóng để tính sẵn một pha tham chiếu nền
+tảng. Mạng nơ-ron DRL chỉ cần làm một nhiệm vụ nhẹ nhàng hơn rất nhiều: học một góc lệch tinh chỉnh nhỏ
+$\Delta\theta_n$ xung quanh pha tham chiếu để dung hòa sự chênh lệch kênh giữa các người dùng và ứng phó linh
+hoạt với mức nhiễu liên người dùng tức thời.
 
-\subsection{Hàm ý đối với thiết kế biểu diễn hành động}
-\label{ssec:ham-y-thiet-ke}
-
-Phân tích trên dẫn đến ba hàm ý. Thứ nhất, không gian công suất riêng cần dễ biểu diễn nghiệm tập
-trung; softmax có độ sắc lớn phù hợp hơn việc buộc Actor tự đẩy đầu ra tới bão hòa. Thứ hai, tỷ lệ công
-suất luồng chung nên được ưu tiên trong một vùng đủ cao để hỗ trợ QoS, như một lựa chọn thiết kế. Thứ
-ba, pha nên có một điểm xuất phát dựa trên căn chỉnh kênh thay vì học toàn bộ $[-\pi, \pi)$ từ đầu. Ba
-hàm ý này tạo nên bộ giải mã có cấu trúc ở Chương~\ref{chap:phuong-phap}; về mặt học máy, đây là cách
-đưa thiên kiến quy nạp (inductive bias) vào chính không gian hành động.
-
-\section{Giới hạn của mô hình}
-\label{sec:gioi-han-mo-hinh}
-
-Mô hình có một số giới hạn. Kênh Gaussian phức với hệ số tỷ lệ cố định không mô tả suy hao theo khoảng
-cách, che khuất hay tương quan không gian, và diện tích hiệu dụng của bề mặt tăng theo $N$. CSI hoàn hảo
-bỏ qua sai số ước lượng. SIC lý tưởng bỏ qua lan truyền lỗi. Pha truyền và phản xạ được điều khiển độc
-lập, trong khi STAR--RIS thụ động thực tế có ràng buộc ghép pha~\cite{Liu2021STARCoupledPhase,
-Wang2022STAROptimization}. Số UE cố định bằng bốn nên kết quả chưa chứng minh khả năng tổng quát theo số
-người dùng. Những giới hạn này là phạm vi của nghiên cứu, không phải lỗi của thuật toán.
+Sự kết hợp tinh tế giữa tri thức vật lý giải tích và khả năng học thích nghi của DRL chính là chìa khóa mở
+đường cho thiết kế bộ giải mã hành động có cấu trúc được trình bày chi tiết ở Chương~\ref{chap:phuong-phap}.
 
 \section{Kết luận chương}
 \label{sec:ch2-ket-luan}
 
-Chương~\ref{chap:mo-hinh-he-thong} đã xây dựng mô hình kênh, mô hình STAR--RIS ở chế độ ES và mô hình
-RSMA một lớp nhất quán với mã nguồn, rồi phát biểu bài toán tối ưu tổng tốc độ có ràng buộc QoS. Phân
-tích cấu trúc cho thấy trong hệ SISO, nhiễu giữa nhiều luồng riêng tạo ra trần tốc độ gần như không phụ
-thuộc kênh; luồng chung là công cụ phân phối dịch vụ có điều kiện; còn căn pha STAR--RIS có thể tăng độ
-lợi kênh nhưng phải dung hòa giữa nhiều UE. Các hàm ý này là cơ sở để thiết kế bộ giải mã hành động có
-cấu trúc vật lý ở Chương~\ref{chap:phuong-phap}.
+Chương~\ref{chap:mo-hinh-he-thong} đã xây dựng mô hình kênh, mô hình STAR--RIS ở chế độ ES và mô hình RSMA
+một lớp nhất quán với mã nguồn, rồi phát biểu bài toán tối ưu tổng tốc độ có ràng buộc QoS. Phân tích cấu trúc
+cho thấy trong hệ SISO, nhiễu giữa nhiều luồng riêng tạo ra trần tốc độ gần như không phụ thuộc kênh; luồng
+chung là công cụ phân phối dịch vụ có điều kiện; còn căn pha STAR--RIS có thể tăng độ lợi kênh nhưng phải dung
+hòa giữa nhiều UE. Các hàm ý này là cơ sở để thiết kế bộ giải mã hành động có cấu trúc vật lý ở
+Chương~\ref{chap:phuong-phap}.

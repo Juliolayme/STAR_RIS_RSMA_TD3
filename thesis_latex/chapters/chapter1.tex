@@ -1,377 +1,606 @@
 \chapter{CƠ SỞ LÝ THUYẾT VÀ CÁC NGHIÊN CỨU LIÊN QUAN}
 \label{chap:co-so-ly-thuyet}
 
+\newcommand{\dexuat}[1]{\par\noindent\textit{$\blacktriangleright$ #1}\par\smallskip}
+
 \section{Phân bổ tài nguyên và nhiễu trong mạng vô tuyến}
 \label{sec:phan-bo-tai-nguyen}
 
-Trong các hệ thống thông tin vô tuyến hiện đại, nhu cầu kết nối đồng thời số lượng lớn thiết bị
-với tốc độ dữ liệu cao ngày càng cấp thiết. Tuy nhiên, các tài nguyên vật lý phục vụ truyền
-thông như dải tần, khe thời gian, mã trải phổ, không gian anten và đặc biệt là công suất phát
-của trạm gốc (Base Station, BS) đều hữu hạn. Phân bổ tài nguyên (resource allocation) vì vậy là
-quá trình quyết định cách khai thác và chia sẻ các nguồn tài nguyên này cho các thiết bị người
-dùng (User Equipment, UE) trong mạng.
+Trong các hệ thống thông tin vô tuyến hiện đại, nhu cầu kết nối đồng thời số lượng lớn thiết bị với tốc
+độ dữ liệu cao ngày càng trở nên cấp thiết. Tuy nhiên, các tài nguyên vật lý phục vụ truyền thông như
+dải tần số vô tuyến, khe thời gian, mã trải phổ, không gian anten và đặc biệt là công suất phát của trạm
+gốc (Base Station -- BS) đều có giới hạn vật lý nghiêm ngặt. Do đó, phân bổ tài nguyên (Resource
+Allocation) được định nghĩa là quá trình đưa ra quyết định tối ưu về việc khai thác và chia sẻ các nguồn
+tài nguyên hữu hạn này cho các thiết bị người dùng (User Equipment -- UE) trong mạng.
 
-Một đặc trưng cố hữu của môi trường vô tuyến là tính quảng bá: khi BS phát đồng thời cho nhiều
-người dùng trên cùng tài nguyên tần số và thời gian, tín hiệu dành cho một người dùng trở thành
-nhiễu đối với các người dùng khác, gọi là nhiễu liên người dùng (Inter-User Interference, IUI).
-Một quyết định phân bổ cục bộ tối ưu cho một liên kết có thể làm suy giảm chất lượng của các liên
-kết khác, nên quản lý nhiễu là bài toán trung tâm quyết định hiệu quả của toàn mạng.
+Một đặc trưng cố hữu của môi trường truyền sóng vô tuyến là tính chất quảng bá (broadcast nature). Khi
+trạm gốc phát tín hiệu đồng thời cho nhiều người dùng trên cùng một tài nguyên tần số và thời gian, tín
+hiệu truyền đến một người dùng cụ thể sẽ vô tình trở thành tín hiệu cản trở đối với các người dùng khác
+xung quanh. Hiện tượng này tạo ra nhiễu đồng kênh hay nhiễu liên người dùng (Inter-User Interference --
+IUI). Vì vậy, một quyết định phân bổ tài nguyên cục bộ nhằm tối ưu chất lượng truyền dẫn cho một liên kết
+riêng lẻ hoàn toàn có thể làm suy giảm nghiêm trọng chất lượng của các liên kết lân cận. Quản lý nhiễu do
+đó trở thành bài toán trung tâm, quyết định trực tiếp đến hiệu quả hoạt động của toàn bộ mạng vô tuyến.
 
-Trong môi trường đa người dùng, cùng một đơn vị công suất phát mang lại hiệu quả rất khác nhau
-giữa các UE, tùy theo độ lợi kênh và mức nhiễu tức thời. Điều này dẫn đến một đánh đổi cơ bản
-giữa hiệu năng tổng thể và tính công bằng:
+Trong môi trường đa người dùng, hiệu quả của cùng một đơn vị công suất phát mang lại là rất khác nhau
+giữa các UE, phụ thuộc chặt chẽ vào độ lợi kênh truyền và mức độ can nhiễu tức thời. Thực tế này dẫn đến
+một sự đánh đổi cơ bản giữa hiệu năng tổng thể và tính công bằng dịch vụ:
 \begin{itemize}
-\item \textbf{Ưu tiên tối đa hóa tổng tốc độ.} Bộ điều khiển có xu hướng dồn phần lớn công suất
-  cho người dùng có kênh tốt. Tổng tốc độ tăng nhanh, nhưng người dùng kênh yếu có thể bị bỏ
-  rơi và không đạt yêu cầu tối thiểu.
-\item \textbf{Ưu tiên công bằng tuyệt đối.} Chia đều công suất cho mọi thiết bị làm xuất hiện
-  đồng thời nhiều luồng tín hiệu gây nhiễu lẫn nhau, làm giảm hiệu quả sử dụng công suất.
+\item \textbf{Nếu ưu tiên tối đa hóa tổng tốc độ dữ liệu (Sum-rate):} Bộ điều khiển thường có xu hướng
+  dồn phần lớn công suất phát cho những người dùng có điều kiện kênh truyền thuận lợi. Mặc dù cách tiếp
+  cận này giúp tổng tốc độ của hệ thống tăng lên rất nhanh, nhưng các người dùng ở xa trạm gốc hoặc gặp
+  suy hao lớn (người dùng kênh yếu) sẽ bị bỏ rơi, dẫn đến việc vi phạm yêu cầu hoạt động cơ bản.
+\item \textbf{Nếu ưu tiên tính công bằng tuyệt đối:} Việc chia đều công suất và tài nguyên cho tất cả các
+  thiết bị sẽ làm xuất hiện đồng thời nhiều luồng tín hiệu, gây ra mức nhiễu lẫn nhau nghiêm trọng trong
+  môi trường truyền sóng, từ đó làm suy giảm đáng kể hiệu quả sử dụng công suất chung của hệ thống.
 \end{itemize}
-Do đó, bài toán phân bổ tài nguyên không chỉ là tìm một cực trị toán học mà là cân bằng giữa ba
-yếu tố: hiệu năng truyền dẫn tổng thể, chất lượng dịch vụ (Quality of Service, QoS) tối thiểu
-của từng người dùng và chi phí tính toán của bộ điều khiển.
 
-Trong luận văn, chỉ số hiệu năng chính là tổng tốc độ. Tổng tốc độ không được tối ưu tách rời
-mà luôn đi kèm yêu cầu tốc độ tối thiểu cho từng UE: một cấu hình có tổng tốc độ cao nhưng để
-một số người dùng có tốc độ gần bằng không là không chấp nhận được. Yêu cầu QoS được đưa vào cả
-phát biểu bài toán và hàm phần thưởng của thuật toán học tăng cường sâu (Deep Reinforcement
-Learning, DRL).
+Xuất phát từ mâu thuẫn nêu trên, bài toán phân bổ tài nguyên trong thực tế không chỉ đơn thuần là tìm
+kiếm một nghiệm cực trị toán học, mà là sự cân bằng hài hòa giữa ba yếu tố cốt lõi: hiệu năng truyền dẫn
+tổng thể của mạng, chất lượng dịch vụ (Quality of Service -- QoS) tối thiểu của từng người dùng, và chi
+phí tính toán của bộ điều khiển.
+
+Trong khuôn khổ của luận văn, chỉ số hiệu năng chính được lựa chọn là tổng tốc độ truyền dẫn. Tuy nhiên,
+tổng tốc độ không được tối ưu một cách tách rời mà luôn đi kèm với ràng buộc bảo đảm tốc độ truyền dữ
+liệu tối thiểu (QoS) cho từng UE. Một cấu hình phân bổ tài nguyên dù đạt tổng tốc độ cao nhưng để một
+hoặc nhiều người dùng có tốc độ rơi về gần bằng không sẽ không được chấp nhận. Yêu cầu QoS được lồng ghép
+chặt chẽ vào cả phát biểu bài toán tối ưu và hàm phần thưởng (reward) của thuật toán học tăng cường sâu
+(Deep Reinforcement Learning -- DRL). Cách tiếp cận này phản ánh đúng yêu cầu thực tế của mạng thông tin:
+hệ thống chỉ thực sự có ý nghĩa khi vừa đạt tốc độ truyền thông cao, vừa bảo đảm dịch vụ tin cậy và liên
+tục cho mọi người dùng đang được kết nối.
 
 \section{Các kỹ thuật đa truy cập}
 \label{sec:da-truy-cap}
 
-Đa truy cập (Multiple Access, MA) là cơ chế cho phép nhiều UE cùng chia sẻ tài nguyên vô tuyến
-hữu hạn của BS. Sự phát triển của các thế hệ mạng di động gắn liền với sự tiến hóa của kỹ thuật
-đa truy cập, mà cốt lõi là cách xử lý nhiễu liên người dùng.
+Đa truy cập (Multiple Access -- MA) là cơ chế nền tảng cho phép nhiều thiết bị người dùng (UE) cùng chia
+sẻ và khai thác các nguồn tài nguyên vô tuyến hữu hạn từ trạm gốc (BS). Lịch sử phát triển của các thế
+hệ mạng thông tin di động gắn liền với sự tiến hóa của các kỹ thuật đa truy cập, mà bản chất cốt lõi
+chính là cách thức quản lý và xử lý nhiễu liên người dùng (IUI).
 
 \subsection{Từ OMA đến SDMA và NOMA}
 \label{ssec:oma-sdma-noma}
 
-\textbf{Đa truy cập trực giao (OMA).} Từ 1G đến 4G, nguyên lý chủ đạo là cấp phát tài nguyên trực
-giao theo thời gian (TDMA), tần số (FDMA), mã (CDMA) hoặc thời gian--tần số (OFDMA). Mỗi khối tài
-nguyên chỉ phục vụ một UE tại một thời điểm nên máy thu không chịu nhiễu liên người dùng và có
-cấu trúc đơn giản, nhưng số người dùng phục vụ đồng thời bị giới hạn bởi số khối tài nguyên và
-hiệu quả phổ giảm khi mật độ kết nối cao.
+\textbf{a) Đa truy cập trực giao (Orthogonal Multiple Access -- OMA):} Trong các thế hệ mạng từ 1G đến
+4G, nguyên lý chủ đạo là cấp phát tài nguyên trực giao nhằm tránh hoàn toàn nhiễu giữa các người dùng.
+Kỹ thuật này phân chia tài nguyên theo miền thời gian (TDMA), tần số (FDMA), mã trải phổ (CDMA) hoặc kết
+hợp thời gian -- tần số (OFDMA). Do mỗi khối tài nguyên trực giao chỉ phục vụ một UE duy nhất tại một thời
+điểm, máy thu không bị ảnh hưởng bởi nhiễu liên người dùng nên cấu trúc bộ thu rất đơn giản. Tuy nhiên,
+số lượng người dùng được phục vụ đồng thời bị giới hạn nghiêm ngặt bởi tổng số khối tài nguyên vật lý khả
+dụng. Trong kịch bản mật độ kết nối cao, hiệu quả sử dụng phổ tần (Spectral Efficiency -- SE) của OMA bị
+suy giảm rõ rệt.
 
-\textbf{Đa truy cập phân chia theo không gian (SDMA).} Mạng 4G và 5G khai thác miền không gian nhờ
-hệ nhiều anten. Bằng tiền mã hóa tuyến tính tại BS, SDMA tạo các búp sóng riêng cho từng người
-dùng trên cùng tài nguyên thời gian--tần số và xem phần nhiễu còn sót lại như tạp âm (Treating
-Interference as Noise, TIN). SDMA hiệu quả nhất khi mạng chưa quá tải và kênh của các người dùng
-gần trực giao; khi số người dùng vượt số anten hoặc kênh tương quan cao, BS không thể triệt tiêu
-nhiễu chéo và tổng tốc độ bão hòa ở vùng SNR cao~\cite{Mao2018RSMABridging}. Trong mô hình SISO
-của luận văn, BS chỉ có một anten nên không thể phân tách người dùng theo không gian.
+\textbf{b) Đa truy cập phân chia theo không gian (Space Division Multiple Access -- SDMA):} Để vượt qua
+giới hạn của OMA, mạng 4G và 5G khai thác triệt để miền không gian nhờ hệ thống nhiều anten (MIMO/MISO).
+Bằng cách áp dụng tiền mã hóa tuyến tính (Linear Precoding -- LP) tại trạm gốc, SDMA tập trung năng lượng
+bức xạ thành các búp sóng định hướng riêng biệt cho từng người dùng trên cùng một tài nguyên thời gian --
+tần số. SDMA dựa trên triết lý coi toàn bộ nhiễu còn sót lại giữa các người dùng là tạp âm (Treating
+Interference as Noise -- TIN). Kỹ thuật này phát huy hiệu quả cao nhất khi mạng chưa quá tải (số anten
+tại trạm gốc lớn hơn số người dùng) và hướng kênh truyền giữa các người dùng gần như trực giao. Khi số
+người dùng vượt quá số anten phát hoặc kênh truyền có tương quan cao, trạm gốc không thể triệt tiêu nhiễu
+chéo, dẫn đến tổng tốc độ bão hòa ở vùng SNR cao~\cite{Mao2018RSMABridging}. Đặc biệt, trong mô hình hệ
+thống SISO mà luận văn nghiên cứu, trạm gốc chỉ có một anten phát nên không thể tạo búp sóng đa chiều để
+phân tách không gian.
 
-\textbf{Đa truy cập phi trực giao (NOMA).} NOMA miền công suất cho phép nhiều người dùng chia sẻ
-cùng khối tài nguyên bằng mã hóa chồng chất (superposition coding) với các mức công suất khác
-nhau. Tại máy thu, người dùng dùng SIC: người dùng kênh tốt giải mã tín hiệu của người dùng kênh
-yếu trước, trừ phần đó ra rồi mới giải mã tín hiệu của mình. Trái với SDMA, NOMA giải mã toàn bộ
-nhiễu. Tuy nhiên, NOMA phụ thuộc lớn vào chênh lệch độ lợi kênh; số tầng SIC tăng theo số người
-dùng ($K-1$ tầng cho $K$ người dùng), làm tăng độ phức tạp máy thu và nguy cơ lan truyền lỗi. Các
-phân tích tổng quan cũng chỉ ra rằng trong hệ nhiều anten, NOMA có thể dùng bậc tự do kém hiệu
-quả và không nên được xem là mặc nhiên vượt trội trong mọi cấu hình hoặc mọi phân bố
-kênh~\cite{Clerckx2021NOMACritical}.
+\textbf{c) Đa truy cập phi trực giao (Non-Orthogonal Multiple Access -- NOMA):} Nhằm nâng cao hiệu quả phổ
+và phục vụ kết nối quy mô lớn, NOMA trong miền công suất cho phép nhiều người dùng chia sẻ đồng thời cùng
+một khối tài nguyên tần số -- thời gian. Trạm gốc sử dụng kỹ thuật mã hóa chồng lấn (Superposition Coding
+-- SC) để ghép các luồng tín hiệu với các mức công suất khác nhau. Tại phía thu, người dùng áp dụng kỹ
+thuật khử nhiễu liên tiếp (Successive Interference Cancellation -- SIC). Trái ngược với SDMA, NOMA vận
+hành theo triết lý giải mã hoàn toàn và loại bỏ nhiễu (Fully Decode Interference). Người dùng có kênh
+truyền tốt hơn sẽ giải mã tín hiệu của người dùng kênh yếu trước, trừ phần tín hiệu đó ra bằng SIC, rồi
+mới giải mã tín hiệu của mình.
 
-\subsection{Nguyên lý của Đa truy cập phân chia tốc độ}
+\dexuat{Đề xuất bởi: Ding, Schober và cộng sự (2017)~\cite{Ding2017NOMASurvey}; Islam và cộng sự
+(2017)~\cite{Islam2017PowerDomainNOMA}. Tổng quan toàn diện về nguyên lý NOMA miền công suất và kỹ thuật
+SIC trong mạng thông tin vô tuyến thế hệ mới.}
+
+Tuy nhiên, NOMA phụ thuộc lớn vào sự chênh lệch độ lợi kênh. Khi số lượng người dùng tăng, số tầng SIC
+mà người dùng mạnh phải thực hiện tăng tuyến tính ($K - 1$ tầng cho $K$ người dùng), làm gia tăng độ phức
+tạp phần cứng, tăng trễ xử lý và đối mặt với nguy cơ lan truyền sai số SIC (error
+propagation)~\cite{Islam2017PowerDomainNOMA}. Hơn nữa, việc bắt buộc một thiết bị phải giải mã trọn vẹn
+thông điệp của thiết bị khác trong môi trường đa anten thường dẫn đến việc sử dụng bậc tự do
+(Degrees-of-Freedom -- DoF) kém hiệu quả~\cite{Clerckx2021NOMACritical}.
+
+\subsection{Nguyên lý của Đa truy cập phân chia tốc độ (RSMA)}
 \label{ssec:rsma}
 
-SDMA và NOMA tương ứng hai thái cực quản lý nhiễu: xem toàn bộ nhiễu là tạp âm, hoặc giải mã toàn
-bộ nhiễu. RSMA được đề xuất như một khung tổng quát hơn, cho phép giải mã một phần nhiễu và xem
-phần còn lại như tạp âm~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals}. Trong hệ nhiều anten,
-RSMA bao hàm SDMA và NOMA như các trường hợp riêng trong một số cấu
-hình~\cite{Mao2018RSMABridging}; với hệ SISO của luận văn, không có phân tách không gian nên chỉ
-cơ chế chia luồng chung--riêng được khai thác. Trong kiến trúc RSMA một lớp được dùng trong luận
-văn, quá trình truyền dẫn diễn ra như sau:
+\dexuat{Đề xuất bởi: Mao, Clerckx và cộng sự (2018, 2022)~\cite{Mao2018RSMABridging,
+Mao2022RSMAFundamentals}; Joudeh và Clerckx (2016)~\cite{Joudeh2016RSMASumRate}. Đề xuất và phát triển lý
+thuyết Đa truy cập phân chia tốc độ (RSMA), thiết lập nguyên lý cầu nối mềm dẻo giữa SDMA và NOMA.}
+
+Nhận thấy rằng cả SDMA và NOMA đều bị ràng buộc vào hai thái cực quản lý nhiễu đối lập -- hoặc xem toàn
+bộ nhiễu là tạp âm (SDMA), hoặc phải giải mã trọn vẹn toàn bộ nhiễu (NOMA) -- kỹ thuật Đa truy cập phân
+chia tốc độ (Rate-Splitting Multiple Access -- RSMA) đã được đề xuất như một giải pháp tổng quát hơn, đóng
+vai trò cầu nối mềm dẻo (soft bridge) giữa hai thái cực này~\cite{Mao2018RSMABridging}.
+
+Triết lý cốt lõi của RSMA là giải mã một phần nhiễu và xem phần nhiễu còn lại như tạp âm (partially
+decode interference and partially treat residual interference as noise)~\cite{Mao2022RSMAFundamentals}.
+Trong kiến trúc RSMA một lớp (1-layer RS) -- biến thể cơ bản và thực tế nhất được sử dụng trong luận văn
+-- quá trình truyền dẫn diễn ra như sau:
 \begin{enumerate}
-\item \textbf{Tách thông điệp tại phía phát.} Thông điệp $W_k$ của UE $k$ được chia thành phần
-  chung $W_{c,k}$ và phần riêng $W_{p,k}$. Các phần chung của $K$ người dùng được gộp và điều
-  chế thành một luồng chung $s_c$ bằng bảng mã chung mà mọi UE đều biết; mỗi phần riêng được
-  điều chế độc lập thành luồng riêng $s_k$.
-\item \textbf{Truyền dẫn.} BS phân bổ công suất và phát đồng thời $s_c$ cùng $K$ luồng riêng
-  trên cùng khối tài nguyên.
-\item \textbf{Giải mã hai giai đoạn tại phía thu.} Mọi UE giải mã luồng chung trước, xem mọi luồng
-  riêng như tạp âm; tốc độ luồng chung vì vậy bị giới hạn bởi người dùng có điều kiện thu kém
-  nhất. Sau đó mỗi UE dùng đúng một tầng SIC để loại $s_c$, giải mã luồng riêng $s_k$ của mình
-  và xem các luồng riêng còn lại như tạp âm~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals}.
+\item \textbf{Phân tách thông điệp tại phía phát:} Thông điệp $W_k$ dự định gửi cho người dùng thứ $k$
+  được chia thành hai phần: phần chung (common part) $W_{c,k}$ và phần riêng (private part) $W_{p,k}$. Các
+  phần chung của toàn bộ $K$ người dùng được gộp lại và điều chế thành một luồng chung duy nhất $s_c$ bằng
+  bảng mã chung mà tất cả UE đều biết. Trong khi đó, phần riêng $W_{p,k}$ của từng người dùng được điều chế
+  độc lập thành luồng riêng $s_k$ dành riêng cho UE đó.
+\item \textbf{Truyền dẫn tín hiệu:} Trạm gốc phân bổ công suất phát và truyền đồng thời luồng chung $s_c$
+  cùng $K$ luồng riêng $\{s_1, \dots, s_K\}$ trên cùng một khối tài nguyên vô tuyến.
+\item \textbf{Giải mã hai giai đoạn tại phía thu:} Ở giai đoạn 1, mọi người dùng đều ưu tiên giải mã luồng
+  chung $s_c$ trước, trong khi xem tất cả các luồng riêng như tạp âm. Để bảo đảm mọi UE giải mã thành công,
+  tốc độ luồng chung bị khống chế bởi người dùng có kênh thu kém nhất. Ở giai đoạn 2, sau khi giải mã thành
+  công luồng chung, mỗi UE sử dụng đúng một tầng SIC duy nhất để triệt tiêu $s_c$ khỏi tín hiệu thu, rồi
+  giải mã luồng riêng $s_k$ của chính mình và xem các luồng riêng còn lại như tạp âm. Cuối cùng, người dùng
+  ghép phần dữ liệu từ luồng chung và luồng riêng để tái tạo trọn vẹn thông điệp gốc.
 \end{enumerate}
 
-So với NOMA nhiều tầng, RSMA một lớp chỉ cần một tầng SIC bất kể số người dùng, nên giảm độ phức
-tạp máy thu và hạn chế tích lũy lỗi qua nhiều tầng giải mã. Trong cấu hình SISO STAR--RIS của
-luận văn, vì BS không có nhiều anten để tách các luồng riêng, việc phát đồng thời nhiều luồng
-riêng công suất lớn gây nhiễu nội bộ nghiêm trọng. Khi đó luồng chung không chỉ là công cụ quản lý
-nhiễu mà còn là kênh phân phối dịch vụ: BS có thể dành một phần tốc độ luồng chung cho các người
-dùng có điều kiện thu khó khăn để hỗ trợ họ đạt QoS. Hình~\ref{fig:ch1-da-truy-cap} so sánh trực
-giác bốn kỹ thuật đa truy cập với $K = 4$ người dùng.
+So với NOMA, ưu điểm vượt trội của kiến trúc RSMA một lớp là mỗi người dùng chỉ cần thực hiện duy nhất một
+tầng SIC bất kể số lượng người dùng trong hệ thống là bao nhiêu. Điều này giúp giảm đáng kể độ phức tạp
+tính toán ở máy thu, đồng thời hạn chế nguy cơ tích lũy sai số qua nhiều tầng giải mã.
+
+Đặc biệt trong cấu hình SISO STAR-RIS của luận văn, do trạm gốc không có nhiều anten để tạo búp sóng phân
+tách các luồng riêng, việc phát đồng thời nhiều luồng riêng với công suất lớn sẽ gây ra mức nhiễu giao
+thoa nội bộ rất nghiêm trọng. Khi đó, luồng chung $s_c$ không chỉ đóng vai trò linh hoạt trong quản lý
+nhiễu mà còn trở thành mức nền dịch vụ thiết yếu: trạm gốc có thể trích một phần tốc độ của luồng chung
+để phân bổ cho các người dùng có điều kiện thu khó khăn, giúp các UE này đạt được yêu cầu chất lượng dịch
+vụ tối thiểu (QoS) khi tốc độ luồng chung đủ lớn, đổi lại một phần tổng tốc độ của toàn mạng (phân tích
+chi tiết ở Mục~\ref{ssec:quan-he-chung-rieng}). Hình~\ref{fig:ch1-da-truy-cap} so sánh trực giác bốn kỹ
+thuật đa truy cập.
 
 \input{floats/fig-ch1-da-truy-cap}
 
-\section{RIS và STAR--RIS}
+\section{Bề mặt thông minh RIS và STAR--RIS}
 \label{sec:ris-star}
 
-Song song với cải tiến ở tầng tín hiệu, công nghệ vật liệu nhân tạo mở ra hướng tiếp cận mới cho
-mạng vô tuyến: bề mặt thông minh tái cấu hình (RIS). Thay vì xem môi trường truyền sóng là một
-thực thể ngẫu nhiên chỉ có thể thích nghi thụ động, RIS cho phép chủ động tái cấu hình môi trường
-theo hướng có lợi cho liên kết~\cite{DiRenzo2020SmartRadio}.
+Song song với những cải tiến về kỹ thuật đa truy cập ở tầng tín hiệu, sự phát triển của công nghệ vật
+liệu nhân tạo (metamaterials) đã mở ra một hướng tiếp cận mới mang tính đột phá cho các mạng vô tuyến
+tương lai: kỹ thuật bề mặt thông minh tái cấu hình (Reconfigurable Intelligent Surface -- RIS). Nếu như
+trước đây môi trường truyền sóng vô tuyến luôn được xem là một thực thể ngẫu nhiên mà hệ thống thông tin
+chỉ có thể thụ động thích nghi, thì sự ra đời của RIS cho phép con người chủ động can thiệp và tái cấu
+hình lại môi trường truyền sóng theo hướng có lợi cho liên kết truyền thông~\cite{DiRenzo2020SmartRadio}.
 
 \subsection{RIS phản xạ truyền thống}
 \label{ssec:ris}
 
-RIS phản xạ truyền thống là một bề mặt phẳng gồm nhiều phần tử thụ động có kích thước nhỏ hơn
-bước sóng. Khác với trạm phát hay trạm chuyển tiếp chủ động, các phần tử RIS không cần bộ khuếch
-đại công suất hay chuỗi tần số vô tuyến phát, nên tiêu thụ năng lượng thấp~\cite{Wu2019IRSBeamforming,
-DiRenzo2020SmartRadio, Wu2021IRSTutorial}. Mỗi phần tử được điều khiển (ví dụ bằng đi-ốt PIN) để
-điều chỉnh độ dịch pha của sóng tới. Về trực giác, vai trò của RIS giống như xoay vô số ``mũi tên
-pha'' nhỏ: bộ điều khiển chọn pha sao cho các thành phần phản xạ từ nhiều phần tử đến người dùng
-mong muốn cùng pha và cộng tăng cường, tạo thành búp sóng thụ động~\cite{Wu2019IRSBeamforming}.
-Hạn chế cố hữu của RIS truyền thống là chỉ phản xạ về nửa không gian phía trước; người dùng ở nửa
-không gian phía sau bề mặt rơi vào vùng không được phục vụ.
+\dexuat{Đề xuất bởi: Di Renzo và cộng sự (2020)~\cite{DiRenzo2020SmartRadio}; Wu và Zhang (2019,
+2021)~\cite{Wu2019IRSBeamforming, Wu2021IRSTutorial}. Nghiên cứu nền tảng về môi trường vô tuyến thông
+minh (Smart Radio Environments) và mô hình tạo búp sóng thụ động bằng RIS phản xạ.}
 
-\subsection{STAR--RIS và vùng phủ hai phía}
+Về mặt cấu tạo, RIS phản xạ truyền thống là một bề mặt phẳng nhân tạo bao gồm một mảng lớn các phần tử
+siêu vật liệu thụ động có kích thước nhỏ hơn bước sóng. Khác với các trạm phát sóng hay các trạm tiếp sóng
+(relay) chủ động thông thường, các phần tử của RIS hoạt động hoàn toàn thụ động; chúng không cần trang bị
+các bộ khuếch đại công suất hay chuỗi xử lý tín hiệu tần số vô tuyến (RF chain) đắt tiền, nhờ đó tiêu thụ
+mức năng lượng rất thấp và chi phí phần cứng được tối ưu.
+
+Mỗi phần tử RIS được tích hợp các vi mạch điện tử (như đi-ốt PIN) để có thể lập trình và điều chỉnh độc
+lập đáp ứng điện từ, chủ yếu là điều khiển độ dịch pha của sóng tới. Dưới góc nhìn trực giác, vai trò vật
+lý của RIS có thể hình dung như việc điều phối hướng quay của vô số các ``mũi tên pha'' nhỏ từ từng phần
+tử. Khi sóng mang tín hiệu từ trạm gốc chiếu đến bề mặt, bộ điều khiển sẽ tính toán để xoay pha sao cho
+các thành phần phản xạ từ nhiều phần tử khi truyền đến người dùng mong muốn sẽ cùng pha và cộng xây dựng
+(cộng tăng cường), giúp nâng cao đáng kể công suất tín hiệu thu. Ngược lại, RIS cũng có thể căn chỉnh pha
+để triệt tiêu các thành phần can nhiễu không mong muốn.
+
+Tuy nhiên, hạn chế cố hữu của RIS phản xạ truyền thống là chỉ hoạt động ở chế độ phản xạ
+(reflecting-only), sóng điện từ chỉ có thể dội ngược lại vùng không gian phía trước bề mặt trong phạm vi
+nửa không gian (half-space $180^\circ$). Các thiết bị người dùng nằm ở nửa không gian phía sau bề mặt hoặc
+bị vật cản che khuất đường phản xạ sẽ rơi vào vùng mù và không thể hưởng lợi từ sự hỗ trợ của RIS.
+
+\subsection{STAR--RIS và phạm vi phủ sóng toàn không gian 360 độ}
 \label{ssec:star-ris}
 
-STAR--RIS được đề xuất để vượt qua giới hạn nửa không gian: sóng tới mỗi phần tử được tách thành
-một phần phản xạ về phía trước và một phần truyền xuyên qua ra phía sau, nhờ đó vùng phủ mở rộng
-ra cả hai phía bề mặt~\cite{Xu2021STARRIS, Mu2021STARAided, Khalid2022STARDesign}. Người dùng
-trong mạng STAR--RIS chia thành hai nhóm:
+\dexuat{Đề xuất bởi: Xu, Liu, Mu và Dobre (2021)~\cite{Xu2021STARRIS}; Mu và cộng sự
+(2021)~\cite{Mu2021STARAided}. Đề xuất khái niệm STAR-RIS (Simultaneously Transmitting and Reflecting RIS),
+mô hình tín hiệu và ba giao thức hoạt động ES, MS, TS.}
+
+Để vượt qua rào cản nửa không gian của RIS truyền thống, công nghệ bề mặt đồng thời truyền và phản xạ có
+thể cấu hình lại (STAR--RIS) đã được nghiên cứu và phát triển. Khác biệt căn bản của STAR--RIS nằm ở khả
+năng phân tách sóng điện từ tới thành hai thành phần riêng biệt: một phần năng lượng phản xạ ngược lại
+vùng không gian phía trước và phần năng lượng còn lại truyền xuyên qua bề mặt ra vùng không gian phía sau.
+Nhờ cơ chế này, STAR--RIS mở rộng phạm vi phủ sóng thành toàn không gian $360^\circ$ (full-space
+coverage), cho phép phục vụ đồng thời các người dùng phân bố ở cả hai phía của bề mặt~\cite{Xu2021STARRIS,
+Khalid2022STARDesign}. Người dùng trong mạng STAR--RIS được chia thành hai nhóm tự nhiên:
 \begin{itemize}
-\item \textbf{Nhóm phản xạ (R).} Nằm cùng phía với BS so với bề mặt, nhận tín hiệu qua đường phản
-  xạ.
-\item \textbf{Nhóm truyền qua (T).} Nằm ở phía đối diện, nhận tín hiệu truyền xuyên qua bề mặt.
+\item \textbf{Nhóm người dùng phản xạ (R-users):} Nằm cùng phía với trạm gốc so với bề mặt, nhận tín hiệu
+  qua đường phản xạ của STAR--RIS.
+\item \textbf{Nhóm người dùng truyền qua (T-users):} Nằm ở phía đối diện, sau bề mặt STAR--RIS, nhận tín
+  hiệu truyền xuyên qua tấm panel.
 \end{itemize}
 
-Tài liệu STAR--RIS mô tả ba giao thức vận hành: chia năng lượng (Energy Splitting, ES), chuyển chế
-độ (Mode Switching, MS) và chuyển theo thời gian (Time Switching, TS)~\cite{Mu2021STARAided}. Ở chế
-độ ES, mọi phần tử đồng thời phục vụ cả hai phía, nên đây là giao thức có nhiều bậc tự do thiết kế
-nhất; MS và TS không nằm trong phạm vi mô phỏng của luận văn~\cite{Mu2021STARAided,
-Liu2021STARCoupledPhase, Wang2022STAROptimization}. Theo mô hình ES, tác động của phần tử thứ $n$
-lên phía truyền qua và phía phản xạ được mô tả bởi hai hệ số phức
+Trong tài liệu kỹ thuật, STAR--RIS được khảo sát dưới ba cơ chế hoạt động chính: chia theo thời gian (Time
+Switching -- TS), chuyển chế độ (Mode Switching -- MS) và chia năng lượng (Energy Splitting --
+ES)~\cite{Mu2021STARAided}. Trong đó, giao thức ES mang lại bậc tự do (Degrees of Freedom) thiết kế cao
+nhất vì mọi phần tử đồng thời phục vụ cả hai phía; luận văn chỉ mô phỏng giao thức
+ES~\cite{Mu2021STARAided, Liu2021STARCoupledPhase, Wang2022STAROptimization}.
+
+Theo mô hình toán học của cơ chế ES, tác động của phần tử thứ $n$ đối với phía truyền (T) và phía phản xạ
+(R) được đặc trưng bởi hệ số phức
 \begin{equation}
-\phi^T_n = \sqrt{\beta^T_n}\,e^{j\theta^T_n}, \qquad \phi^R_n = \sqrt{\beta^R_n}\,e^{j\theta^R_n},
-\qquad \beta^T_n + \beta^R_n = 1,
+\phi^T_n = \sqrt{\beta^T_n}\, e^{j\theta^T_n}, \qquad \phi^R_n = \sqrt{\beta^R_n}\, e^{j\theta^R_n}.
 \label{eq:ch1-es}
 \end{equation}
-trong đó ràng buộc $\beta^T_n + \beta^R_n = 1$ thể hiện bảo toàn năng lượng của phần tử thụ động
-không tổn hao. Biến $\beta$ đóng vai trò như van chia năng lượng giữa hai phía, còn $\theta$ là núm
-xoay pha để định hướng tín hiệu tới các UE mục tiêu. Hình~\ref{fig:ch1-ris-star} so sánh vùng phục
-vụ của RIS truyền thống và STAR--RIS.
+Trong điều kiện lý tưởng không suy hao, định luật bảo toàn năng lượng tại mỗi phần tử đòi hỏi
+$\beta^T_n + \beta^R_n = 1$ với mọi $n$. Ý nghĩa vật lý rất trực quan: biến $\beta$ đóng vai trò như một
+chiếc van chia dòng năng lượng, còn biến $\theta$ là núm xoay pha định hướng búp sóng đến đúng vị trí các
+UE mục tiêu. Hình~\ref{fig:ch1-ris-star} so sánh vùng phục vụ của RIS truyền thống và STAR--RIS.
 
 \input{floats/fig-ch1-ris-star}
 
 \section{Học tăng cường sâu cho điều khiển liên tục}
 \label{sec:drl}
 
-Học tăng cường (Reinforcement Learning, RL) mô tả quá trình một tác tử học cách ra quyết định qua
-tương tác thử--sai với môi trường để tối đa hóa phần thưởng tích lũy, được hình thức hóa bằng quá
-trình quyết định Markov (Markov Decision Process, MDP).
+Học tăng cường (Reinforcement Learning -- RL) là một nhánh của học máy mô tả quá trình một tác tử (agent)
+học cách ra quyết định thông qua tương tác thử -- sai liên tục với môi trường nhằm tối đa hóa phần thưởng
+tích lũy dài hạn. Toàn bộ chuỗi tương tác này được chuẩn hóa về mặt toán học thông qua mô hình quá trình
+quyết định Markov (Markov Decision Process -- MDP).
 
-\subsection{Từ học tăng cường đến học tăng cường sâu}
+\subsection{Từ học tăng cường đến học tăng cường sâu (DRL)}
 \label{ssec:rl-drl}
 
-Với bài toán có không gian trạng thái và hành động nhỏ, có thể rời rạc hóa và lưu giá trị trong
-bảng tra cứu như Q-learning. Cách này không khả thi cho bài toán phân bổ tài nguyên STAR--RIS hỗ
-trợ RSMA: trạng thái gồm hàng trăm hệ số kênh phức, còn hành động gồm hàng chục đến hàng trăm biến
-liên tục như tỷ lệ công suất, tỷ lệ chia tốc độ, tỷ lệ chia năng lượng và pha của từng phần tử.
-Rời rạc hóa không gian này làm số tổ hợp hành động tăng theo hàm mũ.
+Trong các bài toán điều khiển cổ điển với không gian trạng thái và hành động nhỏ, thuật toán có thể rời
+rạc hóa các biến để lưu trữ giá trị trong một bảng tra cứu (chẳng hạn như Q-learning). Tuy nhiên, cách
+tiếp cận dạng bảng này hoàn toàn bất khả thi đối với bài toán phân bổ tài nguyên mạng STAR--RIS hỗ trợ
+RSMA. Trong hệ thống đang xét, trạng thái của môi trường bao gồm hàng trăm hệ số kênh truyền phức, trong
+khi hành động cần quyết định lại bao gồm hàng chục đến hàng trăm biến liên tục như tỷ lệ công suất luồng
+chung, phân bổ công suất luồng riêng, tỷ lệ chia tốc độ và hệ số pha, năng lượng của từng phần tử
+STAR--RIS. Nếu cố gắng rời rạc hóa không gian hành động này, số lượng tổ hợp hành động sẽ bùng nổ theo cấp
+số nhân (curse of dimensionality).
 
-DRL kết hợp học tăng cường với mạng nơ-ron sâu làm bộ xấp xỉ hàm. Lợi thế lớn nhất của DRL trong
-bài toán vô tuyến là tách việc học khỏi việc dùng: chi phí tối ưu được chuyển sang giai đoạn huấn
-luyện ngoại tuyến, còn khi vận hành, BS chỉ cần một lượt suy luận qua mạng nơ-ron để đưa ra quyết
-định. Hình~\ref{fig:ch1-vong-lap-drl} minh họa vòng lặp DRL ở mức khái niệm trong bài toán của luận
-văn.
+Để giải quyết thách thức trên, học tăng cường sâu (Deep Reinforcement Learning -- DRL) ra đời bằng cách
+kết hợp học tăng cường với mạng nơ-ron sâu (Deep Neural Networks -- DNN) đóng vai trò là các hàm xấp xỉ
+vạn năng~\cite{Mnih2015DQN}. Lợi thế lớn nhất của DRL trong bài toán vô tuyến là khả năng tối ưu hóa ngoại
+tuyến (offline training) và suy luận trực tuyến cực nhanh (online inference): sau khi hoàn tất quá trình
+huấn luyện, trạm gốc chỉ cần một lượt lan truyền xuôi (forward pass) qua mạng nơ-ron là có thể đưa ra quyết
+định phân bổ tài nguyên với độ trễ tính toán tính bằng mili-giây, khắc phục nhược điểm chậm trễ của các
+phương pháp tối ưu hóa lặp truyền thống. Hình~\ref{fig:ch1-vong-lap-drl} minh họa vòng lặp DRL trong bài
+toán của luận văn.
 
 \input{floats/fig-ch1-vong-lap-drl}
 
 \subsection{Cấu trúc Actor--Critic và phân loại chính sách}
 \label{ssec:actor-critic}
 
-Hầu hết thuật toán DRL cho hành động liên tục dựa trên kiến trúc Actor--Critic gồm hai mạng phối
-hợp:
+Hầu hết các thuật toán DRL hiện đại dành cho không gian hành động liên tục đều phát triển dựa trên khung
+kiến trúc Actor--Critic. Kiến trúc này phân chia nhiệm vụ cho hai mạng nơ-ron phối hợp nhịp nhàng:
 \begin{itemize}
-\item \textbf{Actor} là bộ tạo chính sách: nhận trạng thái (CSI) và sinh hành động điều khiển.
-\item \textbf{Critic} là bộ đánh giá: ước lượng giá trị kỳ vọng của phần thưởng tương lai cho
-  trạng thái hoặc cặp trạng thái--hành động, cung cấp tín hiệu để Actor cải thiện.
+\item \textbf{Mạng Actor (Người thực hiện):} Đóng vai trò là bộ tạo chính sách, nhận đầu vào là trạng thái
+  môi trường (thông tin kênh truyền CSI) để sinh ra hành động điều khiển cụ thể.
+\item \textbf{Mạng Critic (Người đánh giá):} Đóng vai trò là bộ đánh giá, nhận trạng thái hoặc cặp trạng
+  thái -- hành động để ước lượng chất lượng (giá trị kỳ vọng của phần thưởng tương lai) mà hành động đó
+  mang lại, cung cấp tín hiệu phản hồi để Actor tự hoàn thiện.
 \end{itemize}
-Theo cách dùng dữ liệu, các thuật toán Actor--Critic chia thành hai nhóm: học ngoài chính sách
-(off-policy, như DDPG và TD3) dùng bộ nhớ phát lại để học lại dữ liệu cũ nhiều lần; và học theo
-chính sách hiện hành (on-policy, như PPO) chỉ cập nhật từ dữ liệu vừa thu bằng chính sách hiện tại.
+Dựa vào cách thức thu thập và sử dụng dữ liệu tương tác, các thuật toán Actor--Critic được phân thành hai
+nhóm cơ bản: nhóm học ngoài chính sách (Off-policy, như DDPG và TD3) sử dụng bộ nhớ phát lại (replay
+buffer) để học lại các dữ liệu trong quá khứ nhiều lần; và nhóm học theo chính sách hiện hành (On-policy,
+như PPO) đòi hỏi dữ liệu dùng để cập nhật mạng phải được thu thập trực tiếp từ chính sách hiện tại.
 
-\subsection{Thuật toán DDPG}
+\subsection{Thuật toán DDPG: Nguyên lý học từng bước từ kinh nghiệm quá khứ}
 \label{ssec:ddpg-ly-thuyet}
 
-DDPG mở rộng ý tưởng gradient chính sách xác định sang không gian hành động liên
-tục~\cite{Lillicrap2015DDPG}. Có thể hình dung DDPG như sự hợp tác giữa hai thực thể: Actor nhìn
-trạng thái kênh và đưa ra ngay một quyết định cụ thể (ví dụ mức công suất và góc pha), còn Critic
-ước tính quyết định đó mang lại giá trị ra sao để chấm điểm cho Actor. DDPG dùng hai kỹ thuật chính:
-\begin{enumerate}
-\item \textbf{Bộ nhớ phát lại (replay buffer)} giống một cuốn sổ ghi chép: mỗi lần thử một phương án
-  phân bổ, kết quả được lưu lại; khi học, thuật toán lấy ngẫu nhiên nhiều mẫu cũ để học, giúp nhìn
-  bức tranh đa dạng hơn thay vì phản ứng thái quá với một kênh xấu cục bộ.
-\item \textbf{Mạng đích (target network)} là bản sao của Actor và Critic được cập nhật rất chậm,
-  tạo một mục tiêu học ổn định để Critic không dao động mạnh~\cite{Lillicrap2015DDPG}.
-\end{enumerate}
-Điểm yếu đã biết của DDPG là thiên lệch ước lượng quá cao (overestimation bias): Critic có thể đánh
-giá quá lạc quan một số hành động, khiến Actor bị dẫn hướng sai~\cite{Fujimoto2018TD3}.
+\dexuat{Đề xuất bởi: Lillicrap và cộng sự (2015) -- DeepMind~\cite{Lillicrap2015DDPG}. Đề xuất thuật toán
+Deep Deterministic Policy Gradient (DDPG), mở rộng học tăng cường sâu sang không gian hành động liên tục đa
+chiều.}
 
-\subsection{Thuật toán TD3}
+Để giải quyết bài toán điều khiển liên tục (ví dụ như việc phải vặn chính xác các núm xoay công suất phát
+và góc dịch pha của từng phần tử STAR--RIS), thuật toán DDPG vận hành giống như một quá trình hợp tác giữa
+hai thực thể: Actor nhìn vào trạng thái kênh truyền để đưa ra ngay một quyết định cụ thể, còn Critic đứng
+bên cạnh ước tính xem quyết định đó sẽ mang lại mức tổng tốc độ và hiệu quả ra sao để chấm điểm phản hồi
+cho Actor. Để quá trình học diễn ra suôn sẻ, DDPG áp dụng hai kỹ thuật mấu chốt:
+\begin{enumerate}
+\item \textbf{Cuốn sổ tay ghi nhớ (Bộ nhớ phát lại -- Replay Buffer):} Mỗi lần thử nghiệm một phương án
+  phân bổ và nhận về kết quả thực tế, hệ thống sẽ ghi chép lại toàn bộ diễn biến vào cuốn sổ tay này. Khi
+  học, thuật toán không chỉ học từ kết quả vừa xảy ra mà bốc ngẫu nhiên nhiều bài học cũ trong sổ ra ôn
+  lại, giúp thuật toán nhìn nhận bức tranh tổng thể đa dạng hơn, tránh việc vừa gặp một điều kiện kênh
+  truyền xấu cục bộ đã vội vàng thay đổi toàn bộ chiến thuật.
+\item \textbf{Bản sao mục tiêu chạy chậm (Target Networks):} Trong quá trình học, nếu chuẩn đánh giá liên
+  tục nhảy nhót thì người học sẽ rất hoang mang. Do đó, DDPG duy trì một bản sao của cả Actor và Critic
+  nhưng cho cập nhật rất chậm. Nhờ chiếc đích ngắm ổn định này, Critic có thể kiên định cải thiện tay nghề
+  chấm điểm mà không bị dao động dữ dội.
+\end{enumerate}
+
+Tuy nhiên, điểm yếu lớn nhất của DDPG là hiện tượng ước lượng giá trị quá mức (overestimation
+bias)~\cite{Fujimoto2018TD3}: Người đánh giá (Critic) thường mắc tật lạc quan quá mức. Chỉ cần một vài lần
+may mắn đạt tổng tốc độ cao ở một trạng thái ngẫu nhiên nào đó, Critic có xu hướng thổi phồng giá trị của
+hành động đó lên. Hậu quả là Actor bị đánh lừa, liên tục lặp lại phương án phân bổ kém tối ưu này trong
+các vòng lặp tiếp theo.
+
+\subsection{Thuật toán TD3: Khắc phục sự lạc quan quá mức bằng các giải pháp thận trọng}
 \label{ssec:td3-ly-thuyet}
 
-TD3 được đề xuất để giảm sai số xấp xỉ của Actor--Critic bằng ba thay đổi
-chính~\cite{Fujimoto2018TD3}:
+\dexuat{Đề xuất bởi: Fujimoto, van Hoof và Meger (2018)~\cite{Fujimoto2018TD3}. Đề xuất thuật toán Twin
+Delayed Deep Deterministic Policy Gradient (TD3), giảm thiểu lỗi ước lượng quá mức trong Actor--Critic liên
+tục.}
+
+Nhận thấy DDPG rất dễ bị vấp ngã do đánh giá quá lạc quan, thuật toán TD3 được ra đời như một phiên bản
+nâng cấp trực tiếp. Bản chất của TD3 là giữ nguyên khung làm việc của DDPG nhưng bổ sung ba nguyên tắc
+thực tế giúp việc học trở nên tỉnh táo và chắc chắn hơn:
 \begin{enumerate}
-\item \textbf{Hai Critic, lấy giá trị nhỏ hơn (clipped double Q-learning).} TD3 dùng hai Critic và
-  lấy giá trị nhỏ hơn làm mục tiêu học. Nếu một Critic đánh giá quá hào phóng, Critic còn lại giúp
-  kéo mục tiêu về mức thận trọng hơn.
-\item \textbf{Trì hoãn cập nhật Actor (delayed policy update).} Critic được cập nhật nhiều lần (luận
-  văn dùng chu kỳ $2$) trước mỗi lần cập nhật Actor, để Actor học theo một Critic đã ổn định hơn.
-\item \textbf{Làm trơn chính sách đích (target policy smoothing).} Thêm một nhiễu nhỏ có cắt biên vào
-  hành động đích khi tính mục tiêu, để giá trị ước lượng không dựa vào các đỉnh hẹp của Critic; một
-  cấu hình tốt nên vẫn tốt khi bị xê dịch nhẹ.
+\item \textbf{Hỏi ý kiến hai người đánh giá độc lập (Clipped Double Q-learning):} Thay vì chỉ tin vào một
+  Critic duy nhất, TD3 sử dụng hai mạng Critic song song cùng chấm điểm cho một hành động. Khi cần dự đoán
+  điểm số tương lai để làm mục tiêu học tập, thuật toán luôn chọn con số nhỏ hơn (khắt khe hơn) giữa hai
+  người. Bằng cách này, nếu một trong hai người lỡ đưa ra đánh giá quá hào phóng, sự khắt khe của người còn
+  lại sẽ kéo điểm số về mức thực tế hơn, hạn chế sự ảo tưởng điểm số.
+\item \textbf{Thầy vững tay nghề rồi mới dạy trò (Delayed Policy Updates):} Trong DDPG, cứ mỗi bước Critic
+  cập nhật thì Actor cũng vội vàng chỉnh theo. TD3 thay đổi nhịp độ này: Critic phải học và chấm điểm qua ít
+  nhất hai lần để tay nghề vững vàng hơn, sau đó mới quay sang hướng dẫn Actor một lần. Điều này giúp Actor
+  được uốn nắn bởi những đánh giá ổn định hơn.
+\item \textbf{Thử nghiệm rung lắc nhẹ để kiểm tra độ an toàn (Target Policy Smoothing):} Một cấu hình phân
+  bổ tài nguyên thực sự tốt phải là cấu hình mà khi bị xê dịch nhẹ (ví dụ góc dịch pha của STAR--RIS lệch đi
+  một chút), hiệu quả của hệ thống vẫn ở mức ổn định. TD3 kiểm tra điều này bằng cách cố tình cộng thêm một
+  lượng nhiễu ngẫu nhiên nhỏ vào hành động mục tiêu khi tính điểm. Nhờ phép rung lắc này, thuật toán sẽ bỏ
+  qua những phương án may rủi nằm ở các đỉnh giá trị hẹp và tìm đến những giải pháp phân bổ an toàn, có tính
+  ổn định cao trong thực tế.
 \end{enumerate}
 
-\subsection{Thuật toán PPO}
+\subsection{Thuật toán PPO: Phương pháp thăm dò và tiến từng bước cẩn trọng}
 \label{ssec:ppo-ly-thuyet}
 
-PPO tiếp cận theo hướng khác: tối ưu chính sách ngẫu nhiên nhưng giới hạn mức thay đổi của chính
-sách sau mỗi lần cập nhật~\cite{Schulman2017PPO}.
+\dexuat{Đề xuất bởi: Schulman, Wolski, Dhariwal, Radford và Klimov (2017) -- OpenAI~\cite{Schulman2017PPO}.
+Đề xuất thuật toán Proximal Policy Optimization (PPO), tiên phong với cơ chế cắt tỷ số xác suất (Clipped
+Surrogate Objective) tạo bước nhảy tin cậy.}
+
+Trái ngược với phong cách quyết đoán một con số cụ thể của DDPG và TD3, PPO tiếp cận bài toán theo một
+hướng hoàn toàn khác: vừa thăm dò vừa tự điều chỉnh một cách thận trọng.
 \begin{enumerate}
-\item \textbf{Chính sách Gaussian.} Actor của PPO không xuất ngay một giá trị cố định mà xuất giá trị
-  trung bình kèm độ lệch; hành động khi huấn luyện được lấy mẫu từ phân bố này, giống như thử vặn
-  nhẹ núm công suất quanh một mức dự kiến để cảm nhận phản ứng của môi trường.
-\item \textbf{Hàm mục tiêu cắt (clipped surrogate objective).} PPO cập nhật nhiều vòng trên cùng một
-  đoạn dữ liệu vừa thu, nhưng tỷ số xác suất giữa chính sách mới và cũ bị cắt trong khoảng
-  $[1-\epsilon, 1+\epsilon]$, thường với $\epsilon = 0,2$~\cite{Schulman2017PPO}. Khi một hành động tỏ
-  ra tốt hơn, mức tăng xác suất của nó bị giới hạn; khi tệ hơn, thuật toán cũng không phản ứng thái
-  quá.
+\item \textbf{Quyết định dưới dạng vùng xác suất (Gaussian Policy):} Khi quan sát trạng thái kênh truyền,
+  Actor của PPO không xuất ra ngay một giá trị góc pha hay công suất cố định. Thay vào đó, mạng nơ-ron đưa
+  ra một giá trị trung bình kèm theo một độ lệch (vùng dao động xung quanh). Hành động thực tế áp dụng lên
+  mạng sẽ được lấy mẫu ngẫu nhiên từ vùng này. Điều này giống như việc người điều khiển thử vặn nhẹ núm công
+  suất qua lại xung quanh một mức dự kiến để cảm nhận phản ứng của môi trường truyền thông.
+\item \textbf{Cơ chế đặt dây cương giới hạn bước nhảy (Clipped Surrogate Objective):} Đây chính là đóng
+  góp sáng giá nhất của PPO. Trong quá trình huấn luyện, PPO cho phép hệ thống học đi học lại nhiều lần trên
+  một đợt dữ liệu vừa thu thập để tận dụng thông tin. Tuy nhiên, để ngăn ngừa việc một vài lần thử nghiệm
+  có kết quả đột biến làm người điều khiển học lệch và phá hỏng toàn bộ kinh nghiệm tích lũy trước đó, PPO
+  đặt ra một giới hạn nghiêm ngặt (thường là khoảng $20\%$, tương ứng với $\epsilon = 0,2$):
+  \begin{itemize}
+  \item Nếu một hành động mới tỏ ra hiệu quả hơn hành động cũ, thuật toán chỉ cho phép tăng dần mức độ tin
+    tưởng trong phạm vi tối đa $120\%$. Mọi mức tăng vượt quá ngưỡng này đều bị cắt gọt phẳng, không cho
+    hưởng thêm lợi ích.
+  \item Nếu hành động mới đem lại kết quả tệ hơn, thuật toán cũng ghìm lại để không vội vã phản ứng thái quá.
+  \end{itemize}
 \end{enumerate}
-Cơ chế giới hạn bước cập nhật này giúp PPO huấn luyện ổn định, đổi lại hiệu quả dùng mẫu thấp hơn
-nhóm off-policy vì dữ liệu cũ bị bỏ sau mỗi đoạn thu thập.
+Nói một cách trực giác, PPO vận hành theo nguyên tắc tiến từng bước nhỏ và chắc. Chính cơ chế kẹp bước
+nhảy đơn giản này đã giúp PPO duy trì được sự ổn định rất cao trong quá trình huấn luyện, tránh tình trạng
+chính sách bị sụp đổ bất ngờ -- một ưu điểm cực kỳ quan trọng đối với các bài toán tối ưu mạng phức tạp và
+nhiều biến như STAR--RIS hỗ trợ RSMA.
 
 \section{Các phương pháp tối ưu truyền thống}
 \label{sec:toi-uu-truyen-thong}
 
-Trước khi có học máy, các bài toán điều phối tài nguyên và tạo búp sóng vô tuyến được giải bằng các
-công cụ tối ưu toán học. Trong mạng SISO STAR--RIS hỗ trợ RSMA, bài toán tối ưu tổng tốc độ là phi
-lồi vì: các biến công suất xuất hiện ở cả tử số và mẫu số của SINR; các biến pha nằm trong số mũ
-phức và chịu phép lấy bình phương độ lớn; tốc độ luồng chung chứa phép lấy nhỏ nhất theo người
-dùng, còn ràng buộc QoS ràng buộc mọi biến với nhau. Vì không có nghiệm đóng cho bài toán đầy đủ,
-luận văn xây dựng ba phương pháp truyền thống làm hệ quy chiếu: AnalyticalRIS, AO--SCA và AO--Grid.
+Trước khi các thuật toán học máy và học tăng cường sâu (DRL) được đưa vào nghiên cứu, các bài toán điều
+phối tài nguyên và định hình búp sóng vô tuyến đều dựa vào các công cụ tối ưu hóa toán học truyền thống.
+Trong mạng SISO STAR--RIS hỗ trợ RSMA, bài toán tối ưu tổng tốc độ truyền dẫn gặp phải rào cản rất lớn do
+tính chất phi lồi (non-convex) sâu sắc:
+\begin{itemize}
+\item Các biến công suất phát xuất hiện đồng thời ở cả tử số (tín hiệu mong muốn) và mẫu số (thành phần
+  nhiễu cộng tạp âm) của biểu thức SINR.
+\item Các biến góc pha của STAR--RIS nằm bên trong các số phức và chịu phép lấy trị tuyệt đối bình phương.
+\item Tốc độ luồng chung chứa phép toán phi tuyến lấy giá trị nhỏ nhất (min) trên tất cả người dùng, trong
+  khi các ràng buộc chất lượng dịch vụ (QoS) lại trói buộc tất cả các biến lại với nhau.
+\end{itemize}
+Do không thể tìm ra nghiệm tối ưu toàn cục chỉ qua một bước giải tích, các nhà nghiên cứu phải sử dụng các
+giải pháp toán học lặp cổ điển. Trong luận văn này, ba phương pháp truyền thống gồm AO--Grid, AO--SCA và
+AnalyticalRIS được xây dựng nhằm đóng vai trò làm hệ quy chiếu (baseline), giúp đối chiếu và làm sáng tỏ
+ưu -- nhược điểm của các thuật toán DRL đề xuất.
 
-\subsection{Tối ưu luân phiên}
+\subsection{Tối ưu luân phiên (Alternating Optimization -- AO)}
 \label{ssec:ao}
 
-Ý tưởng của tối ưu luân phiên rất trực quan: nếu giải mọi biến cùng lúc quá phức tạp, ta chia
-chúng thành các khối và giải xoay vòng từng khối trong khi giữ cố định các khối còn lại. Trong luận
-văn, các biến được chia thành ba khối tự nhiên: khối công suất $\mathbf{p}$, khối phân bổ tốc độ
-chung $\boldsymbol{\eta}$ và khối STAR--RIS $(\boldsymbol{\beta}, \boldsymbol{\theta}^T,
-\boldsymbol{\theta}^R)$. Mỗi vòng lần lượt tối ưu ba khối, và quá trình dừng khi cải thiện của
-hàm mục tiêu không còn đáng kể.
+\dexuat{Đề xuất bởi: Bezdek và Hathaway (2003)~\cite{Bezdek2003AOConvergence}; ứng dụng phổ biến trong
+tối ưu truyền thông không dây. Khung phương pháp chia khối biến để giải tuần tự các bài toán con đa biến
+phức tạp.}
+
+Ý tưởng của Tối ưu luân phiên (AO) bắt nguồn từ một nguyên lý giải quyết vấn đề rất trực quan: Nếu giải
+quyết tất cả các biến cùng một lúc quá phức tạp, ta hãy chia nhỏ chúng thành từng nhóm và giải quyết xoay
+vòng từng nhóm một. Trong mô hình nghiên cứu, toàn bộ các tham số cần điều khiển được chia thành ba khối
+biến vật lý tự nhiên: khối công suất phát ($\mathbf{p}$), khối phân bổ tốc độ chung
+($\boldsymbol{\eta}$), và khối tham số STAR--RIS ($\boldsymbol{\beta}, \boldsymbol{\theta}^T,
+\boldsymbol{\theta}^R$).
+
+Quy trình giải của AO diễn ra theo chu trình khép kín: bước 1 khóa cứng các thông số của STAR--RIS và tỷ lệ
+tốc độ chung để tối ưu công suất; bước 2 cố định công suất và STAR--RIS để tối ưu phân bổ tốc độ chung;
+bước 3 cố định công suất và tốc độ chung để xoay pha và chỉnh năng lượng STAR--RIS; bước 4 lặp lại chu
+trình cho đến khi mức độ cải thiện của hàm mục tiêu trở nên không đáng kể.
 
 \subsection{Xấp xỉ lồi liên tiếp và cập nhật lân cận (AO--SCA)}
 \label{ssec:sca}
 
-Trong mỗi bài toán con của AO, hàm mục tiêu thường vẫn chưa lồi. Khung xấp xỉ lồi liên tiếp
-(Successive Convex Approximation, SCA) thay bài toán phi lồi bằng một chuỗi bài toán xấp xỉ lồi
-quanh điểm hiện tại; với hàm trơn và hàm thay thế lồi chặt, khung này hội tụ về nghiệm dừng của bài
-toán gốc~\cite{Scutari2017SCA}. Biến thể AO--SCA của luận văn dùng hai cơ chế:
-\begin{enumerate}
-\item \textbf{Chuyển khối khả thi.} Với công suất và tỷ lệ tốc độ chung (ràng buộc đơn hình), bộ giải
-  chuyển một lượng $\delta$ từ thành phần này sang thành phần khác, nên tổng luôn được bảo toàn; có
-  thể chuyển hết một thành phần để tắt một luồng.
-\item \textbf{Dò độ dốc bằng sai phân và quay lui.} Với khối STAR--RIS, bộ giải ước lượng độ dốc theo
-  toàn bộ $3N$ biến bằng sai phân hữu hạn trung tâm rồi đi một bước lân cận; nếu hàm mục tiêu giảm,
-  bước được thu nhỏ và thử lại.
-\end{enumerate}
-Vì hàm mục tiêu của luận văn chứa phép lấy nhỏ nhất và phép lấy lớn nhất nên không trơn; do đó các
-định lý hội tụ trong~\cite{Scutari2017SCA} không áp dụng trực tiếp cho bộ giải này.
+\dexuat{Đề xuất bởi: Scutari, Facchinei và Lampariello (2017)~\cite{Scutari2017SCA}. Khung thuật toán Xấp
+xỉ lồi liên tiếp (Successive Convex Approximation -- SCA) cho các bài toán tối ưu phi lồi với ràng buộc
+khả thi lặp.}
 
-\subsection{Tìm kiếm theo lưới và căn pha giải tích}
+Trong từng bài toán con của vòng lặp AO, hàm toán học thường vẫn chưa hoàn toàn lồi. Kỹ thuật Xấp xỉ lồi
+liên tiếp (SCA) được áp dụng để thay thế bài toán phi lồi hóc búa bằng một chuỗi các bài toán xấp xỉ lồi
+đơn giản hơn quanh điểm đang đứng, giải nghiệm xấp xỉ rồi từng bước tiến dần đến điểm dừng. Trong thiết kế
+thực nghiệm của luận văn, biến thể AO--SCA được cấu hình với hai cơ chế:
+\begin{enumerate}
+\item \textbf{Cơ chế chuyển khối khả thi:} Đối với công suất và tỷ lệ tốc độ chung (ràng buộc đơn hình),
+  thuật toán rút một lượng tài nguyên $\delta$ từ thành phần này để bù sang thành phần khác, bảo đảm tổng
+  tài nguyên luôn được bảo toàn tuyệt đối ở mọi bước thử nghiệm.
+\item \textbf{Cơ chế dò dốc sai phân và quay lui:} Với các góc pha và tỷ lệ năng lượng của bề mặt, thuật
+  toán sử dụng sai phân hữu hạn trung tâm (thử nghiệm lân cận $\pm\epsilon$) để ước lượng độ dốc cục bộ cho
+  toàn bộ $3N$ biến. Sau đó, thuật toán thực hiện một bước đi ngắn trong vùng an toàn kèm cơ chế quay lui
+  (backtracking) tự động thu nhỏ bước đi nếu hiệu năng bị sụt giảm.
+\end{enumerate}
+Vì hàm mục tiêu của luận văn chứa phép lấy nhỏ nhất và phép lấy lớn nhất nên không trơn, các định lý hội
+tụ của khung SCA~\cite{Scutari2017SCA} không áp dụng trực tiếp cho biến thể này.
+
+\subsection{Tìm kiếm theo lưới và căn pha giải tích (AO--Grid và AnalyticalRIS)}
 \label{ssec:grid-analytical}
 
-\textbf{AO--Grid.} Thay vì nhích từng bước theo độ dốc cục bộ, AO--Grid thử trên một tập giá trị rời
-rạc (lưới) cho từng biến rồi chọn mức tốt nhất. Lưới công suất chứa mức $0$, cho phép tắt hẳn một
-luồng riêng gây nhiễu trong hệ SISO. Với STAR--RIS, bộ giải thử các mức năng lượng và các mức pha
-cách đều trong $[-\pi, \pi)$ cho từng tọa độ. Toàn bộ quy trình được chạy hai lần với thứ tự quét
-thuận và nghịch để giảm phụ thuộc vào thứ tự.
+\textbf{a) Phương pháp tìm kiếm theo lưới (AO--Grid):} Khác với AO--SCA vốn chỉ nhích từng bước nhỏ dọc
+theo độ dốc cục bộ, AO--Grid áp dụng chiến thuật thử nghiệm trên một tập hợp các mốc giá trị rời rạc
+(lưới). Với khối công suất, việc lưới chứa mức $0$ tuyệt đối cho phép AO--Grid tắt hẳn các luồng riêng gây
+nhiễu gay gắt trong hệ SISO. Với STAR--RIS, thuật toán quét qua từng tọa độ, thử hết các mốc năng lượng và
+góc pha cách đều trong vòng tròn $[-\pi, \pi)$, rồi nhảy thẳng tới mốc có hiệu năng cao nhất. Bằng cách
+quét hai lượt xuôi và ngược độc lập, AO--Grid đạt được tổng tốc độ truyền dẫn rất cao trên thực nghiệm.
 
-\textbf{AnalyticalRIS.} Đây là phương án đối chứng có độ phức tạp thấp nhất, tính nghiệm trong một
-bước bằng công thức đóng: chia đều công suất, chia đều tốc độ chung, chia đều năng lượng truyền và
-phản xạ ($0,5/0,5$), và đặt pha ngược với pha của kênh ghép tầng tổng gộp. Chỉ các tổng gộp này
-được căn về cùng một hướng; kênh của từng UE riêng lẻ không nhất thiết được căn pha. Vì phân bổ
-công suất cố định không thích nghi với nhiễu giữa các luồng riêng, AnalyticalRIS bão hòa ở mức tổng
-tốc độ thấp và không đáp ứng được QoS (Chương~\ref{chap:ket-qua}).
+\textbf{b) Phương pháp căn pha giải tích (AnalyticalRIS):} Đây là giải pháp đối chứng có độ phức tạp thấp
+nhất, tính toán toàn bộ nghiệm chỉ qua đúng một bước bằng công thức đóng mà không cần vòng lặp tối ưu: chia
+đều công suất phát, chia đều năng lượng phản xạ -- truyền qua ($0,5 / 0,5$) và cài đặt góc dịch pha ngược
+chiều với góc pha của kênh ghép tầng tổng gộp để ép các tín hiệu cộng biên độ tăng cường. Tuy nhiên, vì
+chia đều công suất máy móc và không thích ứng với can nhiễu giữa các người dùng, AnalyticalRIS bão hòa ở mức
+tốc độ thấp ($\approx 1,98$ bit/s/Hz) và không thể đáp ứng yêu cầu QoS.
 
 \subsection{Đánh đổi giữa chất lượng nghiệm và độ trễ tính toán}
 \label{ssec:danh-doi-ly-thuyet}
 
-Sự đối lập giữa các phương pháp trên cho thấy bài toán đánh đổi căn bản trong điều khiển vô tuyến.
-Nhóm tối ưu lặp (AO--SCA, AO--Grid) đạt tổng tốc độ cao nhờ tìm kiếm trực tiếp trên miền vật lý,
-nhưng phải đánh giá lại hàm mục tiêu từ hàng nghìn đến hàng chục nghìn lần cho mỗi kịch bản, nên
-độ trễ kéo dài từ vài trăm mili giây đến vài giây trên CPU. AnalyticalRIS ra quyết định gần như tức
-thì nhưng chất lượng thấp. DRL chuyển gánh nặng tính toán sang giai đoạn huấn luyện ngoại tuyến;
-khi vận hành, chính sách chỉ cần một lượt suy luận. Câu hỏi thực nghiệm là chất lượng của chính sách
-học được nằm ở đâu giữa hai thái cực này. Cơ chế chi tiết của ba phương pháp đối chiếu được trình bày
-ở Mục~\ref{sec:doi-chieu-ao}.
+Sự đối lập giữa các phương pháp trên làm sáng tỏ bài toán đánh đổi căn bản trong điều khiển vô tuyến:
+\begin{itemize}
+\item \textbf{Nhóm tối ưu lặp (AO--Grid và AO--SCA):} Đạt chất lượng tổng tốc độ rất cao nhờ tìm kiếm trực
+  tiếp trên miền biến vật lý. Tuy nhiên, khối lượng tính toán khổng lồ (phải đánh giá lại hàm toán học từ
+  hàng nghìn đến hàng chục nghìn lần cho một kịch bản kênh) khiến độ trễ kéo dài từ vài trăm mili-giây đến
+  vài giây trên CPU, làm nghiệm bị lỗi thời khi kênh sóng biến thiên nhanh.
+\item \textbf{Phương pháp giải tích (AnalyticalRIS):} Ra quyết định gần như tức thì ($\approx 0,2$ ms)
+  nhưng chất lượng đường truyền lại quá kém, không đáp ứng được QoS trong cấu hình của luận văn.
+\end{itemize}
+Nghịch lý này mở ra không gian nghiên cứu cho học tăng cường sâu (DRL): chuyển toàn bộ gánh nặng tính toán
+lặp tốn kém sang giai đoạn huấn luyện ngoại tuyến (offline training). Khi triển khai trực tuyến, mạng
+nơ-ron chỉ cần duy nhất một lượt lan truyền xuôi (forward pass) để đưa ra quyết định với độ trễ thấp (trung
+vị dưới 1 ms trên CPU), tạo nên sự cân bằng giữa chất lượng truyền dẫn gần nhóm AO và tốc độ phản ứng gần
+phương pháp giải tích. Cơ chế chi tiết của ba phương pháp đối chiếu được trình bày ở
+Mục~\ref{sec:doi-chieu-ao}.
 
 \section{Các nghiên cứu liên quan}
 \label{sec:nghien-cuu-lien-quan}
 
-Các công trình liên quan trực tiếp đến luận văn có thể chia thành bốn nhóm. Nhóm thứ nhất xây dựng
-nền tảng RSMA~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals, Joudeh2016RSMASumRate}, trong đó
-RSMA được chỉ ra là cầu nối quản lý nhiễu mềm giữa SDMA và NOMA~\cite{Mao2018RSMABridging,
-Mao2022RSMAFundamentals}. Nhóm thứ hai nghiên cứu RIS và STAR--RIS, từ RIS phản
-xạ~\cite{Wu2019IRSBeamforming, DiRenzo2020SmartRadio, Wu2021IRSTutorial} đến mô hình STAR--RIS, các
-giao thức ES, MS, TS và mô hình pha ghép~\cite{Xu2021STARRIS, Mu2021STARAided,
-Liu2021STARCoupledPhase, Wang2022STAROptimization}. Nhóm thứ ba kết hợp RSMA với RIS hoặc STAR--RIS
-để tối ưu tốc độ, bảo mật hoặc hiệu năng hệ thống~\cite{Li2022RSMARISInterplay,
-Aboumahmoud2024RISRSMASurvey, Ge2024RSMAMassiveMIMO, Liu2024DiscretePhaseRSMARate,
-Hashempour2024SecureSTARRS, Maghrebi2024CooperativeActiveSTAR}, phần lớn bằng tối ưu lặp trên hệ
-nhiều anten. Nhóm thứ tư dùng học tăng cường cho STAR--RIS hoặc RSMA: Zhong và cộng sự dùng học tăng
-cường lai với mô hình pha ghép~\cite{Zhong2022HybridRLSTAR}, còn Meng và cộng sự dùng PPO để cực đại
-tổng tốc độ trong mạng MU-MISO STAR--RIS hỗ trợ RSMA~\cite{Meng2024PPOSTARRSMA}.
-Bảng~\ref{tab:ch1-nghien-cuu} tổng hợp các công trình tiêu biểu và giới hạn so với hướng tiếp cận của
-luận văn.
+Để giải quyết bài toán gia tăng hiệu quả phổ tần, mở rộng vùng phủ sóng và tối ưu hóa tài nguyên vô tuyến
+trong các mạng thế hệ mới, các công trình khoa học liên quan trực tiếp đến luận văn có thể được tổng hợp và
+phân loại thành bốn nhóm nghiên cứu chính:
+\begin{enumerate}
+\item \textbf{Nhóm nghiên cứu về nền tảng và nguyên lý của kỹ thuật RSMA:} Các công trình tiên phong của
+  Mao, Clerckx và cộng sự (2018, 2022)~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals} cùng Joudeh và
+  Clerckx (2016)~\cite{Joudeh2016RSMASumRate} đã chỉ ra ưu điểm của RSMA như một cầu nối mềm dẻo giữa SDMA
+  và NOMA, mang lại hiệu năng truyền dẫn cao và bền vững ngay cả trong điều kiện CSI không hoàn hảo hay mạng
+  bị quá tải.
+\item \textbf{Nhóm nghiên cứu về bề mặt thông minh RIS và STAR--RIS:} Bắt đầu từ các công trình đặt nền
+  móng của Di Renzo và cộng sự (2020)~\cite{DiRenzo2020SmartRadio}, Wu và Zhang (2019,
+  2021)~\cite{Wu2019IRSBeamforming, Wu2021IRSTutorial} cho RIS phản xạ, các nghiên cứu của Xu, Liu, Mu và
+  cộng sự (2021)~\cite{Xu2021STARRIS, Mu2021STARAided} cùng Khalid và cộng sự
+  (2022)~\cite{Khalid2022STARDesign} đã đề xuất mô hình STAR--RIS với vùng phủ sóng toàn không gian
+  $360^\circ$ và các giao thức vận hành ES, MS, TS.
+\item \textbf{Nhóm nghiên cứu về sự kết hợp giữa RSMA và RIS/STAR--RIS:} Các công trình của Li và cộng sự
+  (2022)~\cite{Li2022RSMARISInterplay}, Ge và cộng sự (2024)~\cite{Ge2024RSMAMassiveMIMO}, Hashempour và
+  cộng sự (2024)~\cite{Hashempour2024SecureSTARRS} cùng các nghiên cứu khác~\cite{Aboumahmoud2024RISRSMASurvey,
+  Liu2024DiscretePhaseRSMARate, Maghrebi2024CooperativeActiveSTAR} đã cho thấy lợi ích của việc kết hợp
+  công cụ quản lý nhiễu mềm dẻo RSMA với khả năng định hình môi trường truyền sóng của RIS và STAR--RIS, dù
+  hầu hết vẫn tiếp cận bằng tối ưu hóa lặp truyền thống trên hệ đa anten MISO/MIMO.
+\item \textbf{Nhóm nghiên cứu ứng dụng học tăng cường sâu (DRL):} Zhong và cộng sự
+  (2022)~\cite{Zhong2022HybridRLSTAR} áp dụng DRL lai để điều khiển STAR--RIS tiết kiệm công suất phát; đặc
+  biệt Meng và cộng sự (2024)~\cite{Meng2024PPOSTARRSMA} đã ứng dụng thành công thuật toán PPO kết hợp phương
+  pháp xử lý thỏa mãn ràng buộc (CSP) để tối đa hóa tổng tốc độ trong mạng MISO STAR--RIS hỗ trợ RSMA.
+\end{enumerate}
+Dưới đây, Bảng~\ref{tab:ch1-nghien-cuu} tổng hợp các công trình nghiên cứu tiêu biểu liên quan, làm rõ sự
+kế thừa cũng như giới hạn so với định hướng tiếp cận của luận văn.
 
-\input{floats/tab-ch1-nghien-cuu}
+\begin{table}[htbp]
+\centering
+\caption{Tổng hợp các công trình nghiên cứu tiêu biểu liên quan}
+\label{tab:ch1-nghien-cuu}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}p{2.8cm} Y Y@{}}
+\toprule
+\textbf{Công trình} & \textbf{Hệ thống và phương pháp} & \textbf{Điểm liên quan và giới hạn so với luận văn} \\
+\midrule
+Mao và cộng sự (2018, 2022)~\cite{Mao2018RSMABridging, Mao2022RSMAFundamentals} & RSMA đa người dùng; phân
+tích bậc tự do (DoF) và tối ưu hóa bộ tiền mã hóa. & Cung cấp nền tảng lý thuyết phân chia luồng chung và
+luồng riêng; nghiên cứu chưa xét đến sự hiện diện của STAR--RIS và bài toán biểu diễn hành động cho DRL. \\
+\addlinespace
+Xu, Mu và cộng sự (2021)~\cite{Xu2021STARRIS, Mu2021STARAided} & Đề xuất mô hình phần cứng STAR--RIS; thiết
+lập ba giao thức ES, MS và TS. & Cung cấp mô hình truyền -- phản xạ đồng thời và cơ chế bảo toàn năng lượng;
+chưa giải quyết bài toán tối ưu phân bổ tài nguyên bằng DRL. \\
+\addlinespace
+Li và cộng sự (2022)~\cite{Li2022RSMARISInterplay} & Mạng RIS kết hợp RSMA; phân tích tương tác và so sánh
+miền tốc độ. & Làm rõ tiềm năng kết hợp của hai công nghệ; nghiên cứu chưa tập trung vào cấu trúc đặc thù của
+hệ SISO và thiết kế bộ giải mã hành động cho học máy. \\
+\addlinespace
+Meng và cộng sự (2024)~\cite{Meng2024PPOSTARRSMA} & STAR--RIS hỗ trợ RSMA cho hệ MU-MISO; sử dụng thuật
+toán PPO. & Cho thấy PPO có thể áp dụng tốt cho bài toán liên tục; luận văn mở rộng việc khảo sát và đối
+chiếu sang nhóm off-policy (DDPG, TD3) cùng các phương pháp tối ưu lặp AO trên cùng một hệ thống. \\
+\addlinespace
+Zhong và cộng sự (2022)~\cite{Zhong2022HybridRLSTAR} & STAR--RIS với mô hình pha ghép; sử dụng học tăng
+cường lai (Hybrid DDPG, DDPG-DQN). & Khai thác cơ chế điều khiển phần tử STAR--RIS; tuy nhiên mục tiêu tối
+ưu (tiết kiệm công suất) và mô hình mạng không sử dụng kỹ thuật RSMA trong hệ SISO như luận văn. \\
+\addlinespace
+Ge và cộng sự (2024)~\cite{Ge2024RSMAMassiveMIMO} & STAR--RIS hỗ trợ RSMA trong hệ thống Massive MIMO;
+thuật toán dốc chiếu PGAM. & Hệ thống sử dụng số lượng lớn anten tại trạm phát và mục tiêu tối ưu khác
+biệt; không phản ánh được hiện tượng nhiễu liên luồng gay gắt do thiếu véc-tơ tạo búp sóng không gian của
+hệ SISO. \\
+\bottomrule
+\end{tabularx}
+\tablesource{Tác giả tự tổng hợp từ các công trình trích dẫn khoa học (2026)}
+\end{table}
 
 \section{Khoảng trống nghiên cứu và định vị của luận văn}
 \label{sec:khoang-trong}
 
-Từ tổng quan trên, bài toán của luận văn nằm ở một giao điểm có ba đặc thù:
+Qua việc tổng hợp và phân tích các công trình nghiên cứu trong và ngoài nước, có thể nhận thấy sự kết hợp
+giữa kỹ thuật đa truy cập phân chia tốc độ (RSMA), bề mặt thông minh đồng thời truyền và phản xạ
+(STAR--RIS) và học tăng cường sâu (DRL) đang là một chủ đề thu hút sự quan tâm lớn của cộng đồng học thuật.
+Tuy nhiên, bài toán tối ưu phân bổ tài nguyên mà luận văn này hướng tới tồn tại một giao điểm đặc thù và
+một khoảng trống nghiên cứu rõ rệt:
 \begin{itemize}
-\item \textbf{Hệ SISO với nhiễu giữa các luồng riêng.} Phần lớn công trình về RSMA kết hợp STAR--RIS
-  khảo sát hệ nhiều anten, nơi BS dùng tiền mã hóa để tách các luồng. Trong hệ SISO, BS chỉ có một
-  anten nên không thể tách các luồng riêng theo không gian và nhiễu nội bộ rất gay gắt.
-\item \textbf{Thách thức khi để DRL tự học trên miền hành động nguyên bản.} Nếu xem mạng nơ-ron như
-  hộp đen, tác tử phải vừa học rằng nhiều luồng riêng gây nhiễu lẫn nhau, vừa học chọn người dùng ưu
-  tiên, vừa phải tự thỏa mãn các ràng buộc bảo toàn năng lượng và chia tốc độ.
-\item \textbf{Chi phí tính toán của tối ưu lặp.} Các phương pháp AO có thể đạt chất lượng tốt nhưng
-  cần hàng nghìn đến hàng chục nghìn lần đánh giá hàm mục tiêu cho mỗi kịch bản.
+\item \textbf{Đặc thù của hệ thống SISO và tính chất nhiễu phức tạp:} Phần lớn các công trình hiện nay về
+  RSMA kết hợp STAR--RIS đều khảo sát trên hệ thống đa anten (MISO hoặc Massive MIMO), nơi trạm gốc có thể
+  tận dụng các véc-tơ tiền mã hóa không gian nhiều chiều để hỗ trợ phân tách các luồng tín hiệu. Ngược lại,
+  trong hệ thống một đầu vào -- một đầu ra (SISO) mà luận văn nghiên cứu, trạm gốc chỉ có duy nhất một anten
+  phát, hoàn toàn không có khả năng tạo búp sóng không gian để phân tách các luồng riêng, dẫn đến mức can
+  nhiễu nội bộ rất gay gắt.
+\item \textbf{Thách thức khi để DRL tự học trên không gian hành động nguyên bản:} Nếu áp dụng DRL theo cách
+  tiếp cận thông thường -- tức là xem mạng nơ-ron như một hộp đen và yêu cầu mạng tự mò mẫm học toàn bộ không
+  gian hành động vật lý rộng lớn từ con số không -- tác tử học máy sẽ phải vừa học để hiểu được rằng nhiều
+  luồng riêng gây nhiễu lẫn nhau trầm trọng, vừa phải học cách chọn người dùng ưu tiên, vừa phải xoay xở
+  thỏa mãn các ràng buộc bảo toàn năng lượng và phân chia tốc độ, khiến quá trình huấn luyện dễ bị mất ổn
+  định.
+\item \textbf{Hạn chế về chi phí tính toán của các phương pháp tối ưu lặp:} Các phương pháp tối ưu hóa toán
+  học truyền thống (như nhóm tối ưu luân phiên AO) có thể tìm được nghiệm có chất lượng tổng tốc độ rất tốt
+  nhưng đòi hỏi hàng nghìn đến hàng chục nghìn lần đánh giá lại hàm toán học, kéo dài độ trễ tính toán từ
+  hàng trăm mili-giây đến vài giây, khó đáp ứng yêu cầu phân bổ trực tuyến trong môi trường truyền sóng biến
+  thiên nhanh.
 \end{itemize}
 
-Vì vậy, đóng góp mà luận văn hướng tới không phải là một thuật toán DRL mới, mà là cách biểu diễn
-hành động có cấu trúc vật lý. Câu hỏi nghiên cứu là: có thể dùng hiểu biết về hệ SISO--RSMA và cơ
-chế căn pha để định hình một miền hành động thu hẹp, luôn khả thi và thuận lợi hơn cho DRL hay
-không? Từ câu hỏi này, luận văn được định vị qua ba điểm:
+Xuất phát từ những phân tích trên, khoảng trống nghiên cứu mà luận văn tập trung giải quyết không phải là
+việc cố gắng tuyên bố một thuật toán DRL hoàn toàn mới, mà là bài toán thiết kế cách biểu diễn hành động
+(action representation) có cấu trúc vật lý. Câu hỏi cốt lõi được đặt ra là: Liệu chúng ta có thể tận dụng
+các hiểu biết toán học và đặc tính vật lý của hệ SISO--RSMA cùng cơ chế căn pha để định hình một miền hành
+động thu hẹp, an toàn và thuận lợi hơn cho DRL hay không? Từ câu hỏi nghiên cứu này, định vị khoa học của
+luận văn được xác lập qua ba điểm then chốt:
 \begin{enumerate}
-\item \textbf{Kết hợp mô hình vật lý và học máy.} Đưa tri thức vật lý vào một bộ giải mã hành động
-  dùng chung, tự động bảo đảm các ràng buộc miền và cung cấp pha tham chiếu theo kênh, để mạng chỉ
-  cần học phần hiệu chỉnh.
-\item \textbf{So sánh các thuật toán DRL trên cùng hệ quy chiếu.} Đặt DDPG, TD3 (off-policy) và PPO
-  (on-policy) trên cùng mô hình, cùng bộ giải mã, cùng ngân sách huấn luyện và cùng ngân hàng kịch
-  bản kênh.
-\item \textbf{Làm rõ đánh đổi giữa chất lượng, QoS và độ trễ.} Đối chiếu DRL với các phương pháp tối
-  ưu lặp (AO--SCA, AO--Grid) và giải tích (AnalyticalRIS) để cung cấp một bản đồ lựa chọn dựa trên số
-  liệu đo được.
+\item \textbf{Kết hợp hài hòa giữa mô hình vật lý và học máy:} Tích hợp sẵn các tri thức vật lý vào một bộ
+  giải mã hành động có cấu trúc dùng chung để tự động bảo đảm các ràng buộc vật lý cơ bản và cung cấp pha
+  tham chiếu giải tích theo kênh truyền, giúp mạng nơ-ron DRL chỉ cần tập trung học phần tinh chỉnh thích
+  nghi còn lại.
+\item \textbf{Khảo sát đa dạng và công bằng giữa các thuật toán DRL:} Đặt ba thuật toán DRL tiêu biểu -- gồm
+  hai thuật toán học ngoài chính sách (DDPG, TD3) và một thuật toán học theo chính sách hiện hành (PPO) --
+  lên cùng một hệ quy chiếu: cùng mô hình tính toán, cùng bộ giải mã hành động, cùng ngân sách huấn luyện và
+  cùng ngân hàng kịch bản kênh độc lập để đánh giá khách quan tính ổn định và tổng quát.
+\item \textbf{Làm rõ bức tranh đánh đổi giữa chất lượng nghiệm, yêu cầu QoS và độ trễ ra quyết định:} Định
+  vị DRL như một công cụ ra quyết định trực tuyến nhanh (trung vị dưới 1 ms trên CPU), đối chiếu trực tiếp
+  với các thuật toán tối ưu lặp (AO--SCA, AO--Grid) và giải tích (AnalyticalRIS) để cung cấp một bản đồ lựa
+  chọn thực tế dựa trên sự đánh đổi rõ ràng giữa chất lượng truyền dẫn và thời gian tính toán.
 \end{enumerate}
 
 \section{Kết luận chương}
 \label{sec:ket-luan-ch1}
 
-Chương~\ref{chap:co-so-ly-thuyet} đã trình bày bản chất của bài toán phân bổ tài nguyên và đánh đổi
-giữa hiệu năng tổng thể với QoS; sự tiến hóa của các kỹ thuật đa truy cập từ OMA, SDMA, NOMA đến
-RSMA với cơ chế chia luồng chung--riêng chỉ cần một tầng SIC; nguyên lý STAR--RIS ở chế độ ES phục
-vụ người dùng ở cả hai phía; kiến trúc Actor--Critic và ba thuật toán DDPG, TD3, PPO; cùng cách vận
-hành và chi phí của các phương pháp tối ưu truyền thống. Phần tổng quan nghiên cứu cho thấy bài toán
-SISO STAR--RIS hỗ trợ RSMA không chỉ khó vì số chiều lớn mà còn vì cấu trúc nhiễu đặc thù khi BS không
-có bậc tự do không gian. Chương~\ref{chap:mo-hinh-he-thong} sẽ xây dựng mô hình toán học của hệ thống,
-phân tích nhiễu giữa các luồng riêng và vai trò của luồng chung, làm tiền đề cho thiết kế ở
-Chương~\ref{chap:phuong-phap}.
+Chương~\ref{chap:co-so-ly-thuyet} đã hệ thống hóa toàn bộ bức tranh cơ sở lý thuyết và các nghiên cứu liên
+quan trực tiếp đến đề tài luận văn:
+\begin{itemize}
+\item Đã phân tích bản chất của bài toán phân bổ tài nguyên và sự đánh đổi giữa hiệu năng tổng thể với chất
+  lượng dịch vụ (QoS) của người dùng trong môi trường mạng vô tuyến chịu ảnh hưởng của can nhiễu liên người
+  dùng.
+\item Đã trình bày sự tiến hóa của các kỹ thuật đa truy cập từ OMA, SDMA, NOMA đến RSMA, làm rõ cơ chế quản
+  lý nhiễu mềm dẻo của RSMA thông qua việc phân chia thông điệp thành luồng chung và các luồng riêng với chỉ
+  duy nhất một tầng khử nhiễu liên tiếp (SIC).
+\item Đã làm rõ nguyên lý hoạt động của bề mặt thông minh STAR--RIS ở chế độ chia năng lượng (ES), mở rộng
+  phạm vi phục vụ ra toàn không gian $360^\circ$ cho cả người dùng phản xạ và truyền qua.
+\item Đã giới thiệu khung kiến trúc Actor--Critic trong học tăng cường sâu (DRL), phân tích cơ chế học của
+  ba thuật toán DDPG, TD3, PPO; đồng thời mô tả cách thức vận hành và chi phí tính toán của các phương pháp
+  tối ưu truyền thống (AO--SCA, AO--Grid, AnalyticalRIS).
+\item Đã tổng hợp các nghiên cứu liên quan, xác định rõ khoảng trống nghiên cứu và thiết lập định vị của luận
+  văn: giải quyết bài toán phân bổ tài nguyên SISO STAR--RIS hỗ trợ RSMA bằng cách kết hợp bộ giải mã hành
+  động có cấu trúc vật lý với các thuật toán DRL.
+\end{itemize}
+Những nền tảng lý thuyết và phân tích này khẳng định rằng: bài toán tối ưu trong hệ SISO STAR--RIS hỗ trợ
+RSMA không chỉ phức tạp vì số chiều biến lớn, mà còn mang tính chất thách thức do cấu trúc nhiễu đặc thù khi
+trạm gốc thiếu véc-tơ tạo búp sóng không gian. Đây chính là cơ sở trực tiếp để
+Chương~\ref{chap:mo-hinh-he-thong} đi sâu vào việc xây dựng mô hình toán học của hệ thống, phân tích chi tiết
+hành vi của nhiễu luồng riêng và vai trò bù trừ của luồng chung, làm tiền đề vững chắc cho việc thiết kế
+giải thuật ở các chương tiếp theo.
