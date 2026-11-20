@@ -1,7 +1,7 @@
 # Tài liệu tham khảo của luận văn
 
 Thư mục `references/pdfs/` chứa PDF của các tài liệu trong `thesis_latex/references.bib`. Tên file dùng
-**số thứ tự nội bộ của dự án** (01–41), **không trùng** với số trích dẫn [n] trong luận văn (biblatex IEEE
+**số thứ tự nội bộ của dự án** (01–42), **không trùng** với số trích dẫn [n] trong luận văn (biblatex IEEE
 đánh số theo thứ tự trích lần đầu). Bảng dưới đây đối chiếu hai hệ số theo bản **v8**. Danh mục nguồn tải:
 `open_access_pdfs.tsv`.
 
@@ -41,7 +41,8 @@ Thư mục `references/pdfs/` chứa PDF của các tài liệu trong `thesis_la
 | Khóa BibTeX | Tài liệu | File / trạng thái |
 |---|---|---|
 | Ding2017NOMASurvey | Ding, Lei, Karagiannidis, Schober, Yuan, Bhargava 2017 – NOMA survey (IEEE JSAC) | `33_ding_2017_noma_survey.pdf` (arXiv) |
-| Tabassum2016NOMAULDL | Tabassum, Ali, Hossain, Hossain, Kim 2016 – NOMA uplink/downlink (thay cho Islam et al. 2017, chưa có PDF) | `34_tabassum_2016_noma_uplink_downlink.pdf` (arXiv) |
+| Tabassum2016NOMAULDL | Tabassum, Ali, Hossain, Hossain, Kim 2016 – NOMA uplink/downlink | `34_tabassum_2016_noma_uplink_downlink.pdf` (arXiv) |
+| Islam2017PowerDomainNOMA | Islam, Avazov, Dobre, Kwak 2017 – Power-domain NOMA in 5G (IEEE COMST) | `42_islam_2017_power_domain_noma.pdf` (arXiv) |
 | Bezdek2003AOConvergence | Bezdek & Hathaway 2003 – Convergence of alternating optimization | **không đưa vào repo** (bản quét mượn liên thư viện) |
 | Mnih2015DQN | Mnih et al. 2015 – DQN, Nature | **không đưa vào repo** (bản Nature có bản quyền) |
 | Holm1979 | Holm 1979 – sequentially rejective multiple test | **không đưa vào repo** (bản JSTOR) |
