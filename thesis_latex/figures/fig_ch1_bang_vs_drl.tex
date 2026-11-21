@@ -1,0 +1,99 @@
+% Hinh: So sanh hoc tang cuong dang bang (Q-learning, roi rac hoa hanh dong) va hoc tang cuong sau
+% Actor-Critic (mang no-ron xap xi). Y tuong bo cuc do tac gia de xuat; ve lai bang TikZ.
+\begin{tikzpicture}[font=\small,>=Stealth,line width=0.5pt,
+  pnl/.style={draw=#1!75!black,rounded corners=6pt,line width=0.9pt,fill=#1!4},
+  hdr/.style={fill=#1!75!black,text=white,rounded corners=6pt,font=\small\bfseries,minimum height=0.62cm},
+  sbox/.style={draw=cUEc!80!black,fill=cUEc!12,rounded corners=3pt,minimum width=0.95cm,minimum height=0.95cm,font=\normalsize},
+  obox/.style={draw=#1!80!black,fill=#1!10,rounded corners=3pt,align=center},
+  neu/.style={circle,draw=#1!70!black,fill=#1!35,inner sep=0pt,minimum size=0.24cm},
+  cel/.style={draw=gray!60,minimum height=0.5cm,inner sep=1pt,font=\scriptsize},
+]
+\colorlet{cL}{red!80!black}\colorlet{cR}{blue!70!black}
+
+% =================== PANEL TRAI ===================
+\fill[pnl=cL] (0,0) rectangle (8.2,8.2);
+\node[hdr=cL,minimum width=8.2cm,anchor=north west] at (0,8.2) {Học tăng cường dạng bảng (Q-learning)};
+
+\node[sbox] (sL) at (0.85,4.9) {$s$};
+% bang Q
+\begin{scope}[shift={(1.85,3.35)}]
+  \fill[cL!6,rounded corners=4pt] (-0.15,0.05) rectangle (5.05,3.3);
+  \draw[cL!60,rounded corners=4pt] (-0.15,0.05) rectangle (5.05,3.3);
+  \node[font=\small\bfseries,text=cL] at (2.45,3.7) {$Q(s,a)$};
+  \fill[cL!15] (0.6,2.65) rectangle (4.9,3.15); \fill[cL!15] (0,0.25) rectangle (0.6,2.65);
+  \foreach \y in {3.15,2.65,2.05,1.45,0.85,0.25}{\draw[gray!60] (0,\y) -- (4.9,\y);}
+  \foreach \x in {0,0.6,1.75,2.85,3.6,4.9}{\draw[gray!60] (\x,0.25) -- (\x,3.15);}
+  \foreach \c/\x in {{$a_1$}/1.175,{$a_2$}/2.3,{$\cdots$}/3.225,{$a_N$}/4.25}{\node[font=\scriptsize\bfseries] at (\x,2.9) {\c};}
+  \foreach \r/\y in {{$s_1$}/2.35,{$s_2$}/1.75,{$\vdots$}/1.15,{$s_M$}/0.55}{\node[font=\scriptsize\bfseries] at (0.3,\y) {\r};}
+  \node[font=\scriptsize] at (1.175,2.35) {$Q(s_1,a_1)$};
+  \foreach \x/\y in {2.3/2.35,3.225/2.35,1.175/1.75,2.3/1.75,1.175/1.15,2.3/1.15,1.175/0.55,2.3/0.55,3.225/0.55}{\node[font=\scriptsize] at (\x,\y) {$\cdots$};}
+  \node[font=\scriptsize] at (4.25,0.55) {$Q(s_M,a_N)$};
+\end{scope}
+\node[obox=cL,minimum width=0.95cm,minimum height=0.95cm] (aL) at (7.5,4.9) {$a_d$};
+\draw[->,line width=0.9pt] (sL.east) -- (1.68,4.9);
+\draw[->,line width=0.9pt] (6.9,4.9) -- (aL.west);
+\node[font=\scriptsize,align=center,text=cL!80!black] at (7.5,4.05) {$\arg\max_a$};
+
+% callout roi rac hoa
+\draw[cL!70,dashed] (1.7,3.4) -- (0.35,2.75); \draw[cL!70,dashed] (6.9,3.4) -- (7.85,2.75);
+\draw[cL!70,dashed,rounded corners=5pt] (0.35,0.3) rectangle (7.85,2.75);
+\node[anchor=west,font=\scriptsize,text=gray!35!black] at (0.5,2.45) {Rời rạc hóa mỗi chiều hành động thành $N_{\mathrm{disc}}$ mức:};
+\draw[->,line width=0.8pt] (0.6,1.45) -- (3.8,1.45) node[right,font=\small] {$\alpha$};
+\foreach \x/\l in {0.75/{0},1.3/{0{,}1},2.95/{0{,}9},3.5/{1}}{\fill[cL] (\x,1.45) circle (0.075); \node[font=\scriptsize,below] at (\x,1.38) {$\l$};}
+\node[font=\scriptsize] at (2.12,1.2) {$\cdots$};
+\node[obox=cL,text width=2.95cm,font=\small] at (6.2,1.45)
+  {$|\mathcal{A}_d| = (N_{\mathrm{disc}})^{d_a}$\\[2pt] \scriptsize ví dụ $11^{57} \approx 2{,}3\cdot10^{59}$};
+
+% =================== MUI TEN GIUA ===================
+\fill[cR!35] (8.45,3.9) -- (8.85,3.9) -- (8.85,3.6) -- (9.25,4.1) -- (8.85,4.6) -- (8.85,4.3) -- (8.45,4.3) -- cycle;
+
+% =================== PANEL PHAI ===================
+\fill[pnl=cR] (9.5,0) rectangle (18.6,8.2);
+\node[hdr=cR,minimum width=9.1cm,anchor=north west] at (9.5,8.2) {Học tăng cường sâu (Actor--Critic)};
+
+\node[sbox] (sR) at (10.3,4.9) {$s$};
+
+\newcommand{\nn}[4]{% x, y, mau ra, ten
+  \begin{scope}[shift={(#1,#2)}]
+    \draw[cR!50,fill=cR!8,rounded corners=5pt] (0,-1.05) rectangle (3.9,1.15);
+    \node[font=\small\bfseries] at (1.95,0.85) {#4};
+    \foreach \i in {0,1,2}{\node[neu=cUEc] (i\i) at (0.4,0.35-0.45*\i) {};}
+    \foreach \i in {0,1,2}{\node[neu=cUEd] (h\i) at (1.3,0.35-0.45*\i) {};}
+    \foreach \i in {0,1,2}{\node[neu=cUEd] (g\i) at (2.6,0.35-0.45*\i) {};}
+    \foreach \i in {0,1,2}{\foreach \j in {0,1,2}{\draw[gray!55,line width=0.25pt] (i\i) -- (h\j);}}
+    \node[font=\scriptsize] at (1.95,-0.1) {$\cdots$};
+    #3
+  \end{scope}}
+
+% Actor
+\nn{11.25}{5.95}{%
+  \foreach \i in {0,1,2}{\node[neu=cKenh] (o\i) at (3.45,0.35-0.45*\i) {};}
+  \foreach \i in {0,1,2}{\foreach \j in {0,1,2}{\draw[gray!55,line width=0.25pt] (g\i) -- (o\j);}}
+}{Actor $\pi_\theta(s)$}
+% Critic
+\nn{11.25}{2.75}{%
+  \node[neu=cUEa,minimum size=0.28cm] (q0) at (3.45,-0.1) {};
+  \foreach \i in {0,1,2}{\draw[gray!55,line width=0.25pt] (g\i) -- (q0);}
+}{Critic $Q_\phi(s,a)$}
+
+\node[obox=cUEd,text width=3.05cm,font=\small] (aR) at (17.05,5.95)
+  {$a \in [-1,1]^{d_a}$\\[1pt] \scriptsize $[0{,}73;\,-0{,}18;\,\dots;\,0{,}92]$};
+\node[obox=cUEd,minimum width=2.2cm,minimum height=0.8cm] (qR) at (17.05,2.75) {$q \approx 5{,}37$};
+
+\draw[->,line width=0.9pt] (sR.east) -- ++(0.3,0) |- (11.25,5.95);
+\draw[->,line width=0.9pt] (sR.east) -- ++(0.3,0) |- (11.25,2.95);
+\draw[->,line width=0.9pt] (15.15,5.95) -- (aR.west);
+\draw[->,line width=0.9pt] (15.15,2.65) -- (qR.west);
+% a vao Critic (diem sua 1)
+\draw[->,line width=0.9pt,cUEd!80!black] (aR.south) -- ++(0,-0.75) -| (13.2,3.9);
+\node[font=\scriptsize,text=cUEd!80!black,anchor=south east] at (16.6,4.42) {hành động $a$ cũng là đầu vào của Critic};
+\node[font=\scriptsize,text=gray!35!black] at (17.05,5.15) {$d_a = 57 \to 393$};
+
+% Phan chinh sach Gaussian (PPO)
+\draw[cR!50,fill=white,rounded corners=5pt] (9.85,0.3) rectangle (18.25,1.5);
+\draw[->,line width=0.7pt] (10.1,0.5) -- (13.3,0.5) node[right,font=\small] {$a$};
+\fill[cUEd!30,domain=10.2:13.0,samples=60] plot (\x,{0.5+0.85*exp(-((\x-11.6)^2)/0.45)}) -- (13.0,0.5) -- (10.2,0.5) -- cycle;
+\draw[cUEd!80!black,line width=0.9pt,domain=10.2:13.0,samples=60] plot (\x,{0.5+0.85*exp(-((\x-11.6)^2)/0.45)});
+\node[anchor=west,font=\scriptsize,align=left] at (13.85,0.9)
+  {PPO: chính sách Gaussian $\pi_\theta(a \mid s)$\\ DDPG, TD3: xác định $a = \mu_\theta(s)$};
+\end{tikzpicture}

@@ -242,6 +242,17 @@ khi hành động cần quyết định lại bao gồm hàng chục đến hàn
 chung, phân bổ công suất luồng riêng, tỷ lệ chia tốc độ và hệ số pha, năng lượng của từng phần tử
 STAR--RIS. Nếu cố gắng rời rạc hóa không gian hành động này, số lượng tổ hợp hành động sẽ bùng nổ theo cấp
 số nhân (curse of dimensionality).
+Hình~\ref{fig:ch1-bang-vs-drl} so sánh hai cách tiếp cận: học tăng cường dạng bảng buộc phải rời rạc hóa
+hành động và lưu giá trị cho từng cặp trạng thái -- hành động, trong khi học tăng cường sâu dùng mạng nơ-ron để
+xấp xỉ trực tiếp chính sách và hàm giá trị trên không gian liên tục.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{\input{figures/fig_ch1_bang_vs_drl}}
+\caption{So sánh học tăng cường dạng bảng với rời rạc hóa hành động và học tăng cường sâu dùng mạng nơ-ron xấp xỉ}
+\label{fig:ch1-bang-vs-drl}
+\figuresource{Tác giả xây dựng (2026)}
+\end{figure}
 
 Để giải quyết thách thức trên, học tăng cường sâu (Deep Reinforcement Learning -- DRL) ra đời bằng cách
 kết hợp học tăng cường với mạng nơ-ron sâu (Deep Neural Networks -- DNN) đóng vai trò là các hàm xấp xỉ
